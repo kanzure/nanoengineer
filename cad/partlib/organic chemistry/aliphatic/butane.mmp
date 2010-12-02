@@ -1,0 +1,43 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.404898) (0.355500, -0.642000, 3.493000) (1.000000)
+egroup (View Data)
+group (butane)
+info opengroup open = True
+mol (butane) def
+atom 1 (6) (-99, 279, -1607) def
+atom 2 (1) (991, 279, -1607) def
+bond1 1
+atom 3 (1) (-463, -749, -1607) def
+bond1 1
+atom 4 (1) (-463, 793, -717) def
+bond1 1
+atom 5 (6) (-613, 1004, -2865) def
+bond1 1
+atom 6 (6) (-99, 279, -4122) def
+bond1 5
+atom 7 (1) (-1702, 1004, -2865) def
+bond1 5
+atom 8 (1) (-249, 2033, -2865) def
+bond1 5
+atom 9 (1) (-463, -749, -4122) def
+bond1 6
+atom 10 (1) (991, 279, -4122) def
+bond1 6
+atom 11 (6) (-613, 1004, -5379) def
+bond1 6
+atom 12 (1) (-1702, 1004, -5379) def
+bond1 11
+atom 13 (1) (-249, 2033, -5379) def
+bond1 11
+atom 14 (1) (-249, 491, -6269) def
+bond1 11
+egroup (butane)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part butane

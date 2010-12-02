@@ -1,0 +1,109 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.665687, 0.445918, -0.567720, -0.188978) (5.321018) (-28.503000, -8.448000, 18.343500) (1.000000)
+egroup (View Data)
+group (cocaine)
+info opengroup open = True
+mol (cocaine) def
+atom 1 (6) (29427, 8753, -22596) def
+atom 2 (6) (29410, 10242, -22981) def
+bond1 1
+atom 3 (6) (29187, 10976, -21642) def
+bond1 2
+atom 4 (6) (27079, 10201, -20439) def
+atom 5 (6) (29085, 8781, -21095) def
+bond1 1
+atom 6 (6) (27554, 8801, -20868) def
+bond1 5 4
+atom 7 (6) (27120, 7722, -19887) def
+info atom atomtype = sp2
+bond1 6
+atom 8 (6) (27006, 11062, -16815) def
+info atom atomtype = sp2
+atom 9 (6) (26198, 11764, -15915) def
+info atom atomtype = sp2
+bonda 8
+atom 10 (6) (26429, 11663, -14541) def
+info atom atomtype = sp2
+bonda 9
+atom 11 (6) (27466, 10861, -14061) def
+info atom atomtype = sp2
+bonda 10
+atom 12 (6) (28044, 10260, -16332) def
+info atom atomtype = sp2
+bonda 8
+atom 13 (6) (28274, 10160, -14958) def
+info atom atomtype = sp2
+bonda 12 11
+atom 14 (6) (26779, 11156, -18271) def
+info atom atomtype = sp2
+bond1 8
+atom 15 (8) (27531, 10426, -19120) def
+bond1 4 14
+atom 16 (8) (27266, 6511, -20456) def
+bond1 7
+atom 17 (6) (26884, 5402, -19681) def
+bond1 16
+atom 18 (8) (25866, 11837, -18683) def
+info atom atomtype = sp2
+bond2 14
+atom 19 (8) (26687, 7913, -18775) def
+info atom atomtype = sp2
+bond2 7
+atom 20 (7) (29650, 10040, -20631) def
+bond1 3 5
+atom 21 (6) (31091, 10020, -20479) def
+bond1 20
+atom 22 (1) (25791, 12218, -13832) def
+bond1 10
+atom 23 (1) (25374, 12403, -16271) def
+bond1 9
+atom 24 (1) (27647, 10783, -12976) def
+bond1 11
+atom 25 (1) (28693, 9699, -17024) def
+bond1 12
+atom 26 (1) (29095, 9527, -14580) def
+bond1 13
+atom 27 (1) (28736, 8157, -23183) def
+bond1 1
+atom 28 (1) (30411, 8325, -22755) def
+bond1 1
+atom 29 (1) (30359, 10530, -23424) def
+bond1 2
+atom 30 (1) (28641, 10466, -23711) def
+bond1 2
+atom 31 (1) (29741, 11911, -21607) def
+bond1 3
+atom 32 (1) (25993, 10234, -20457) def
+bond1 4
+atom 33 (1) (29522, 7940, -20565) def
+bond1 5
+atom 34 (1) (27036, 8570, -21793) def
+bond1 6
+atom 35 (1) (27103, 4493, -20285) def
+bond1 17
+atom 36 (1) (27485, 5378, -18743) def
+bond1 17
+atom 37 (1) (25791, 5458, -19474) def
+bond1 17
+atom 38 (1) (31433, 11005, -20087) def
+bond1 21
+atom 39 (1) (31378, 9253, -19724) def
+bond1 21
+atom 40 (1) (31632, 9811, -21429) def
+bond1 21
+atom 41 (6) (27698, 11266, -21358) def
+bond1 3 4
+atom 42 (1) (27589, 12264, -20872) def
+bond1 41
+atom 43 (1) (27118, 11328, -22308) def
+bond1 41
+egroup (cocaine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part cocaine

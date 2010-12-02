@@ -1,0 +1,329 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (-0.662243, 0.551351, -0.092255, 0.498933) (14.706593) (-0.074000, 0.135000, 0.163500) (1.000000)
+egroup (View Data)
+group (methylmethacrylate)
+info opengroup open = True
+mol (methylmethacrylate) def
+atom 1 (6) (-9360, -2240, -8504) def
+atom 2 (1) (-9447, -2295, -9589) def
+bond1 1
+atom 3 (1) (-9843, -3108, -8055) def
+bond1 1
+atom 4 (6) (-7868, -2220, -8108) def
+bond1 1
+atom 5 (6) (-7296, -3644, -8183) def
+bond1 4
+atom 6 (1) (-6207, -3599, -8182) def
+bond1 5
+atom 7 (1) (-7638, -4219, -7324) def
+bond1 5
+atom 8 (1) (-7638, -4124, -9101) def
+bond1 5
+atom 9 (8) (-6024, -1840, -9868) def
+atom 10 (6) (-7092, -1304, -9080) def
+info atom atomtype = sp2
+bond1 4 9
+atom 11 (8) (-7392, -112, -9176) def
+info atom atomtype = sp2
+bond2 10
+atom 12 (6) (-4804, -1152, -9556) def
+bond1 9
+atom 13 (1) (-3954, -1774, -9838) def
+bond1 12
+atom 14 (1) (-4766, -948, -8486) def
+bond1 12
+atom 15 (1) (-4766, -212, -10107) def
+bond1 12
+atom 16 (6) (-7724, -1684, -6668) def
+bond1 4
+atom 17 (1) (-8127, -673, -6615) def
+bond1 16
+atom 18 (1) (-8273, -2331, -5983) def
+bond1 16
+atom 19 (6) (-6232, -1664, -6272) def
+bond1 16
+atom 20 (6) (-5456, -748, -7244) def
+bond1 19
+atom 21 (1) (-4385, -887, -7097) def
+bond1 20
+atom 22 (1) (-5718, -1002, -8271) def
+bond1 20
+atom 23 (1) (-5718, 292, -7050) def
+bond1 20
+atom 24 (8) (-5112, -3700, -5180) def
+atom 25 (6) (-5660, -3092, -6348) def
+info atom atomtype = sp2
+bond1 19 24
+atom 26 (8) (-5676, -3700, -7416) def
+info atom atomtype = sp2
+bond2 25
+atom 27 (6) (-3736, -4024, -5412) def
+bond1 24
+atom 28 (1) (-3101, -3304, -4896) def
+bond1 27
+atom 29 (1) (-3530, -5026, -5035) def
+bond1 27
+atom 30 (1) (-3530, -3989, -6482) def
+bond1 27
+atom 31 (6) (-6088, -1124, -4832) def
+bond1 19
+atom 32 (1) (-6491, -113, -4781) def
+bond1 31
+atom 33 (1) (-6636, -1769, -4145) def
+bond1 31
+atom 34 (6) (-4596, -1104, -4440) def
+bond1 31
+atom 35 (6) (-4024, -2536, -4512) def
+bond1 34
+atom 36 (1) (-2935, -2493, -4510) def
+bond1 35
+atom 37 (1) (-4367, -3108, -3650) def
+bond1 35
+atom 38 (1) (-4367, -3018, -5427) def
+bond1 35
+atom 39 (8) (-2752, -724, -6196) def
+atom 40 (6) (-3820, -192, -5408) def
+info atom atomtype = sp2
+bond1 34 39
+atom 41 (8) (-4120, 1004, -5504) def
+info atom atomtype = sp2
+bond2 40
+atom 42 (6) (-1532, -40, -5884) def
+bond1 39
+atom 43 (1) (-684, -663, -6168) def
+bond1 42
+atom 44 (1) (-1492, 162, -4814) def
+bond1 42
+atom 45 (1) (-1492, 901, -6433) def
+bond1 42
+atom 46 (6) (-4452, -568, -2996) def
+bond1 34
+atom 47 (1) (-4856, 443, -2941) def
+bond1 46
+atom 48 (1) (-4999, -1216, -2311) def
+bond1 46
+atom 49 (6) (-2960, -548, -2604) def
+bond1 46
+atom 50 (6) (-2184, 372, -3576) def
+bond1 49
+atom 51 (1) (-1113, 234, -3430) def
+bond1 50
+atom 52 (1) (-2446, 119, -4603) def
+bond1 50
+atom 53 (1) (-2446, 1412, -3380) def
+bond1 50
+atom 54 (8) (-1840, -2592, -1504) def
+atom 55 (6) (-2388, -1980, -2680) def
+info atom atomtype = sp2
+bond1 49 54
+atom 56 (8) (-2404, -2592, -3748) def
+info atom atomtype = sp2
+bond2 55
+atom 57 (6) (-464, -2916, -1740) def
+bond1 54
+atom 58 (1) (172, -2201, -1219) def
+bond1 57
+atom 59 (1) (-259, -3921, -1371) def
+bond1 57
+atom 60 (1) (-259, -2873, -2810) def
+bond1 57
+atom 61 (6) (-2816, -12, -1164) def
+bond1 49
+atom 62 (1) (-3219, 999, -1111) def
+bond1 61
+atom 63 (1) (-3365, -659, -479) def
+bond1 61
+atom 64 (6) (-1324, 8, -768) def
+bond1 61
+atom 65 (6) (-752, -1420, -844) def
+bond1 64
+atom 66 (1) (337, -1376, -842) def
+bond1 65
+atom 67 (1) (-1094, -1995, 17) def
+bond1 65
+atom 68 (1) (-1094, -1900, -1761) def
+bond1 65
+atom 69 (8) (520, 392, -2528) def
+atom 70 (6) (-548, 924, -1740) def
+info atom atomtype = sp2
+bond1 64 69
+atom 71 (8) (-848, 2120, -1832) def
+info atom atomtype = sp2
+bond2 70
+atom 72 (6) (1736, 1076, -2212) def
+bond1 69
+atom 73 (1) (2586, 457, -2498) def
+bond1 72
+atom 74 (1) (1774, 1273, -1141) def
+bond1 72
+atom 75 (1) (1774, 2019, -2756) def
+bond1 72
+atom 76 (6) (-1180, 548, 664) def
+bond1 64
+atom 77 (1) (-1582, 1560, 713) def
+bond1 76
+atom 78 (1) (-1730, -95, 1351) def
+bond1 76
+atom 79 (6) (312, 568, 1060) def
+bond1 76
+atom 80 (6) (1088, 1484, 96) def
+bond1 79
+atom 81 (1) (2159, 1343, 244) def
+bond1 80
+atom 82 (1) (827, 1233, -932) def
+bond1 80
+atom 83 (1) (827, 2524, 294) def
+bond1 80
+atom 84 (8) (1432, -1472, 2156) def
+atom 85 (6) (884, -864, 984) def
+info atom atomtype = sp2
+bond1 79 84
+atom 86 (8) (868, -1476, -76) def
+info atom atomtype = sp2
+bond2 85
+atom 87 (6) (2808, -1804, 1920) def
+bond1 84
+atom 88 (1) (3448, -1085, 2431) def
+bond1 87
+atom 89 (1) (3010, -2805, 2300) def
+bond1 87
+atom 90 (1) (3010, -1774, 849) def
+bond1 87
+atom 91 (6) (456, 1104, 2500) def
+bond1 79
+atom 92 (1) (52, 2115, 2554) def
+bond1 91
+atom 93 (1) (-91, 457, 3185) def
+bond1 91
+atom 94 (6) (1948, 1124, 2892) def
+bond1 91
+atom 95 (6) (2520, -308, 2820) def
+bond1 94
+atom 96 (1) (3609, -265, 2822) def
+bond1 95
+atom 97 (1) (2177, -880, 3682) def
+bond1 95
+atom 98 (1) (2177, -790, 1905) def
+bond1 95
+atom 99 (8) (3796, 1504, 1136) def
+atom 100 (6) (2724, 2044, 1924) def
+info atom atomtype = sp2
+bond1 94 99
+atom 101 (8) (2424, 3232, 1828) def
+info atom atomtype = sp2
+bond2 100
+atom 102 (6) (5008, 2196, 1448) def
+bond1 99
+atom 103 (1) (5861, 1578, 1169) def
+bond1 102
+atom 104 (1) (5043, 2403, 2518) def
+bond1 102
+atom 105 (1) (5043, 3135, 895) def
+bond1 102
+atom 106 (6) (2092, 1660, 4336) def
+bond1 94
+atom 107 (1) (1688, 2671, 4391) def
+bond1 106
+atom 108 (1) (1544, 1012, 5021) def
+bond1 106
+atom 109 (6) (3580, 1680, 4728) def
+bond1 106
+atom 110 (6) (4360, 2600, 3760) def
+bond1 109
+atom 111 (1) (5431, 2459, 3908) def
+bond1 110
+atom 112 (1) (4100, 2350, 2732) def
+bond1 110
+atom 113 (1) (4100, 3640, 3958) def
+bond1 110
+atom 114 (8) (4708, -360, 5828) def
+atom 115 (6) (4156, 256, 4656) def
+info atom atomtype = sp2
+bond1 109 114
+atom 116 (8) (4140, -364, 3584) def
+info atom atomtype = sp2
+bond2 115
+atom 117 (6) (6084, -688, 5596) def
+bond1 114
+atom 118 (1) (6721, 34, 6107) def
+bond1 117
+atom 119 (1) (6289, -1688, 5979) def
+bond1 117
+atom 120 (1) (6289, -660, 4526) def
+bond1 117
+atom 121 (6) (3728, 2220, 6168) def
+bond1 109
+atom 122 (1) (3326, 3232, 6219) def
+bond1 121
+atom 123 (1) (3179, 1576, 6855) def
+bond1 121
+atom 124 (6) (5216, 2240, 6564) def
+bond1 121
+atom 125 (6) (5792, 808, 6488) def
+bond1 124
+atom 126 (1) (6881, 854, 6490) def
+bond1 125
+atom 127 (1) (5451, 233, 7349) def
+bond1 125
+atom 128 (1) (5451, 327, 5571) def
+bond1 125
+atom 129 (8) (7064, 2620, 4808) def
+atom 130 (6) (5996, 3156, 5596) def
+info atom atomtype = sp2
+bond1 124 129
+atom 131 (8) (5696, 4348, 5504) def
+info atom atomtype = sp2
+bond2 130
+atom 132 (6) (8280, 3308, 5120) def
+bond1 129
+atom 133 (1) (9131, 2688, 4839) def
+bond1 132
+atom 134 (1) (8318, 3513, 6190) def
+bond1 132
+atom 135 (1) (8318, 4248, 4569) def
+bond1 132
+atom 136 (6) (5360, 2776, 8004) def
+bond1 124
+atom 137 (1) (4957, 3787, 8057) def
+bond1 136
+atom 138 (1) (4811, 2129, 8689) def
+bond1 136
+atom 139 (6) (6852, 2796, 8400) def
+bond1 136
+atom 140 (1) (6951, 3173, 9418) def
+bond1 139
+atom 141 (6) (7632, 3716, 7432) def
+bond1 139
+atom 142 (1) (8703, 3575, 7580) def
+bond1 141
+atom 143 (1) (7372, 3466, 6404) def
+bond1 141
+atom 144 (1) (7372, 4756, 7630) def
+bond1 141
+atom 145 (8) (7980, 756, 9496) def
+atom 146 (6) (7428, 1368, 8324) def
+info atom atomtype = sp2
+bond1 139 145
+atom 147 (8) (7412, 752, 7260) def
+info atom atomtype = sp2
+bond2 146
+atom 148 (6) (9356, 432, 9264) def
+bond1 145
+atom 149 (1) (9991, 1152, 9780) def
+bond1 148
+atom 150 (1) (9562, -570, 9641) def
+bond1 148
+atom 151 (1) (9562, 467, 8194) def
+bond1 148
+atom 152 (1) (-9834, -1347, -8153) def
+bond1 1
+egroup (methylmethacrylate)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part methylmethacrylate

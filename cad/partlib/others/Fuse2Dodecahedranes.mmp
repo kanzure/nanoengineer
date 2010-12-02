@@ -1,0 +1,151 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (13.784211) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Fuse2Dodecahedranes)
+info opengroup open = True
+mol (dodecahedrane) def
+atom 1 (6) (-1228, 1631, -345) def
+atom 2 (6) (-11, 1625, -1270) def
+bond1 1
+atom 3 (6) (-2024, 351, -604) def
+bond1 1
+atom 4 (6) (-1300, -444, -1688) def
+bond1 3
+atom 5 (6) (-56, 342, -2101) def
+bond1 2 4
+atom 6 (6) (1170, -494, -1743) def
+bond1 5
+atom 7 (6) (-2013, -479, 678) def
+bond1 3
+atom 8 (6) (-725, 1590, 1096) def
+bond1 1
+atom 9 (6) (1242, 1581, -399) def
+bond1 2
+atom 10 (6) (-1209, 287, 1730) def
+bond1 7 8
+atom 11 (6) (1974, 271, -693) def
+bond1 6 9
+atom 12 (6) (803, 1560, 1062) def
+bond1 8 9
+atom 13 (6) (18, -549, 2087) def
+bond1 10
+atom 14 (6) (1986, -558, 590) def
+bond1 11
+atom 15 (6) (1261, 237, 1675) def
+bond1 12 13 14
+atom 16 (1) (2984, 421, -1049) def
+bond1 11
+atom 17 (1) (-1823, 445, 2606) def
+bond1 10
+atom 18 (1) (-3028, -628, 1021) def
+bond1 7
+atom 19 (1) (1771, -650, -2630) def
+bond1 6
+atom 20 (1) (-83, 527, -3167) def
+bond1 5
+atom 21 (1) (-1975, -629, -2513) def
+bond1 4
+atom 22 (1) (-3041, 607, -874) def
+bond1 3
+atom 23 (1) (1930, 436, 2502) def
+bond1 15
+atom 24 (1) (3008, -748, 889) def
+bond1 14
+atom 25 (1) (66, -801, 3138) def
+bond1 13
+atom 26 (0) (1126, 2156, 1439) def
+bond1 12
+atom 27 (0) (1676, 2209, -539) def
+bond1 9
+atom 28 (0) (-1006, 2199, 1486) def
+bond1 8
+atom 29 (0) (12, 2238, -1745) def
+bond1 2
+atom 30 (0) (-1665, 2254, -498) def
+bond1 1
+atom 31 (0) (-1641, -1143, 530) def
+bond1 7
+atom 32 (0) (-1066, -1115, -1377) def
+bond1 4
+atom 33 (0) (924, -1156, -1421) def
+bond1 6
+atom 34 (0) (1581, -1207, 460) def
+bond1 14
+atom 35 (0) (-3, -1200, 1665) def
+bond1 13
+mol (dodecahedrane1011) def
+atom 36 (1) (-2977, 4519, 804) def
+atom 37 (1) (-2956, 3243, -1126) def
+atom 38 (1) (3055, 3220, -1059) def
+atom 39 (1) (3057, 4440, 860) def
+atom 40 (1) (1930, 4468, -2668) def
+atom 41 (6) (-1960, 3474, -772) def
+bond1 37
+atom 42 (6) (-1958, 4294, 517) def
+bond1 36 41
+atom 43 (6) (-1199, 3500, 1581) def
+bond1 42
+atom 44 (6) (39, 4304, 1974) def
+bond1 43
+atom 45 (6) (-1188, 5588, 254) def
+bond1 42
+atom 46 (6) (-1190, 4261, -1833) def
+bond1 41
+atom 47 (6) (43, 3447, -2221) def
+bond1 46
+atom 48 (6) (-713, 5568, -1198) def
+bond1 45 46
+atom 49 (6) (47, 5594, 1154) def
+bond1 44 45
+atom 50 (6) (1272, 3490, 1585) def
+bond1 44
+atom 51 (6) (1283, 5578, 257) def
+bond1 49
+atom 52 (6) (814, 5561, -1195) def
+bond1 48 51
+atom 53 (6) (1282, 4251, -1829) def
+bond1 40 47 52
+atom 54 (6) (2042, 4277, 523) def
+bond1 39 50 51
+atom 55 (6) (2041, 3457, -765) def
+bond1 38 53 54
+atom 56 (1) (1894, 3335, 2457) def
+bond1 50
+atom 57 (1) (36, 3271, -3288) def
+bond1 47
+atom 58 (1) (-1823, 4417, -2696) def
+bond1 46
+atom 59 (1) (31, 4481, 3042) def
+bond1 44
+atom 60 (1) (-1836, 3351, 2443) def
+bond1 43
+atom 61 (0) (1030, 2827, 1263) def
+bond1 50
+atom 62 (0) (1650, 2800, -632) def
+bond1 55
+atom 63 (0) (40, 2791, -1805) def
+bond1 47
+atom 64 (0) (-1575, 2814, -637) def
+bond1 41
+atom 65 (0) (-961, 2835, 1260) def
+bond1 43
+atom 66 (0) (-1613, 6225, 378) def
+bond1 45
+atom 67 (0) (-977, 6198, -1566) def
+bond1 48
+atom 68 (0) (27, 6205, 1632) def
+bond1 49
+atom 69 (0) (1711, 6211, 394) def
+bond1 51
+atom 70 (0) (1076, 6165, -1605) def
+bond1 52
+egroup (Fuse2Dodecahedranes)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Fuse2Dodecahedranes

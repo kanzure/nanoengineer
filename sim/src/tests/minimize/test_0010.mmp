@@ -1,0 +1,19 @@
+mmpformat 050130 required; 050217 optional
+# mmp file for minimizer, might affect details of format
+atom 1 (6) (-446, -4024, 0) -
+atom 2 (1) (-1064, -3406, -617) singlet
+bond1 1
+atom 3 (1) (-1064, -4642, 617) singlet
+bond1 1
+atom 4 (1) (171, -4642, -617) singlet
+bond1 1
+atom 5 (6) (468, -3109, 915) -
+bond1 1
+atom 6 (1) (1086, -3727, 1532) singlet
+bond1 5
+atom 7 (1) (-149, -2491, 1532) singlet
+bond1 5
+atom 8 (1) (1086, -2491, 297) singlet
+bond1 5
+ground (name) (0, 0, 0) 1
+end mmp file for min or sim selection Untitled

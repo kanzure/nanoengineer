@@ -1,0 +1,20 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (3.528554) (-0.000000, -0.000000, 0.607500) (1.000000)
+egroup (View Data)
+group (H_Cl_c4v)
+info opengroup open = True
+mol (H_Cl_c4v.pdb) def
+atom 1 (1) (-360, -25, -1825) def
+atom 2 (17) (-322, 164, -126) def
+bond1 1
+egroup (H_Cl_c4v)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part H_Cl_c4v
+

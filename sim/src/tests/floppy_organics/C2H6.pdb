@@ -1,0 +1,18 @@
+COMPND  C2H6.pdb                                                                
+HETATM    1  C                  -0.681   0.350   0.000                
+HETATM    2  C                   0.681  -0.350   0.000                
+HETATM    3  H                  -0.569   1.439   0.000                
+HETATM    4  H                  -1.269   0.078   0.883                
+HETATM    5  H                  -1.269   0.078  -0.883                
+HETATM    6  H                   0.569  -1.439   0.000                
+HETATM    7  H                   1.269  -0.078   0.883                
+HETATM    8  H                   1.269  -0.078  -0.883                
+CONECT    1    2    3    4    5                              
+CONECT    2    1    6    7    8                              
+CONECT    3    1                                             
+CONECT    4    1                                             
+CONECT    5    1                                             
+CONECT    6    2                                             
+CONECT    7    2                                             
+CONECT    8    2                                             
+END   

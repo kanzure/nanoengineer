@@ -1,0 +1,43 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.888123, -0.087532, 0.451012, 0.012777) (3.817378) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (l_alanine_mm2_neutral)
+info opengroup open = True
+mol (l_alanine_mm2_neutral) def
+atom 1 (7) (-173, 723, -1253) def
+atom 2 (6) (-393, -146, -86) def
+bond1 1
+atom 3 (6) (388, -1454, -268) def
+bond1 2
+atom 4 (6) (-30, 583, 1193) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-677, 1761, 1281) def
+bond1 4
+atom 6 (8) (722, 209, 2061) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (1) (-760, 1556, -1204) def
+bond1 1
+atom 8 (1) (-431, 252, -2119) def
+bond1 1
+atom 9 (1) (-1484, -380, -35) def
+bond1 2
+atom 10 (1) (85, -1974, -1206) def
+bond1 3
+atom 11 (1) (1484, -1262, -327) def
+bond1 3
+atom 12 (1) (205, -2156, 578) def
+bond1 3
+atom 13 (1) (-385, 2156, 2119) def
+bond1 5
+egroup (l_alanine_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_alanine_mm2_neutral

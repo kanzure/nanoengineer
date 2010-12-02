@@ -1,0 +1,57 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.876216, -0.266325, 0.397864, 0.054955) (3.280518) (0.536500, -0.032500, 4.310500) (1.000000)
+egroup (View Data)
+group (xylene)
+info opengroup open = True
+mol (xylene) def
+atom 1 (6) (109, 523, -3079) def
+info atom atomtype = sp2
+atom 2 (6) (499, -701, -3628) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (-102, -1163, -4801) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (-1093, -402, -5425) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (-1483, 822, -4876) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (-882, 1284, -3704) def
+info atom atomtype = sp2
+bonda 5 1
+atom 7 (1) (578, 884, -2164) def
+bond1 1
+atom 8 (6) (1592, -1540, -2940) def
+bond1 2
+atom 9 (1) (202, -2118, -5230) def
+bond1 3
+atom 10 (1) (-1562, -763, -6341) def
+bond1 4
+atom 11 (6) (-2575, 1661, -5564) def
+bond1 5
+atom 12 (1) (-1186, 2240, -3275) def
+bond1 6
+atom 13 (1) (2427, -1681, -3626) def
+bond1 8
+atom 14 (1) (1182, -2511, -2661) def
+bond1 8
+atom 15 (1) (1939, -1022, -2045) def
+bond1 8
+atom 16 (1) (-2255, 1916, -6575) def
+bond1 11
+atom 17 (1) (-3500, 1087, -5610) def
+bond1 11
+atom 18 (1) (-2743, 2576, -4995) def
+bond1 11
+egroup (xylene)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part xylene

@@ -1,0 +1,125 @@
+ Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
+Will's note to self: CPK is not "ball and stick". CPK is what I'd call
+"van der Waals" because each atom is a fat sphere at the atom's VDW
+radius.
+
+-----------------------------
+
+Dear Will (and Mark, so you can see what we're up to, comment, etc.),
+
+I've attached a revised set of title graphics that references the 6 ps/s CPK
+segment, and have described (inline with the images) what I'd like the
+animation segments to contain. The description includes various layered
+and blended images, which I hope your software can manage OK.
+
+> I have been getting ready to do all this stuff in the "tubes" display
+> mode. Should I just do segment 3 in ball-and-stick mode? Or I could
+> switch them all to ball-and-stick mode. Please let me know what you
+> think would look best.
+
+I prefer tubes mode. It looks cleaner and gives a better sense of the 
+structure as a structure, rather than as a collection of atoms in space.
+There are two places, though, where I'd like to see a tubes rendering
+cross-fade with a CPK rendering. This will let us show how they 
+correspond, and do it perfectly clearly without needing any explanation.
+
+I expect us to use this video as THE short introduction to our molecular
+dynamics work. With it, other animations will make more sense.
+
+Images and descriptions follow.
+
+With thanks,
+
+  -- Eric
+
+-----------------------------------
+
+
+Below is a dummy image showing a standard NanoEngineer-1 gradient
+background, overlayed with a 20% opacity image (on the same
+background), in turn overlayed with a transparent-background text
+layer. I'd like to have backgrounds like this, but with a 20% opacity
+animation (no time or rotation numbers) in place of the static image.
+
+The most-used animated background would be the motion-blurred CPK view
+at 6 ps/s.
+
+The idea is:
+1) To spend more time on our best representation of the motion
+        (blurred CPK at 6 ps/s),
+2) To make the text parts less boring for fast readers,
+3) To show motions at the same time as they're being described, and
+4) To make the video even more cool.
+
+BUT an animated background at 20% opacity may be too distracting in
+slides other than the title and credits....
+
+Dummy image:
+
+======================================================================
+====================================================================
+
+Transparent text slides, with descriptions of backgrounds and interleaved regular animations:
+
+Animated background, 6 ps/s blurred CPK, 8 seconds:
+------------------------------------------------------------------------------------
+
+Continued animated background, 6 ps/s blurred CPK, 15 seconds:
+then
+Regular animation, 6 ps/s CPK, blurred, 5 seconds
+1/2 second cross-fade
+Regular animation, 6 ps/s tubes, blurred, 5 seconds
+------------------------------------------------------------------------------------
+
+
+
+Animated background, 0.15 ps/s tubes, 8 seconds:
+then
+Regular animation, 0.15 ps/s tubes, 10 seconds
+------------------------------------------------------------------------------------
+
+
+Animated background, 0.6 ps/s tubes blurred, 8 seconds:
+
+
+then
+Regular animation, 0.6 ps/s tubes blurred, 10 seconds
+------------------------------------------------------------------------------------
+
+
+
+Animated background, 6.0 ps/s tubes blurred, 8 seconds:
+then
+Regular animation, 6.0 ps/s tubes blurred, 10 seconds
+------------------------------------------------------------------------------------
+
+
+
+Animated background, 6.0 ps/s tubes jumpy, 10 seconds:
+then
+Regular animation, 6.0 ps/s tubes jumpy, 4 seconds
+1/2 second cross-fade to CPK view
+Regular animation, 6.0 ps/s CPK jumpy, 5 seconds
+------------------------------------------------------------------------------------
+
+
+
+Animated background, 6 ps/s blurred CPK, 12 seconds:
+
+
+Continue animated background, 6 ps/s blurred CPK, 15 seconds:
+
+
+
+==========================================
+
+
+-----------------------------------------
+Dr. K. Eric Drexler
+
+Chief Technical Advisor
+Nanorex, Inc.
+drexler@nanorex.com
+www.e-drexler.com
+-----------------------------------------

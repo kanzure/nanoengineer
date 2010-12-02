@@ -1,0 +1,201 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (15.750525) (-8.132500, -0.439500, -5.724500) (1.000000)
+egroup (View Data)
+group (polyisobutene)
+info opengroup open = True
+mol (polyisobutene) def
+atom 1 (6) (463, -1237, -689) def
+atom 2 (6) (2900, -1253, -1285) def
+atom 3 (6) (4641, -1048, 490) def
+atom 4 (6) (3574, 1077, 1291) def
+atom 5 (6) (6406, -821, 2239) def
+atom 6 (6) (5338, 1304, 3040) def
+atom 7 (6) (8193, -572, 3962) def
+atom 8 (6) (7124, 1553, 4762) def
+atom 9 (6) (10001, -301, 5659) def
+atom 10 (6) (8933, 1823, 6459) def
+atom 11 (6) (11832, -9, 7329) def
+atom 12 (6) (10763, 2116, 8128) def
+atom 13 (6) (13683, 305, 8971) def
+atom 14 (6) (12613, 2430, 9770) def
+atom 15 (6) (15069, 939, 13037) def
+atom 16 (6) (15573, 655, 10595) def
+atom 17 (6) (1833, 872, -483) def
+atom 18 (6) (1846, -661, -329) def
+bond1 1 2 17
+atom 19 (6) (2212, -1041, 1119) def
+bond1 18
+atom 20 (6) (3597, -455, 1456) def
+bond1 3 4 19
+atom 21 (6) (3986, -822, 2901) def
+bond1 20
+atom 22 (6) (5372, -227, 3215) def
+bond1 5 6 21
+atom 23 (6) (5782, -582, 4658) def
+bond1 22
+atom 24 (6) (7169, 24, 4948) def
+bond1 7 8 23
+atom 25 (6) (7600, -319, 6387) def
+bond1 24
+atom 26 (6) (8988, 296, 6655) def
+bond1 9 10 25
+atom 27 (6) (9441, -34, 8090) def
+bond1 26
+atom 28 (6) (10829, 590, 8334) def
+bond1 11 12 27
+atom 29 (6) (11303, 273, 9765) def
+bond1 28
+atom 30 (6) (12691, 906, 9986) def
+bond1 13 14 29
+atom 31 (6) (13186, 601, 11413) def
+bond1 30
+atom 32 (6) (14573, 1243, 11610) def
+bond1 15 16 31
+atom 33 (6) (14476, 2770, 11427) def
+bond1 32
+atom 34 (1) (-289, -823, -17) def
+bond1 1
+atom 35 (1) (216, -973, -1717) def
+bond1 1
+atom 36 (1) (483, -2322, -587) def
+bond1 1
+atom 37 (1) (3882, -850, -1037) def
+bond1 2
+atom 38 (1) (2915, -2338, -1182) def
+bond1 2
+atom 39 (1) (2648, -989, -2312) def
+bond1 2
+atom 40 (1) (4664, -2132, 600) def
+bond1 3
+atom 41 (1) (4374, -793, -535) def
+bond1 3
+atom 42 (1) (5625, -638, 722) def
+bond1 3
+atom 43 (1) (2838, 1505, 1971) def
+bond1 4
+atom 44 (1) (4560, 1482, 1521) def
+bond1 4
+atom 45 (1) (3309, 1328, 264) def
+bond1 4
+atom 46 (1) (6436, -1904, 2357) def
+bond1 5
+atom 47 (1) (6123, -574, 1216) def
+bond1 5
+atom 48 (1) (7390, -405, 2454) def
+bond1 5
+atom 49 (1) (4609, 1732, 3727) def
+bond1 6
+atom 50 (1) (6324, 1716, 3253) def
+bond1 6
+atom 51 (1) (5057, 1546, 2015) def
+bond1 6
+atom 52 (1) (8230, -1654, 4086) def
+bond1 7
+atom 53 (1) (7894, -334, 2941) def
+bond1 7
+atom 54 (1) (9177, -149, 4161) def
+bond1 7
+atom 55 (1) (6402, 1982, 5457) def
+bond1 8
+atom 56 (1) (8111, 1971, 4960) def
+bond1 8
+atom 57 (1) (6829, 1786, 3740) def
+bond1 8
+atom 58 (1) (10046, -1382, 5791) def
+bond1 9
+atom 59 (1) (9688, -72, 4640) def
+bond1 9
+atom 60 (1) (10986, 128, 5841) def
+bond1 9
+atom 61 (1) (8218, 2254, 7160) def
+bond1 10
+atom 62 (1) (9920, 2249, 6640) def
+bond1 10
+atom 63 (1) (8622, 2048, 5438) def
+bond1 10
+atom 64 (1) (11884, -1089, 7468) def
+bond1 11
+atom 65 (1) (11503, 211, 6313) def
+bond1 11
+atom 66 (1) (12817, 427, 7495) def
+bond1 11
+atom 67 (1) (10055, 2547, 8836) def
+bond1 12
+atom 68 (1) (11750, 2548, 8292) def
+bond1 12
+atom 69 (1) (10436, 2331, 7111) def
+bond1 12
+atom 70 (1) (13744, -773, 9117) def
+bond1 13
+atom 71 (1) (13340, 516, 7959) def
+bond1 13
+atom 72 (1) (14668, 748, 9121) def
+bond1 13
+atom 73 (1) (11913, 2863, 10484) def
+bond1 14
+atom 74 (1) (13600, 2868, 9918) def
+bond1 14
+atom 75 (1) (12272, 2636, 8756) def
+bond1 14
+atom 76 (1) (14367, 1352, 13761) def
+bond1 15
+atom 77 (1) (15140, -140, 13174) def
+bond1 15
+atom 78 (1) (16050, 1390, 13185) def
+bond1 15
+atom 79 (1) (15230, 866, 9583) def
+bond1 16
+atom 80 (1) (16554, 1107, 10748) def
+bond1 16
+atom 81 (1) (15644, -423, 10738) def
+bond1 16
+atom 82 (1) (2815, 1271, -227) def
+bond1 17
+atom 83 (1) (1594, 1131, -1514) def
+bond1 17
+atom 84 (1) (1083, 1298, 183) def
+bond1 17
+atom 85 (1) (2241, -2126, 1216) def
+bond1 19
+atom 86 (1) (1467, -634, 1803) def
+bond1 19
+atom 87 (1) (4021, -1907, 3006) def
+bond1 21
+atom 88 (1) (3248, -415, 3593) def
+bond1 21
+atom 89 (1) (5825, -1665, 4769) def
+bond1 23
+atom 90 (1) (5051, -173, 5356) def
+bond1 23
+atom 91 (1) (7651, -1401, 6506) def
+bond1 25
+atom 92 (1) (6877, 91, 7093) def
+bond1 25
+atom 93 (1) (9499, -1115, 8216) def
+bond1 27
+atom 94 (1) (8725, 377, 8802) def
+bond1 27
+atom 95 (1) (11369, -807, 9898) def
+bond1 29
+atom 96 (1) (10595, 685, 10485) def
+bond1 29
+atom 97 (1) (13260, -477, 11552) def
+bond1 31
+atom 98 (1) (12486, 1014, 12139) def
+bond1 31
+atom 99 (1) (14126, 2994, 10420) def
+bond1 33
+atom 100 (1) (13775, 3179, 12155) def
+bond1 33
+atom 101 (1) (15459, 3217, 11578) def
+bond1 33
+egroup (polyisobutene)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part polyisobutene

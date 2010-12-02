@@ -1,0 +1,41 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.266409, -0.933673, 0.227969, 0.072877) (3.387437) (-0.000000, -0.039500, -0.007500) (1.000000)
+egroup (View Data)
+group (tetrahydrofuran)
+info opengroup open = True
+mol (tetrahydrofuran) def
+atom 1 (6) (-865, 689, -89) def
+atom 2 (6) (669, 700, -81) def
+bond1 1
+atom 3 (6) (1014, -780, 19) def
+bond1 2
+atom 4 (6) (-1217, -759, 310) def
+bond1 1
+atom 5 (8) (-27, -1337, 773) def
+bond1 3 4
+atom 6 (1) (-1272, 930, -1098) def
+bond1 1
+atom 7 (1) (-1271, 1424, 645) def
+bond1 1
+atom 8 (1) (1047, 1234, 823) def
+bond1 2
+atom 9 (1) (1108, 1180, -985) def
+bond1 2
+atom 10 (1) (1985, -972, 529) def
+bond1 3
+atom 11 (1) (1025, -1262, -986) def
+bond1 3
+atom 12 (1) (-1569, -1345, -572) def
+bond1 4
+atom 13 (1) (-1985, -818, 1113) def
+bond1 4
+egroup (tetrahydrofuran)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part tetrahydrofuran

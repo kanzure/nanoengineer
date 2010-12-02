@@ -1,0 +1,35 @@
+#! /usr/bin/python
+
+import os
+import sys
+import re
+from math import pi
+
+thetapat = re.compile(" INPUT CARD\> *theta *= *([\d\.-]+)")
+engpat = re.compile(" FINAL U-B3LYP ENERGY IS +([\d\.-]+)")
+betapat = re.compile(" COORD 1= *([\d\.-]+)")
+potpat = re.compile("     POTENTIAL SURFACE MAP INPUT")
+orgpat = re.compile(" HAS ORIGIN= *([\d\.-]+)")
+
+
+Hartree = 4.3597482 # attoJoules
+Bohr = 0.5291772083 # Angstroms
+
+def findnext(f,pat):
+    while 1:
+        card = f.readline()
+        if not card: return None
+        m = pat.match(card)
+        if m: return m        
+
+def ending(nam,suf):
+    if suf==nam[-len(suf):]: return nam
+    else: return nam+suf
+
+for name in sys.argv[1:]:
+    f=open(ending(name,'.log'),"r")
+    theta = 2*(180-float(findnext(f,thetapat).group(1)))*pi/180.0
+    e = float(findnext(f,engpat).group(1))*Hartree
+
+    print theta, e
+

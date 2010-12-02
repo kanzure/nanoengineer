@@ -1,0 +1,92 @@
+mmpformat 050920 required; 070415 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.674652, -0.592125, 0.435226, -0.069364) (8.153929) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (thymine-outer)
+info opengroup open = True
+mol (thymine) def
+atom 1 (15) (-3452, -5233, 2075) def
+atom 2 (8) (-2278, -6065, 1884) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (-4246, -5335, 3314) def
+info atom atomtype = sp2
+bond1 1
+atom 4 (8) (-4425, -5460, 825) def
+bond1 1
+atom 5 (6) (-4024, -5000, -464) def
+bond1 4
+atom 6 (6) (-5102, -5371, -1465) def
+bond1 5
+atom 7 (8) (-6265, -4562, -1274) def
+bond1 6
+atom 8 (6) (-4674, -5169, -2954) def
+bond1 6
+atom 9 (6) (-5889, -4628, -3664) def
+bond1 8
+atom 10 (6) (-6710, -3976, -2515) def
+bond1 7 9
+atom 11 (7) (-6549, -2558, -2414) def
+bond1 10
+atom 12 (6) (-5306, -1918, -2332) def
+info atom atomtype = sp2
+bond1 11
+atom 13 (8) (-4314, -2681, -2287) def
+info atom atomtype = sp2
+bond2 12
+atom 14 (7) (-5175, -575, -2289) def
+bond1 12
+atom 15 (6) (-6279, 184, -2278) def
+info atom atomtype = sp2
+bond1 14
+atom 16 (8) (-6141, 1396, -2249) def
+info atom atomtype = sp2
+bond2 15
+atom 17 (6) (-7585, -386, -2296) def
+info atom atomtype = sp2
+bond1 15
+atom 18 (6) (-8834, 444, -2235) def
+bond1 17
+atom 19 (6) (-7671, -1719, -2372) def
+info atom atomtype = sp2
+bond1 11
+bond2 17
+atom 20 (1) (-3896, -3908, -445) def
+bond1 5
+atom 21 (1) (-3074, -5476, -750) def
+bond1 5
+atom 22 (1) (-5360, -6428, -1308) def
+bond1 6
+atom 23 (1) (-7775, -4198, -2673) def
+bond1 10
+atom 24 (1) (-5604, -3880, -4420) def
+bond1 9
+atom 25 (1) (-6457, -5437, -4146) def
+bond1 9
+atom 26 (1) (-3835, -4461, -3033) def
+bond1 8
+atom 27 (1) (-4268, -154, -2267) def
+bond1 14
+atom 28 (1) (-8660, -2174, -2401) def
+bond1 19
+atom 29 (1) (-9232, 432, -1210) def
+bond1 18
+atom 30 (1) (-9583, 30, -2926) def
+bond1 18
+atom 31 (1) (-8600, 1479, -2526) def
+bond1 18
+atom 32 (0) (-3166, -4195, 1980) def
+bond1 1
+atom 33 (8) (-4288, -6460, -3488) def
+bond1 8
+atom 34 (0) (-4705, -6914, -3177) def
+bond1 33
+egroup (thymine-outer)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part thymine-outer

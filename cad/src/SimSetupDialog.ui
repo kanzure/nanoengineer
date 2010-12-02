@@ -1,0 +1,567 @@
+<ui version="4.0" >
+ <class>SimSetupDialog</class>
+ <widget class="QDialog" name="SimSetupDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>337</width>
+    <height>428</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Run Dynamics</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset/>
+  </property>
+  <property name="toolTip" >
+   <string>Run Dynamics Setup Dialog</string>
+  </property>
+  <property name="modal" >
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="layout20" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>380</y>
+     <width>310</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" >
+    <property name="margin" >
+     <number>4</number>
+    </property>
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+    <item>
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType" >
+       <enum>QSizePolicy::Expanding</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QPushButton" name="cancel_btn" >
+      <property name="text" >
+       <string>Cancel</string>
+      </property>
+      <property name="default" >
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="run_sim_btn" >
+      <property name="text" >
+       <string>Run Simulation</string>
+      </property>
+      <property name="default" >
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QFrame" name="base_frame" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>336</width>
+     <height>372</height>
+    </rect>
+   </property>
+   <property name="frameShape" >
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow" >
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QGroupBox" name="parms_grpbox_2" >
+    <property name="geometry" >
+     <rect>
+      <x>6</x>
+      <y>305</y>
+      <width>324</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title" >
+     <string/>
+    </property>
+    <widget class="Line" name="line2_4_3" >
+     <property name="geometry" >
+      <rect>
+       <x>4</x>
+       <y>21</y>
+       <width>316</width>
+       <height>2</height>
+      </rect>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::HLine</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="midLineWidth" >
+      <number>0</number>
+     </property>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="parameters_label_2" >
+     <property name="geometry" >
+      <rect>
+       <x>4</x>
+       <y>4</y>
+       <width>316</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Simulation Engine</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="simulation_engine_combobox" >
+     <property name="geometry" >
+      <rect>
+       <x>18</x>
+       <y>30</y>
+       <width>281</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Choose the simulation engine with which to minimize energy.</string>
+     </property>
+     <item>
+      <property name="text" >
+       <string>NanoDynamics-1 (Default)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>GROMACS</string>
+      </property>
+     </item>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox2" >
+    <property name="geometry" >
+     <rect>
+      <x>6</x>
+      <y>165</y>
+      <width>324</width>
+      <height>133</height>
+     </rect>
+    </property>
+    <property name="title" >
+     <string/>
+    </property>
+    <layout class="QGridLayout" >
+     <property name="margin" >
+      <number>4</number>
+     </property>
+     <property name="spacing" >
+      <number>1</number>
+     </property>
+     <item row="2" column="0" >
+      <widget class="QCheckBox" name="watch_motion_checkbox" >
+       <property name="toolTip" >
+        <string>Enables real time graphical updates during simulation runs</string>
+       </property>
+       <property name="text" >
+        <string>Watch motion in real time</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" >
+      <widget class="QLabel" name="sim_options_label" >
+       <property name="text" >
+        <string>Simulation Options</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" >
+      <widget class="QGroupBox" name="update_btngrp" >
+       <property name="title" >
+        <string/>
+       </property>
+       <layout class="QGridLayout" >
+        <property name="margin" >
+         <number>11</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item row="1" column="1" >
+         <widget class="QSpinBox" name="update_number_spinbox" >
+          <property name="toolTip" >
+           <string>Specify how often to update the screen during the simulation.</string>
+          </property>
+          <property name="maximum" >
+           <number>9999</number>
+          </property>
+          <property name="minimum" >
+           <number>1</number>
+          </property>
+          <property name="value" >
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QComboBox" name="update_units_combobox" >
+          <property name="toolTip" >
+           <string>Specify how often to update the screen during the simulation.</string>
+          </property>
+          <item>
+           <property name="text" >
+            <string>frames</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>seconds</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>minutes</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>hours</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="3" >
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType" >
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>16</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QRadioButton" name="update_every_rbtn" >
+          <property name="toolTip" >
+           <string>Specify how often to update the screen during the simulation.</string>
+          </property>
+          <property name="text" >
+           <string>Update every</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="4" >
+         <widget class="QRadioButton" name="update_asap_rbtn" >
+          <property name="toolTip" >
+           <string>Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%</string>
+          </property>
+          <property name="text" >
+           <string>Update as fast as possible</string>
+          </property>
+          <property name="checked" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="Line" name="line2_4" >
+       <property name="frameShape" >
+        <enum>QFrame::HLine</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="midLineWidth" >
+        <number>0</number>
+       </property>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" >
+      <widget class="QCheckBox" name="electrostaticsForDnaDuringDynamics_checkBox" >
+       <property name="text" >
+        <string>Electrostatics for DNA Reduced Model</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="parms_grpbox" >
+    <property name="geometry" >
+     <rect>
+      <x>6</x>
+      <y>8</y>
+      <width>324</width>
+      <height>150</height>
+     </rect>
+    </property>
+    <property name="title" >
+     <string/>
+    </property>
+    <widget class="Line" name="line2_4_2" >
+     <property name="geometry" >
+      <rect>
+       <x>4</x>
+       <y>21</y>
+       <width>316</width>
+       <height>2</height>
+      </rect>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::HLine</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="midLineWidth" >
+      <number>0</number>
+     </property>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="tempSB" >
+     <property name="geometry" >
+      <rect>
+       <x>131</x>
+       <y>89</y>
+       <width>62</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Temperature</string>
+     </property>
+     <property name="maximum" >
+      <number>99999</number>
+     </property>
+     <property name="value" >
+      <number>300</number>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="nframesSB" >
+     <property name="geometry" >
+      <rect>
+       <x>131</x>
+       <y>31</y>
+       <width>62</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Total Frames value</string>
+     </property>
+     <property name="maximum" >
+      <number>90000</number>
+     </property>
+     <property name="minimum" >
+      <number>1</number>
+     </property>
+     <property name="singleStep" >
+      <number>15</number>
+     </property>
+     <property name="value" >
+      <number>900</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="textLabel2" >
+     <property name="geometry" >
+      <rect>
+       <x>6</x>
+       <y>60</y>
+       <width>117</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Steps per Frame :</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="textLabel3" >
+     <property name="geometry" >
+      <rect>
+       <x>6</x>
+       <y>89</y>
+       <width>117</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Temperature :</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="stepsperSB" >
+     <property name="geometry" >
+      <rect>
+       <x>131</x>
+       <y>60</y>
+       <width>62</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip" >
+      <string>Steps per Frame</string>
+     </property>
+     <property name="maximum" >
+      <number>99999</number>
+     </property>
+     <property name="minimum" >
+      <number>1</number>
+     </property>
+     <property name="value" >
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="textLabel2_2" >
+     <property name="geometry" >
+      <rect>
+       <x>201</x>
+       <y>60</y>
+       <width>117</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>0.1 femtosecond</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="textLabel5" >
+     <property name="geometry" >
+      <rect>
+       <x>6</x>
+       <y>31</y>
+       <width>117</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Total Frames:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="parameters_label" >
+     <property name="geometry" >
+      <rect>
+       <x>4</x>
+       <y>4</y>
+       <width>316</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Parameters</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="potential_energy_checkbox" >
+     <property name="geometry" >
+      <rect>
+       <x>20</x>
+       <y>121</y>
+       <width>180</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Plot energy in tracefile</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="textLabel3_2" >
+     <property name="geometry" >
+      <rect>
+       <x>201</x>
+       <y>89</y>
+       <width>117</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text" >
+      <string>Kelvin</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources/>
+ <connections>
+  <connection>
+   <sender>cancel_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>SimSetupDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>watch_motion_checkbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>update_btngrp</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,367 @@
+cad/src/exprs/BUGS.txt
+
+ Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# $Id$
+
+This is a place to record bugs in the exprs module that need to not be
+forgotten, and have no better place to be recorded at this time (the use of
+bugzilla being premature at this early stage of its development).
+
+Most bugs are apparent enough that the best place to discuss how to fix them
+is next to the code that will have to be fixed, in a comment or in a
+"printnim" call.
+
+But for a few, it's hard to know where to record them, or they might be
+forgotten there, so they're listed here, in order of addition to this file.
+
+When they get fully fixed, and after a few days are thought to be
+permanently fixed, they can be moved from this file into BUGS-fixed.txt.
+If they are just worked around but need better fixes later, they should
+remain in this file (if code comments are not enough).
+
+See also:
+- BUGS-fixed.txt
+- the list of planned optimizations (optims) in test.py
+- anything marked ###BUG in the source files
+- the "list of language deficiencies or todos" in PLAN.txt
+
+===
+
+061208 texture dims not always a power of 2 (from a couple weeks ago)
+
+I rely on OpenGL handling textures of arbitrary
+sizes, even though some OpenGL drivers or chips require their dimensions to be
+powers of 2. Before release, we should add code to ask OpenGL whether it can handle this,
+and work around it if not.
+
+==
+
+061208 Fix the jig select code in modes files as described here:
+
+    # self.current_glselect - FIX UNLESS LOCAL - seems ok since local -- WRONG, external code looks at it! (modes, selectMode)
+        # btw, the same code in those files fails to set it here... in fact maybe i'm wrong and it doesn't look at it,
+        # but starting now [061208 1032p] Highlightable is going to look at it, so (1) i'll put it in self.delegate,
+        # (2) the jig select code in those files might be wrong now, if I ever draw jigs in funny projection matrices
+        # (as I surely will someday).
+
+==
+
+[maybe NAB] 061210 usage-tracking of glpane attrs width, height, zoomFactor, scale
+
+Calls to gluProject, gluUnProject (eg via mousepoints) get results which depend on those variables, but don't usage-track them.
+We can ignore this in terms of knowing about global redraw (since changes to those would trigger it), but not
+for knowing when to invalidate display lists. OTOH, maybe those funcs can't be run inside them? I'm not sure.
+
+More generally, I'm not sure whether we need usage-tracking of glpane height & width for related things like DrawInCorner.
+
+==
+
+061211 testmode model viewpoint seems wrong
+
+how come testmode shows the model (with atoms, in assy) in a different viewpoint than
+Build mode does?
+
+I suspect it translates before drawing it. But I can't find any code that would do that!
+
+update 061218: I recently (a few days ago?) saw some glTranslates in testdraw that might do that,
+and added prefs to not run that code (or other related code), and checkboxes in lower left
+corner to control those, so maybe this fixed it (when those checkboxes are off), but I
+didn't test that yet. ... Now I did; it's not fixed. 
+
+But I have another theory: it might just be due to the larger glpane in testmode as opposed
+to Build mode, due to fewer toolbars being visible when in testmode. ####k should test that,
+perhaps by making a debug pref for whether or not to remove the toolbars in testmode.
+
+==
+
+[fixed] 061218 when highlighting the fake openclose icons in e.g. testexpr_10c,
+only the gray rect is seen, not the + or - text. I first noticed this just after fixing the
+previous bug, so that fix may have caused it, but I don't often try to highlight those icons,
+so that fix having caused it is not proven.
+
+(Speculation: this might be an effect of the roundoff issue mentioned at the end of that bug
+discussion, above.)
+
+update 061219: more likely, it's just that Overlay scan order is backwards, 
+appropriate for GL_LESS but not for GL_LEQUAL, and the buggy fake icon makes use of an Overlay
+of gray rect and text. Fixable by reversing Overlay order in this case, or switching
+to GL_LEQUAL all the time (or all the time in testmode, provided these things are not
+drawn in other modes, but since model objs are drawn there, that makes no sense except
+as a temporary situation). 
+
+update 070105: Here is a specific better way of doing the above fix:
+
+plan: new glpane var, set up in init_glpane_vars, default_glDepthFunc,
+normally one thing for NE1 and same for me, but have debug pref to make it normally the other;
+and then change it in highlightable
+to optim the nonuse of gldepthfunc
+so when pref is set i never call it except when entering and leaving mode
+
+also let this glpane var determine overlay order
+(even tho it's only the default not the current)
+
+then i predict my openicon hlighlight bug (that hides the plus sign) goes away and no other bugs come
+
+no need yet to avoid descend into displists in highlighting, which in any case i don't want to do --
+rather when HL has those decorators on draw, they should avoid displists only if some elements of them
+should not be descended into -- once they reach level of draw it all, they should use them
+(a dynamic flag seen by decorator will no longer say "be careful what you draw").
+
+fixed 070117 by implementing a plan similar to the above, in GLPane, testmode, Highlightable, Overlay.
+The fix details are not fully internally tested, but it does fix the reported bug.
+
+There are two tested variants of the fix -- both work. In one, which is left in place in
+the current code (near start of testmode.py, by setting standard_glDepthFunc to a nonstandard value),
+glDepthFunc is always GL_LEQUAL when we're in testmode. This is simplest and probably best.
+It won't fix the same bug in other modes of NE1 (if Overlay exprs would be displayed in them someday)
+until we make the same change in other modes or in GLPane's default.
+
+In the other bugfix-variant, glDepthFunc varies depending on whether we're in draw_in_abs_coords
+(i.e. drawing highlights). This is predicted to have problems with display lists in current code, 
+if the same one is used for highlight and normal drawing (evidently not the case in testexpr_10c
+openclose icons, or the bug would not be fixed then -- an inference). That could be fixed by
+compiling variant displists in those cases, which we'll need for other reasons and other GL state
+someday, but it's not worth the trouble for this one compared to the "always GL_LEQUAL" bugfix-variant.
+
+==
+
+070106 when you draw one instance twice, Highlightables only work within the last-drawn copy,
+since Highlightable only stores one draw-coord and draws one highlight-image.
+
+It would not be too hard to make it store a series and redraw them all. But it might be better
+to make these two instances get an env with different "highlighting state" -- except then they're
+not really the same instance, are they? (Since .env is a function of instance.)
+
+Either way, then we could implement stereo this way!
+
+(My guess is, one instance recording >1 highlight pos is more efficient, as well as simpler,
+than making two instances which share some stateplaces and not others. It's done for every
+highlightable in the model, so you don't want the increased RAM to be larger than necessary.)
+
+(The syntax for drawing one instance twice is also klugy and may stop working -- see testexpr_26
+and its comments. But that's not this bug.)
+
+==
+
+070109 highlight update bug: in code like this (from demo_drag.py), 
+the highlighted form doesn't get updated soon enough after it changes when the button is pressed,
+as mentioned in the comment at the end:
+
+If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
+          ActionButton( world._cmd_Clear, "button: clear"),
+          ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
+ ) 
+ # works, though text change is so slow I suspect there's actually a highlighting or update bug 
+ # making it appear even slower...
+ # update 070109: the bug seems to be that as long as the mouse stays on the button, 
+ # it remains highlighted with the old highlight form.
+
+Theory: an old instance is stored in selobj/stencilbuffer and is being redrawn in abs coords,
+and seems still selected even though a new instance has replaced it. But (1) I didn't confirm
+it's a different instance, (2) even if it is, I'm not sure why already-coded checks are not
+enough... but maybe the idea of an object not drawn in a frame becoming invalid as selobj
+is still nim?? Not sure, but I bet it is, since I can't recall any record of whether an obj
+does get drawn in a frame or not. (Just set a "last drawn in this frame" ivar in draw...) ####k
+
+==
+
+[worked around in demo_drag.py:]
+
+070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
+
+[in earlier commits today, I misnamed this bug based on an incorrect theory of its cause:
+070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"]
+
+[I'll remove these debugging notes sometime after this commit, and leave only the correct parts:]
+
+in testexpr_19f:
+
+drag of old nodes seems broken. is this is new or old bug?
+I dimly remember hacking on the related code in demo_drag...
+am I using _19f which is revised somehow? yes but it's old -- the improved clear button.
+
+bug also appears in $B (doesn't have my lmods "revised stub types & type coercion, canon_type")
+
+trying again carefully in $W, I note:
+
+- disabling the debug pref for glpane skipping of Qt-redraws does not fix it; 
+  further tests done while leaving it disabled (more redraws than usual for me, normal for NE1)
+  (so this debug pref being False might be partially fixing this bug in the following tests,
+   for all i know)
+
+- the mouse over the little black rect reports same sbar msg (no change in sbar as I mouseover --
+  indicating a bug in highlighting the rect) but does a new redraw per mousemotion
+  (as if it's drawn in front but not drawn with a glname)
+
+- tilt in XZ -- now old node is shown tilted (and draggable? not sure)
+  but now I can't even make a new node (due to highlight/displist bug?)
+
+- remake main instance, now i can make a new node, and can drag an old node
+
+  (so I wonder if this is caused by the highlighting bug related to DisplistChunk -- try disabling all those ###)
+  
+  and the old node is no longer tilted -- i think that indicates some sort of displist update bug!
+  either that, or it's a bug in the drawing code that it implicitly uses the to-screen direction...
+  or maybe it's related to snapshotting the look-expr for the node when making it... not sure ###
+
+trying disabling displists: fixes all reported bugsI tried (all 3 rects are draggable
+and affect sbar on mouseover, some just made and some from before remake main instance,
+both before and after untilting using "home view")
+
+conclusion: guess: bug is either in displist updating, or interaction of displist and highlight.
+I'll add comments to DisplistChunk and Highlightable mentioning this bug.
+
+WRONG -- not so simple: trying it more, even with that debug_pref disabled, it is intermittent --
+it might depend on how long I leave the mouse down when I make the node, or whether I move it over
+the node at that time, or on which files were modified and presumably got reloaded w/o main instance
+being remade (since this was changing over time as I did a commit).
+
+Trying it again in a fresh session, I get an exception:
+UnboundLocalError: local variable 'node_expr' referenced before assignment
+  [selectMode.py:2294] [Highlightable.py:552] [Highlightable.py:649] [demo_drag.py:513]
+
+I was wondering about that bug just before since I glanced it in the code,
+but then couldn't see it when I read it more carefully 
+(node_expr assignment is in else of 'if not self.use_VertexView', so doesn't happen;
+ use is in else of 'if 0', so does happen). No idea why it was working before.
+Not sure if it can relate to this bug, anyway. 
+
+Fix that, try again in fresh session:
+
+I still get the bug, and this time, no big chance DisplistChunk or file reload could be involved.
+WAIT, my debug_pref to disable DisplistChunk is not persistent! So maybe it's still causing this.
+Turning it off & remaking instance, bug can still happen on new nodes. I'll need to make that debug_pref
+persistent and test again more carefully. ### TRY THAT LATER [I did]
+
+... now I think the bug is caused by the 0.0001 being too large in check_target_depth in GLPane
+compared to the DZ * PIXELS * 1 or 2 in different places in demo_drag.py.
+Replacing them all with PIXELS * 3... this seems to have fixed it, even if I change all
+debug_prefs back to defaults (enable displists, skip redraws only wanted by Qt).
+But if I zoom out a bit, bug is predicted back... can't test that with displists enabled... 
+not tested this time.
+
+A better fix would be to change the 0.0001 in check_target_depth (see code comments for problems
+to solve first); for now I made it depend on mode, but made testmode set it to existing value.
+(I bet the old code needed 0.0001 to be so large due to cylinder or sphere
+drawing misalignment -- if I fixed that, maybe it could tolerate a smaller threshhold.)
+
+And the DZ * DZFUZZ (3 * PIXELS) in demo_drag.py could be replaced by a depth offset which
+doesn't depend on zoom history, so mousewheel would not affect its size in depth
+(i.e. not a value in model coords like now). Note that for use in displists, 
+this has to be a direct depth offset, not a model coord change calculated to imitate
+a desired depth offset using glu*Project.
+
+WARNING: It's possible that the value of DZFUZZ needed to work around this bug depends
+on the GLPane size, or on user prefs settings, or on Ortho vs Perspective! (all speculations)
+
+==
+
+070117 highlight failure if I mousewheel-zoom (in or out), 
+then mouseover the label or button of a checkbox_pref in the corner
+
+failure details: no highlight sbar_text, no action on press, debug_pref print like
+;;debug_pref: preDraw_glselect_dict failure: targetdepth is 0.0099999317899346352, items are [(2, <Highlightable#16016(i)>)]
+
+happens with the "drag new nodes?" checkbox_pref in testexpr_19f in bottom_right_corner]
+seems repeatable -- in one session tried so far
+
+==
+
+070203
+
+This is not a known bug, just an implem issue to think through to avoid likely bugs:
+what happens to usage tracking while a command decides what to do, eg what expr to make?
+Here are some code comments (world.py) to remind me of a place this came up 
+(but not the only place it matters) 
+(i didn't try to make these comments understandable to anyone else, so far):
+
+##    _index_counter = State(int, 1000) # moved here from demo_drag 070202
+##        ####k i think this should not be usage-tracked!!! think abt that... then see if true (probably not)
+
+    ## _index_counter = 1000 # (an easier way to make it not tracked [070202]) ####WRONG, when self is remade!!! [070203 re-realization]
+
+    _index_counter = property( lambda self: len(self.nodelist) + 3000 ) # 070203 experiment -- known to be wrong, see below;
+        # WARNING also includes a commenting out of this date [#####e needs code cleanup]
+        ###k MIGHT BE WRONG since it usage-tracks nodelist -- REVIEW ###
+        ### AND SURELY WRONG once we can delete individual nodes.
+
+        # The tracking danger is that whenever you make any new object, the old objects see that the index they used is different
+        # and think they too need remaking or something like that! This needs thinking through
+        # since it probably covers all make-data, not just the index. All make-data is being snapshotted.
+        # For that matter, things used by "commands" are in general different than things used to recompute.
+        # Maybe entire commands need to have traced usage discarded or kept in a new kind of place. #####
+
+update 070213: see revised and cleaned-up comments in world.py, and revised implem --
+which didn't fix the slowness in making new objects when lots of old ones are there.
+Note that much of that slowness goes away if MT is closed; see comments in demo_MT.py about
+a likely cause of that (an optim-bug in MT_try2).
+
+==
+
+070203 DisplistChunk update bug: series of prefs checkbox changes (eg show central cyl,
+testexpr_30g) fails to remake the displist after the first change, until certain other things
+happen, not yet characterized but including highlighting the affected object.
+
+Not yet understood; no evidence it's due to displists except that it doesn't happen if
+DisplistChunk is disabled (ie if it draws directly without using its displist). It was not
+noticed except in the first- tried case of a nested displist, so maybe it relates to that. The
+code it affects seems to be the DisplistChunk in the following (in dna_ribbon_view.py.py); see
+also the comments in this code excerpt.
+
+Things to try: see if removing one or the other of the nested displists (the one shown below
+or the one around the World) fixes the bug -- if it's due to nested ones, either one's removal
+should fix it; if not, probably only the following one's, or only both's, removal will fix it.
+
+    def _cmd_Make_DNA_Cylinder(self):
+        expr = DNA_Cylinder()
+        # Note: ideally, only that much (expr, at this point) would be stored as world's state, with the following wrappers
+        # added on more dynamically as part of finding the viewer for the model objects in world. ###e
+        # (Nice side effect: then code-reloading of the viewer would not require clearing and remaking the model objs.)
+        expr = DisplistChunk( expr) # displist around cylinder itself -- speeds(unverified) redraw of cyl while it's dragged, or anywhen [070203]
+            ###BUG (though this being the cause is only suspected): prefs changes remake the displist only the first time in a series of them,
+            # until the next time the object is highlighted or certain other things happen (exact conditions not yet clear); not yet diagnosed;
+            # might relate to nested displists, since this is apparently the first time we've used them.
+        expr = DraggableObject( expr)
+        ## expr = DisplistChunk( expr) # displist around drag-repositioned cyl -- prevents drag of this cyl from recompiling world's dlist
+            ###BUG: seems to be messed up by highlighting/displist known bug, enough that I can't tell if it's working in other ways --
+            # the printed recompile graph makes sense, but the number of recomps (re changetrack prediction as I drag more)
+            # seems wrong (it only recompiles when the drag first starts, but I think every motion ought to do it),
+            # but maybe the highlight/displist bug is preventing the drag events from working properly before they get that far.
+            # So try it again after fixing that old issue (not simple). [070203 9pm]
+        self.world.make_and_add( expr)
+        return
+
+update 070204: turning off an old optim in DisplistChunk (comment contains "070204") fixes this bug --
+but I won't resolve it fixed until I understand why the optim caused it, whether it's entirely fixed,
+etc. Meanwhile the optim is off, but can be turned back on by a debug pref,
+"DisplistChunk: permit optim 070204?"; when on it prints something whenever it's used
+(even if the use makes no difference); it's printed a lot of times on each redraw.
+
+==
+
+070204: maybe not repeatable: started up in testexpr_30g, made a cyl, used mousewheel on it
+right away, got one time subs already fulfilled debug prints [the bug]; also observed (known)
+highlight-posn bug; turned displists off, debug prints gone; turned them back on, can't
+remember if still gone, and remade instance [not even sure in which order i did those 2 things],
+and the bug (debug prints) doesn't recur. Didn't yet try repeating it in a new session.
+
+==
+
+070213: _index_counter = _self.untracked_model_state._index_counter fails as a state alias --
+not only for set, but even for get (returns wrong non-updated value, no error message).
+See details in a comment in world.py (below). But the same thing used for get exists
+in Highlightable.py, for glname. I don't know why (or if) it works there. I've added debug code to
+print a warning if it ever fails there.
+
+Here is the comment (partly out of context):
+
+    ###BUG: even for get, the abbreviated form (self._index_counter) is not updated when the spelled out form is!!
+    # See this debug print from when we tried that here:
+    ## print "after set to %r, self._index_counter = %r, self.untracked_model_state._index_counter = %r" % \
+    ##   (index, self._index_counter, self.untracked_model_state._index_counter )
+    ## # it prints: after set to 4002, self._index_counter = 4001, self.untracked_model_state._index_counter = 4002
+    # This is weird, since Highlightable seems to succeed using a similar glname abbrev for get.
+    # (Unless it doesn't, and I never noticed?? To check, I just added debug code for that -- so far untriggered.)
+
+==
+

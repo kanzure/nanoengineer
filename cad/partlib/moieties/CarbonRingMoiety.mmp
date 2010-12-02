@@ -1,0 +1,65 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (5.656335) (-0.043000, 0.172000, 2.921000) (1.000000)
+egroup (View Data)
+group (CarbonRingMoiety)
+info opengroup open = True
+mol (Moiety) def
+atom 1 (6) (1377, -2003, -2960) def
+info atom atomtype = sp2
+atom 2 (6) (8, -2429, -2989) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (-1281, -2005, -3019) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (-2108, -835, -3026) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (-2104, 522, -3023) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (-1249, 1670, -2992) def
+info atom atomtype = sp2
+bonda 5
+atom 7 (0) (7, -3193, -2897) def
+bond1 2
+atom 8 (0) (-2836, -1073, -2946) def
+bond1 4
+atom 9 (0) (-1742, -2616, -2943) def
+bond1 3
+atom 10 (0) (1814, -2630, -2865) def
+bond1 1
+atom 11 (0) (2901, -1141, -2818) def
+atom 12 (0) (2922, 748, -2816) def
+atom 13 (0) (1844, 2245, -2819) def
+atom 14 (0) (55, 2849, -2869) def
+atom 15 (0) (-1701, 2286, -2902) def
+bond1 6
+atom 16 (0) (-2829, 769, -2947) def
+bond1 5
+atom 17 (6) (43, 2086, -2964) def
+info atom atomtype = sp2
+bond1 14
+bonda 6
+atom 18 (6) (1399, 1627, -2931) def
+info atom atomtype = sp2
+bond1 13
+bonda 17
+atom 19 (6) (2194, 525, -2924) def
+info atom atomtype = sp2
+bond1 12
+bonda 18
+atom 20 (6) (2177, -906, -2930) def
+info atom atomtype = sp2
+bond1 11
+bonda 19 1
+egroup (CarbonRingMoiety)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part CarbonRingMoiety

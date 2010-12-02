@@ -1,0 +1,53 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.999107, -0.032807, -0.026632, 0.000038) (4.041688) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (l_asparagine_mm2_neutral)
+info opengroup open = True
+mol (l_asparagine_mm2_neutral) def
+atom 1 (7) (-1014, 848, -1279) def
+atom 2 (6) (-1370, 11, -124) def
+bond1 1
+atom 3 (6) (-700, -1369, -256) def
+bond1 2
+atom 4 (6) (-1037, 736, 1167) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-1803, 1830, 1327) def
+bond1 4
+atom 6 (8) (-191, 428, 1971) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (6) (775, -1367, -630) def
+info atom atomtype = sp2
+bond1 3
+atom 8 (8) (1308, -2239, -1270) def
+info atom atomtype = sp2
+bond2 7
+atom 9 (7) (1494, -310, -169) def
+bond1 7
+atom 10 (1) (-1591, 1690, -1313) def
+bond1 1
+atom 11 (1) (-1184, 362, -2158) def
+bond1 1
+atom 12 (1) (-2478, -136, -133) def
+bond1 2
+atom 13 (1) (-1231, -1948, -1049) def
+bond1 3
+atom 14 (1) (-817, -1943, 692) def
+bond1 3
+atom 15 (1) (-1508, 2239, 2158) def
+bond1 5
+atom 16 (1) (2478, -303, -395) def
+bond1 9
+atom 17 (1) (1028, 420, 350) def
+bond1 9
+egroup (l_asparagine_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_asparagine_mm2_neutral

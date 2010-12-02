@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+for i in adenine cytosine guanine thymine unknown end1 end2; do
+	python Generate.py $i > $i.mmp
+done

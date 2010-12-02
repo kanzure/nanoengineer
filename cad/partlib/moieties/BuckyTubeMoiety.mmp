@@ -1,0 +1,39 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (8.791591) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.600650) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (BuckyTubeMoiety)
+info opengroup open = True
+mol (Moiety) def
+atom 1 (6) (225, 3920, 4866) def
+info atom atomtype = sp2
+atom 2 (6) (200, 3920, 6289) def
+info atom atomtype = sp2
+bondg 1
+atom 3 (6) (-923, 3522, 4130) def
+info atom atomtype = sp2
+bondg 1
+atom 4 (6) (-990, 3544, 6960) def
+info atom atomtype = sp2
+bondg 2
+atom 5 (0) (893, 3851, 4488) def
+bondg 1
+atom 6 (0) (-909, 3523, 3359) def
+bondg 3
+atom 7 (0) (863, 3864, 6675) def
+bondg 2
+atom 8 (0) (-1050, 3618, 7724) def
+bondg 4
+atom 9 (0) (-1397, 3047, 4507) def
+bondg 3
+atom 10 (0) (-1444, 3055, 6574) def
+bondg 4
+egroup (BuckyTubeMoiety)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part BuckyTubeMoiety

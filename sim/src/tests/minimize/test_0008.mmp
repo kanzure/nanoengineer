@@ -1,0 +1,47 @@
+mmpformat 050130 required; 050217 optional
+kelvin 300
+group (Data)
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+datum (XY) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 0.000000, 1.000000) (0.000000, 1.000000, 0.000000)
+datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
+datum (ZX) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000) (0.000000, 1.000000, 0.000000)
+egroup (Data)
+group (Untitled)
+mol (Chunk-C644) def
+atom 1 (6) (-889, -340, 889) def
+atom 2 (0) (-502, -534, 1526) def
+bond1 1
+atom 3 (0) (-1083, -977, 502) def
+bond1 1
+mol (Chunk-C649) def
+atom 4 (6) (0, 548, 0) def
+bond1 1
+atom 5 (0) (-444, 992, -444) def
+bond1 4
+atom 6 (0) (444, 103, -444) def
+bond1 4
+mol (Chunk-C654) def
+atom 7 (6) (3476, 155, 889) def
+bond1 4
+atom 8 (0) (3105, 314, 1544) def
+bond1 7
+atom 9 (0) (3635, 811, 518) def
+bond1 7
+atom 10 (0) (4132, -215, 1048) def
+bond1 7
+mol (Chunk-C659) def
+atom 11 (6) (-7198, 712, 1277) def
+bond1 1
+atom 12 (0) (-7072, 1468, 1203) def
+bond1 11
+atom 13 (0) (-7382, 553, 2007) def
+bond1 11
+atom 14 (0) (-7776, 501, 815) def
+bond1 11
+ground (Ground.2) (0, 0, 0) 11 7
+egroup (Untitled)
+end1
+group (Clipboard)
+egroup (Clipboard)
+end molecular machine part Untitled

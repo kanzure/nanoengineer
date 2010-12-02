@@ -1,0 +1,63 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (-0.513927, -0.045067, 0.742553, -0.427157) (4.187053) (-0.135500, 0.205500, -0.100500) (1.000000)
+egroup (View Data)
+group (isoamyl_acetate)
+info opengroup open = True
+mol (isoamyl_acetate.pdb) def
+atom 1 (6) (-3489, -594, -1671) def
+atom 2 (6) (-2005, -180, -1671) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (-1525, 546, -2658) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (8) (-1109, -604, -546) def
+bond1 2
+atom 5 (6) (336, -201, -546) def
+bond1 4
+atom 6 (6) (1026, -762, 712) def
+bond1 5
+atom 7 (6) (2509, -348, 712) def
+bond1 6
+atom 8 (6) (2613, 1188, 711) def
+bond1 7
+atom 9 (6) (3199, -909, 1969) def
+bond1 7
+atom 10 (1) (-3563, -1681, -1671) def
+bond1 1
+atom 11 (1) (-3977, -197, -781) def
+bond1 1
+atom 12 (1) (-3977, -197, -2561) def
+bond1 1
+atom 13 (1) (824, -598, -1436) def
+bond1 5
+atom 14 (1) (410, 887, -546) def
+bond1 5
+atom 15 (1) (538, -365, 1602) def
+bond1 6
+atom 16 (1) (952, -1850, 712) def
+bond1 6
+atom 17 (1) (2997, -745, -178) def
+bond1 7
+atom 18 (1) (2125, 1586, -178) def
+bond1 8
+atom 19 (1) (2125, 1586, 1601) def
+bond1 8
+atom 20 (1) (3663, 1481, 711) def
+bond1 8
+atom 21 (1) (2711, -512, 2859) def
+bond1 9
+atom 22 (1) (3125, -1997, 1969) def
+bond1 9
+atom 23 (1) (4248, -616, 1969) def
+bond1 9
+egroup (isoamyl_acetate)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part isoamyl_acetate

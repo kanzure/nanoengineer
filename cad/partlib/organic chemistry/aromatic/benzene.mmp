@@ -1,0 +1,45 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.019122) (-0.004000, -0.048500, 0.054000) (1.000000)
+egroup (View Data)
+group (benzene)
+info opengroup open = True
+mol (benzene) def
+atom 1 (6) (1199, 769, -24) def
+info atom atomtype = sp2
+atom 2 (6) (1225, -627, -32) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (29, -1348, -62) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (-1192, -672, -85) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (-1219, 724, -77) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (-23, 1445, -48) def
+info atom atomtype = sp2
+bonda 5 1
+atom 7 (1) (2128, 1329, -1) def
+bond1 1
+atom 8 (1) (2175, -1151, -15) def
+bond1 2
+atom 9 (1) (50, -2432, -67) def
+bond1 3
+atom 10 (1) (-2121, -1232, -107) def
+bond1 4
+atom 11 (1) (-2167, 1248, -95) def
+bond1 5
+atom 12 (1) (-44, 2529, -42) def
+bond1 6
+egroup (benzene)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part benzene

@@ -1,0 +1,96 @@
+#! /usr/bin/python
+
+from OpenGL.GLUT import *
+from OpenGL.GLU import *
+from OpenGL.GL import *
+import sys
+from readmmp import readmmp
+from bondage import *
+from RandomArray import *
+
+MOUSE_WHEEL_UP = 3
+MOUSE_WHEEL_DOWN = 4
+
+name = 'Developmental Simulator'
+
+def glutsetup():
+    glutInit(sys.argv)
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
+    glutInitWindowSize(800,600)
+    glutCreateWindow(name)
+
+    glClearColor(0.,0.,0.,1.)
+    glShadeModel(GL_SMOOTH)
+    glEnable(GL_CULL_FACE)
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_LIGHTING)
+    lightZeroPosition = [10.,4.,10.,1.]
+    lightZeroColor = [0.8,1.0,0.8,1.0] #green tinged
+    glLightfv(GL_LIGHT0, GL_POSITION, lightZeroPosition)
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightZeroColor)
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1)
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05)
+    glEnable(GL_LIGHT0)
+    glutDisplayFunc(display)
+    glMatrixMode(GL_PROJECTION)
+    gluPerspective(40.,1.,1.,40.)
+    glMatrixMode(GL_MODELVIEW)
+    gluLookAt(0,0,10,
+              0,0,0,
+              0,1,0)
+
+def display():
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+    glMaterialfv(GL_FRONT,GL_DIFFUSE,[1.0,1.0,1.0,1.])
+
+    glBegin(GL_LINES)
+    for (a,b,o) in bonds:
+        glVertex(pos[:,a])
+        glVertex(pos[:,b])
+    glEnd()
+
+    glMaterialfv(GL_FRONT,GL_DIFFUSE,[1.0,0.5,0.5,1.])
+    glBegin(GL_LINES)
+    for (a,o1,b,o2,c) in bends:
+        glVertex(pos[:,a])
+        glVertex(pos[:,c])
+    glEnd()
+
+    for i in range(len(elt)):
+        glPushMatrix()
+        glTranslate(pos[0,i],pos[1,i],pos[2,i])
+        glutSolidSphere(0.7,40,20)
+        glPopMatrix()
+
+
+    glutSwapBuffers()
+    return
+
+def step():
+    global new, pos, old
+    
+    old=pos
+    pos=new
+    new=2*pos-old+massacc*force(pos)
+    display()
+
+
+
+def main():
+    global elt, pos, new, bonds, bends, massacc
+    
+    elt, pos, bonds = readmmp(sys.argv[1])
+    bends = bondsetup(bonds)
+
+    dt=1e-16
+    massacc=array([dt*dt/elmass[x] for x in elt])
+    new=pos+massacc*455.0*standard_normal(shape(pos))
+
+    glutsetup()
+
+    glutIdleFunc(step)
+    glutMainLoop()
+    
+if __name__ == '__main__': main()
+
+

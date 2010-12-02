@@ -1,0 +1,35 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.294035) (-0.254000, 0.092000, -0.188000) (1.000000)
+egroup (View Data)
+group (oxalic_acid)
+info opengroup open = True
+mol (oxalic_acid) def
+atom 1 (6) (-948, 314, 224) def
+info atom atomtype = sp2
+atom 2 (6) (545, 288, 166) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (1229, 1300, 220) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (8) (1185, -891, 45) def
+bond1 2
+atom 5 (8) (-1549, 1372, 361) def
+info atom atomtype = sp2
+bond2 1
+atom 6 (8) (-1628, -851, 120) def
+bond1 1
+atom 7 (1) (2136, -696, 15) def
+bond1 4
+atom 8 (1) (-964, -1556, 23) def
+bond1 6
+egroup (oxalic_acid)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part oxalic_acid

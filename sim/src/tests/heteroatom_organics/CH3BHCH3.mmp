@@ -1,0 +1,35 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.773200, -0.146735, -0.527464, 0.320018) (2.850967) (0.007500, -0.024500, 0.016000) (1.000000)
+egroup (View Data)
+group (CH3BHCH3)
+info opengroup open = True
+mol (CH3BHCH3.pdb) def
+atom 1 (5) (341, 284, -27) def
+atom 2 (6) (-20, -221, 1414) def
+bond1 1
+atom 3 (6) (-334, -234, -1345) def
+bond1 1
+atom 4 (1) (1198, 1122, -125) def
+bond1 1
+atom 5 (1) (-706, -1073, 1454) def
+bond1 2
+atom 6 (1) (-494, 618, 1950) def
+bond1 2
+atom 7 (1) (878, -452, 2001) def
+bond1 2
+atom 8 (1) (-1213, -871, -1199) def
+bond1 3
+atom 9 (1) (421, -831, -1884) def
+bond1 3
+atom 10 (1) (-587, 582, -2033) def
+bond1 3
+egroup (CH3BHCH3)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part CH3BHCH3

@@ -1,0 +1,24 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.491851) (0.655500, 0.013500, -0.000000) (1.000000)
+egroup (View Data)
+group (Cl_BH2_cs)
+info opengroup open = True
+mol (Cl_BH2_cs.pdb) cpk
+atom 1 (5) (-1133, -28, -557) def
+atom 2 (17) (277, -381, 387) def
+bond1 1
+atom 3 (1) (-1743, 151, -961) def
+bond1 1
+atom 4 (1) (-2127, -144, 950) def
+bond1 1
+egroup (Cl_BH2_cs)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Cl_BH2_cs
+

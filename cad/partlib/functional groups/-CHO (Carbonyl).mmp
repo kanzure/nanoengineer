@@ -1,0 +1,25 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.999945, 0.010476, 0.000079, 0.000929) (3.014452) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (-CHO %28Carbonyl%29)
+info opengroup open = True
+mol (-CHO) def
+atom 1 (6) (-93, -14, -56) def
+info atom atomtype = sp2
+atom 2 (0) (-542, -351, -491) def
+bond1 1
+atom 3 (1) (655, -523, 386) def
+bond1 1
+atom 4 (8) (-234, 1217, 161) def
+info atom atomtype = sp2
+bond2 1
+egroup (-CHO %28Carbonyl%29)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part -CHO (Carbonyl)

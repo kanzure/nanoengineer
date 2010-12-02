@@ -1,0 +1,68 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.682714) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (SunGearMoiety)
+info opengroup open = True
+mol (SunGearMoiety) def
+atom 1 (0) (-722, -68, 2896) def
+atom 2 (16) (1441, -2118, -1769) def
+atom 3 (0) (1255, -115, 2755) def
+atom 4 (0) (331, 1672, 2751) def
+atom 5 (6) (-1124, -587, 1014) def
+atom 6 (6) (-955, 310, 2268) def
+bond1 5 1
+atom 7 (16) (-1510, -2057, -1570) def
+atom 8 (6) (-1105, 320, -288) def
+bond1 5
+atom 9 (16) (141, -1859, 1039) def
+bond1 5
+atom 10 (6) (270, 1290, 2085) def
+bond1 6 4
+atom 11 (6) (1453, 252, 2108) def
+bond1 10 3
+atom 12 (6) (-791, -423, -1616) def
+bond1 7 8
+atom 13 (6) (115, 1300, -370) def
+bond1 8
+atom 14 (6) (1437, -644, 845) def
+bond1 9 11
+atom 15 (8) (244, 2070, 851) def
+bond1 10 13
+atom 16 (6) (755, -470, -1718) def
+bond1 12 2
+atom 17 (8) (101, 2118, -1640) def
+bond1 13
+atom 18 (6) (1269, 255, -445) def
+bond1 13 14 16
+atom 19 (0) (2142, -946, 785) def
+bond1 14
+atom 20 (0) (2407, -1745, -1853) def
+bond1 2
+atom 21 (0) (2001, 477, -519) def
+bond1 18
+atom 22 (0) (2188, 467, 2025) def
+bond1 11
+atom 23 (0) (-1836, -876, 1052) def
+bond1 5
+atom 24 (0) (-1690, 537, 2285) def
+bond1 6
+atom 25 (0) (-2472, -1665, -1524) def
+bond1 7
+atom 26 (0) (-1838, 554, -263) def
+bond1 8
+atom 27 (0) (35, 1795, -2212) def
+bond1 17
+atom 28 (0) (922, -74, -2356) def
+bond1 16
+atom 29 (0) (-1027, -15, -2224) def
+bond1 12
+egroup (SunGearMoiety)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part SunGearMoiety

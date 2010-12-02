@@ -1,0 +1,51 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.615500, -0.000562, -0.783728, -0.083249) (4.390340) (0.056500, -0.319000, -0.108500) (1.000000)
+egroup (View Data)
+group (cyclohex-boat)
+info opengroup open = True
+mol (cyclohex-boat) def
+atom 1 (6) (-509, -102, 1400) def
+atom 2 (6) (-1433, 435, 292) def
+bond1 1
+atom 3 (6) (956, -213, 943) def
+bond1 1
+atom 4 (6) (1275, 853, -112) def
+bond1 3
+atom 5 (6) (454, 606, -1391) def
+bond1 4
+atom 6 (6) (-932, 5, -1092) def
+bond1 2 5
+atom 7 (1) (-858, -1107, 1738) def
+bond1 1
+atom 8 (1) (-584, 575, 2286) def
+bond1 1
+atom 9 (1) (-1465, 1550, 323) def
+bond1 2
+atom 10 (1) (-2478, 82, 461) def
+bond1 2
+atom 11 (1) (1146, -1218, 496) def
+bond1 3
+atom 12 (1) (1639, -119, 1820) def
+bond1 3
+atom 13 (1) (1034, 1856, 314) def
+bond1 4
+atom 14 (1) (2365, 861, -352) def
+bond1 4
+atom 15 (1) (1006, -88, -2069) def
+bond1 5
+atom 16 (1) (347, 1571, -1941) def
+bond1 5
+atom 17 (1) (-1657, 307, -1885) def
+bond1 6
+atom 18 (1) (-882, -1110, -1115) def
+bond1 6
+egroup (cyclohex-boat)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part cyclohex-boat

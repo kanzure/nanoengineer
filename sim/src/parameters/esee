@@ -1,0 +1,48 @@
+#! /usr/bin/python
+
+import re
+import os
+import sys
+engpat = re.compile(" *[\d\.-]+ +([\d\.-]+)")
+
+def findnext(f,pat):
+    while 1:
+        card = f.readline()
+        if not card: return None
+        m = pat.match(card)
+        if m: return m        
+
+def ending(nam,suf):
+    if suf==nam[-len(suf):]: return nam
+    else: return nam+suf
+
+if len(sys.argv)>1:
+    files = map(lambda nm: ending(nm,'.log'),sys.argv[1:])
+else:
+    files = os.listdir('.')
+    
+    
+for fn in files:
+    if '.log'==fn[-4:]:
+        fn = fn[:-4]
+        os.system("xe "+fn+" > "+fn+'.data')
+        f=open(fn+'.data','r')
+        hi=-1000000.0
+        lo=0.0
+        while 1:
+            m=findnext(f, engpat)
+            if not m: break
+            n=float(m.group(1))
+            if n==0.0: continue
+            if n<lo: lo=n
+            if n>hi: hi=n
+        f.close()
+        dy = (hi - lo)/20.
+        yval = str(lo-dy)+':'+str(hi+dy)
+        f=open(fn+'.gnp','w')
+        print >>f, 'set title "',fn,'"'
+        print >>f, "plot []["+yval+"] '"+fn+".data' using 1:2 with lines"
+        print >>f, 'pause mouse'
+        f.close()
+        os.system('gnuplot '+fn+'.gnp')
+        

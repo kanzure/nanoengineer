@@ -1,0 +1,43 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.941837, -0.010571, -0.273245, 0.195367) (2.370702) (-0.002000, -0.002000, 0.002000) (1.000000)
+egroup (View Data)
+group (pyridine)
+info opengroup open = True
+mol (pyridine) def
+atom 1 (6) (-288, -960, -328) def
+info atom atomtype = sp2
+atom 2 (6) (-1284, -36, 12) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (-912, 1272, 324) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (7) (340, 1640, 304) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (1308, 812, -8) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (1036, -516, -340) def
+info atom atomtype = sp2
+bonda 1 5
+atom 7 (1) (-544, -2004, -584) def
+bond1 1
+atom 8 (1) (-2344, -340, 32) def
+bond1 2
+atom 9 (1) (-1688, 2008, 600) def
+bond1 3
+atom 10 (1) (2348, 1172, -12) def
+bond1 5
+atom 11 (1) (1852, -1208, -604) def
+bond1 6
+egroup (pyridine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part pyridine

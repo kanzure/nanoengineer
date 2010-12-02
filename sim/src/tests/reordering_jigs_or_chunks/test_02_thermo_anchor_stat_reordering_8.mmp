@@ -1,0 +1,25 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (02-thermo-anchor-stat-reordering-8)
+info opengroup open = True
+group (Group34)
+info opengroup open = True
+forward_ref (773598424) # stat (Stat-33)
+forward_ref (773509728) # thermo (Thermo.21)
+mol (2-anchor) tub
+atom 1 (1) (1737, 71, 0) -
+egroup (Group34)
+ground (Anchor.19) (0, 0, 0) 1
+mol (1-Thermo) tub
+atom 2 (1) (993, 69, 0) def
+bond1 1
+stat (Stat-33) (0, 0, 153) (100) 2 2 2
+info leaf forwarded = 773598424
+thermo (Thermo.21) (153, 0, 51) 2 2 2
+info leaf forwarded = 773509728
+egroup (02-thermo-anchor-stat-reordering-8)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part 02-thermo-anchor-stat-reordering-8

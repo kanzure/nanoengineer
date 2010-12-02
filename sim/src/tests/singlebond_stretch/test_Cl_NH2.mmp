@@ -1,0 +1,24 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.374000) (0.456000, 0.205000, -0.000000) (1.000000)
+egroup (View Data)
+group (Cl_NH2_cs)
+info opengroup open = True
+mol (Cl_NH2_cs.pdb) cpk
+atom 1 (7) (-1396, 360, -339) def
+atom 2 (17) (456, -74, -243) def
+bond1 1
+atom 3 (1) (-682, -933, -742) def
+bond1 1
+atom 4 (1) (-1543, -226, 775) def
+bond1 1
+egroup (Cl_NH2_cs)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Cl_NH2_cs
+

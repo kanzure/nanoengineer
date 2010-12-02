@@ -1,0 +1,80 @@
+cad/src/exprs/PLAN.txt
+
+ Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# $Id$
+
+===
+
+plan for the files in this exprs directory:  [last updated circa 061011]
+
+will be cannibalized for useful parts:
+
+testdraw1_cannib.py [copy is above]
+testdraw2_cannib.py [copy is above]
+NewInval.py
+scratch5.py
+
+will be removed someday, since copies of the above, but for now are used as ne1 glue into here:
+
+../testdraw.py
+../testdraw2.py
+
+will survive upstairs as debug code, for awhile:
+
+../testmode.py
+
+junk:
+
+scratch.py
+scratch4.py
+scratch_cubemath.py
+
+will be maintained:
+
+__init__.py
+test.py
+
+will be added:
+
+a regression test file, or more than one
+
+classes (names unclear): Env, RawExpr, UnderstoodExpr, Instance...
+
+not sure if RawExpr, UnderstoodExpr are different; HelperClass seems to be both...
+
+... and some .py files already added...
+
+===
+
+list of the biggest language deficiencies or todos [as of 070105]:
+- eval vs instantiate (semantic mess needs fixing)
+- mappings in general
+  - instantiation
+  - glue code memoization
+  - misc apps
+- lexenv/dynenv disambiguation (and other widget_env cleanups)
+- iteration constructs (generalized list extension, not just for lists but for categories/hypergraphs too)
+- geometry needs to be geometric, not coordinate-based
+- type coercion
+  - polymorphic arg decls
+- action/command syntax
+- rule syntax
+- layered data
+- draw decorators (_e_decorate_draw), so highlighting and display lists can work properly together
+- no compiling yet implemented
+
+ipath [070301]:
+- If I didn't care about transient state surviving code reloads, 
+  and if I took advantage of ideas about "delegating to a wrapped self"
+  and "delegating to a class sharing self's state and methods",
+  and if I handled explicit sharing explicitly 
+  (not sure of what all that entails, since explicit sharing is not much explored yet),
+  Then would I still need ipath at all?
+  Maybe not -- since maybe Instance identity would be sufficient in most cases.
+  That is, Instances could just *contain* their transient state, 
+  and all external state would have explicit paths assigned as part of the model
+  (like model object state already does, namely the index in the world),
+  and if transient state nonpersistence across reloads got too annoying,
+  it could be given explicit paths too.
+  Not thought through enough to be sure. If true, it would be a big simplification.
+

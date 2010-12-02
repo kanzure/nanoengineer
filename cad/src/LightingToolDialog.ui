@@ -1,0 +1,526 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>LightingToolDialog</class>
+ <widget class="QDialog" name="LightingToolDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>411</width>
+    <height>470</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Lighting</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>11</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QFrame" name="frame1_2" >
+     <property name="frameShape" >
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>11</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="1" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="light1CB" >
+          <property name="text" >
+           <string>On</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="1" >
+           <widget class="QLCDNumber" name="ambLight1LCD" >
+            <property name="smallDecimalPoint" >
+             <bool>false</bool>
+            </property>
+            <property name="segmentStyle" >
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+            <property name="value" stdset="0" >
+             <double>1</double>
+            </property>
+            <property name="intValue" stdset="0" >
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QSlider" name="ambLight1SL" >
+            <property name="maximum" >
+             <number>100</number>
+            </property>
+            <property name="singleStep" >
+             <number>1</number>
+            </property>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickInterval" >
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QSlider" name="diffuseLight1SL" >
+            <property name="maximum" >
+             <number>100</number>
+            </property>
+            <property name="singleStep" >
+             <number>1</number>
+            </property>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickInterval" >
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QLCDNumber" name="diffuseLight1LCD" >
+            <property name="smallDecimalPoint" >
+             <bool>false</bool>
+            </property>
+            <property name="segmentStyle" >
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+            <property name="value" stdset="0" >
+             <double>1</double>
+            </property>
+            <property name="intValue" stdset="0" >
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="textLabel2_4" >
+          <property name="text" >
+           <string>Light Source #1:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_4" >
+          <property name="text" >
+           <string>Ambient Brightness:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_3_2" >
+          <property name="text" >
+           <string>Diffuse Brightness:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QFrame" name="frame5" >
+     <property name="frameShape" >
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>11</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="1" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="light2CB" >
+          <property name="text" >
+           <string>On</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="0" >
+           <widget class="QSlider" name="ambLight2SL" >
+            <property name="maximum" >
+             <number>100</number>
+            </property>
+            <property name="singleStep" >
+             <number>1</number>
+            </property>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickInterval" >
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QLCDNumber" name="diffuseLight2LCD" >
+            <property name="smallDecimalPoint" >
+             <bool>false</bool>
+            </property>
+            <property name="segmentStyle" >
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+            <property name="value" stdset="0" >
+             <double>1</double>
+            </property>
+            <property name="intValue" stdset="0" >
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QLCDNumber" name="ambLight2LCD" >
+            <property name="smallDecimalPoint" >
+             <bool>false</bool>
+            </property>
+            <property name="segmentStyle" >
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+            <property name="value" stdset="0" >
+             <double>1</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QSlider" name="diffuseLight2SL" >
+            <property name="maximum" >
+             <number>100</number>
+            </property>
+            <property name="singleStep" >
+             <number>1</number>
+            </property>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickInterval" >
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="textLabel2_2" >
+          <property name="text" >
+           <string>Light Source #2:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_2" >
+          <property name="text" >
+           <string>Ambient Brightness:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_3_3" >
+          <property name="text" >
+           <string>Diffuse Brightness:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QFrame" name="frame6" >
+     <property name="frameShape" >
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>11</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="1" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="light3CB" >
+          <property name="text" >
+           <string>On</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="1" column="0" >
+           <widget class="QSlider" name="diffuseLight3SL" >
+            <property name="maximum" >
+             <number>100</number>
+            </property>
+            <property name="singleStep" >
+             <number>1</number>
+            </property>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickInterval" >
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QLCDNumber" name="diffuseLight3LCD" >
+            <property name="smallDecimalPoint" >
+             <bool>false</bool>
+            </property>
+            <property name="segmentStyle" >
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+            <property name="value" stdset="0" >
+             <double>1</double>
+            </property>
+            <property name="intValue" stdset="0" >
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QLCDNumber" name="ambLight3LCD" >
+            <property name="smallDecimalPoint" >
+             <bool>false</bool>
+            </property>
+            <property name="segmentStyle" >
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+            <property name="value" stdset="0" >
+             <double>1</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QSlider" name="ambLight3SL" >
+            <property name="maximum" >
+             <number>100</number>
+            </property>
+            <property name="singleStep" >
+             <number>1</number>
+            </property>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickInterval" >
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="textLabel2_3" >
+          <property name="text" >
+           <string>Light Source #3:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_2_2" >
+          <property name="text" >
+           <string>Ambient Brightness:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_3_3_2" >
+          <property name="text" >
+           <string>Diffuse Brightness:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0" >
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="okPB" >
+       <property name="text" >
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="restoreDefaultsPB" >
+       <property name="text" >
+        <string>Restore Defaults</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelPB" >
+       <property name="text" >
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <tabstops>
+  <tabstop>light1CB</tabstop>
+  <tabstop>ambLight1SL</tabstop>
+  <tabstop>diffuseLight1SL</tabstop>
+  <tabstop>light2CB</tabstop>
+  <tabstop>ambLight2SL</tabstop>
+  <tabstop>diffuseLight2SL</tabstop>
+  <tabstop>light3CB</tabstop>
+  <tabstop>ambLight3SL</tabstop>
+  <tabstop>diffuseLight3SL</tabstop>
+  <tabstop>okPB</tabstop>
+  <tabstop>restoreDefaultsPB</tabstop>
+  <tabstop>cancelPB</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>okPB</sender>
+   <signal>clicked()</signal>
+   <receiver>LightingToolDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelPB</sender>
+   <signal>clicked()</signal>
+   <receiver>LightingToolDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

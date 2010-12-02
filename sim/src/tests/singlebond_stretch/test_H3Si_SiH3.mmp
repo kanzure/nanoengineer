@@ -1,0 +1,32 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (5.614757) (-0.000000, -0.000000, -0.000000) (1.000000)
+egroup (View Data)
+group (H3Si_SiH3_d3d)
+info opengroup open = True
+mol (H3Si_SiH3_d3d.pdb) def
+atom 1 (14) (153, 117, 1689) def
+atom 2 (14) (-103, -108, -990) def
+bond1 1
+atom 3 (1) (-2071, -1194, -1602) def
+bond1 2
+atom 4 (1) (1666, -776, -1792) def
+bond1 2
+atom 5 (1) (298, -1355, 1857) def
+bond1 1
+atom 6 (1) (1361, 643, 1255) def
+bond1 1
+atom 7 (1) (-1062, 228, 1780) def
+bond1 1
+atom 8 (1) (389, 1323, -1584) def
+bond1 2
+egroup (H3Si_SiH3_d3d)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part H3Si_SiH3_d3d
+

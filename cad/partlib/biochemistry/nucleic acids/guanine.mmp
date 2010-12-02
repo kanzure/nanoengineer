@@ -1,0 +1,58 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (9.825484) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.825484) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (guanine)
+info opengroup open = True
+mol (guanine) def
+atom 1 (6) (1760, -922, -174) def
+info atom atomtype = sp2
+atom 2 (7) (1905, 453, -216) def
+info atom atomtype = sp2(graphitic)
+bond1 1
+atom 3 (6) (-479, 668, -77) def
+info atom atomtype = sp2
+atom 4 (6) (-564, -728, -39) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (7) (544, -1476, -88) def
+info atom atomtype = sp2
+bond1 4
+bond2 1
+atom 6 (7) (-1910, -1041, 49) def
+info atom atomtype = sp2(graphitic)
+bond1 4
+atom 7 (6) (-2605, 155, 63) def
+info atom atomtype = sp2
+bond1 6
+atom 8 (7) (-1724, 1162, -13) def
+info atom atomtype = sp2
+bond1 3
+bond2 7
+atom 9 (8) (907, 2594, -207) def
+info atom atomtype = sp2
+atom 10 (7) (2897, -1741, -224) def
+bond1 1
+atom 11 (1) (-3678, 259, 126) def
+bond1 7
+atom 12 (1) (-2308, -1968, 95) def
+bond1 6
+atom 13 (1) (2825, 865, -282) def
+bond1 2
+atom 14 (1) (2718, -2595, 282) def
+bond1 10
+atom 15 (1) (3678, -1258, 192) def
+bond1 10
+atom 16 (6) (794, 1293, -169) def
+info atom atomtype = sp2
+bond1 3 2
+bond2 9
+egroup (guanine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part guanine

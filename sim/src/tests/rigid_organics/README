@@ -1,0 +1,20 @@
+Where things stand as of 15 Nov 2005
+------------------------------------
+
+The MMP files from Damian are minimized structures. So the idea for
+the tests is that for each structure, we generate a perturbed version
+and then we want the minimizer to bring it back to the minimized
+shape. So the MMP files we have right now are essentially outputs of
+the tests, or references for how the outputs should look.
+
+The immediate need for MmpFile.py is in helping to perturb the MMP
+structures supplied by Damian. Later, it might help with merging
+position information from other file formats into an MMP file. This
+would be helpful when we get GAMESS data in something like an XYZ or a
+PDB file. There is already some effort in that direction, see
+sim/src/tests/scripts/xyzmerge.py and
+sim/src/tests/scripts/XyzFile.py.
+
+It makes sense to have Python classes representing a few different
+file formats that we are likely to be using. That's why I used names
+like XyzFile.py and MmpFile.py.

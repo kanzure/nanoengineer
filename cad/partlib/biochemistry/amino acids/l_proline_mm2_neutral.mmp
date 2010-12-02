@@ -1,0 +1,51 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (2.948471) (-0.225000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (l_proline_mm2_neutral)
+info opengroup open = True
+mol (l_proline_mm2_neutral) def
+atom 1 (7) (-375, 725, -702) def
+atom 2 (6) (-352, -109, 502) def
+bond1 1
+atom 3 (6) (902, -987, 380) def
+bond1 2
+atom 4 (6) (-410, 724, 1767) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (6) (956, -1230, -1132) def
+bond1 3
+atom 6 (8) (-1508, 1504, 1789) def
+bond1 4
+atom 7 (8) (381, 721, 2679) def
+info atom atomtype = sp2
+bond2 4
+atom 8 (6) (562, 150, -1668) def
+bond1 1 5
+atom 9 (1) (-1317, 758, -1091) def
+bond1 1
+atom 10 (1) (-1255, -767, 482) def
+bond1 2
+atom 11 (1) (1812, -426, 700) def
+bond1 3
+atom 12 (1) (833, -1931, 967) def
+bond1 3
+atom 13 (1) (1958, -1568, -1484) def
+bond1 5
+atom 14 (1) (195, -1991, -1426) def
+bond1 5
+atom 15 (1) (-1464, 1991, 2628) def
+bond1 6
+atom 16 (1) (1462, 808, -1722) def
+bond1 8
+atom 17 (1) (98, 100, -2679) def
+bond1 8
+egroup (l_proline_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_proline_mm2_neutral

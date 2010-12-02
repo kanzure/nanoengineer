@@ -1,0 +1,86 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.227447) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (05-thermo-lmotor-anchor-measurement jigs reordering-6)
+info opengroup open = True
+group (Group165)
+info opengroup open = True
+mol (3) tub
+atom 1 (6) (5901, -159, 0) def
+atom 2 (1) (6526, 465, 624) def
+bond1 1
+atom 3 (1) (5277, 465, -624) def
+bond1 1
+atom 4 (1) (5277, -784, 624) def
+bond1 1
+atom 5 (1) (6526, -784, -624) def
+bond1 1
+forward_ref (241879000) # thermo (Thermo-2)
+forward_ref (241879240) # mangle (Angle-4-1-2)
+egroup (Group165)
+group (Group163)
+info opengroup open = True
+lmotor (Linear Motor-3) (127, 127, 127) 0.500000 0.050000 (5901, -159, 0) (-1000, 0, 0) 3.00 0.50 0.10
+shaft 1
+egroup (Group163)
+mol (1) tub
+atom 6 (6) (-4035, -61, 0) def
+atom 7 (1) (-3412, 563, 624) def
+bond1 6
+atom 8 (1) (-4661, 563, -624) def
+bond1 6
+atom 9 (1) (-3412, -686, -624) def
+bond1 6
+atom 10 (7) (-4903, -928, 867) def
+bond1 6
+atom 11 (1) (-4303, -1528, 1467) def
+bond1 10
+atom 12 (1) (-5504, -328, 1467) def
+bond1 10
+thermo (Thermo-2) (153, 0, 51) 6 12 10
+info leaf forwarded = 241879000
+group (Group164)
+info opengroup open = True
+mol (2) tub
+atom 13 (6) (527, 5239, 0) def
+atom 14 (1) (-97, 5863, -624) def
+bond1 13
+atom 15 (1) (-97, 4614, 624) def
+bond1 13
+atom 16 (1) (1152, 4614, -624) def
+bond1 13
+atom 17 (8) (1371, 6083, 844) def
+bond1 13
+atom 18 (1) (1915, 6627, 204) def
+bond1 17
+forward_ref (241879560) # mdihedral (Dihedral-1-2-3-4)
+egroup (Group164)
+forward_ref (241672880) # ground (Anchor-4)
+mol (4) tub
+atom 19 (6) (1288, -5705, 0) def
+atom 20 (17) (2322, -4670, 1034) def
+bond1 19
+atom 21 (17) (253, -6740, 1034) def
+bond1 19
+atom 22 (17) (2322, -6740, -1034) def
+bond1 19
+atom 23 (17) (253, -4670, -1034) def
+bond1 19
+mangle (Angle-4-1-2) (0, 0, 0) (Helvetica) 10 19 6 13
+info leaf forwarded = 241879240
+mdihedral (Dihedral-1-2-3-4) (0, 0, 0) (Helvetica) 10 10 17 1 23
+info leaf forwarded = 241879560
+ground (Anchor-4) (0, 0, 0) 20
+info leaf forwarded = 241672880
+thermo (Thermo-4) (153, 0, 51) 19 23 19
+mdistance (Distance-1-3) (0, 0, 0) (Helvetica) 10 6 1
+egroup (05-thermo-lmotor-anchor-measurement jigs reordering-6)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part 05-thermo-lmotor-anchor-measurement jigs reordering-6

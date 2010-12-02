@@ -1,0 +1,57 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.416764) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (l_glutamicacid_mm2_neutral)
+info opengroup open = True
+mol (l_glutamicacid_mm2_neutral) def
+atom 1 (7) (-1016, 1634, -1278) def
+atom 2 (6) (-1327, 798, -108) def
+bond1 1
+atom 3 (6) (-567, -538, -196) def
+bond1 2
+atom 4 (6) (-1090, 1567, 1178) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-1697, 2769, 1143) def
+bond1 4
+atom 6 (8) (-471, 1200, 2147) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (6) (959, -388, -304) def
+bond1 3
+atom 8 (6) (1666, -1727, -396) def
+info atom atomtype = sp2
+bond1 7
+atom 9 (8) (2423, -2203, 416) def
+info atom atomtype = sp2
+bond2 8
+atom 10 (8) (1382, -2361, -1550) def
+bond1 8
+atom 11 (1) (-1590, 2477, -1289) def
+bond1 1
+atom 12 (1) (-1223, 1144, -2147) def
+bond1 1
+atom 13 (1) (-2423, 581, -136) def
+bond1 2
+atom 14 (1) (-941, -1091, -1091) def
+bond1 3
+atom 15 (1) (-815, -1166, 693) def
+bond1 3
+atom 16 (1) (-1506, 3183, 2000) def
+bond1 5
+atom 17 (1) (1358, 154, 584) def
+bond1 7
+atom 18 (1) (1236, 212, -1202) def
+bond1 7
+atom 19 (1) (1900, -3183, -1531) def
+bond1 10
+egroup (l_glutamicacid_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_glutamicacid_mm2_neutral

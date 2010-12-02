@@ -1,0 +1,56 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.120499, -0.957702, -0.246747, 0.086039) (3.528416) (-0.000000, -0.000000, -0.000000) (1.000000)
+egroup (View Data)
+group (C7H14c)
+info opengroup open = True
+mol (C7H14c.pdb) cpk
+atom 1 (6) (-828, 468, -1455) def
+atom 2 (6) (690, 705, -1349) def
+bond1 1
+atom 3 (6) (1324, 250, -23) def
+bond1 2
+atom 4 (6) (-843, 249, 1444) def
+atom 5 (6) (-1321, -872, -881) def
+bond1 1
+atom 6 (6) (-1211, -1030, 670) def
+bond1 4 5
+atom 7 (6) (629, 717, 1267) def
+bond1 3 4
+atom 8 (1) (-1124, 530, -2510) def
+bond1 1
+atom 9 (1) (-1363, 1286, -956) def
+bond1 1
+atom 10 (1) (1200, 171, -2162) def
+bond1 2
+atom 11 (1) (896, 1771, -1512) def
+bond1 2
+atom 12 (1) (2370, 582, 0) def
+bond1 3
+atom 13 (1) (1370, -847, -14) def
+bond1 3
+atom 14 (1) (-1031, 73, 2510) def
+bond1 4
+atom 15 (1) (-1530, 1054, 1157) def
+bond1 4
+atom 16 (1) (-2370, -992, -1177) def
+bond1 5
+atom 17 (1) (-779, -1690, -1374) def
+bond1 5
+atom 18 (1) (-2169, -1400, 1053) def
+bond1 6
+atom 19 (1) (-481, -1812, 915) def
+bond1 6
+atom 20 (1) (1225, 340, 2107) def
+bond1 7
+atom 21 (1) (671, 1812, 1339) def
+bond1 7
+egroup (C7H14c)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C7H14c

@@ -1,0 +1,9 @@
+#! /usr/bin/python
+
+import os
+import sys
+
+for name in sys.argv[1:]:
+    if name[-4:] == '.inp': name = name[:-4]
+    os.system("rungms %s 1 > %s.log" % (name,name))
+

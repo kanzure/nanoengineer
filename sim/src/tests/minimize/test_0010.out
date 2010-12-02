@@ -1,0 +1,48 @@
+======= test_0010.test =======
+======= exitvalue =======
+0
+======= stderr =======
+cutover to fine tolerance at 3
+linearMinimize allocated 0 instead of 1
+minimize allocated 0 instead of 1
+======= stdout =======
+iters per frame = 10
+number of frames = 100
+timestep = 1.000000e-16
+temp = 0.000000
+dump as text
+< test_0010.mmp  > test_0010.xyz
+final RMS gradient=7582.712038 after 5 iterations
+======= test_0010.trc =======
+# nanoENGINEER-1.com Simulator Trace File, Version 050310
+#
+# Date and Time: Mon Nov 21 18:46:01 2005
+# Input File:test_0010.mmp
+# Output File: test_0010.xyz
+# Trace File: test_0010.trc
+# Number of Atoms: 8
+# Number of Frames: 100
+# Steps per Frame: 10
+# Temperature: 300.0
+#
+# 1 columns:
+# name: torque (nn-nm)
+#
+0 4414.89 5119.84
+1 7057.31 9108.03
+2 7576.21 10302.71
+3 7582.72 10317.78
+4 7582.71 10317.76
+5 7582.71 10317.76
+# Done: Minimization final rms: 7582.712038, highForce: 10317.761244
+======= test_0010.xyz =======
+8
+RMS=7582.712038
+C -0.431041 -4.006431 0.018021
+H -1.179033 -3.273533 -0.732820
+H -1.179467 -4.757219 0.750197
+H 0.304842 -4.757578 -0.733611
+C 0.453592 -3.126018 0.896000
+H 1.201107 -3.859214 1.647622
+H -0.282590 -2.375349 1.648413
+H 1.200589 -2.376658 0.165177

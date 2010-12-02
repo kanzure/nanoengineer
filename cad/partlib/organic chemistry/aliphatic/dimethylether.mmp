@@ -1,0 +1,33 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.808602, 0.108915, 0.575562, 0.055024) (5.552625) (-0.591000, -0.576500, -0.801500) (1.000000)
+egroup (View Data)
+group (dimethylether)
+info opengroup open = True
+mol (dimethylether) def
+atom 1 (6) (0, 0, -450) def
+atom 2 (8) (0, 0, 960) def
+bond1 1
+atom 3 (6) (681, 1179, 1325) def
+bond1 2
+atom 4 (1) (1699, 1153, 920) def
+bond1 3
+atom 5 (1) (724, 1253, 2418) def
+bond1 3
+atom 6 (1) (149, 2048, 920) def
+bond1 3
+atom 7 (1) (1033, 0, -815) def
+bond1 1
+atom 8 (1) (-517, 895, -815) def
+bond1 1
+atom 9 (1) (-517, -895, -815) def
+bond1 1
+egroup (dimethylether)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part dimethylether

@@ -1,0 +1,111 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (25.822647) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (010 linearmotor-box of helium)
+info opengroup open = True
+mol (Chunk-C41) def
+atom 1 (6) (212, 48, 0) def
+atom 2 (1) (839, 676, 627) def
+bond1 1
+atom 3 (1) (-415, 676, -627) def
+bond1 1
+atom 4 (1) (-415, -579, 627) def
+bond1 1
+atom 5 (1) (839, -579, -627) def
+bond1 1
+lmotor (Linear Motor-7) (127, 127, 127) 1.000000 0.100000 (212, 48, 0) (0, 0, -1000) 10.00 0.50 0.10
+shaft 1
+thermo (Thermo-11) (153, 0, 51) 1 5 1
+group (He walls)
+info opengroup open = True
+mol (Chunk-C41-copy3) def
+atom 6 (2) (-12138, -3070, 6990) def
+atom 7 (2) (-12108, -8440, 6990) def
+atom 8 (2) (-12078, -13808, 6990) def
+atom 9 (2) (-11998, 13708, 6990) def
+atom 10 (2) (-11968, 8340, 6990) def
+atom 11 (2) (-11938, 2969, 6990) def
+atom 12 (2) (-12100, -3020, 0) def
+atom 13 (2) (-12070, -8390, 0) def
+atom 14 (2) (-12040, -13758, 0) def
+atom 15 (2) (-11960, 13758, 0) def
+atom 16 (2) (-11930, 8390, 0) def
+atom 17 (2) (-11900, 3019, 0) def
+atom 18 (2) (-12057, -2970, -6989) def
+atom 19 (2) (-12028, -8340, -6989) def
+atom 20 (2) (-11997, -13708, -6989) def
+atom 21 (2) (-11917, 13808, -6989) def
+atom 22 (2) (-11887, 8440, -6989) def
+atom 23 (2) (-11857, 3069, -6989) def
+mol (Chunk-C41-copy10) def
+atom 24 (2) (-6990, -3180, -9998) def
+atom 25 (2) (-6990, -8550, -9968) def
+atom 26 (2) (-6990, -13918, -9938) def
+atom 27 (2) (-6990, 13598, -9858) def
+atom 28 (2) (-6990, 8230, -9828) def
+atom 29 (2) (-6990, 2859, -9797) def
+atom 30 (2) (0, -3020, -10099) def
+atom 31 (2) (0, -8390, -10069) def
+atom 32 (2) (0, -13758, -10039) def
+atom 33 (2) (0, 13758, -9959) def
+atom 34 (2) (0, 8390, -9929) def
+atom 35 (2) (0, 3019, -9899) def
+atom 36 (2) (6990, -2860, -10198) def
+atom 37 (2) (6990, -8230, -10168) def
+atom 38 (2) (6990, -13598, -10137) def
+atom 39 (2) (6990, 13918, -10057) def
+atom 40 (2) (6990, 8550, -10028) def
+atom 41 (2) (6990, 3179, -9997) def
+mol (Chunk-C41-copy3) def
+atom 42 (2) (-6990, -3070, 9858) def
+atom 43 (2) (-6990, -8440, 9887) def
+atom 44 (2) (-6990, -13808, 9918) def
+atom 45 (2) (-6990, 13708, 9998) def
+atom 46 (2) (-6990, 8340, 10028) def
+atom 47 (2) (-6990, 2969, 10058) def
+atom 48 (2) (0, -3020, 9899) def
+atom 49 (2) (0, -8390, 9929) def
+atom 50 (2) (0, -13758, 9959) def
+atom 51 (2) (0, 13758, 10040) def
+atom 52 (2) (0, 8390, 10069) def
+atom 53 (2) (0, 3019, 10100) def
+atom 54 (2) (6990, -2970, 9938) def
+atom 55 (2) (6990, -8340, 9967) def
+atom 56 (2) (6990, -13708, 9998) def
+atom 57 (2) (6990, 13808, 10078) def
+atom 58 (2) (6990, 8440, 10108) def
+atom 59 (2) (6990, 3069, 10138) def
+mol (Chunk-C41-copy10) def
+atom 60 (2) (12070, 8389, 0) def
+atom 61 (2) (12100, 3019, 0) def
+atom 62 (2) (11798, -2860, -6989) def
+atom 63 (2) (11828, -8230, -6989) def
+atom 64 (2) (11858, -13598, -6989) def
+atom 65 (2) (11938, 13918, -6989) def
+atom 66 (2) (11968, 8549, -6989) def
+atom 67 (2) (11998, 3179, -6989) def
+atom 68 (2) (11998, -3180, 6990) def
+atom 69 (2) (12028, -8550, 6990) def
+atom 70 (2) (12058, -13918, 6990) def
+atom 71 (2) (12138, 13598, 6990) def
+atom 72 (2) (12168, 8229, 6990) def
+atom 73 (2) (12198, 2859, 6990) def
+atom 74 (2) (11900, -3020, 0) def
+atom 75 (2) (11930, -8390, 0) def
+atom 76 (2) (11960, -13758, 0) def
+atom 77 (2) (12040, 13758, 0) def
+ground (Anchor-117) (0, 0, 0) 42 43 44 45 46 47 24 25 26 27 28 29 48 49 50 51 52 53 54 55 56 57 58 59 30 31 32 33 34 35 36 37 38 39 40 41 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77
+info leaf hidden = True
+thermo (Thermo-118) (153, 0, 51) 6 23 17
+mangle (Angle-121) (0, 0, 0) (Helvetica) 10 53 1 35
+egroup (He walls)
+egroup (010 linearmotor-box of helium)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part 010 linearmotor-box of helium

@@ -1,0 +1,18 @@
+Notes from Damian about these files
+
+Down to the simplest systems for tests and any necessary
+reparameterizations.
+
+All of these systems are composed of single bonds between two atoms
+and all other valences filled with Hydrogen.  The labeling scheme is
+FragmentA_FragmentB.mmp/pdb with the two important atoms connected by
+the "_".  In some cases, like H_X, the parameter is for the H-X bond.
+
+Also notices a little import issue with the CAD side (it won't read
+H2 as a connected system).  I'll bring that one up.
+
+The double bond systems are mostly done.  There are a few problem
+structures that nature never intended that, despite my wish to have
+the exhaustive set, we maybe should intend either.  I'd hate to be
+the guy proposing the structure at a board meeting arguing that the
+existence of parameters means we've got a shot of making it.

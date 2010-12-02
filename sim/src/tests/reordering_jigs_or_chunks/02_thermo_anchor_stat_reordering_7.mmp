@@ -1,0 +1,23 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (2.153805) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (02-thermo-anchor-stat-reordering-6)
+info opengroup open = True
+mol (1-Thermo) tub
+atom 1 (1) (993, 69, 0) def
+stat (Stat-33) (0, 0, 153) (100) 1 1 1
+thermo (Thermo.21) (153, 0, 51) 1 1 1
+mol (2-anchor) tub
+atom 2 (1) (1737, 71, 0) def
+bond1 1
+ground (Anchor.19) (0, 0, 0) 2
+egroup (02-thermo-anchor-stat-reordering-6)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part 02-thermo-anchor-stat-reordering-6

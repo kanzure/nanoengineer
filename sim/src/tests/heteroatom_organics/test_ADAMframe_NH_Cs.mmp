@@ -1,0 +1,65 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.032508) (0.024500, 0.484000, -0.000000) (1.000000)
+egroup (View Data)
+group (ADAMframe_NH_Cs)
+info opengroup open = True
+mol (ADAMframe_NH_Cs.pdb) cpk
+atom 1 (6) (-1604, -712, 1222) def
+atom 2 (6) (-1187, -721, -1293) def
+atom 3 (6) (-320, 250, 867) def
+bond1 1
+atom 4 (6) (-316, 298, -1250) def
+bond1 2
+atom 5 (6) (-1270, -1567, 664) def
+bond1 1 2
+atom 6 (6) (1414, -102, 1248) def
+bond1 3
+atom 7 (6) (1266, -408, -1236) def
+bond1 4
+atom 8 (7) (4, 1337, 379) def
+bond1 3 4
+atom 9 (6) (1047, -1464, -265) def
+bond1 6 7
+atom 10 (6) (-225, -2749, -213) def
+bond1 5 9
+atom 11 (1) (-2001, -54, 1432) def
+bond1 1
+atom 12 (1) (-2591, 647, -1181) def
+bond1 2
+atom 13 (1) (-1270, -1719, 2327) def
+bond1 1
+atom 14 (1) (-1393, -914, -2112) def
+bond1 2
+atom 15 (1) (105, 1627, 2102) def
+bond1 3
+atom 16 (1) (12, 1067, -1850) def
+bond1 4
+atom 17 (1) (-2323, -1882, -378) def
+bond1 5
+atom 18 (1) (1885, 777, 988) def
+bond1 6
+atom 19 (1) (2153, 556, -730) def
+bond1 7
+atom 20 (1) (1391, -1217, 2079) def
+bond1 6
+atom 21 (1) (781, -828, -1749) def
+bond1 7
+atom 22 (1) (597, 1927, 243) def
+bond1 8
+atom 23 (1) (2182, -1856, 328) def
+bond1 9
+atom 24 (1) (166, -2772, 906) def
+bond1 10
+atom 25 (1) (-11, -2261, -640) def
+bond1 10
+egroup (ADAMframe_NH_Cs)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part ADAMframe_NH_Cs
+

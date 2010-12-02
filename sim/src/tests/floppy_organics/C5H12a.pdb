@@ -1,0 +1,36 @@
+COMPND  C5H12a.pdb                                                              
+HETATM    1  C                   0.266   0.124  -0.007                
+HETATM    2  C                  -0.292  -1.303   0.015                
+HETATM    3  C                  -0.821   1.209  -0.028                
+HETATM    4  C                   0.790  -2.384  -0.085                
+HETATM    5  C                  -0.257   2.628   0.083                
+HETATM    6  H                   0.913   0.271   0.870                
+HETATM    7  H                   0.917   0.249  -0.885                
+HETATM    8  H                  -1.009  -1.427  -0.807                
+HETATM    9  H                  -0.867  -1.446   0.941                
+HETATM   10  H                  -1.402   1.115  -0.957                
+HETATM   11  H                  -1.530   1.031   0.791                
+HETATM   12  H                   0.356  -3.387  -0.016                
+HETATM   13  H                   1.530  -2.285   0.717                
+HETATM   14  H                   1.327  -2.319  -1.039                
+HETATM   15  H                  -1.045   3.387   0.015                
+HETATM   16  H                   0.466   2.831  -0.715                
+HETATM   17  H                   0.259   2.773   1.039                
+CONECT    1    2    3    6    7                              
+CONECT    2    1    4    8    9                              
+CONECT    3    1    5   10   11                              
+CONECT    4    2   12   13   14                              
+CONECT    5    3   15   16   17                              
+CONECT    6    1                                             
+CONECT    7    1                                             
+CONECT    8    2                                             
+CONECT    9    2                                             
+CONECT   10    3                                             
+CONECT   11    3                                             
+CONECT   12    4                                             
+CONECT   13    4                                             
+CONECT   14    4                                             
+CONECT   15    5                                             
+CONECT   16    5                                             
+CONECT   17    5                                             
+END   

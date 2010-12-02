@@ -1,0 +1,39 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.375152, 0.135737, 0.788309, -0.468407) (3.121198) (-0.578000, 0.415500, -0.150000) (1.000000)
+egroup (View Data)
+group (propanoic_acid)
+info opengroup open = True
+mol (propanoic_acid) def
+atom 1 (1) (1413, -1397, -1004) def
+atom 2 (6) (1517, -1117, 56) def
+bond1 1
+atom 3 (1) (2585, -1147, 326) def
+bond1 2
+atom 4 (1) (981, -1857, 671) def
+bond1 2
+atom 5 (6) (950, 307, 286) def
+bond1 2
+atom 6 (1) (1530, 1026, -315) def
+bond1 5
+atom 7 (1) (1060, 589, 1346) def
+bond1 5
+atom 8 (6) (-507, 379, -116) def
+info atom atomtype = sp2
+bond1 5
+atom 9 (8) (-851, 964, -1131) def
+info atom atomtype = sp2
+bond2 8
+atom 10 (8) (-1429, -213, 654) def
+bond1 8
+atom 11 (1) (-1085, -638, 1431) def
+bond1 10
+egroup (propanoic_acid)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part propanoic_acid

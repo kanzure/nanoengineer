@@ -1,0 +1,51 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (-0.898507, 0.345828, -0.263488, -0.060513) (3.320114) (-0.014500, 0.081000, 4.238000) (1.000000)
+egroup (View Data)
+group (toluene)
+info opengroup open = True
+mol (toluene) def
+atom 1 (6) (38, 578, -3124) def
+info atom atomtype = sp2
+atom 2 (6) (428, -646, -3673) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (-173, -1109, -4846) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (-1164, -347, -5470) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (-1554, 876, -4921) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (-953, 1339, -3748) def
+info atom atomtype = sp2
+bonda 5 1
+atom 7 (1) (507, 939, -2209) def
+bond1 1
+atom 8 (6) (1521, -1485, -2985) def
+bond1 2
+atom 9 (1) (132, -2063, -5274) def
+bond1 3
+atom 10 (1) (-1633, -708, -6385) def
+bond1 4
+atom 11 (1) (-2327, 1471, -5408) def
+bond1 5
+atom 12 (1) (-1257, 2294, -3320) def
+bond1 6
+atom 13 (1) (2356, -1627, -3671) def
+bond1 8
+atom 14 (1) (1111, -2456, -2706) def
+bond1 8
+atom 15 (1) (1868, -967, -2091) def
+bond1 8
+egroup (toluene)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part toluene

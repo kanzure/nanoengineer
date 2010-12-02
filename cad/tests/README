@@ -1,0 +1,30 @@
+$Id$
+
+ Copyright 2005, 2007 Nanorex, Inc.  See LICENSE file for details. 
+__author__ = "Will Ware"
+
+
+Unit Tests
+-=-=-=-=-=-
+Python supports unit testing with the PyUnit module.
+Information about PyUnit is available at this website:
+  http://pyunit.sourceforge.net/pyunit.html
+
+Bloggy ramblings about PyUnit:
+  http://www.onlamp.com/pub/a/python/2004/12/02/tdd_pyunit.html
+  http://www.onlamp.com/pub/a/python/2005/02/03/tdd_pyunit2.html
+
+Run the unit tests from the cad/tests/ directory with the following bash shell
+command:
+  $ ./runAllTests.sh
+  
+Run individual test suites with:
+  $ PYTHONPATH=../src python TESTFILE.py -v
+
+  
+[WARNING: if this uses a different python executable than you normally run
+on atom.py to start nE-1, you might need to remove *.pyc before and after
+running these tests, to avoid any chance of incompatible .pyc files messing
+up nE-1. This is not supposed to happen, but for certain Mac Pythons I have
+had this problem. -- comment added by bruce 051005]
+

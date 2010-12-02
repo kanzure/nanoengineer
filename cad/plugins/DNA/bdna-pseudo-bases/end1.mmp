@@ -1,0 +1,35 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (end1)
+info opengroup open = True
+mol (end1) def
+atom 1 (200) (0, 0, 0) def
+atom 2 (204) (0, 0, 1590) def
+bond1 1
+atom 3 (0) (0, 0, -1590) def
+bond1 1
+atom 4 (201) (6760, 0, 0) def
+bond1 1
+atom 5 (205) (8699, 2638, 1590) def
+bond1 4
+atom 6 (0) (7729, -1319, -795) def
+bond1 4
+atom 7 (201) (-4610, -4943, 0) def
+bond1 1
+atom 8 (202) (-7863, -4562, -1590) def
+bond1 7
+atom 9 (0) (-7221, -3056, -2385) def
+bond1 8
+atom 10 (206) (-4306, -6553, 795) def
+bond1 7
+egroup (end1)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part end1

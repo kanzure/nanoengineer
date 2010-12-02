@@ -1,0 +1,41 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.421172) (3.475000, 1.456500, -1.960500) (1.000000)
+egroup (View Data)
+group (trimethylamine)
+info opengroup open = True
+mol (trimethylamine) def
+atom 1 (7) (-3618, -1355, 1340) def
+atom 2 (6) (-2098, -1355, 1340) def
+bond1 1
+atom 3 (6) (-4125, -2788, 1340) def
+bond1 1
+atom 4 (6) (-4125, -639, 2581) def
+bond1 1
+atom 5 (1) (-1735, -328, 1340) def
+bond1 2
+atom 6 (1) (-1735, -1869, 2230) def
+bond1 2
+atom 7 (1) (-1735, -1869, 450) def
+bond1 2
+atom 8 (1) (-3761, -3302, 2230) def
+bond1 3
+atom 9 (1) (-5215, -2788, 1340) def
+bond1 3
+atom 10 (1) (-3761, -3302, 450) def
+bond1 3
+atom 11 (1) (-3761, -1153, 3471) def
+bond1 4
+atom 12 (1) (-5215, -639, 2581) def
+bond1 4
+atom 13 (1) (-3761, 389, 2581) def
+bond1 4
+egroup (trimethylamine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part trimethylamine

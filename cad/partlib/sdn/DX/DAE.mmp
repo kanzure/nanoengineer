@@ -1,0 +1,855 @@
+mmpformat 050920 required; 070415 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (42.289511) (0.538839, 0.877738, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (42.289511) (0.538839, 0.877738, 0.000000) (1.000000)
+csys (HomeView1) (1.000000, 0.000000, 0.000000, 0.000000) (42.289511) (0.538839, 0.877738, 0.000000) (1.000000)
+csys (LastView1) (1.000000, 0.000000, 0.000000, 0.000000) (42.289511) (0.538839, 0.877738, 0.000000) (1.000000)
+egroup (View Data)
+group (DAE)
+info opengroup open = True
+mol (r1) def
+atom 1 (206) (48630, 17826, 2035) def
+atom 2 (201) (47698, 17002, 458) def
+bond1 1
+bond_direction 2 1
+atom 3 (202) (46108, 19033, -2110) def
+bond1 2
+bond_direction 3 2
+atom 4 (201) (44518, 15994, -3333) def
+bond1 3
+bond_direction 4 3
+atom 5 (202) (42928, 16254, -6598) def
+bond1 4
+bond_direction 5 4
+atom 6 (201) (41338, 13049, -5926) def
+bond1 5
+bond_direction 6 5
+atom 7 (202) (39748, 11452, -8786) def
+bond1 6
+bond_direction 7 6
+atom 8 (201) (38158, 9160, -6447) def
+bond1 7
+bond_direction 8 7
+atom 9 (202) (36568, 6243, -7937) def
+bond1 8
+bond_direction 9 8
+atom 10 (201) (34978, 5637, -4719) def
+bond1 9
+bond_direction 10 9
+atom 11 (202) (33388, 2384, -4338) def
+bond1 10
+bond_direction 11 10
+atom 12 (201) (31798, 3667, -1325) def
+bond1 11
+bond_direction 12 11
+atom 13 (202) (30208, 1174, 797) def
+bond1 12
+bond_direction 13 12
+atom 14 (201) (28618, 3916, 2590) def
+bond1 13
+bond_direction 14 13
+atom 15 (202) (27028, 3023, 5741) def
+bond1 14
+bond_direction 15 14
+atom 16 (201) (25438, 6298, 5708) def
+bond1 15
+bond_direction 16 15
+atom 17 (202) (23848, 7306, 8824) def
+bond1 16
+bond_direction 17 16
+atom 18 (201) (22258, 10011, 6977) def
+bond1 17
+bond_direction 18 17
+atom 19 (202) (20668, 12581, 9008) def
+bond1 18
+bond_direction 19 18
+atom 20 (201) (19078, 13804, 5970) def
+bond1 19
+bond_direction 20 19
+atom 21 (202) (17488, 17069, 6231) def
+bond1 20
+bond_direction 21 20
+atom 22 (201) (15898, 16397, 3025) def
+bond1 21
+bond_direction 22 21
+atom 23 (202) (14308, 19257, 1428) def
+bond1 22
+bond_direction 23 22
+atom 24 (201) (12718, 16918, -863) def
+bond1 23
+bond_direction 24 23
+atom 25 (202) (11128, 18408, -3779) def
+bond1 24
+bond_direction 25 24
+atom 26 (201) (9538, 15190, -4386) def
+bond1 25
+bond_direction 26 25
+atom 27 (202) (7948, 14809, -7639) def
+bond1 26
+bond_direction 27 26
+atom 28 (201) (6358, 11796, -6355) def
+bond1 27
+bond_direction 28 27
+atom 29 (202) (4769, 9671, -8848) def
+bond1 28
+bond_direction 29 28
+atom 30 (201) (3179, 7879, -6107) def
+bond1 29
+bond_direction 30 29
+atom 31 (202) (1589, 4728, -7000) def
+bond1 30
+bond_direction 31 30
+atom 32 (201) (0, 4761, -3724) def
+bond1 31
+bond_direction 32 31
+atom 33 (202) (-1590, 1645, -2716) def
+bond1 32
+bond_direction 33 32
+atom 34 (201) (-3179, 3492, -11) def
+bond1 33
+bond_direction 34 33
+atom 35 (202) (-4770, 1461, 2556) def
+bond1 34
+bond_direction 35 34
+atom 36 (201) (-6360, 4499, 3779) def
+bond1 35
+bond_direction 36 35
+atom 37 (202) (-7950, 4238, 7044) def
+bond1 36
+bond_direction 37 36
+atom 38 (201) (-9540, 7444, 6373) def
+bond1 37
+bond_direction 38 37
+atom 39 (202) (-11129, 9041, 9232) def
+bond1 38
+bond_direction 39 38
+atom 40 (201) (-12720, 11334, 6893) def
+bond1 39
+bond_direction 40 39
+atom 41 (202) (-14310, 14250, 8384) def
+bond1 40
+bond_direction 41 40
+atom 42 (201) (-15900, 14857, 5165) def
+bond1 41
+bond_direction 42 41
+atom 43 (202) (-17490, 18110, 4784) def
+bond1 42
+bond_direction 43 42
+atom 44 (201) (-19080, 16826, 1771) def
+bond1 43
+bond_direction 44 43
+atom 45 (202) (-20670, 19319, -351) def
+bond1 44
+bond_direction 45 44
+atom 46 (201) (-22260, 16578, -2143) def
+bond1 45
+bond_direction 46 45
+atom 47 (202) (-23850, 17471, -5294) def
+bond1 46
+bond_direction 47 46
+atom 48 (201) (-25440, 14195, -5262) def
+bond1 47
+bond_direction 48 47
+atom 49 (202) (-27030, 13187, -8378) def
+bond1 48
+bond_direction 49 48
+atom 50 (201) (-28620, 10482, -6531) def
+bond1 49
+bond_direction 50 49
+atom 51 (202) (-30210, 7913, -8562) def
+bond1 50
+bond_direction 51 50
+atom 52 (201) (-31800, 6690, -5523) def
+bond1 51
+bond_direction 52 51
+atom 53 (202) (-33390, 3425, -5784) def
+bond1 52
+bond_direction 53 52
+atom 54 (201) (-34980, 4096, -2578) def
+bond1 53
+bond_direction 54 53
+atom 55 (202) (-36570, 1236, -981) def
+bond1 54
+bond_direction 55 54
+atom 56 (201) (-38160, 3576, 1309) def
+bond1 55
+bond_direction 56 55
+atom 57 (202) (-39750, 2085, 4226) def
+bond1 56
+bond_direction 57 56
+atom 58 (201) (-41340, 5304, 4832) def
+bond1 57
+bond_direction 58 57
+atom 59 (202) (-42930, 5685, 8085) def
+bond1 58
+bond_direction 59 58
+atom 60 (201) (-44520, 8698, 6801) def
+bond1 59
+bond_direction 60 59
+atom 61 (202) (-46110, 10822, 9295) def
+bond1 60
+bond_direction 61 60
+atom 62 (201) (-47700, 12614, 6553) def
+bond1 61
+bond_direction 62 61
+atom 63 (205) (-49398, 15813, 7063) def
+bond1 62
+bond_direction 63 62
+info chunk color = 170 0 0
+mol (r2) def
+atom 64 (201) (47700, -11565, 6405) def
+atom 65 (205) (49321, -14563, 7681) def
+bond1 64
+bond_direction 65 64
+atom 66 (201) (44520, -7660, 6020) def
+atom 67 (202) (46110, -9355, 8821) def
+bond1 66 64
+bond_direction 67 66
+bond_direction 64 67
+atom 68 (201) (41340, -4627, 3531) def
+atom 69 (202) (42930, -4480, 6801) def
+bond1 68 66
+bond_direction 69 68
+bond_direction 66 69
+atom 70 (201) (38160, -3487, -223) def
+atom 71 (202) (39750, -1548, 2413) def
+bond1 70 68
+bond_direction 71 70
+bond_direction 68 71
+atom 72 (201) (34980, -4627, -3979) def
+atom 73 (202) (36570, -1549, -2863) def
+bond1 72 70
+bond_direction 73 72
+bond_direction 70 73
+atom 74 (201) (31800, -7660, -6468) def
+atom 75 (202) (33390, -4481, -7250) def
+bond1 74 72
+bond_direction 75 74
+bond_direction 72 75
+atom 76 (201) (28620, -11565, -6853) def
+atom 77 (202) (30210, -9356, -9270) def
+bond1 76 74
+bond_direction 77 76
+bond_direction 74 77
+atom 78 (201) (25440, -15026, -5003) def
+atom 79 (202) (27030, -14532, -8239) def
+bond1 78 76
+bond_direction 79 78
+bond_direction 76 79
+atom 80 (201) (22260, -16877, -1542) def
+atom 81 (202) (23850, -18264, -4507) def
+bond1 80 78
+bond_direction 81 80
+bond_direction 78 81
+atom 82 (201) (19080, -16492, 2362) def
+atom 83 (202) (20670, -19293, 667) def
+bond1 82 80
+bond_direction 83 82
+bond_direction 80 83
+atom 84 (201) (15900, -14002, 5396) def
+atom 85 (202) (17490, -17273, 5542) def
+bond1 84 82
+bond_direction 85 84
+bond_direction 82 85
+atom 86 (201) (12720, -10246, 6535) def
+atom 87 (202) (14310, -12884, 8474) def
+bond1 86 84
+bond_direction 87 86
+bond_direction 84 87
+atom 88 (201) (9540, -6492, 5396) def
+atom 89 (202) (11130, -7608, 8474) def
+bond1 88 86
+bond_direction 89 88
+bond_direction 86 89
+atom 90 (201) (6360, -4002, 2362) def
+atom 91 (202) (7950, -3220, 5541) def
+bond1 90 88
+bond_direction 91 90
+bond_direction 88 91
+atom 92 (201) (3181, -3617, -1542) def
+atom 93 (202) (4771, -1201, 665) def
+bond1 92 90
+bond_direction 93 92
+bond_direction 90 93
+atom 94 (201) (1, -5467, -5003) def
+atom 95 (202) (1591, -2231, -4509) def
+bond1 94 92
+bond_direction 95 94
+bond_direction 92 95
+atom 96 (201) (-3178, -8929, -6853) def
+atom 97 (202) (-1588, -5963, -8240) def
+bond1 96 94
+bond_direction 97 96
+bond_direction 94 97
+atom 98 (201) (-6358, -12833, -6468) def
+atom 99 (202) (-4768, -11138, -9269) def
+bond1 98 96
+bond_direction 99 98
+bond_direction 96 99
+atom 100 (201) (-9538, -15867, -3979) def
+atom 101 (202) (-7948, -16014, -7249) def
+bond1 100 98
+bond_direction 101 100
+bond_direction 98 101
+atom 102 (201) (-12718, -17006, -223) def
+atom 103 (202) (-11128, -18945, -2861) def
+bond1 102 100
+bond_direction 103 102
+bond_direction 100 103
+atom 104 (201) (-15898, -15867, 3531) def
+atom 105 (202) (-14308, -18945, 2414) def
+bond1 104 102
+bond_direction 105 104
+bond_direction 102 105
+atom 106 (201) (-19078, -12833, 6020) def
+atom 107 (202) (-17488, -16013, 6802) def
+bond1 106 104
+bond_direction 107 106
+bond_direction 104 107
+atom 108 (201) (-22258, -8929, 6405) def
+atom 109 (202) (-20668, -11137, 8821) def
+bond1 108 106
+bond_direction 109 108
+bond_direction 106 109
+atom 110 (201) (-25438, -5467, 4555) def
+atom 111 (202) (-23848, -5962, 7791) def
+bond1 110 108
+bond_direction 111 110
+bond_direction 108 111
+atom 112 (201) (-28618, -3617, 1094) def
+atom 113 (202) (-27028, -2230, 4059) def
+bond1 112 110
+bond_direction 113 112
+bond_direction 110 113
+atom 114 (201) (-31798, -4002, -2810) def
+atom 115 (202) (-30208, -1201, -1115) def
+bond1 114 112
+bond_direction 115 114
+bond_direction 112 115
+atom 116 (201) (-34978, -6492, -5844) def
+atom 117 (202) (-33388, -3221, -5990) def
+bond1 116 114
+bond_direction 117 116
+bond_direction 114 117
+atom 118 (201) (-38158, -10246, -6983) def
+atom 119 (202) (-36568, -7609, -8922) def
+bond1 118 116
+bond_direction 119 118
+bond_direction 116 119
+atom 120 (201) (-41338, -14002, -5844) def
+atom 121 (202) (-39748, -12886, -8922) def
+bond1 120 118
+bond_direction 121 120
+bond_direction 118 121
+atom 122 (201) (-44518, -16492, -2810) def
+atom 123 (202) (-42928, -17274, -5989) def
+bond1 122 120
+bond_direction 123 122
+bond_direction 120 123
+atom 124 (201) (-47698, -16877, 1094) def
+atom 125 (202) (-46108, -19293, -1113) def
+bond1 124 122
+bond_direction 125 124
+bond_direction 122 125
+atom 126 (206) (-48586, -17581, 2738) def
+bond1 124
+bond_direction 124 126
+info chunk color = 170 0 0
+mol (b1) def
+atom 127 (203) (-19080, 4626, 3978) def
+atom 128 (201) (-22260, 7660, 6468) def
+atom 129 (202) (-20670, 4481, 7250) def
+bond1 128 127
+bond_direction 129 128
+bond_direction 127 129
+atom 130 (201) (-25440, 11566, 6852) def
+atom 131 (202) (-23850, 9357, 9269) def
+bond1 130 128
+bond_direction 131 130
+bond_direction 128 131
+atom 132 (201) (-28620, 15027, 5002) def
+atom 133 (202) (-27030, 14533, 8239) def
+bond1 132 130
+bond_direction 133 132
+bond_direction 130 133
+atom 134 (201) (-31800, 16877, 1541) def
+atom 135 (202) (-30210, 18264, 4507) def
+bond1 134 132
+bond_direction 135 134
+bond_direction 132 135
+atom 136 (201) (-34980, 16492, -2363) def
+atom 137 (202) (-33390, 19293, -668) def
+bond1 136 134
+bond_direction 137 136
+bond_direction 134 137
+atom 138 (201) (-38160, 14002, -5397) def
+atom 139 (202) (-36570, 17273, -5543) def
+bond1 138 136
+bond_direction 139 138
+bond_direction 136 139
+atom 140 (201) (-41340, 10247, -6536) def
+atom 141 (202) (-39750, 12885, -8475) def
+bond1 140 138
+bond_direction 141 140
+bond_direction 138 141
+atom 142 (201) (-44520, 6491, -5397) def
+atom 143 (202) (-42930, 7607, -8474) def
+bond1 142 140
+bond_direction 143 142
+bond_direction 140 143
+atom 144 (201) (-47700, 4001, -2363) def
+atom 145 (202) (-46110, 3219, -5542) def
+bond1 144 142
+bond_direction 145 144
+bond_direction 142 145
+atom 146 (206) (-48588, 2501, -1387) def
+bond1 144
+bond_direction 144 146
+atom 147 (202) (-19046, 570, 418) def
+bond1 127
+bond_direction 147 127
+atom 148 (203) (-19078, -3917, -2590) def
+bond1 147
+bond_direction 148 147
+atom 149 (202) (-20668, -3024, -5742) def
+bond1 148
+bond_direction 149 148
+atom 150 (201) (-22258, -6299, -5709) def
+bond1 149
+bond_direction 150 149
+atom 151 (202) (-23848, -7307, -8825) def
+bond1 150
+bond_direction 151 150
+atom 152 (201) (-25438, -10011, -6978) def
+bond1 151
+bond_direction 152 151
+atom 153 (202) (-27028, -12581, -9009) def
+bond1 152
+bond_direction 153 152
+atom 154 (201) (-28618, -13804, -5970) def
+bond1 153
+bond_direction 154 153
+atom 155 (202) (-30208, -17068, -6231) def
+bond1 154
+bond_direction 155 154
+atom 156 (201) (-31798, -16397, -3026) def
+bond1 155
+bond_direction 156 155
+atom 157 (202) (-33388, -19257, -1429) def
+bond1 156
+bond_direction 157 156
+atom 158 (201) (-34978, -16918, 862) def
+bond1 157
+bond_direction 158 157
+atom 159 (202) (-36568, -18408, 3778) def
+bond1 158
+bond_direction 159 158
+atom 160 (201) (-38158, -15189, 4385) def
+bond1 159
+bond_direction 160 159
+atom 161 (202) (-39748, -14808, 7638) def
+bond1 160
+bond_direction 161 160
+atom 162 (201) (-41338, -11795, 6354) def
+bond1 161
+bond_direction 162 161
+atom 163 (202) (-42928, -9671, 8847) def
+bond1 162
+bond_direction 163 162
+atom 164 (201) (-44518, -7880, 6106) def
+bond1 163
+bond_direction 164 163
+atom 165 (202) (-46108, -4729, 6999) def
+bond1 164
+bond_direction 165 164
+atom 166 (201) (-47698, -4762, 3724) def
+bond1 165
+bond_direction 166 165
+atom 167 (205) (-49319, -1699, 2611) def
+bond1 166
+bond_direction 167 166
+info chunk color = 0 85 127
+mol (b2) def
+atom 168 (203) (15898, 4001, 2809) def
+atom 169 (201) (12718, 6491, 5843) def
+atom 170 (202) (14308, 3220, 5990) def
+bond1 169 168
+bond_direction 170 169
+bond_direction 168 170
+atom 171 (201) (9538, 10247, 6982) def
+atom 172 (202) (11128, 7609, 8921) def
+bond1 171 169
+bond_direction 172 171
+bond_direction 169 172
+atom 173 (201) (6358, 14002, 5843) def
+atom 174 (202) (7948, 12886, 8921) def
+bond1 173 171
+bond_direction 174 173
+bond_direction 171 174
+atom 175 (201) (3179, 16492, 2809) def
+atom 176 (202) (4769, 17274, 5988) def
+bond1 175 173
+bond_direction 176 175
+bond_direction 173 176
+atom 177 (201) (0, 16877, -1095) def
+atom 178 (202) (1589, 19293, 1112) def
+bond1 177 175
+bond_direction 178 177
+bond_direction 175 178
+atom 179 (201) (-3179, 15027, -4556) def
+atom 180 (202) (-1590, 18263, -4062) def
+bond1 179 177
+bond_direction 180 179
+bond_direction 177 180
+atom 181 (201) (-6360, 11566, -6406) def
+atom 182 (202) (-4770, 14531, -7793) def
+bond1 181 179
+bond_direction 182 181
+bond_direction 179 182
+atom 183 (201) (-9540, 7660, -6021) def
+atom 184 (202) (-7950, 9355, -8822) def
+bond1 183 181
+bond_direction 184 183
+bond_direction 181 184
+atom 185 (201) (-12720, 4626, -3531) def
+atom 186 (202) (-11129, 4479, -6802) def
+bond1 185 183
+bond_direction 186 185
+bond_direction 183 186
+atom 187 (203) (-15900, 3487, 222) def
+atom 188 (202) (-14310, 1548, -2414) def
+bond1 187 185
+bond_direction 188 187
+bond_direction 185 188
+atom 189 (202) (-15927, 77, 1022) def
+bond1 187
+bond_direction 187 189
+atom 190 (202) (15928, 233, 981) def
+bond1 168
+bond_direction 190 168
+atom 191 (203) (15900, -3576, -1310) def
+bond1 190
+bond_direction 191 190
+atom 192 (202) (14310, -2086, -4226) def
+bond1 191
+bond_direction 192 191
+atom 193 (201) (12720, -5304, -4833) def
+bond1 192
+bond_direction 193 192
+atom 194 (202) (11130, -5685, -8086) def
+bond1 193
+bond_direction 194 193
+atom 195 (201) (9540, -8699, -6802) def
+bond1 194
+bond_direction 195 194
+atom 196 (202) (7950, -10822, -9295) def
+bond1 195
+bond_direction 196 195
+atom 197 (201) (6360, -12614, -6554) def
+bond1 196
+bond_direction 197 196
+atom 198 (202) (4771, -15765, -7447) def
+bond1 197
+bond_direction 198 197
+atom 199 (201) (3181, -15732, -4172) def
+bond1 198
+bond_direction 199 198
+atom 200 (202) (1591, -18848, -3163) def
+bond1 199
+bond_direction 200 199
+atom 201 (201) (1, -17001, -458) def
+bond1 200
+bond_direction 201 200
+atom 202 (206) (-2289, -17631, 2610) def
+atom 203 (201) (-3178, -15994, 3332) def
+bond1 202
+bond_direction 203 202
+atom 204 (202) (-4768, -16254, 6597) def
+bond1 203
+bond_direction 204 203
+atom 205 (201) (-6358, -13049, 5926) def
+bond1 204
+bond_direction 205 204
+atom 206 (202) (-7948, -11452, 8785) def
+bond1 205
+bond_direction 206 205
+atom 207 (201) (-9538, -9161, 6446) def
+bond1 206
+bond_direction 207 206
+atom 208 (202) (-11128, -6244, 7937) def
+bond1 207
+bond_direction 208 207
+atom 209 (201) (-12718, -5637, 4718) def
+bond1 208
+bond_direction 209 208
+atom 210 (202) (-14308, -2384, 4337) def
+bond1 209
+bond_direction 210 209
+atom 211 (203) (-15898, -3668, 1324) def
+bond1 210 189
+bond_direction 211 210
+bond_direction 189 211
+atom 212 (205) (-1692, -18667, 2299) def
+bond1 201
+bond_direction 212 201
+info chunk color = 0 85 127
+mol (b3) def
+atom 213 (201) (47698, 5467, 5002) def
+atom 214 (205) (49384, 2357, 4144) def
+bond1 213
+bond_direction 214 213
+atom 215 (201) (44518, 8928, 6852) def
+atom 216 (202) (46108, 5962, 8239) def
+bond1 215 213
+bond_direction 216 215
+bond_direction 213 216
+atom 217 (201) (41338, 12834, 6468) def
+atom 218 (202) (42928, 11138, 9269) def
+bond1 217 215
+bond_direction 218 217
+bond_direction 215 218
+atom 219 (201) (38158, 15867, 3978) def
+atom 220 (202) (39748, 16014, 7249) def
+bond1 219 217
+bond_direction 220 219
+bond_direction 217 220
+atom 221 (201) (34978, 17007, 222) def
+atom 222 (202) (36568, 18946, 2860) def
+bond1 221 219
+bond_direction 222 221
+bond_direction 219 222
+atom 223 (201) (31798, 15867, -3531) def
+atom 224 (202) (33388, 18945, -2415) def
+bond1 223 221
+bond_direction 224 223
+bond_direction 221 224
+atom 225 (201) (28618, 12834, -6021) def
+atom 226 (202) (30208, 16013, -6803) def
+bond1 225 223
+bond_direction 226 225
+bond_direction 223 226
+atom 227 (201) (25438, 8928, -6406) def
+atom 228 (202) (27028, 11137, -8822) def
+bond1 227 225
+bond_direction 228 227
+bond_direction 225 228
+atom 229 (201) (22258, 5467, -4556) def
+atom 230 (202) (23848, 5961, -7792) def
+bond1 229 227
+bond_direction 230 229
+bond_direction 227 230
+atom 231 (203) (19078, 3617, -1095) def
+atom 232 (202) (20668, 2230, -4059) def
+bond1 231 229
+bond_direction 232 231
+bond_direction 229 232
+atom 233 (202) (19142, 5, 1114) def
+bond1 231
+bond_direction 231 233
+atom 234 (206) (48588, -2862, -3058) def
+atom 235 (201) (47700, -4500, -3780) def
+bond1 234
+bond_direction 235 234
+atom 236 (202) (46110, -4239, -7045) def
+bond1 235
+bond_direction 236 235
+atom 237 (201) (44520, -7445, -6374) def
+bond1 236
+bond_direction 237 236
+atom 238 (202) (42930, -9042, -9233) def
+bond1 237
+bond_direction 238 237
+atom 239 (201) (41340, -11333, -6894) def
+bond1 238
+bond_direction 239 238
+atom 240 (202) (39750, -14250, -8385) def
+bond1 239
+bond_direction 240 239
+atom 241 (201) (38160, -14856, -5166) def
+bond1 240
+bond_direction 241 240
+atom 242 (202) (36570, -18109, -4785) def
+bond1 241
+bond_direction 242 241
+atom 243 (201) (34980, -16826, -1772) def
+bond1 242
+bond_direction 243 242
+atom 244 (202) (33390, -19319, 350) def
+bond1 243
+bond_direction 244 243
+atom 245 (201) (31800, -16577, 2142) def
+bond1 244
+bond_direction 245 244
+atom 246 (202) (30210, -17470, 5294) def
+bond1 245
+bond_direction 246 245
+atom 247 (201) (28620, -14195, 5261) def
+bond1 246
+bond_direction 247 246
+atom 248 (202) (27030, -13187, 8377) def
+bond1 247
+bond_direction 248 247
+atom 249 (201) (25440, -10482, 6530) def
+bond1 248
+bond_direction 249 248
+atom 250 (202) (23850, -7913, 8561) def
+bond1 249
+bond_direction 250 249
+atom 251 (201) (22260, -6690, 5522) def
+bond1 250
+bond_direction 251 250
+atom 252 (202) (20670, -3426, 5783) def
+bond1 251
+bond_direction 252 251
+atom 253 (203) (19080, -4097, 2578) def
+bond1 252 233
+bond_direction 253 252
+bond_direction 233 253
+info chunk color = 0 85 127
+mol (a1) def
+atom 254 (200) (47698, 10247, 222) def
+bond1 213 2
+atom 255 (200) (44518, 10247, 222) def
+bond1 215 4 254
+atom 256 (200) (41338, 10247, 222) def
+bond1 217 6 255
+atom 257 (200) (38158, 10247, 222) def
+bond1 219 8 256
+atom 258 (200) (34978, 10247, 222) def
+bond1 221 10 257
+atom 259 (200) (31798, 10247, 222) def
+bond1 223 12 258
+atom 260 (200) (28618, 10247, 222) def
+bond1 225 14 259
+atom 261 (200) (25438, 10247, 222) def
+bond1 227 16 260
+atom 262 (200) (22258, 10247, 222) def
+bond1 229 18 261
+atom 263 (200) (19078, 10247, 222) def
+bond1 231 20 262
+atom 264 (200) (15898, 10247, 222) def
+bond1 168 22 263
+atom 265 (200) (12718, 10247, 222) def
+bond1 169 24 264
+atom 266 (200) (9538, 10247, 222) def
+bond1 171 26 265
+atom 267 (200) (6358, 10247, 222) def
+bond1 173 28 266
+atom 268 (200) (3179, 10247, 222) def
+bond1 175 30 267
+atom 269 (200) (0, 10247, 222) def
+bond1 177 32 268
+atom 270 (200) (-3179, 10247, 222) def
+bond1 179 34 269
+atom 271 (200) (-6360, 10247, 222) def
+bond1 181 36 270
+atom 272 (200) (-9540, 10247, 222) def
+bond1 183 38 271
+atom 273 (200) (-12720, 10247, 222) def
+bond1 185 40 272
+atom 274 (200) (-15900, 10247, 222) def
+bond1 187 42 273
+atom 275 (200) (-19080, 10247, 222) def
+bond1 127 44 274
+atom 276 (200) (-22260, 10247, 222) def
+bond1 128 46 275
+atom 277 (200) (-25440, 10247, 222) def
+bond1 130 48 276
+atom 278 (200) (-28620, 10247, 222) def
+bond1 132 50 277
+atom 279 (200) (-31800, 10247, 222) def
+bond1 134 52 278
+atom 280 (200) (-34980, 10247, 222) def
+bond1 136 54 279
+atom 281 (200) (-38160, 10247, 222) def
+bond1 138 56 280
+atom 282 (200) (-41340, 10247, 222) def
+bond1 140 58 281
+atom 283 (200) (-44520, 10247, 222) def
+bond1 142 60 282
+atom 284 (200) (-47700, 10247, 222) def
+bond1 144 62 283
+atom 285 (0) (-49290, 10247, 222) def
+bond1 284
+atom 286 (0) (49288, 10247, 222) def
+bond1 254
+info chunk color = 0 0 0
+mol (a2) def
+atom 287 (200) (47700, -10246, -223) def
+bond1 64 235
+atom 288 (200) (44520, -10246, -223) def
+bond1 66 237 287
+atom 289 (200) (41340, -10246, -223) def
+bond1 68 239 288
+atom 290 (200) (38160, -10246, -223) def
+bond1 70 241 289
+atom 291 (200) (34980, -10246, -223) def
+bond1 72 243 290
+atom 292 (200) (31800, -10246, -223) def
+bond1 74 245 291
+atom 293 (200) (28620, -10246, -223) def
+bond1 76 247 292
+atom 294 (200) (25440, -10246, -223) def
+bond1 78 249 293
+atom 295 (200) (22260, -10246, -223) def
+bond1 80 251 294
+atom 296 (200) (19080, -10246, -223) def
+bond1 82 253 295
+atom 297 (200) (15900, -10246, -223) def
+bond1 84 191 296
+atom 298 (200) (12720, -10246, -223) def
+bond1 86 193 297
+atom 299 (200) (9540, -10246, -223) def
+bond1 88 195 298
+atom 300 (200) (6360, -10246, -223) def
+bond1 90 197 299
+atom 301 (200) (3181, -10246, -223) def
+bond1 92 199 300
+atom 302 (200) (1, -10246, -223) def
+bond1 94 201 301
+atom 303 (200) (-3178, -10246, -223) def
+bond1 96 203 302
+atom 304 (200) (-6358, -10246, -223) def
+bond1 98 205 303
+atom 305 (200) (-9538, -10246, -223) def
+bond1 100 207 304
+atom 306 (200) (-12718, -10246, -223) def
+bond1 102 209 305
+atom 307 (200) (-15898, -10246, -223) def
+bond1 104 211 306
+atom 308 (200) (-19078, -10246, -223) def
+bond1 106 148 307
+atom 309 (200) (-22258, -10246, -223) def
+bond1 108 150 308
+atom 310 (200) (-25438, -10246, -223) def
+bond1 110 152 309
+atom 311 (200) (-28618, -10246, -223) def
+bond1 112 154 310
+atom 312 (200) (-31798, -10246, -223) def
+bond1 114 156 311
+atom 313 (200) (-34978, -10246, -223) def
+bond1 116 158 312
+atom 314 (200) (-38158, -10246, -223) def
+bond1 118 160 313
+atom 315 (200) (-41338, -10246, -223) def
+bond1 120 162 314
+atom 316 (200) (-44518, -10246, -223) def
+bond1 122 164 315
+atom 317 (200) (-47698, -10246, -223) def
+bond1 124 166 316
+atom 318 (0) (-49288, -10246, -223) def
+bond1 317
+atom 319 (0) (49290, -10246, -223) def
+bond1 287
+info chunk color = 0 0 0
+egroup (DAE)
+end1
+group (Clipboard)
+info opengroup open = False
+comment (citation) ascii Nadrian C. Seeman
+info leaf commentline ascii = "In the Nick of Space: Generalized Nucleic Acid Complementarity and DNA Nanotechnology"
+info leaf commentline utf-8 = Synlett 2000, No. X,1536–1548
+egroup (Clipboard)
+end molecular machine part DAE

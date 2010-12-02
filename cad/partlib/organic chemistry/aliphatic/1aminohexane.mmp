@@ -1,0 +1,59 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.715838) (0.017000, 0.003000, 0.087500) (1.000000)
+egroup (View Data)
+group (1aminohexane)
+info opengroup open = True
+mol (1aminohexane) def
+atom 1 (6) (2351, -6, 45) def
+atom 2 (6) (3479, -116, -1014) def
+bond1 1
+atom 3 (1) (4464, -77, -525) def
+bond1 2
+atom 4 (1) (3412, 712, -1736) def
+bond1 2
+atom 5 (1) (3398, -1065, -1566) def
+bond1 2
+atom 6 (1) (2459, 943, 594) def
+bond1 1
+atom 7 (1) (2445, -835, 764) def
+bond1 1
+atom 8 (6) (946, -58, -618) def
+bond1 1
+atom 9 (1) (853, 771, -1335) def
+bond1 8
+atom 10 (6) (-183, 52, 442) def
+bond1 8
+atom 11 (1) (839, -1006, -1165) def
+bond1 8
+atom 12 (1) (-76, 1000, 991) def
+bond1 10
+atom 13 (1) (-89, -777, 1162) def
+bond1 10
+atom 14 (6) (-1587, -1, -221) def
+bond1 10
+atom 15 (1) (-1690, 829, -937) def
+bond1 14
+atom 16 (6) (-2719, 110, 839) def
+bond1 14
+atom 17 (1) (-1703, -949, -767) def
+bond1 14
+atom 18 (1) (-2629, 1059, 1391) def
+bond1 16
+atom 19 (1) (-2643, -719, 1561) def
+bond1 16
+atom 20 (7) (-4011, 55, 159) def
+bond1 16
+atom 21 (1) (-4484, 928, -125) def
+bond1 20
+atom 22 (1) (-4498, -850, 45) def
+bond1 20
+egroup (1aminohexane)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part 1aminohexane

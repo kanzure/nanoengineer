@@ -1,0 +1,62 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.807596) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Moiety-SiC Slab)
+info opengroup open = True
+mol (Moiety-SiC Slab) def
+atom 1 (14) (1041, -772, 1182) def
+atom 2 (14) (1063, -774, -1173) def
+bond1 1
+atom 3 (6) (-750, -770, 1796) def
+bond1 1
+atom 4 (1) (-760, -769, 2883) def
+bond1 3
+atom 5 (1) (-704, -772, -2910) def
+atom 6 (6) (1962, 772, -1798) def
+bond1 2
+atom 7 (6) (1927, 773, 1822) def
+bond1 1
+atom 8 (14) (-1636, 775, 1155) def
+bond1 3
+atom 9 (14) (-1614, 775, -1200) def
+bond1 8
+atom 10 (1) (1915, 773, 2910) def
+bond1 7
+atom 11 (1) (1971, 771, -2885) def
+bond1 6
+atom 12 (6) (-716, -771, -1823) def
+bond1 2 5 9
+atom 13 (0) (1565, 1405, 1560) def
+bond1 7
+atom 14 (0) (2659, 773, 1570) def
+bond1 7
+atom 15 (0) (-2660, 774, -1581) def
+bond1 9
+atom 16 (0) (-1083, -1404, -1568) def
+bond1 12
+atom 17 (0) (-1085, 1683, -1568) def
+bond1 9
+atom 18 (0) (-1112, -1403, 1534) def
+bond1 3
+atom 19 (0) (-1115, 1684, 1532) def
+bond1 8
+atom 20 (0) (1591, -1684, -1538) def
+bond1 2
+atom 21 (0) (1594, 1404, -1543) def
+bond1 6
+atom 22 (0) (2689, 772, -1532) def
+bond1 6
+atom 23 (0) (1562, -1682, 1558) def
+bond1 1
+atom 24 (0) (-2689, 775, 1516) def
+bond1 8
+egroup (Moiety-SiC Slab)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part Moiety-SiC Slab

@@ -1,0 +1,213 @@
+#
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# $Id$
+#
+
+# This file should be placed in your ~/Nanorex directory.  It is read
+# by the simulator before each simulation or minimization run.  You
+# should be able to edit and save it between runs and see the new
+# results in later runs.
+
+# The element, stretch, and bend lines define new force field
+# parameters which override or extend the force field compiled into
+# the simulator.
+
+
+# format for element lines
+#
+#    Z (int)    number of protons, or atomType index
+#  grp (int)    group number in periodic table (not currently used)
+#                 groups 9-22 are lanthanides
+#                 groups 8-31 are transition metals
+#  per (int)    period in periodic table (not currently used)
+#  sym (string) abbreviated symbol name (one-three characters)
+#                 sym values are used in stretch and bend records
+# name (string) full name, for printing
+# mass (double) in yg (yoctograms, or 1e-24 g)
+# rvdW (double) van der Waals radius, in 1e-10 m or angstroms or 0.1 nm
+# evdW (double) van der Waals stiffness, in zJ (zepto Joules, or milli atto Joules, or 1e-21 J)
+#                 NOTE: specifing an evdW value < .1 will cause the value to be calculated based on number of protons
+# rcov (double) covalent radius in pm (1e-12 m)
+#                 used to generate unspecified bond parameters
+# chrg (double) charge in mulitples of proton charge
+#
+#         Z grp per sym   name                      mass    rvdW  evdW  bnds rcov chrg
+
+element 200  0  0   Ax    DNA-Pseudo-Axis           167.0   0.0    0.0   4   100   0   700
+element 201  0  0   Ss    DNA-Pseudo-Sugar          167.0   0.0    0.0   3   170   0   800
+element 202  0  0   Pl    DNA-Pseudo-Phosphate      167.0   3.6   10.0   2   170  -1   900
+element 203  0  0   Sj    DNA-Pseudo-Sugar-Junction 167.0   0.0   10.0   3   170   0   810
+element 204  0  0   Ae    DNA-Pseudo-Axis-End       167.0   0.0    0.0   1   100   0   701
+element 205  0  0   Pe    DNA-Pseudo-Phosphate-End  167.0   3.6   10.0   1   170  -2   901
+element 206  0  0   Sh    DNA-Pseudo-Sugar-End      167.0   0.0    0.0   1   170   0   902
+element 207  0  0   Hp    DNA-Pseudo-Hairpin        167.0   0.0    0.0   2   100   0   820
+
+# format for vdw lines
+#
+# rvdW              (double) van der Waals radius in pm or 1e-12 m
+# evdW              (double) van der Waals energy in zJ or 1e-21 J
+# cutoffRadiusStart (double) start of smooth transition in pm
+# cutoffRadiusEnd   (double) end of smooth transition in pm
+# name              (string) symbol-v-symbol
+#                        The atomType (number of protons) of the first symbol must be <= the second.
+#
+# The vdw potential is multiplied by a smooth transition function
+# between cutoffRadiusStart and cutoffRadiusEnd.  Beyond
+# cutoffRadiusEnd the vdw potential is identically zero.  If
+# cutoffRadiusEnd < cutoffRadiusStart, this transition is disabled,
+# and the potential is shifted so that it is zero at cutoffRadiusEnd.
+# If cutoffRadiusStart < 0, it is set to rvdW.  If cutoffRadiusEnd <
+# 0, it is set to rvdW * VanDerWaalsCutoffFactor (specified by
+# --vdw-cutoff-factor).  Setting cutoffRadiusEnd to rvdW, and
+# cutoffRadiusStart to any larger value selects only the repulsive
+# interaction.
+#
+#  rvdW evdW start end name
+
+vdw 7.2 10.0 100.0 7.2 Pl-v-Pl
+vdw 7.2 10.0 100.0 7.2 Pl-v-Pe
+vdw 7.2 10.0 100.0 7.2 Pe-v-Pe
+
+# format for stretch lines
+#
+#          ks (double) in N/m
+#          r0 (double) equilibrium distance, in pm, or 1e-12 m
+#          de (double) in aJ, or 1e-18 J
+#        beta (double) in 1e10 m^-1
+#                        set to sqrt(ks / (2.0 * de)) / 10.0 if value here is less than zero
+# inflectionR (double) r value in pm where d^2(Lippincott(r)) / dr^2 == 0
+#                        inflectionR is end of interpolation table during minimization
+#                        set to r0*1.5 if value here is less than zero
+#        qual (int)    quality of parameter (use of a parameter with quality < 5 produces a warning)
+#        quad (int)    flag, non-zero if this stretch should be quadratic instead of Lippincott/Morse
+#                        currently ignored
+#    bondName (string) symbol-bondOrder-symbol
+#                        bondOrders are: (1, a, g, 2, 3)  a is aromatic, g is graphitic
+#                        The atomType (number of protons) of the first symbol must be <= the second.
+#
+#         ks    r0      de      beta    inflectionR qual quad bondName
+
+stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax-1-Ax
+stretch  50.00  676.00  1.0000   -1         -1       9    1   Ax-1-Ss
+stretch  50.00  676.00  1.0000   -1         -1       9    1   Ax-1-Sj
+stretch   4.00  364.00  1.0000   -1         -1       9    1   Ss-1-Pl
+stretch   4.00  400.00  1.0000   -1         -1       9    1   Pl-1-Sj
+stretch   4.00  180.00  1.0000   -1         -1       9    1   H-1-Ax
+stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Ss
+stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Pl
+stretch   4.00  180.00  1.0000   -1         -1       9    1   Ax-1-Ae
+stretch   4.00  200.00  1.0000   -1         -1       9    1   Ss-1-Sh
+stretch   4.00  364.00  1.0000   -1         -1       9    1   Ss-1-Pe
+stretch   4.00  357.00  1.0000   -1         -1       9    1   Pl-1-Hp
+stretch   4.00  357.00  1.0000   -1         -1       9    1   Pe-1-Hp
+stretch   4.00  200.00  1.0000   -1         -1       9    1   Sh-1-Hp
+stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Hp
+
+# format for bend lines
+#
+# ktheta (double) in aJ / rad^2 (1e-18 J/rad^2)
+# theta0 (double) in radians
+#   qual (int)    quality of parameter (use of a parameter with quality < 5 produces a warning)
+#   name (string) symbol-bondOrder-symbol.hybridization-bondOrder-symbol
+#                        bondOrders are: (1, a, g, 2, 3)  a is aromatic, g is graphitic
+#                        atoms in group 3 have a default hybridization of sp2
+#                        other atoms have a default hybridization of sp3
+#                        an info line in the mmp file can change the hybridization
+#                        possible values are: (sp, sp2, sp2_g, sp3, sp3d)
+#                        sp2_g is graphitic, sp3d is not supported yet
+#
+#    ktheta          theta0         qual  bondName
+
+# 180 degree along Axis
+bend   0.18          3.14159265359   9   Ax-1-Ax.sp3-1-Ax
+bend   0.18          3.14159265359   9   H-1-Ax.sp3-1-Ax
+bend   0.18          3.14159265359   9   H-1-Ax.sp3-1-Ae
+bend   0.18          3.14159265359   9   Ax-1-Ax.sp3-1-Ae
+bend   0.18          3.14159265359   9   Ae-1-Ax.sp3-1-Ae
+
+# 90 degree Axis to Sugar
+bend   1.0           1.57079632679   9   Ax-1-Ax.sp3-1-Ss
+bend   1.0           1.57079632679   9   Ax-1-Ax.sp3-1-Sj
+bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-Ss
+bend   1.0           1.57079632679   9   Ss-1-Ax.sp3-1-Ae
+bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-Ax
+bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-Ae
+bend   1.0           1.57079632679   9   H-1-Ax.sp3-1-H
+
+# 133 degree minor groove
+bend   1.0           2.3212879025    9   Ss-1-Ax.sp3-1-Ss
+bend   1.0           2.3212879025    9   Ss-1-Ax.sp3-1-Sj
+bend   1.0           2.3212879025    9   Sj-1-Ax.sp3-1-Sj
+bend   1.0           2.3212879025    9   H-1-Ax.sp3-1-Ss
+bend   1.0           2.3212879025    9   H-1-Ax.sp3-1-Sj
+
+# 121 degree Axis Sugar Phosphate
+bend   0.04          2.1118483925    9   Ax-1-Ss.sp3-1-Pl
+bend   0.04          2.1118483925    9   Ax-1-Ss.sp3-1-Pe
+bend   0.04          2.1118483925    9   Ax-1-Ss.sp3-1-Sh
+bend   0.04          2.1118483925    9   H-1-Ss.sp3-1-Ax
+
+# 127 degree Phosphate Sugar Phosphate
+bend   0.04          2.2165681475    9   Pl-1-Ss.sp3-1-Pl
+bend   0.04          2.2165681475    9   Pl-1-Ss.sp3-1-Pe
+bend   0.04          2.2165681475    9   Pl-1-Ss.sp3-1-Sh
+bend   0.04          2.2165681475    9   Pe-1-Ss.sp3-1-Pe
+bend   0.04          2.2165681475    9   Pe-1-Ss.sp3-1-Sh
+bend   0.04          2.2165681475    9   Sh-1-Ss.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Ss.sp3-1-Pl
+bend   0.04          2.2165681475    9   H-1-Ss.sp3-1-Pe
+bend   0.04          2.2165681475    9   H-1-Ss.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Ss.sp3-1-H
+
+# 127 degree Phosphate Hairpin Phosphate
+bend   0.04          2.2165681475    9   Pl-1-Hp.sp3-1-Pl
+bend   0.04          2.2165681475    9   Pl-1-Hp.sp3-1-Pe
+bend   0.04          2.2165681475    9   Pl-1-Hp.sp3-1-Sh
+bend   0.04          2.2165681475    9   Pe-1-Hp.sp3-1-Pe
+bend   0.04          2.2165681475    9   Pe-1-Hp.sp3-1-Sh
+bend   0.04          2.2165681475    9   Sh-1-Hp.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Hp.sp3-1-Pl
+bend   0.04          2.2165681475    9   H-1-Hp.sp3-1-Pe
+bend   0.04          2.2165681475    9   H-1-Hp.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Hp.sp3-1-H
+
+# 115 degree Axis JunctionSugar Phosphate
+bend   0.04          2.0071286375    9   Ax-1-Sj.sp3-1-Pl
+bend   0.04          2.0071286375    9   Ax-1-Sj.sp3-1-Pe
+bend   0.04          2.0071286375    9   Ax-1-Sj.sp3-1-Sh
+bend   0.04          2.0071286375    9   H-1-Sj.sp3-1-Ax
+
+# 110 degree Phosphate JunctionSugar Phosphate
+bend   0.04          1.919862175     9   Pl-1-Sj.sp3-1-Pl
+bend   0.04          1.919862175     9   Pl-1-Sj.sp3-1-Pe
+bend   0.04          1.919862175     9   H-1-Sj.sp3-1-Pl
+bend   0.04          1.919862175     9   H-1-Sj.sp3-1-H
+bend   0.04          1.919862175     9   H-1-Sj.sp3-1-Pe
+bend   0.04          1.919862175     9   Pe-1-Sj.sp3-1-Pe
+
+# 127 degree Phosphate JunctionSugar end
+bend   0.04          2.2165681475    9   Pl-1-Sj.sp3-1-Sh
+bend   0.04          2.2165681475    9   Pe-1-Sj.sp3-1-Sh
+bend   0.04          2.2165681475    9   Sh-1-Sj.sp3-1-Sh
+bend   0.04          2.2165681475    9   H-1-Sj.sp3-1-Sh
+
+# 92.5 degree Sugar Phosphate Sugar
+bend   0.04          1.61442955625   9   Ss-1-Pl.sp3-1-Ss
+bend   0.04          1.61442955625   9   Ss-1-Pl.sp3-1-Sh
+bend   0.04          1.61442955625   9   Ss-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   Sh-1-Pl.sp3-1-Sh
+bend   0.04          1.61442955625   9   Sh-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   Hp-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-Ss
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-Sh
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-H
+
+# 92.5 degree Sugar Phosphate JunctionSugar
+bend   0.04          1.61442955625   9   Ss-1-Pl.sp3-1-Sj
+bend   0.04          1.61442955625   9   Sj-1-Pl.sp3-1-Sh
+bend   0.04          1.61442955625   9   Sj-1-Pl.sp3-1-Hp
+bend   0.04          1.61442955625   9   H-1-Pl.sp3-1-Sj
+
+# 115.8 degree JunctionSugar Phosphate JunctionSugar
+bend   0.04          2.0210912715    9   Sj-1-Pl.sp3-1-Sj

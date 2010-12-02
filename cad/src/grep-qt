@@ -1,0 +1,18 @@
+#!/bin/bash
+
+FILES=$(find ~/qt-x11-opensource-src-4.1.4 \( -name '*.h' -or -name '*.cpp' \) | grep -v '\.moc')
+
+while [ $# != 0 ]; do
+    FILES2=
+    for x in $FILES; do
+	if egrep -il "$1" $x > /dev/null; then
+	    FILES2="$FILES2 $x"
+	fi
+    done
+    FILES=$FILES2
+    shift
+done
+
+for x in $FILES; do
+    echo $x
+done

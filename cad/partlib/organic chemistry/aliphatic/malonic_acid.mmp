@@ -1,0 +1,41 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.047379, 0.291635, -0.953096, -0.065668) (2.282905) (-0.052000, 0.002000, 0.029000) (1.000000)
+egroup (View Data)
+group (malonic_acid)
+info opengroup open = True
+mol (malonic_acid) def
+atom 1 (6) (-971, -126, -537) def
+info atom atomtype = sp2
+atom 2 (6) (376, 578, -587) def
+bond1 1
+atom 3 (6) (1249, 285, 620) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (8) (1617, 1073, 1460) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (8) (1600, -1012, 661) def
+bond1 3
+atom 6 (8) (-2037, 433, -396) def
+info atom atomtype = sp2
+bond2 1
+atom 7 (8) (-833, -1458, -700) def
+bond1 1
+atom 8 (1) (203, 1678, -640) def
+bond1 2
+atom 9 (1) (915, 289, -1518) def
+bond1 2
+atom 10 (1) (2141, -1127, 1460) def
+bond1 5
+atom 11 (1) (111, -1682, -747) def
+bond1 7
+egroup (malonic_acid)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part malonic_acid

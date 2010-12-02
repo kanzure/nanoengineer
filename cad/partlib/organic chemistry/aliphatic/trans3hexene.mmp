@@ -1,0 +1,53 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.815484) (-0.666500, 2.526000, -1.073000) (1.000000)
+egroup (View Data)
+group (trans3hexene)
+info opengroup open = True
+mol (trans3hexene) def
+atom 1 (1) (-2477, -2342, 2227) def
+atom 2 (6) (-2234, -1490, 1581) def
+bond1 1
+atom 3 (1) (-2556, -1705, 556) def
+bond1 2
+atom 4 (6) (-722, -1250, 1600) def
+bond1 2
+atom 5 (6) (0, -2500, 1090) def
+info atom atomtype = sp2
+bond1 4
+atom 6 (6) (1331, -2540, 1074) def
+info atom atomtype = sp2
+bond2 5
+atom 7 (1) (1910, -1679, 1425) def
+bond1 6
+atom 8 (6) (2053, -3791, 563) def
+bond1 6
+atom 9 (6) (3567, -3577, 650) def
+bond1 8
+atom 10 (1) (4083, -4472, 285) def
+bond1 9
+atom 11 (1) (3850, -3392, 1693) def
+bond1 9
+atom 12 (1) (3850, -2715, 36) def
+bond1 9
+atom 13 (1) (1770, -3976, -479) def
+bond1 8
+atom 14 (1) (1770, -4653, 1178) def
+bond1 8
+atom 15 (1) (-579, -3362, 738) def
+bond1 5
+atom 16 (1) (-399, -1035, 2625) def
+bond1 4
+atom 17 (1) (-479, -399, 954) def
+bond1 4
+atom 18 (1) (-2750, -595, 1946) def
+bond1 2
+egroup (trans3hexene)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part trans3hexene

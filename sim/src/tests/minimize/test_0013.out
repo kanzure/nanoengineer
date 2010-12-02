@@ -1,0 +1,8 @@
+======= test_0013.test =======
+TYPE struct
+======= exitvalue =======
+0
+======= structurematch =======
+0
+======= stderr =======
+== structure comparison ==

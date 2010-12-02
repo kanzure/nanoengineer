@@ -1,0 +1,84 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.876625) (-0.000000, -0.000000, -0.000500) (1.000000)
+egroup (View Data)
+group (C14H20)
+info opengroup open = True
+mol (C14H20.pdb) def
+atom 1 (6) (37, -949, -1647) def
+atom 2 (6) (-814, 1069, -1367) def
+bond1 1
+atom 3 (6) (-54, -1719, -330) def
+bond1 1
+atom 4 (6) (2209, -557, -1306) def
+bond1 1
+atom 5 (6) (18, 1507, 410) def
+bond1 2
+atom 6 (6) (-1842, 1401, -1081) def
+bond1 2
+atom 7 (6) (-1495, -1661, -227) def
+bond1 3
+atom 8 (6) (570, -1312, 548) def
+bond1 3
+atom 9 (6) (1823, 1524, -40) def
+bond1 5
+atom 10 (6) (-603, 480, 1294) def
+bond1 5 8
+atom 11 (6) (1655, -548, 1186) def
+bond1 8
+atom 12 (6) (-1754, 565, 1296) def
+bond1 10
+atom 13 (6) (-2624, -369, 127) def
+bond1 6 7 12
+atom 14 (6) (2499, 553, -204) def
+bond1 4 9 11
+atom 15 (1) (274, -829, -2697) def
+bond1 1
+atom 16 (1) (-208, 1900, -1640) def
+bond1 2
+atom 17 (1) (213, -2017, -549) def
+bond1 3
+atom 18 (1) (2189, -908, -1506) def
+bond1 4
+atom 19 (1) (1644, 298, -2345) def
+bond1 4
+atom 20 (1) (-270, 2775, 313) def
+bond1 5
+atom 21 (1) (-2071, 1993, -1270) def
+bond1 6
+atom 22 (1) (-2414, 555, -2519) def
+bond1 6
+atom 23 (1) (-2237, -2187, 486) def
+bond1 7
+atom 24 (1) (-1546, -1920, -1157) def
+bond1 7
+atom 25 (1) (812, -1601, 1774) def
+bond1 8
+atom 26 (1) (2445, 2553, 1011) def
+bond1 9
+atom 27 (1) (1652, 2415, -913) def
+bond1 9
+atom 28 (1) (210, 300, 2317) def
+bond1 10
+atom 29 (1) (2667, -162, 2108) def
+bond1 11
+atom 30 (1) (2208, -2062, 800) def
+bond1 11
+atom 31 (1) (-2287, -504, 2275) def
+bond1 12
+atom 32 (1) (-1949, 1197, 1766) def
+bond1 12
+atom 33 (1) (-3497, -447, -350) def
+bond1 13
+atom 34 (1) (3911, 340, -90) def
+bond1 14
+egroup (C14H20)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C14H20
+

@@ -1,0 +1,96 @@
+mmpformat 050920 required; 070415 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.457569, -0.464768, -0.736871, -0.177885) (8.153929) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (guanine-inner)
+info opengroup open = True
+mol (guanine) def
+atom 1 (15) (-5750, -4505, 2074) def
+atom 2 (8) (-4922, -4523, 3265) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (-6390, -5747, 1595) def
+info atom atomtype = sp2
+bond1 1
+atom 4 (8) (-4900, -3855, 884) def
+bond1 1
+atom 5 (6) (-4409, -4661, -175) def
+bond1 4
+atom 6 (6) (-2999, -4207, -505) def
+bond1 5
+atom 7 (8) (-3049, -2838, -974) def
+bond1 6
+atom 8 (6) (-2015, -4212, 695) def
+bond1 6
+atom 9 (6) (-1871, -2764, 1104) def
+bond1 8
+atom 10 (6) (-2079, -2057, -264) def
+bond1 7 9
+atom 11 (7) (-2644, -685, -164) def
+bond1 10
+atom 12 (6) (-3853, -391, -276) def
+info atom atomtype = sp2
+bond1 11
+atom 13 (7) (-4030, 923, -131) def
+info atom atomtype = sp2
+bond2 12
+atom 14 (6) (-2807, 1417, 47) def
+info atom atomtype = sp2
+bond1 13
+atom 15 (6) (-2358, 2785, 122) def
+info atom atomtype = sp2
+bond1 14
+atom 16 (8) (-3029, 3827, 62) def
+info atom atomtype = sp2
+bond2 15
+atom 17 (7) (-1012, 2880, 279) def
+bond1 15
+atom 18 (6) (-149, 1760, 354) def
+info atom atomtype = sp2
+bond1 17
+atom 19 (7) (1174, 2070, 550) def
+bond1 18
+atom 20 (7) (-527, 519, 226) def
+info atom atomtype = sp2
+bond2 18
+atom 21 (6) (-1863, 388, 64) def
+info atom atomtype = sp2
+bond1 11 20
+bond2 14
+atom 22 (1) (-4397, -5717, 134) def
+bond1 5
+atom 23 (1) (-5054, -4546, -1059) def
+bond1 5
+atom 24 (1) (-2601, -4863, -1292) def
+bond1 6
+atom 25 (1) (-1124, -2021, -809) def
+bond1 10
+atom 26 (1) (-2641, -2471, 1833) def
+bond1 9
+atom 27 (1) (-875, -2558, 1521) def
+bond1 9
+atom 28 (1) (-2409, -4816, 1526) def
+bond1 8
+atom 29 (1) (-608, 3792, 345) def
+bond1 17
+atom 30 (1) (1877, 1318, 595) def
+bond1 19
+atom 31 (1) (1463, 3053, 650) def
+bond1 19
+atom 32 (1) (-4651, -1108, -465) def
+bond1 12
+atom 33 (0) (-6553, -3796, 2209) def
+bond1 1
+atom 34 (8) (-747, -4738, 259) def
+bond1 8
+atom 35 (0) (-753, -5400, 451) def
+bond1 34
+egroup (guanine-inner)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part guanine-inner

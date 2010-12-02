@@ -1,0 +1,660 @@
+ Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+NanoEngineer-1 Change Log
+
+$Id$
+
+
+INSTRUCTIONS
+------------
+
+Developers should update this file after every commit that fixes a bug
+or adds new functionality to NanoEngineer-1. Please include the following
+information:
+
+Name:
+Date:
+Files:
+Summary:
+
+
+CHANGE NOTES
+------------
+
+Name: Mark Sims
+Date: 3/13/2005
+Files: HistoryWidget
+Summary: Changed startup height to 4 lines of text, requested by Damian.
+
+Name: Mark Sims
+Date: 3/13/2005
+Files: ElementSelector
+Summary: Changed button font from Times to default.
+
+Name: Mark Sims
+Date: 3/13/2005
+Files: modifyMode
+Summary: Fixed bug 13.  Removed "Separate" from context menu.
+
+Name: Mark Sims
+Date: 3/14/2005
+Files: LightingTool
+Summary: Fixed bug 432.
+
+--------------------- Alpha 5 -------------------------------------
+
+Name: Bruce Smith
+Date: 3/16/2005
+Files: lots
+Summary: assembly/Part split -- clipboard items can be viewed or changed 
+much like the main part.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 3/16/2005
+Files: gadgets.py
+Summary: fix the jig analog of bug 371
+
+----------------------------
+
+Name: Mark Sims
+Date: 3/18/2005, 11:00AM
+
+cookieMode: 
+ - hide the modify toolbar while in cookie cutter tool
+
+MainWindow:
+ - added new "Select" menu (same options as Select toolbar)
+ - added new Display menu items:
+    - Reset Chunk Display
+    - Show Invisible Atoms
+
+MoleculeProp:
+ - Changed reference to "Singlets:" to "Open Bonds:"
+ - fixed bug 445, in which the 'Make invisible atoms visible' button reset the display mode for all atoms in the chunk.
+
+movie:
+ - changed GNUplot filename suffix from "-trace.plt" to "-plot.txt"
+
+MWsemanitcs:
+ - changed name of slot "dispResetMolColor" to "dispResetChunkColor"
+ - added new slot "dispResetChunkDisplay"
+ - added new slot "dispShowInvisAtoms"
+
+part:
+ - added new method "resetChunkDisplay"
+ - added new method "showInvisibleAtoms"
+
+PlotTool:
+ - runGNUplot() verifies that the plotfile exists before attempting to plot it.
+
+selectMode:
+ - removed context menu items:
+   - Connected
+   - Doubly
+   - Separate
+ - added context menu items to "Right-Control Menu":
+   - Reset Chunk Color
+   - Reset Chunk Display
+   - Show Invisible Atoms
+   - Chunk Color...
+
+WhatsThis:
+ - Updated descriptive text for:
+   - Select Chunks
+   - Select Atoms
+   - Move Chunks
+   - Build Atoms Tool
+
+----------------------------
+
+Name: Mark Sims
+Date: 3/18/2005, PM
+File: Lots
+Summary: Added a selection filter for Select Atoms.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 3/18/2005
+Files: fileIO.py MWsemantics.py
+Summary: exclude singlets from saved PDB files; warn user when this happens
+
+----------------------------
+
+Name: Mark Sims
+Date: 3/19/2005
+Files: MainWindow, depositMode, RotaryMotorDialog
+Summary:
+
+MainWindow: 
+ - removed Element Selector from Modify menu/toolbar
+ - Adding Phosphorus to Select Atoms filter combobox
+
+depositMode:
+ - Added Element Selector to Build Atoms dashboard
+
+RotaryMotorDialog:
+ - Changed torque units from "nN*nm" to "nN-nm"
+ - Changed speed units from "gHz" to "GHz"
+
+----------------------------
+
+Name: Bruce Smith
+Date: 3/22/2005
+Files: fileIO.py
+Summary: fix bug 433 (now ok to read empty pdb files)
+
+----------------------------
+
+Name: Mark Sims
+Date: 3/24/2005
+Files: LightingToolDialog, MainWindow
+Summary: 
+ - Fixed bug 473, added "Restore Defaults" button
+ - Fixed bug 463, added "Sulfur" to SA Filter
+
+----------------------------
+
+Name: Mark Sims
+Date: 3/25/2005
+Files: MainWindow, MWsemanitcs, fusechunksMode, GLpane
+Summary: Added support for new Fuse Chunks Tool
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/07/2005 (and some earlier dates)
+Files: runSim.py, part.py, movie.py, fileIO.py, chunk.py, chem.py, perhaps others
+Summary: Minimize Selection (and some of bug 254 fix), and safer but perhaps slower movie playing
+
+see email to cad for details.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/07/2005
+Files: runSim.py, movie.py
+Summary: show warnings and errors from simulator during Minimize or Simulate
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/08/2005
+Files: GLPane.py
+Summary: fix bug in which glpane or its edges would flicker to black during main-window resize
+
+----------------------------
+
+Name: Mark Sims
+Date: 4/10/2005
+Files: GLPane, MainWindowUI, modes, modifyMode, platform, translateMode (new)
+Summary: Implemented new "translateMode", which adds support for sliding and/or rotating selected chunks 
+along the x, y or z axis.  New buttons added to the Move Chunks dashboard give UI access to these features.
+Users can also hold the X, Y, or Z keys while in Move Chunks mode to invoke these features.
+
+----------------------------
+
+Name: Mark Sims
+Date: 4/11/2005
+Files: MainWindowUI, MWsemantics, part, whatsthis
+Summary: Changed "Weld Chunks" to "Merge Chunks" (bug 515).
+
+----------------------------
+
+Name: Mark Sims
+Date: 4/12/2005
+Files: MainWindowUI, MWsemantics, modifyMode, translateMode
+Summary: Added "Move Delta" capability to Move Chunks mode.
+
+----------------------------
+
+Name: Mark Sims
+Date: 4/12/2005
+Files: MainWindowUI, MWsemantics, modes, modifyMode, platform
+Summary: Changed/added UI and slot hooks for "Minimize Selection" and "Minimize All".
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/12/2005
+Files: runSim.py, others
+Summary: Support for Minimize Selection vs Minimize All, and improved their history messages.
+
+(This commit doesn't yet fix progress bar caption or text to say which command is running,
+and doesn't yet turn singlets into H for Minimize All like it does for Minimize Selection.
+Further improvements to these are planned, but won't be listed separately in this file.)
+
+----------------------------
+
+Name: Mark Sims
+Date: 4/13/2005
+Files: MainWindowUI, MWsemantics, modifyMode, part
+Summary: Added "Modify > Invert" feature and moveDeltaPlus and moveDeltaMinus to modifyMode.  
+Also improved the history message for the Stretch feature.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/13/2005
+Files: GLPane.py
+Summary: try to fix bug 530
+
+This limits my bugfix from 4/8/05 (glpane or its edges would flicker to
+black during main-window resize, which it turns out is a Mac-specific bug)
+to the Mac, since that change also caused a new Windows-specific bug 530
+(glpane flicker when covered by dialogs or menus, or maybe when they
+disappear).
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/13/2005
+Files: GLPane.py
+Summary: try to fix bug 507 (lighting prefs change works wrong unless in Home View)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/14/2005
+Files: chem.py
+Summary: fixed bug 498 (btw this is probably the same as bug 361)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/16/2005
+Files: modes.py, depositMode.py
+Summary: Use a "dynamic context menu" in Build mode; revise Set Hotspot for clipboard parts.
+
+For details, see email to cad list, subject line:
+  CHECKIN: dynamic context menus; Set Hotspot for clipboard parts
+
+----------------------------
+
+Name: Mark Sims
+Date: 4/17/2005
+Files: modifyMode
+Summary: Implemented moveAbsolute() for one or more chunks.
+
+----------------------------
+
+Name: Mark Sims
+Date: 4/20/2005
+Files: modifyMode, fusechunksMode
+Summary: Fixed bug 502-12. Implemented the Move Chunks modifier keys X, Y, and Z for Fuse Chunks to allow 
+constrained translation and rotation around the 3 primary axes. I also added R and T modifier keys.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/21/2005
+Files: Utility.py chunk.py files_mmp.py jigs.py
+Summary:  fix bug 406: save leaf node hidden state in mmp file
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/21/2005
+Files: Utility.py files_mmp.py
+Summary:  save group open state in mmp file
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/25/2005
+Files: files_mmp.py jigs.py node_indices.py Utility.py
+Summary: "new jig mmpfile behaviors seem to work in simple tests"
+
+The new jig behaviors deserve mention in release notes, as one aspect
+of the assembly/Part split. 
+
+They have no effect unless you drag jigs (or the chunks containing the atoms
+they attach to) from one Part to another in the model tree, or unless
+you use the new MT context menu command to disable a jig. And if you
+do these things, it's designed with the intention that you can figure
+out what's going on.
+
+For details: I summarized the plan in recent mail to cad list (late last
+week), subject "full list of jig/clipboard requirements for Alpha 5".
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/25/2005
+Files: movie.py
+Summary:  fixed bugs 519, 384-6 
+
+Warning: these fixes are not only "band-aids" (instead of the required
+major surgery), but they only cover the wounds when you look at them from
+certain directions, which happen to include the ones in those bug reports.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/27/2005
+Files: part.py MWsemantics.py modelTree.py
+Summary:  fixed bug 566 [not sure if this bug predated last release (A4) or not]
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/28/2005
+Files: chem.py moviefile.py movie.py movieMode.py
+Summary: preliminary new movie code for Alpha5
+
+Excerpt from my CHECKIN mail; for many more details see that mail:
+
+I committed a major rewrite of the lowest-level movie code, as an
+attempt to fix or mitigate a lot of its bugs (new and old) for Alpha5....
+
+The basic change is that if you change the Part and then re-play the movie,
+or change it while you're still in movieMode playing the movie, then
+rather than crashing (tracebacks), it does its best to "do what you're
+asking for" (whether or not it's sensible), safely. That is, it keeps
+track of which atoms the movie is about, and moves them (except for deleted
+ones), and doesn't move the newly added ones.
+....
+
+----------------------------
+
+Name: Bruce Smith
+Date: 4/29/2005
+Files: assembly.py Utility.py MWsemantics.py
+Summary:  fixed bug 413; revised wording of unsaved changes message
+
+------------------------------------------ Alpha 6 --------------------------------------------
+
+### something by Huaicai about cookie cutter snap to grid? I don't know
+if he needs to add that here, I just wanted to make a place for it;
+Huaicai can remove this comment [bruce 050502]
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/2/2005
+Files: bonds.py chem.py chunk.py depositMode.py files_mmp.py
+Summary: split bonds.py out of chem.py; very partial support for bond2 etc, including in mmp files
+
+For details (about how preliminary and partial it is) see email to cad list.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/4/2005
+Files: TreeWidget.py modelTree.py
+Summary: added model tree context menu command to select all atoms of any Jig or set of Jigs
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/5/2005
+Files: Utility.py jigs.py modelTree.py
+Summary: fix Alpha5 bug 593: disabling/enabling Jigs now marks file as changed
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/5/2005
+Files: modelTree.py
+Summary: commands in MT empty-space context menu: new clipboard item; delete all clipboard items.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/5/2005
+Files: files_mmp.py Utility.py chunk.py
+Summary: chunk color now saved in mmp file.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/10/2005
+Files: chem.py
+Summary: fixed bug 466: Transmute now sets file-modified flag.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/11/2005
+Files: ops_atoms.py
+Summary: fix bug 376 (only tested for no traceback, not correctness)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/11/2005
+Files: lots
+Summary: introduced "atom types" (very incomplete); part of the new bonds ontology
+
+(see mail to cad for details: CHECKIN mail has list of files, prior mail has explanation)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/12/2005
+Files: Utility.py
+Summary: fixed bug 614 - Hide/Unhide now mark file as needing save (probably too minor for release notes)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/12/2005
+Files: TreeView.py
+Summary: fixed bug 620 - exceptions in MT when clicked while waiting for long op to complete
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/13/2005 [and several days thereafter]
+Files: 28 files
+Summary: optimized mmp read, VdW draw, movie play; '==' -> 'is' in many files
+
+For details see email: "CHECKIN: optimized readmmp, draw VdW, movies (I think)".
+
+Basically: some ops on large parts are faster now, e.g. movie playing, file opening,
+selecting atoms (due to the redraw speedup).
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/19/2005
+Files: Utility.py VQT.py drawer.py jigs.py
+Summary: rotary motor circular arrow rotates with motor during movies
+
+(It also rotates in Move Chunks mode, but only because we haven't yet fixed the
+bug or NFR about wanting the motor to move along with the chunk. During this kind
+of motion there can be glitches (unjustified sudden changes) in the displayed angle,
+since the spokes get far from their nominal arrangement. These glitches are harmless.)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/19/2005
+Files:  assembly.py TreeWidget.py modelTree.py ops_select.py
+
+Summary: fix bug 500, revise selwhat vs selmode code, related behavior changes
+
+See email to cad, "selection issues summary".
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/19/2005
+Files: jigs.py modelTree.py
+Summary: added MT cmenu command for rotary motors: Recenter on atoms
+
+This mitigates the bug/NFR asking for the motor to move automatically 
+when the atoms do (if they are all moved together, in Move Chunks mode).
+It doesn't really fix that, but it's not fully obvious how to fix that
+(e.g. when only some of the atoms move). Even so, I assume we'll fix
+that sometime, so this is a temporary "holdover" until the real fix.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/20/2005
+Files: op_select_doubly.py ops_connected.py
+Summary: New code for Select Doubly (fixes bug 582; makes this op linear time).
+
+The old code was wrong (at least since Alpha1) and slow. The new code is
+not obviously wrong on the test cases I tried, and fast. (It is also,
+in theory, compatible with Selection Filter, so that should be changed
+to no longer disable this operation, but that hasn't yet been done.)
+
+Warning: the new code (like the old) does use recursion rather than iteration
+and might get an exception for big parts due to hitting the recursion limit.
+If this starts to happen, it can be considered a new bug, and it can be fixed
+w/o too much trouble (maybe another 1/2 day of work).
+
+----------------------------
+
+Name: Bruce Smith
+Date: 5/26/2005
+Files: lots
+Summary: support for copying selected atoms, jigs, Groups
+
+(and the next day, did some bugfixes and extended the change to DND copy in MT)
+
+For details, see mail to cad list, not yet sent, hopefully to be sent
+within a few days.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 6/14/2005
+Files: chem.py
+Summary: fixed bug 661
+
+----------------------------
+
+Name: Bruce Smith
+Date: 6/14/2005
+Files: chunk.py depositMode.py
+Summary: fixed bug 703, and related older bug requiring mouse motion to see new-hotspot color
+
+----------------------------
+
+Name: Bruce Smith
+Date: 6/15/2005
+Files: depositMode.py
+Summary: fixed bug 264
+
+----------------------------
+
+Name: Bruce Smith
+Date: 6/18/2005
+Files: files_mmp.py chunk.py jigs.py Utility.py
+Summary: permit right paren in node names in mmp files (fixes part of bug 474)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 6/29/2005
+Files: ops_connected.py
+Summary: fix bug 714 by making Select Connected non-recursive to avoid Python stack overflow
+
+----------------------------
+
+Name: Bruce Smith
+Date: 6/29/2005
+Files: MWsemantics.py
+Summary: permit Select Connected and Select Doubly to be used when Selection Filter is active
+
+----------------------------
+
+Name: Bruce Smith
+Date: 6/29/2005
+Files: op_select_doubly.py
+Summary: fix bug 725 by making Select Doubly non-recursive (analogous to bug 714)
+
+----------------------------
+
+Name: Bruce Smith
+Date: 7/4/2005
+Files: jig_Gamess.py jigs.py modelTree.py
+Summary: Duplicate for Gamess jigs; Copy/Cut in MT cmenu for selections in clipboard
+
+The Duplicate command needs no separate mention in release notes, but needs to be
+mentioned somewhere in the Gamess documentation (if we write any before that entire
+interface gets redesigned).
+
+----------------------------
+
+Name: Bruce Smith
+Date: 7/5/2005
+Files: jigs.py
+Summary: implemented "Recenter on atoms" for Linear Motor
+
+----------------------------
+
+Name: Will Ware
+Date: 11/3/2005
+Files: NanotubeGenerator.py
+Summary: Some nanotube chiralities can produce funky valences.
+
+	 I ended up leaving open bonds on the ends, graphitic bonds
+	 elsewhere, and all the carbons are sp2. When you hydrogenate
+	 the result, you sometimes get the funky valence messages, and
+	 I don't know a good fix for that. We should at least
+	 release-note the funny valences. Maybe our users will be good
+	 enough chemists to understand them and patch them manually.
+	 We can't protect users from ever learning any chemistry at
+	 all.
+
+This happens when a carbon has a single graphitic bond to one other
+carbon, so when you hydrogenate, it picks up two hydrogens, then it
+whines about not having enough bonds for its hybridization.
+
+On this topic, Damian wrote:
+
+	If you're looking for an easy fix, just delete all carbon
+	atoms with two single bonds on them (the sp2 carbons with the
+	two H's on'em). The nanotube is defined by the pi-connectivity
+	between carbons and the graphitic (in-tube) or aromatic (edge
+	of tube) bonding of all the carbon atoms, not the absolute
+	length and the need for all atoms to fill that space to be
+	there. Unless your intention is to sew pairs of carbons into
+	the tubes to connect each "single" carbon to the nearest
+	neighbor aromatic carbon, which would be fine, too.
+
+Here is what I think Damian is talking about with the "sewing" thing.
+Make a (5,2) nanotube, 5 angstroms long. Hydrogenate it. There will be
+two of the under-valenced carbons. Each one has a hydrogen that's
+unrealistically close to another hydrogen. If you popped out those two
+hydrogens and replaced them with another carbon, maybe that would work
+better? I tried it, using sp2 carbons to replace the four hydrogens,
+and it didn't seem to help.
+
+I think the real solution is for the user to make the nanotube a bit
+longer than he wants, and then hand-trim the ends of the tube. Either
+that or come up with some brilliant algorithmic method to generate
+clean tube ends. Then we might be able to implement Bruce's idea of
+growing the end of the tube by one carbon layer at a time, though for
+many chiralities it's more like growing spirally around the tube.
+
+----------------------------
+
+Name: Bruce Smith
+Date: 12/1/05
+Files: wiki_help.py and several others
+Summary: wiki help feature
+
+Extended Will's prototype of Eric D's idea of a wiki page per program 
+feature or UI element, reachable from the program. The module docstring
+describes the idea like this:
+
+  wiki_help.py -- associate webpages (typically in a wiki) with program features,
+  and provide access to them. Pages typically contain feature-specific help info,
+  FAQ, forum, etc.
+
+and also has this Terminology note:
+
+  We use "web help" rather than "wiki help" in menu command text,
+  since more users will know what it means,
+  and since nothing in principle forces the web pages accessed this way to be wiki pages.
+
+  But we use "wiki help" in history messages, since we want people to think of the wiki
+  (rather than a rarely-changing web page) as an integral part of the idea.
+
+----------------------------

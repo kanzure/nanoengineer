@@ -1,0 +1,45 @@
+kelvin 300
+group (Data)
+csys (CSys) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000)
+datum (XY) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 0.000000, 1.000000) (0.000000, 1.000000, 0.000000)
+datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
+datum (ZX) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000) (0.000000, 1.000000, 0.000000)
+egroup (Data)
+group (Cubane)
+mol (Cubane) cpk
+atom 1 (6) (1018, 43, 714) def
+atom 2 (6) (-527, 46, 707) def
+bond1 1
+atom 3 (6) (-524, 1591, 710) def
+bond1 2
+atom 4 (6) (1020, 1589, 718) def
+bond1 1 3
+atom 5 (6) (-534, 43, 2254) def
+bond1 2
+atom 6 (6) (1010, 40, 2260) def
+bond1 1 5
+atom 7 (6) (-532, 1589, 2256) def
+bond1 3 5
+atom 8 (6) (1012, 1587, 2264) def
+bond1 4 6 7
+atom 9 (1) (1646, 2219, 2903) def
+bond1 8
+atom 10 (1) (-1169, 2223, 2889) def
+bond1 7
+atom 11 (1) (1642, -596, 2897) def
+bond1 6
+atom 12 (1) (-1173, -592, 2884) def
+bond1 5
+atom 13 (1) (1660, 2225, 87) def
+bond1 4
+atom 14 (1) (-1156, 2230, 73) def
+bond1 3
+atom 15 (1) (-1160, -586, 68) def
+bond1 2
+atom 16 (1) (1655, -590, 81) def
+bond1 1
+egroup (Cubane)
+end1
+group (Clipboard)
+egroup (Clipboard)
+end molecular machine part Cubane

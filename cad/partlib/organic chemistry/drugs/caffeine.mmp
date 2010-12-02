@@ -1,0 +1,71 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.920995, -0.389433, -0.009494, 0.004441) (3.901103) (-0.127000, -0.072500, -0.287500) (1.000000)
+egroup (View Data)
+group (caffeine)
+info opengroup open = True
+mol (caffeine) def
+atom 1 (6) (-1799, 22, 602) def
+info atom atomtype = sp2
+atom 2 (7) (-1586, -945, -363) def
+bond1 1
+atom 3 (6) (-2731, -1654, -954) def
+bond1 2
+atom 4 (6) (-301, -1248, -776) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (6) (789, -574, -214) def
+info atom atomtype = sp2
+bond1 4
+atom 6 (6) (563, 404, 763) def
+info atom atomtype = sp2
+bond2 5
+atom 7 (7) (-728, 694, 1163) def
+bond1 1 6
+atom 8 (6) (-964, 1720, 2189) def
+bond1 7
+atom 9 (7) (1752, 896, 1139) def
+info atom atomtype = sp2
+bond1 6
+atom 10 (6) (2729, 287, 454) def
+info atom atomtype = sp2
+bond2 9
+atom 11 (7) (2158, -638, -400) def
+bond1 5 10
+atom 12 (6) (2871, -1524, -1331) def
+bond1 11
+atom 13 (8) (-101, -2186, -1712) def
+info atom atomtype = sp2
+bond2 4
+atom 14 (8) (-3048, 309, 996) def
+info atom atomtype = sp2
+bond2 1
+atom 15 (1) (3786, 485, 553) def
+bond1 10
+atom 16 (1) (-2947, -2544, -368) def
+bond1 3
+atom 17 (1) (-2491, -1941, -1976) def
+bond1 3
+atom 18 (1) (-3601, -1000, -955) def
+bond1 3
+atom 19 (1) (-1088, 2689, 1711) def
+bond1 8
+atom 20 (1) (-114, 1756, 2868) def
+bond1 8
+atom 21 (1) (-1864, 1473, 2748) def
+bond1 8
+atom 22 (1) (2981, -1026, -2293) def
+bond1 12
+atom 23 (1) (2305, -2444, -1462) def
+bond1 12
+atom 24 (1) (3855, -1757, -929) def
+bond1 12
+egroup (caffeine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part caffeine

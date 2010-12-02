@@ -1,0 +1,47 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.539764) (-0.920768, -6.872000, 0.027000) (1.000000)
+egroup (View Data)
+group (Moiety-Small Bearing Outer Sleeve)
+info opengroup open = True
+mol (outer sleeve moiety) def
+atom 1 (6) (62, 6759, 1275) def
+atom 2 (6) (48, 5875, -24) def
+bond1 1
+atom 3 (6) (47, 6747, -1334) def
+bond1 2
+atom 4 (14) (1788, 7565, 1111) def
+bond1 1
+atom 5 (14) (1775, 7555, -1196) def
+bond1 3 4
+atom 6 (8) (1163, 4927, -26) def
+bond1 2
+atom 7 (1) (62, 6134, 2166) def
+bond1 1
+atom 8 (1) (38, 6114, -2219) def
+bond1 3
+atom 9 (1) (2081, 8817, 1857) def
+bond1 4
+atom 10 (1) (2060, 8800, -1956) def
+bond1 5
+atom 11 (0) (-646, 7085, -1271) def
+bond1 3
+atom 12 (0) (-545, 5385, -19) def
+bond1 2
+atom 13 (0) (2474, 6692, -1281) def
+bond1 5
+atom 14 (0) (-632, 7096, 1215) def
+bond1 1
+atom 15 (0) (1830, 5092, -31) def
+bond1 6
+atom 16 (0) (2488, 6703, 1195) def
+bond1 4
+egroup (Moiety-Small Bearing Outer Sleeve)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part Moiety-Small Bearing Outer Sleeve

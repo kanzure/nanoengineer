@@ -1,0 +1,63 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (-1.000000, 0.000000, 0.000000, 0.000000) (5.993587) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (Untitled)
+info opengroup open = True
+mol (Chunk-C11) def
+atom 1 (6) (-926, -1197, 960) def
+atom 2 (1) (-1101, -1458, -84) def
+bond1 1
+atom 3 (6) (599, -1137, 1267) def
+bond1 1
+atom 4 (1) (783, -1212, 2340) def
+bond1 3
+atom 5 (6) (-1634, 142, 1324) def
+bond1 1
+atom 6 (1) (-1734, 232, 2405) def
+bond1 5
+atom 7 (6) (-900, 1395, 741) def
+bond1 5
+atom 8 (1) (-908, 1386, -348) def
+bond1 7
+atom 9 (6) (1263, 154, 700) def
+bond1 3
+atom 10 (1) (2291, 286, 1037) def
+bond1 9
+atom 11 (8) (509, 1330, 1146) def
+bond1 7 9
+atom 12 (6) (-1461, 2752, 1271) def
+bond1 7
+atom 13 (1) (-1479, 2787, 2359) def
+bond1 12
+atom 14 (1) (-895, 3604, 894) def
+bond1 12
+atom 15 (8) (-3006, 103, 808) def
+bond1 5
+atom 16 (1) (-3014, 72, -157) def
+bond1 15
+atom 17 (8) (-1525, -2256, 1778) def
+bond1 1
+atom 18 (1) (-1465, -3112, 1334) def
+bond1 17
+atom 19 (8) (1249, -2291, 639) def
+bond1 3
+atom 20 (1) (1177, -3076, 1199) def
+bond1 19
+atom 21 (8) (1257, 123, -764) def
+bond1 9
+atom 22 (1) (2017, -370, -1099) def
+bond1 21
+atom 23 (8) (-2846, 2914, 826) def
+bond1 12
+atom 24 (1) (-2880, 3090, -123) def
+bond1 23
+egroup (Untitled)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part Untitled

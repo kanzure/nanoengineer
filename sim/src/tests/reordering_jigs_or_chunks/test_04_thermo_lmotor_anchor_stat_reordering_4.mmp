@@ -1,0 +1,67 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (04-thermo-lmotor-anchor-stat reordering-4)
+info opengroup open = True
+forward_ref (166344944) # lmotor (Linear Motor-83)
+forward_ref (166329160) # thermo (Thermo-25)
+mol (chunk1-frag22) tub
+atom 1 (6) (31, -1296, -839) -
+atom 2 (8) (1253, -1983, -1261) -
+bond1 1
+atom 3 (8) (1229, 53, 2334) -
+atom 4 (8) (1209, 92, -2437) -
+atom 5 (8) (1263, -2001, 1124) -
+atom 6 (6) (2, 62, -1609) -
+bond1 1 4
+atom 7 (6) (15, 37, 1515) -
+bond1 3
+atom 8 (6) (38, -1309, 723) -
+bond1 7 1 5
+atom 9 (8) (1175, 2148, -1227) -
+atom 10 (8) (1185, 2129, 1158) -
+atom 11 (6) (-19, 1409, -817) -
+bond1 6 9
+atom 12 (6) (-13, 1396, 745) -
+bond1 7 11 10
+atom 13 (6) (2452, -1250, -848) -
+bond1 2
+atom 14 (1) (3278, -1858, -1218) -
+bond1 13
+atom 15 (1) (3254, 92, 2225) -
+atom 16 (1) (3236, 129, -2344) -
+atom 17 (1) (3287, -1876, 1066) -
+atom 18 (6) (2423, 108, -1619) -
+bond1 13 16 4
+atom 19 (6) (2436, 83, 1506) -
+bond1 15 3
+atom 20 (6) (2458, -1263, 713) -
+bond1 13 17 19 5
+atom 21 (1) (3203, 2098, -1186) -
+atom 22 (1) (3212, 2080, 1099) -
+atom 23 (6) (2401, 1454, -826) -
+bond1 18 21 9
+atom 24 (6) (2407, 1442, 735) -
+bond1 19 22 23 10
+lmotor (Linear Motor-83) (127, 127, 127) 0.600000 0.100000 (9, 50, -47) (-999, -18, 3) 5.00 0.50 0.10
+shaft 1 6 7 11 12 8
+info leaf forwarded = 166344944
+thermo (Thermo-25) (153, 0, 51) 1 24 10
+info leaf forwarded = 166329160
+ground (Anchor-86) (0, 0, 0) 8
+mol (chunk1) tub
+atom 25 (1) (-773, -1934, -1202) -
+bond1 1
+atom 26 (1) (-797, 16, 2241) -
+bond1 7
+atom 27 (1) (-815, 53, -2329) -
+bond1 6
+atom 28 (1) (-764, -1953, 1082) -
+bond1 8
+stat (Stat-87) (0, 0, 153) (300) 1 24 6
+mol (chunk2) tub
+atom 29 (1) (-848, 2021, -1170) -
+bond1 11
+atom 30 (1) (-839, 2004, 1114) -
+bond1 12
+egroup (04-thermo-lmotor-anchor-stat reordering-4)
+end molecular machine part 04-thermo-lmotor-anchor-stat reordering-4

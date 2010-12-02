@@ -1,0 +1,69 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.707107, 0.000000, -0.707107, 0.000000) (1.898190) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (026 linearmotors %28two%29 applying equal and opposite forces)
+info opengroup open = True
+mol (Chunk-C1055) def
+atom 1 (6) (12, -36, 0) def
+atom 2 (1) (639, 591, 627) def
+bond1 1
+atom 3 (1) (-615, 591, -627) def
+bond1 1
+atom 4 (1) (-615, -664, 627) def
+bond1 1
+atom 5 (1) (639, -664, -627) def
+bond1 1
+lmotor (Linear Motor-1) (85, 170, 127) 1.000000 0.000000 (12, -36, 0) (0, 0, -1000) 3.00 0.50 0.10
+shaft 1
+lmotor (Linear Motor-2) (85, 85, 255) -1.000000 0.000000 (12, -36, 0) (0, 0, -1000) 3.00 0.50 0.10
+shaft 1
+group (Clipboard item 1)
+info opengroup open = True
+mol (reference X) def
+info leaf hidden = True
+atom 6 (1) (20627, 627, 627) def
+atom 7 (1) (19372, 627, -627) def
+atom 8 (1) (19372, -627, 627) def
+atom 9 (1) (20627, -627, -627) def
+atom 10 (6) (20000, 0, 0) def
+bond1 6 7 8 9
+ground (Anchor-X) (0, 0, 0) 6 7 8 9 10
+info leaf hidden = True
+mol (reference Z) def
+info leaf hidden = True
+atom 11 (1) (627, 627, 20627) def
+atom 12 (1) (-627, 627, 19372) def
+atom 13 (1) (-627, -627, 20627) def
+atom 14 (1) (627, -627, 19372) def
+atom 15 (6) (0, 0, 20000) def
+bond1 11 12 13 14
+ground (Anchor-Z) (0, 0, 0) 11 12 13 14 15
+info leaf hidden = True
+mol (reference Y) def
+info leaf hidden = True
+atom 16 (1) (639, 20591, 627) def
+atom 17 (1) (-615, 20591, -627) def
+atom 18 (1) (-615, 19335, 627) def
+atom 19 (1) (639, 19335, -627) def
+atom 20 (6) (12, 19963, 0) def
+bond1 16 17 18 19
+ground (Anchor-Y) (0, 0, 0) 16 17 18 19 20
+info leaf hidden = True
+egroup (Clipboard item 1)
+thermo (Thermo-33) (153, 0, 51) 1 5 2
+group (distance from reference)
+info opengroup open = True
+mdistance (Distance-X) (0, 0, 0) (Helvetica) 10 10 1
+mdistance (Distance-32) (0, 0, 0) (Helvetica) 10 15 1
+mdistance (Distance Y) (0, 0, 0) (Helvetica) 10 20 1
+egroup (distance from reference)
+egroup (026 linearmotors %28two%29 applying equal and opposite forces)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part 026 linearmotors (two) applying equal and opposite forces

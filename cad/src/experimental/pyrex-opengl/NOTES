@@ -1,0 +1,10 @@
+
+
+ Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
+This is just about ready for Brad's code now. There is currently some
+scaffolding in place that reports back the arguments in each case to
+make sure they arrived OK.
+
+This works on Linux (built with distutils) and Windows (built with
+make). Next it needs to work on the Mac.

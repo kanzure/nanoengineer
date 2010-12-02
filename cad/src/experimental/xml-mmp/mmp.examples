@@ -1,0 +1,146 @@
+../../../partlib/bearings/BigBearing.mmp
+../../../partlib/bearings/BuckyBearing.mmp
+../../../partlib/bearings/HCBearing.mmp
+../../../partlib/bearings/SmallBearing.mmp
+../../../partlib/bearings/ThrustBearing.mmp
+../../../partlib/biochemistry/amino acids/l_alanine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_arginine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_asparagine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_asparticacid_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_cysteine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_glutamicacid_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_glutamine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_glycine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_histidine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_isoleucine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_leucine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_lysine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_methionine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_phenylalanine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_proline_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_serine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_threonine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_tryptophan_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_tyrosine_mm2_neutral.mmp
+../../../partlib/biochemistry/amino acids/l_valine_mm2_neutral.mmp
+../../../partlib/biochemistry/carbohydrates/cellulose.mmp
+../../../partlib/biochemistry/carbohydrates/glucosamine.mmp
+../../../partlib/biochemistry/coenzymes and vitamins/1,25-dihydroxy VitaminD3.mmp
+../../../partlib/biochemistry/coenzymes and vitamins/biotin.mmp
+../../../partlib/biochemistry/coenzymes and vitamins/carotene.mmp
+../../../partlib/bushings/SiC Bushings 6-fold symmetry.mmp
+../../../partlib/bushings/SiC with 24f bushing.mmp
+../../../partlib/bushings/SiC with 36f bushing and 26f shaft.mmp
+../../../partlib/bushings/SiC with 36f bushing.mmp
+../../../partlib/casings/Imbedded Bushing in SiC with Shaft.mmp
+../../../partlib/casings/PumpCasing.mmp
+../../../partlib/casings/SiC Slab Large.mmp
+../../../partlib/casings/SiC Slab.mmp
+../../../partlib/couplings/UniversalJoint.mmp
+../../../partlib/couplings/rod-1-ja0293958.mmp
+../../../partlib/couplings/turn or joint-1-(hin)-ol048585f.mmp
+../../../partlib/fullerenes/Graphene.mmp
+../../../partlib/fullerenes/C60.mmp
+../../../partlib/fullerenes/C70.mmp
+../../../partlib/fullerenes/C76.mmp
+../../../partlib/fullerenes/C78.mmp
+../../../partlib/functional groups/-C=ON (amide).mmp
+../../../partlib/functional groups/-CHO (Carbonyl).mmp
+../../../partlib/functional groups/-CO (ketone).mmp
+../../../partlib/functional groups/-COCl (acyl chloride).mmp
+../../../partlib/functional groups/-COO- (Ester).mmp
+../../../partlib/functional groups/-COOH (carboxyl).mmp
+../../../partlib/functional groups/-NH2(Amino).mmp
+../../../partlib/functional groups/-OH(Hydroxyl).mmp
+../../../partlib/functional groups/-SH(sulfhydril group--thiols) .mmp
+../../../partlib/gears/BevelGear.mmp
+../../../partlib/gears/DifferentialGearBox.mmp
+../../../partlib/gears/LilGears.mmp
+../../../partlib/gears/MarkIII[k]_PlanetaryGearBox3.mmp
+../../../partlib/gears/PlanetGear1.mmp
+../../../partlib/gears/PlanetGear2.mmp
+../../../partlib/gears/PlanetaryGear2.mmp
+../../../partlib/gears/PlanetaryGearBox1.mmp
+../../../partlib/gears/PlanetaryGearBox2.mmp
+../../../partlib/gears/TwoGears.mmp
+../../../partlib/general chemistry/H2O.mmp
+../../../partlib/general chemistry/chlorophyll.mmp
+../../../partlib/general chemistry/hydrogen_peroxide.mmp
+../../../partlib/moieties/BuckyTubeMoiety.mmp
+../../../partlib/moieties/CarbonRingMoiety.mmp
+../../../partlib/moieties/InnerSleeveMoiety.mmp
+../../../partlib/moieties/OuterSleeveMoiety.mmp
+../../../partlib/moieties/PlanCarrMoiety.mmp
+../../../partlib/moieties/PlanetGearMoiety.mmp
+../../../partlib/moieties/SunGearMoiety.mmp
+../../../partlib/nanotubes/BuckyTube.mmp
+../../../partlib/nanotubes/DeformedTube.mmp
+../../../partlib/organic chemistry/aliphatic/1aminohexane.mmp
+../../../partlib/organic chemistry/aliphatic/4heptanone.mmp
+../../../partlib/organic chemistry/aliphatic/EDTA.mmp
+../../../partlib/organic chemistry/aliphatic/[R]aminochloromethanol.mmp
+../../../partlib/organic chemistry/aliphatic/[S]aminochloromethanol.mmp
+../../../partlib/organic chemistry/aliphatic/acetaldehyde.mmp
+../../../partlib/organic chemistry/aliphatic/acetone.mmp
+../../../partlib/organic chemistry/aliphatic/aminomethane.mmp
+../../../partlib/organic chemistry/aliphatic/butanal.mmp
+../../../partlib/organic chemistry/aliphatic/butane.mmp
+../../../partlib/organic chemistry/aliphatic/butanedione.mmp
+../../../partlib/organic chemistry/aliphatic/cis3hexene.mmp
+../../../partlib/organic chemistry/aliphatic/cyclohex-boat.mmp
+../../../partlib/organic chemistry/aliphatic/cyclohex-chair.mmp
+../../../partlib/organic chemistry/aliphatic/diethylether.mmp
+../../../partlib/organic chemistry/aliphatic/dimethylether.mmp
+../../../partlib/organic chemistry/aliphatic/ethylpropanoate.mmp
+../../../partlib/organic chemistry/aliphatic/isoamyl_acetate.mmp
+../../../partlib/organic chemistry/aliphatic/malonic_acid.mmp
+../../../partlib/organic chemistry/aliphatic/methanol.mmp
+../../../partlib/organic chemistry/aliphatic/octane.mmp
+../../../partlib/organic chemistry/aliphatic/oxalic_acid.mmp
+../../../partlib/organic chemistry/aliphatic/propane.mmp
+../../../partlib/organic chemistry/aliphatic/propanoic_acid.mmp
+../../../partlib/organic chemistry/aliphatic/tetrahydrofuran.mmp
+../../../partlib/organic chemistry/aliphatic/trans3hexene.mmp
+../../../partlib/organic chemistry/aliphatic/trimethylamine.mmp
+../../../partlib/organic chemistry/aliphatic/tris[isopropyl]amine.mmp
+../../../partlib/organic chemistry/aromatic/4hydroxybenzaldehyde.mmp
+../../../partlib/organic chemistry/aromatic/benzene.mmp
+../../../partlib/organic chemistry/aromatic/cinnamaldehyde.mmp
+../../../partlib/organic chemistry/aromatic/eugenol.mmp
+../../../partlib/organic chemistry/aromatic/pyridine.mmp
+../../../partlib/organic chemistry/aromatic/styrene.mmp
+../../../partlib/organic chemistry/aromatic/tert butyl methoxyphenol.mmp
+../../../partlib/organic chemistry/aromatic/toluene.mmp
+../../../partlib/organic chemistry/aromatic/xylene.mmp
+../../../partlib/organic chemistry/drugs/amphetamine.mmp
+../../../partlib/organic chemistry/drugs/caffeine.mmp
+../../../partlib/organic chemistry/drugs/cocaine.mmp
+../../../partlib/organic chemistry/drugs/ethanol.mmp
+../../../partlib/organic chemistry/drugs/morphine.mmp
+../../../partlib/organic chemistry/polymers/methylmethacrylate.mmp
+../../../partlib/organic chemistry/polymers/nylon6.mmp
+../../../partlib/organic chemistry/polymers/polyisobutene.mmp
+../../../partlib/organic chemistry/polymers/polyoxyethylene.mmp
+../../../partlib/organic chemistry/polymers/polypropene.mmp
+../../../partlib/organic chemistry/polymers/pvc.mmp
+../../../partlib/organic chemistry/sweeteners/D-fructose.mmp
+../../../partlib/organic chemistry/sweeteners/sucralose.mmp
+../../../partlib/organic chemistry/sweeteners/vanillin.mmp
+../../../partlib/others/5CarbonRing.mmp
+../../../partlib/others/Adamantine.mmp
+../../../partlib/others/Cubane.mmp
+../../../partlib/others/Cube.mmp
+../../../partlib/others/Dodecahedrane.mmp
+../../../partlib/others/DodecahedraneShaft.mmp
+../../../partlib/others/EGB.mmp
+../../../partlib/others/FineMotionController.mmp
+../../../partlib/others/Fuse2Dodecahedranes.mmp
+../../../partlib/others/Hoop.mmp
+../../../partlib/others/Lomer.mmp
+../../../partlib/others/Lonsdaleite.mmp
+../../../partlib/others/SiC-curvedSurface.mmp
+../../../partlib/others/StiffShaft.mmp
+../../../partlib/others/nE-1 Elements.mmp
+../../../partlib/pumps/Pump.mmp
+../../../partlib/pumps/PumpCasing.mmp
+../../../partlib/pumps/PumpRotor.mmp

@@ -1,0 +1,88 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (-0.934081, 0.114307, 0.217664, -0.258939) (7.016528) (5.586000, -1.671500, -1.178500) (1.000000)
+egroup (View Data)
+group (cytosine)
+info opengroup open = True
+mol (cytosine) def
+atom 1 (15) (-8691, 1845, 1983) def
+atom 2 (8) (-9762, 2835, 1763) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (8) (-8793, 594, 1192) def
+info atom atomtype = sp2
+bond1 1
+atom 4 (8) (-7267, 2514, 1733) def
+bond1 1
+atom 5 (6) (-6788, 3510, 2673) def
+bond1 4
+atom 6 (6) (-5975, 4555, 1942) def
+bond1 5
+atom 7 (8) (-4625, 4033, 1733) def
+bond1 6
+atom 8 (6) (-6455, 4931, 543) def
+bond1 6
+atom 9 (6) (-5783, 3889, -336) def
+bond1 8
+atom 10 (6) (-4452, 3684, 373) def
+bond1 7 9
+atom 11 (7) (-3954, 2283, 323) def
+bond1 10
+atom 12 (6) (-2584, 2083, 173) def
+info atom atomtype = sp2
+bond1 11
+atom 13 (8) (-1842, 3070, 83) def
+info atom atomtype = sp2
+bond2 12
+atom 14 (7) (-2182, 701, -187) def
+info atom atomtype = sp2
+bond1 12
+atom 15 (6) (-2941, -230, 223) def
+info atom atomtype = sp2
+bond2 14
+atom 16 (7) (-2426, -1449, 173) def
+bond1 15
+atom 17 (6) (-4352, -52, 373) def
+info atom atomtype = sp2
+bond1 15
+atom 18 (6) (-4804, 1229, 423) def
+info atom atomtype = sp2
+bond1 11
+bond2 17
+atom 19 (1) (-7647, 3992, 3163) def
+bond1 5
+atom 20 (1) (-6159, 3023, 3432) def
+bond1 5
+atom 21 (1) (-5946, 5461, 2564) def
+bond1 6
+atom 22 (1) (-3701, 4342, -89) def
+bond1 10
+atom 23 (1) (-6367, 2957, -368) def
+bond1 9
+atom 24 (1) (-5637, 4264, -1360) def
+bond1 9
+atom 25 (1) (-7551, 4874, 473) def
+bond1 8
+atom 26 (1) (-5870, 1414, 545) def
+bond1 18
+atom 27 (1) (-5031, -900, 443) def
+bond1 17
+atom 28 (1) (-1410, -1575, 55) def
+bond1 16
+atom 29 (1) (-3041, -2272, 252) def
+bond1 16
+atom 30 (0) (-8632, 1598, 3032) def
+bond1 1
+atom 31 (8) (-6009, 6243, 147) def
+bond1 8
+atom 32 (0) (-6094, 6262, -536) def
+bond1 31
+egroup (cytosine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part cytosine

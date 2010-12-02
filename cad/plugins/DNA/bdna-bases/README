@@ -1,0 +1,96 @@
+$Id$
+
+ Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+What are all these files? Four of them are used by DnaGenerator.py
+to create DNA structures in the CAD program:
+
+	adenine.mmp
+	cytosine.mmp
+	guanine.mmp
+	thymine.mmp
+
+-----
+3/29/2007
+NOTE: I've since changed these four files by hand to add an oxygen to the 3'
+carbon (where a bond point used to be), and removed the oxygen from the
+phosphate (where a bond point is now.) This configuration is more standard in
+the world of PDBs, GROMACS, and NAMOT, and is, in fact how the bdna.pdb file is
+set up.
+
+So the prepare.py script is out-of-date and will re-generate the old files if
+run. Note that prepare.py is not typically run, but is documentation about how
+the files where originally generated.
+
+This change does make a chemical difference in that there should be an oxygen
+bonded to the 3' carbon at the top of a 3'-to-5' strand (previously there was
+not.) Technically, when the strands are generated, the oxygen should also be
+hydrogenated *and* there should be no phosphate at the top of the 5'-to-3'
+strand - but this change makes the nucleotides by themselves conform to
+standards at least. A NAMOT-powered plugin should ultimately be used for the
+generation of DNA.
+--Brian.
+-----
+
+The other files are what I used to prepare these. I started with the
+bdna.pdb file. I don't remember where I found it originally, but I
+found another copy in these places, along with adna.pdb and zdna.pdb:
+
+http://www.wellesley.edu/Chemistry/Flick/molecules/
+http://chemistry.gsu.edu/glactone/PDB/DNA_RNA/
+
+My hope is that bdna.pdb is an authoritative representation for what
+DNA should really look like. I proceeded with that assumption.
+
+-----
+
+The first thing I did was load bdna.pdb and separate the two strands.
+That gave me strand1.mmp and strand2.mmp.
+
+Then I hand-edited the drawing styles for the atoms in strand1.mmp to
+create strund1.mmp. The base pairs alternate between wireframe drawing
+mode ("lin" in the MMP file) and default drawing mode ("def" in the
+MMP file).
+
+The prepare.py script parses strund1.mmp to extract the four base
+pairs as MMP files. It tries to get bond orders and hybridizations
+right, and it rotates and translates them to a standardized
+orientation. The output of prepare.py is those first four files.
+
+While working on Z-DNA, I used a slightly modified version of
+prepare.py. It needed modification because Z-DNA's structure does a
+zigzag on each pair of bonds.
+
+------------------------
+Here are some old notes, pertaining mostly to zdna.pdb
+
+* http://en.wikipedia.org/wiki/DNA
+* http://en.wikipedia.org/wiki/Image:Dna_pairing_aa.gif 
+
+The 5' and 3' terminators are respectively groups 32 (a single
+hydrogen) and 359 (a hydroxyl). The groups representing base pairs are
+as follows. The distances from the spinal carbon to the DNA axis
+alternate for Z-DNA, so we'll need two copies of each base.
+
+5' end (hydrogen)
+1             cytosine                  2.96
+9             guanine                   7.83
+41            cytosine                  2.97
+74            adenine                   7.79
+104           adenine                   2...
+136           adenine                   7...
+168           thymine                   2...
+200           thymine                   7...
+232           thymine                   2...
+264           cytosine                  7...
+296           guanine                   2...
+326           cytosine                  7...
+3' end (hydroxyl)
+
+The 5' and 3' ends are reversed for strand B. When a strand1 guanine
+is viewed from the +Z direction, its oxygen points clockwise, where a
+strand2 guanine's oxygen points counter-clockwise. That's what we
+want, it means the same bases will work for both strands with
+appropriate rotations. You get the strand2 version of the base by
+rotating it 180 degrees about a radial vector, so that its 5' and 3'
+connectors are reversed. Where the strand1 sequence is CGCAAATTTCGC,
+the strand2 sequence is GCGTTTAAAGCG.

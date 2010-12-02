@@ -1,0 +1,12 @@
+======= test_0001.test =======
+TYPE struct
+======= exitvalue =======
+0
+======= structurematch =======
+1
+======= lengthsangles =======
+OK
+======= stderr =======
+cutover to fine tolerance at 6
+== structure comparison ==
+cutover to fine tolerance at 1

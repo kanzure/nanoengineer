@@ -1,0 +1,344 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>ServerManagerDialog</class>
+ <widget class="QDialog" name="ServerManagerDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>673</width>
+    <height>677</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Server Manager</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="margin" >
+    <number>11</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QListWidget" name="server_listview" >
+       <column>
+        <property name="text" >
+         <string>Server ID</string>
+        </property>
+       </column>
+       <column>
+        <property name="text" >
+         <string>Engine</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="frame4" >
+       <property name="frameShape" >
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>11</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="textLabel1" >
+          <property name="text" >
+           <string>Server Name :</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="name_linedit" >
+          <property name="text" >
+           <string>localhost</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_3" >
+          <property name="text" >
+           <string>IP Address :</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ipaddress_linedit" >
+          <property name="text" >
+           <string>127.0.0.1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="textLabel1_2" >
+            <property name="text" >
+             <string>Platform :</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QComboBox" name="method_combox" >
+            <item>
+             <property name="text" >
+              <string>Local access</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Ssh/scp</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Rsh/rcp</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Telnet/ftp</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QLabel" name="textLabel1_6" >
+            <property name="text" >
+             <string>Method:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QComboBox" name="platform_combox" >
+            <item>
+             <property name="text" >
+              <string>Linux</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Mac OS</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>Windows</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_4" >
+          <property name="text" >
+           <string>Engine :</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QComboBox" name="engine_combox" >
+            <item>
+             <property name="text" >
+              <string>PC GAMESS</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>nanoSIM-1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>GAMESS</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_5" >
+          <property name="text" >
+           <string>Executing Program :</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="program_linedit" >
+          <property name="text" >
+           <string>C:\PCGAMESS</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_2_2" >
+          <property name="text" >
+           <string>Username :</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="username_linedit" >
+          <property name="text" >
+           <string>nanorex</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel1_2_2_2" >
+          <property name="text" >
+           <string>Password :</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="password_linedit" >
+          <property name="text" >
+           <string>nanorex</string>
+          </property>
+          <property name="echoMode" >
+           <enum>QLineEdit::Password</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="new_btn" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="text" >
+        <string>New</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="del_btn" >
+       <property name="text" >
+        <string>Delete</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="test_btn" >
+       <property name="text" >
+        <string>Test</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="exit_btn" >
+       <property name="text" >
+        <string>Exit</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>exit_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>ServerManagerDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

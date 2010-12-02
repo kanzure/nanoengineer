@@ -1,0 +1,55 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.999017, -0.015511, 0.041508, 0.001128) (3.403600) (-0.037000, 0.022500, 0.001500) (1.000000)
+egroup (View Data)
+group (styrene)
+info opengroup open = True
+mol (styrene) def
+atom 1 (6) (-1769, 1214, -33) def
+info atom atomtype = sp2
+atom 2 (6) (-2509, 29, -41) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (-1843, -1197, -38) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (-447, -1241, -24) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (313, -60, -12) def
+info atom atomtype = sp2
+bonda 4
+atom 6 (6) (-375, 1166, -20) def
+info atom atomtype = sp2
+bonda 1 5
+atom 7 (6) (1785, -42, 11) def
+info atom atomtype = sp2
+bond1 5
+atom 8 (6) (2589, -1122, 26) def
+info atom atomtype = sp2
+bond2 7
+atom 9 (1) (-2288, 2186, -36) def
+bond1 1
+atom 10 (1) (-3610, 63, -49) def
+bond1 2
+atom 11 (1) (-2424, -2134, -44) def
+bond1 3
+atom 12 (1) (33, -2231, -21) def
+bond1 4
+atom 13 (1) (183, 2118, -12) def
+bond1 6
+atom 14 (1) (2285, 943, 19) def
+bond1 7
+atom 15 (1) (3684, -1000, 46) def
+bond1 8
+atom 16 (1) (2215, -2155, 21) def
+bond1 8
+egroup (styrene)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part styrene

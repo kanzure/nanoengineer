@@ -1,0 +1,81 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.360809, -0.007225, 0.222518, -0.905677) (4.870842) (-0.190000, -0.911000, 0.297500) (1.000000)
+egroup (View Data)
+group (biotin)
+info opengroup open = True
+mol (biotin) def
+atom 1 (16) (1075, -1646, 2408) def
+atom 2 (6) (921, -2017, -1917) def
+info atom atomtype = sp2
+atom 3 (7) (2097, -1972, -1290) def
+bond1 2
+atom 4 (6) (1906, -2589, 42) def
+bond1 3
+atom 5 (6) (369, -2655, 163) def
+bond1 4
+atom 6 (7) (-27, -2674, -1251) def
+bond1 2 5
+atom 7 (8) (730, -1497, -3003) def
+info atom atomtype = sp2
+bond2 2
+atom 8 (1) (2440, -951, -1231) def
+bond1 3
+atom 9 (1) (2917, -876, 1054) def
+atom 10 (1) (2315, -3611, -38) def
+bond1 4
+atom 11 (6) (2492, -1863, 1286) def
+bond1 1 4 9
+atom 12 (6) (-130, -1478, 1053) def
+bond1 1 5
+atom 13 (1) (61, -3608, 630) def
+bond1 5
+atom 14 (1) (-1010, -2264, -1408) def
+bond1 6
+atom 15 (6) (-43, 3, 561) def
+bond1 12
+atom 16 (1) (3262, -2465, 1793) def
+bond1 11
+atom 17 (1) (-1145, -1679, 1431) def
+bond1 12
+atom 18 (1) (948, 247, 157) def
+bond1 15
+atom 19 (1) (-182, 610, 1468) def
+bond1 15
+atom 20 (6) (-1130, 442, -461) def
+bond1 15
+atom 21 (1) (-903, -4, -1439) def
+bond1 20
+atom 22 (6) (-1180, 1981, -700) def
+bond1 20
+atom 23 (1) (-2122, 89, -137) def
+bond1 20
+atom 24 (1) (-173, 2351, -957) def
+bond1 22
+atom 25 (6) (-1739, 2794, 500) def
+bond1 22
+atom 26 (1) (-1839, 2167, -1566) def
+bond1 22
+atom 27 (1) (-1063, 2747, 1366) def
+bond1 25
+atom 28 (1) (-2719, 2393, 803) def
+bond1 25
+atom 29 (6) (-1914, 4242, 116) def
+info atom atomtype = sp2
+bond1 25
+atom 30 (8) (-1238, 5137, 596) def
+info atom atomtype = sp2
+bond2 29
+atom 31 (8) (-2856, 4499, -789) def
+bond1 29
+atom 32 (1) (-2882, 5433, -960) def
+bond1 31
+egroup (biotin)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part biotin

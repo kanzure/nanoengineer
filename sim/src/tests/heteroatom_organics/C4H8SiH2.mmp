@@ -1,0 +1,45 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.874463) (-0.094500, -0.065000, 0.003000) (1.000000)
+egroup (View Data)
+group (C4H8SiH2)
+info opengroup open = True
+mol (C4H8SiH2.pdb) def
+atom 1 (14) (718, 746, -67) def
+atom 2 (6) (225, -428, 1360) def
+bond1 1
+atom 3 (6) (-541, 51, -1324) def
+bond1 1
+atom 4 (6) (-1089, -1080, 857) def
+bond1 2
+atom 5 (6) (-998, -1278, -669) def
+bond1 3 4
+atom 6 (1) (2140, 581, -490) def
+bond1 1
+atom 7 (1) (505, 2191, 241) def
+bond1 1
+atom 8 (1) (99, 69, 2327) def
+bond1 2
+atom 9 (1) (1004, -1189, 1489) def
+bond1 2
+atom 10 (1) (-145, -96, -2333) def
+bond1 3
+atom 11 (1) (-1390, 740, -1407) def
+bond1 3
+atom 12 (1) (-1291, -2028, 1371) def
+bond1 4
+atom 13 (1) (-1933, -415, 1084) def
+bond1 4
+atom 14 (1) (-256, -2061, -885) def
+bond1 5
+atom 15 (1) (-1951, -1634, -1079) def
+bond1 5
+egroup (C4H8SiH2)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C4H8SiH2

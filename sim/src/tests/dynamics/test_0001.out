@@ -1,0 +1,4 @@
+======= test_0001.test =======
+# rotary motor test
+TYPE fail
+PROGRAM simulator -f30 -t0 -i10000 -x test_0001.mmp

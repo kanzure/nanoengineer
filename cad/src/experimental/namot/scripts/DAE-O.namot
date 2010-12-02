@@ -1,0 +1,87 @@
+# Single-tile crystal DAE-O unit
+#
+set hush info off
+set WCAdfirst on
+close
+#
+#  create the initial ds regions
+#
+#  even input: sticky comp                                    sticky
+generate d d b AGGTACcgagtttcgtccaacggtccagaacggctgtccactgagagTGATCG
+modify unit twist g 1:2 1:16 +.78
+modify unit twist g 1:17 1:17 -2
+modify unit twist g 1:18 1:37 +.5
+modify unit twist g 1:38 1:38 -2
+modify unit twist g 1:39 1:53 +.78
+rotorig 1 3 -104.34
+rotorig 1 3 88
+trans 1 0 0 -71.4
+write pdb Stop
+close
+#
+# even output: sticky complement                              sticky
+generate d d b GTACCTgacgatgacctgcttcggttactgtttagcctgctctactgCGATCA
+modify unit twist g 1:2 1:16  +.78
+modify unit twist g 1:17 1:17 -2
+modify unit twist g 1:18 1:37 +.25
+modify unit twist g 1:38 1:38 -2
+modify unit twist g 1:39 1:53  +.78
+rotorig 1 3 -104.34
+rotorig 1 3 126
+trans 1 -19.5 0 -71.4
+write pdb Sbot
+close
+#
+#  add nicks for crossovers and for sticky ends
+#
+load pdb na Stop
+nick 1:2:6
+nick 1:1:37
+nick 1:1:24
+nick 1:1:16
+nick 1:1:6
+load pdb na Sbot
+nick 2:2:37
+nick 2:2:16
+nick 2:2:6
+nick 2:1:6
+#
+#  create crossover phosphates
+#
+link 1:2 2:6
+modify phos phi 2:16:2 2:16:2 -120
+link 2:5 1:3
+modify phos phi 1:17:1 1:17:1 -120
+link 1:3 2:5
+modify phos phi 2:37:2 2:37:2 -120
+link 2:4 1:4
+modify phos phi 1:38:1 1:38:1 -120
+#
+#  bring good stuff into mol #1, sticky end complements -> mol #2
+#     (thus bogus warnings)
+#
+move chain 2:4 1
+move chain 2:2 1
+move chain 1:4 2
+move chain 1:1 2
+#
+delete mol 2
+#
+#  Make it so rotorig 1 1 180 is aligned with original 
+#
+trans 1 0 0 -17
+rotorig 1 3 90
+rotorig 1 1 -90
+rotorig 1 3 180
+rotorig 1 2 180
+#
+write pdb DAE-O.pdb
+#
+
+# set colors for tile diagram
+set background white
+set color m1:1:*:* blue
+set color m1:2:*:* cyan
+set color m1:3:*:* green
+set color m1:4:*:* yellow
+set color m1:5:*:* red

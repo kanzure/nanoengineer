@@ -1,0 +1,39 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (5.278874) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (028 bug1306-test2)
+info opengroup open = True
+mol (Chunk-C11) def
+atom 1 (6) (-1465, -273, 0) def
+atom 2 (1) (-810, 343, 610) def
+bond1 1
+atom 3 (1) (-2098, 366, -610) def
+bond1 1
+atom 4 (1) (-2086, -890, 644) def
+bond1 1
+atom 5 (1) (-866, -911, -644) def
+bond1 1
+mol (Chunk-C16) def
+atom 6 (6) (2397, -413, 0) def
+atom 7 (1) (3019, 203, 644) def
+bond1 6
+atom 8 (1) (1798, 225, -644) def
+bond1 6
+atom 9 (1) (1742, -1030, 610) def
+bond1 6
+atom 10 (1) (3030, -1052, -610) def
+bond1 6
+rmotor (Rotary Motor-3) (127, 127, 127) 2.00 2.00 (466, -343, 0) (0, 0, -1000) 10.00 0.50 0.10
+shaft 1 6
+mdistance (Distance-6) (0, 0, 0) (Helvetica) 10 1 6
+thermo (Thermo-7) (153, 0, 51) 1 5 1
+egroup (028 bug1306-test2)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part 028 bug1306-test2

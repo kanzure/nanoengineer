@@ -1,0 +1,3 @@
+TYPE fail
+PROGRAM simulator -f500 -m -x test_0002.mmp
+

@@ -1,0 +1,99 @@
+# Paul's SEs DAE-E unit
+#
+set hush info off
+set WCAdfirst on
+close
+#
+#  create the initial ds regions
+#
+#  even input: sticky                                   sticky
+generate d d b cagacagtttcgtccaacggtccagaacggctgtccactgagaggta
+modify unit twist g 1:2 1:13 +.78
+modify unit twist g 1:14 1:14 -2
+modify unit twist g 1:15 1:34 +.5
+modify unit twist g 1:35 1:35 -2
+modify unit twist g 1:36 1:47 +.78
+rotorig 1 3 88
+trans 1 0 0 -71.4
+write pdb Stop
+close
+#
+# even output: sticky complement             sticky complement
+generate d d b aggtacgatgacctgcttcggttactgtttagcctgctctaccagac
+modify unit twist g 1:2 1:13  +.78
+modify unit twist g 1:14 1:14 -2
+modify unit twist g 1:15 1:34 +.25
+modify unit twist g 1:35 1:35 -2
+modify unit twist g 1:36 1:47  +.78
+rotorig 1 3 126
+trans 1 -19.5 0 -71.4
+write pdb Sbot
+close
+#
+#  add nicks for crossovers and for sticky ends
+#
+load pdb na Stop
+nick 1:2:42
+nick 1:2:5
+nick 1:1:34
+nick 1:1:21
+nick 1:1:13
+load pdb na Sbot
+nick 2:2:34
+nick 2:2:13
+nick 2:1:42
+nick 2:1:5
+#
+#  create crossover phosphates
+#
+link 1:1 2:6
+modify phos phi 2:13:2 2:13:2 -120
+link 2:5 1:2
+modify phos phi 1:14:1 1:14:1 -120
+link 1:2 2:5
+modify phos phi 2:34:2 2:34:2 -120
+link 2:4 1:3
+modify phos phi 1:35:1 1:35:1 -120
+#
+#  bring good stuff into mol #1, sticky end complements -> mol #2
+#     (thus bogus warnings)
+#
+move chain 2:4 1
+move chain 2:2 1
+move chain 1:5 2
+move chain 1:3 2
+#
+#  Make it so rotorig 1 1 180 is aligned with original 
+#     (note bug death if delete first)
+#
+trans 1 0 0 -17
+rotorig 1 3 90
+rotorig 1 1 -90
+rotorig 1 3 180
+rotorig 1 2 180
+#
+delete mol 2
+#
+write pdb DAE-E_SE.pdb
+#
+
+
+#highlight DAE crossover points & nick
+set background black
+set color m1:*:*:* black
+set color m1:1:13-14:* white
+set color m1:2:1:*     red
+set color m1:2:42:*    red
+set color m1:2:13-14:* white
+set color m1:2:34-35:* white
+set color m1:4:13-14:* white
+
+
+# set colors for tile diagram
+set background white
+set color m1:1:*:* blue
+set color m1:2:*:* cyan
+set color m1:3:*:* green
+set color m1:4:*:* yellow
+set color m1:5:*:* red
+

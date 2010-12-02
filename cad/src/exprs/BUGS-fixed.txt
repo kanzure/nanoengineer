@@ -1,0 +1,168 @@
+cad/src/exprs/BUGS-fixed.txt
+
+ Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# $Id$
+
+This is where bug reports in the BUGS file are moved when they are fully
+and permanently fixed. See BUGS header text for details.
+
+==
+
+[fixed] 061208 highlighting synchronization bug
+
+If you click a checkbox, move the mouse onto something else, and click
+again, too quickly, the checkbox can be toggled a second time (e.g. in
+testexpr_19c).
+
+I speculate that this happens because the selobj has not been updated fast
+enough (due to a slow redraw; maybe 1-3 of them need to occur), and the code
+in GLPane/selectMode/Highlightable doesn't realize this and uses an old
+selobj to receive the click.
+
+We might work around it by rechecking whether the click coords are in the
+receiving object (in Highlightable), but I would have thought the callers
+were doing this anyway. It might be that I introduced a bug like this
+specific to the exprs module, for example in code to compensate for selobjs
+being replaced frequently with new ones.
+
+(At one point those new ones shared both glname and ipath -- right now they
+might be only sharing ipath, I can't recall.)
+
+Another workaround might be to make the selobj always visible as such,
+e.g. by hover-highlighting checkboxes even though that's not standard for them,
+so the user can see whether things are not catching up to their motions.
+This would also help with debugging (eg to test the above theory).
+
+update 061218 (and fix): reviewing the code in update_selobj in selectMode.py,
+I think that theory above was correct -- a comment where we figure out that
+the old selobj is invalid specifically says we're not changing it, since only
+the next repaint can set it correctly, but wonders if this is ok. Here is when
+it would not be ok: you click on a checkbox, and this causes a slow redraw;
+during that time, a move (bareMotion) and another press are queued. The bareMotion
+handler runs update_selobj which decides the selobj is unknown but leaves the old
+one set; no repaint has a chance to run right then, since the press was already queued,
+so the press handler runs next, and finds that invalid selobj and sends it a leftClick.
+The fix, for modes that define UNKNOWN_SELOBJ, is to store that into selobj when it's
+known to be invalid. Note that this breaks the glpane feature to give the old selobj
+"first dibs" at being the new one; I'm not sure if this matters. It does fix the bug.
+The changes for this in cad/src and cad/src/exprs are all commented with 061218. 
+
+==
+
+[fixed] 061210 a rapid motion onto the Highlightable doesn't highlight it until the next motion
+
+# BUG in _9c, noticed 061210 morn g4: a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
+# Only the next motion highlights it. I wonder if it's related to gl_update and usage-tracking sync issues.
+
+More on this [061211]:
+
+In my experimental graphics code I notice this bug for highlightable objects:
+if I move the mouse on top of an object rapidly enough (with a model which has
+a slow redraw), then the highlighting does not occur until i move the mouse
+slightly while it's over the object. It only happens some of the time, but I
+think it's because sometimes I don't move the mouse rapidly enough or stop it
+suddenly enough, so there are two mouse move events and the last one is
+entirely over the object (and causes the highlighting). I notice this bug
+even for highlighting open bonds, but my own code is active so that might
+make a difference.
+
+... first try in Build mode -- it doesn't happen! 
+  hmm... bug is specific to testmode, even for identical models (/w open bonds).
+  It is not just the redraw slowness difference, since it happens for testexpr = Rect(), which is not much slower.
+  I bet it's recent -- maybe it's related to using GLPane_overrider? (Try not using it. [prevented it])
+  Or to recent Highlightable changes? [never tried]
+  It's quite annoying.
+  
+Indeed, USE_OVERRIDER = False prevents the bug.
+... Fixed now, by using a property to delegate selobj,
+after I recalled that outside code sets glpane.selobj directly.
+
+==
+
+[fixed] 061213 nonrepeatable crash after waking mac
+
+crash after i was connected and using demo_drag, slept it, woke it much later, started using it
+again in same session. details of new use: checkbox off, then try to draw -- the square showed,
+the blue dots never did. instead python crashed.
+
+Macintosh HD:Nanorex:code, work notes:061213 crash postsleep offline -- has stacktrace from crash reporter
+
+[can't repeat it, but i wonder if it relates to asking for time right after wakening when it displays
+wrong on menubar]
+
+[but time might be red herring, in a thread that didn't crash, eg a sleep -- the one that crashed
+was doing _wrap_glLoadMatrixd -- maybe GL state didn't wake properly?]
+
+... an attempted fix (runs, but not yet verified whether it really fixes the bug; 
+see comments therein) is in Highlightable around LoadMatrix calls, 061214...
+later that day (IIRC as of 061218), I verified this probably fixed it, and since then
+I've never had the crash, so it's surely fixed.
+
+[later: see also: [Bug 2298] NE1 won't hide after mac sleeps, in some cases
+ https://mirror2.cvsdude.com/bugz/polosims/show_bug.cgi?id=2298
+]
+
+==
+
+[fixed] 061218 highlighting causes incorrect model motion towards screen
+
+(especially noticable when off-center in perspective view; it causes object boundaries to shift
+or texture pixel alignment to change)
+
+(this is a general NE1 highlighting bug, but is not a big problem for atoms & bonds since they
+also grow slightly when highlighting)
+
+fixed (only for selobjs defined in exprs module using Highlightable, and only when
+GLPane_overrider is active) by defining some new selobj interface routines, pre_ and post_
+draw_in_abs_coords, which for Highlightables change the depth test to GL_LEQUAL 
+rather than shifting the model (or using a depth offset, proposed but never tried since it's
+hard to figure out what the offset should be, unless you think "1 depth bit" is enough --
+which it would be if you only wanted it to be as good as using LEQUAL, I have to admit,
+but in that case you might as well just use LEQUAL as I did).
+
+  [NEW MINOR BUG PROBABLY CAUSED BY THIS FIX: see next bug report [in BUGS file],
+   which starts "061218 when highlighting the fake openclose icons in e.g. testexpr_10c,
+   only the gray rect is seen, not the + or - text."]
+
+One reason we might want a thoughtfully-computed depth offset someday
+is if we have the problem of draw_in_abs_coords using a different orientation for
+approximating spheres or cylinders as triangle meshes than draw (in local coords) uses
+for the same spheres, if it does not change their radius. But just fixing the coord sys issue
+might be better; I think Highlightable already fixes it, so we won't have this problem when we
+use it, anyway -- I predict it'll always do the same drawing as it does in local coords.
+Conclusion: we should never need a depth offset for that reason.
+
+Another reason would be if we draw a planar figure, then highlight a subregion of it.
+(The problem is roundoff error on the vertices causing slight depth changes between 
+these two supposedly coincident planes. This is commonly seen when drawing different
+polygons in coincident planes, in the form of moire-like pixel-dithering patterns.)
+But that is probably fixable using a fixed depth offset of 1 or perhaps 2 bits, I would guess.
+
+==
+
+070213: MT is very slow to update when a new node is added to it and it's open.
+
+As I said in demo_MT.py (and never in BUGS.txt -- only moved out of code when bug was fixed):
+
+# 070213 comment: making new objects and adding them to the world (in e.g. dna_ribbon_view.py) seems to take time
+# proportional to the number of existing objects (even now that world._index_counter is untracked). But only if the MT is open
+# at the time! But opening/closing it seems to be fast, except on the first open. It seems like adding an element must
+# somehow create a new item for it (speculation) -- in spite of the following cache presumably trying to avoid that...
+# is this related to SimpleColumn being replaced each time, or is the node_id changing each time?? Or could it be something
+# different, like displists in MT being remade for reasons not yet guessed?
+# ... This slowness is not understood in detail for now. It's important to ###FIX -- closing the MT makes the difference
+# in tolerability of "make new object" speed. It's mentioned in BUGS.txt.
+#
+# suggestion about how to debug it: when adding an item (eg in world.make_and_add),
+# set a dynenv flag which prints all makings of new instances
+# and/or all recomputes
+# and/or all displist remakes
+#
+# then see what content in that printed stuff doesn't belong there --
+# make sure i can tell which obj is the highest parent (ie something in the world), so i can guess whether
+# each printed recompute belongs or not
+
+070218: fixed; see comments related to the flag bugfix070218 in demo_MT.py.
+
+==
+

@@ -1,0 +1,30 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (2.607146) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (001_disabled_anchors)
+info opengroup open = True
+mol (Chunk-H18) tub
+atom 1 (1) (-183, 14, 0) def
+forward_ref (161962904) # ground (Anchor-4)
+forward_ref (161962984) # ground (Anchor-5)
+mol (Chunk-H18-frag6) tub
+atom 2 (1) (560, 14, 0) def
+bond1 1
+thermo (Thermo-10) (153, 0, 51) 1 1 1
+thermo (Thermo-11) (153, 0, 51) 2 2 2
+egroup (001_disabled_anchors)
+end1
+group (Clipboard)
+info opengroup open = False
+ground (Anchor-4) (0, 0, 0) 1
+info leaf disabled = True
+info leaf forwarded = 161962904
+ground (Anchor-5) (0, 0, 0) 2
+info leaf disabled = True
+info leaf forwarded = 161962984
+egroup (Clipboard)
+end molecular machine part 001_disabled_anchors

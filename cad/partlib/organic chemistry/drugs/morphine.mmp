@@ -1,0 +1,104 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.035649) (-25.431000, -8.061000, 21.998500) (1.000000)
+egroup (View Data)
+group (morphine)
+info opengroup open = True
+mol (morphine.pdb) def
+atom 1 (6) (26492, 5683, -24578) def
+info atom atomtype = sp2
+atom 2 (6) (25248, 6101, -24086) def
+info atom atomtype = sp2
+bonda 1
+atom 3 (6) (25175, 6935, -22966) def
+info atom atomtype = sp2
+bonda 2
+atom 4 (6) (26386, 7269, -22382) def
+info atom atomtype = sp2
+bonda 3
+atom 5 (6) (27704, 6077, -23995) def
+info atom atomtype = sp2
+bonda 1
+atom 6 (6) (27624, 6872, -22852) def
+info atom atomtype = sp2
+bonda 5 4
+atom 7 (8) (28901, 5730, -24531) def
+bond1 5
+atom 8 (8) (28630, 7509, -22196) def
+bond1 6
+atom 9 (6) (26582, 8175, -21210) def
+bond1 4
+atom 10 (6) (25455, 9203, -21225) def
+bond1 9
+atom 11 (6) (24120, 8425, -21176) def
+bond1 10
+atom 12 (6) (23906, 7543, -22431) def
+bond1 3 11
+atom 13 (6) (28018, 8627, -21554) def
+bond1 8 9
+atom 14 (6) (28075, 9815, -22537) def
+bond1 13
+atom 15 (6) (25579, 10106, -22419) def
+info atom atomtype = sp2
+bond1 10
+atom 16 (6) (26756, 10369, -23000) def
+info atom atomtype = sp2
+bond1 14
+bond2 15
+atom 17 (8) (28796, 9430, -23682) def
+bond1 14
+atom 18 (6) (26508, 7361, -19911) def
+bond1 9
+atom 19 (6) (25120, 6728, -19738) def
+bond1 18
+atom 20 (7) (24058, 7701, -19912) def
+bond1 19 11
+atom 21 (6) (22753, 7150, -19596) def
+bond1 20
+atom 22 (1) (22501, 6270, -20229) def
+bond1 21
+atom 23 (1) (22731, 6827, -18530) def
+bond1 21
+atom 24 (1) (21961, 7925, -19712) def
+bond1 21
+atom 25 (1) (23510, 8183, -23253) def
+bond1 12
+atom 26 (1) (23151, 6743, -22270) def
+bond1 12
+atom 27 (1) (26519, 5064, -25467) def
+bond1 1
+atom 28 (1) (24338, 5811, -24597) def
+bond1 2
+atom 29 (1) (27290, 6565, -19901) def
+bond1 18
+atom 30 (1) (26718, 8039, -19051) def
+bond1 18
+atom 31 (1) (26779, 11058, -23862) def
+bond1 16
+atom 32 (1) (24662, 10582, -22805) def
+bond1 15
+atom 33 (1) (28316, 8703, -24051) def
+bond1 17
+atom 34 (1) (28614, 8851, -20638) def
+bond1 13
+atom 35 (1) (24989, 5888, -20460) def
+bond1 19
+atom 36 (1) (25060, 6290, -18713) def
+bond1 19
+atom 37 (1) (28712, 5217, -25333) def
+bond1 7
+atom 38 (1) (23302, 9186, -21146) def
+bond1 11
+atom 39 (1) (25536, 9861, -20327) def
+bond1 10
+atom 40 (1) (28660, 10654, -22093) def
+bond1 14
+egroup (morphine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part morphine

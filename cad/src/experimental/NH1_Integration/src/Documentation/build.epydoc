@@ -1,0 +1,8 @@
+#!/bin/sh
+
+epydoc --config config.epydoc -v
+sed 's/IMAGE_1/<img src="SimSpecObjectModel.png">/' < html/NE1_Simulation.SimSpecification-module.html>tmp
+mv tmp html/NE1_Simulation.SimSpecification-module.html
+sed 's/IMAGE_2/<img src="ParameterObjectModel.png">/' < html/NE1_Simulation.Parameter-module.html>tmp
+mv tmp html/NE1_Simulation.Parameter-module.html
+

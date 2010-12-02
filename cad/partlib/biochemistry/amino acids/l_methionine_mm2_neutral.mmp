@@ -1,0 +1,57 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.956797, 0.102776, 0.270250, 0.030669) (5.205737) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (l_methionine_mm2_neutral)
+info opengroup open = True
+mol (l_methionine_mm2_neutral) def
+atom 1 (7) (-1521, 1468, -1271) def
+atom 2 (6) (-2067, 611, -208) def
+bond1 1
+atom 3 (6) (-1387, -771, -239) def
+bond1 2
+atom 4 (6) (-1991, 1310, 1137) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-2422, 2583, 1050) def
+bond1 4
+atom 6 (8) (-1622, 840, 2187) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (6) (140, -714, -57) def
+bond1 3
+atom 8 (16) (810, -2409, -133) def
+bond1 7
+atom 9 (6) (2558, -2005, 142) def
+bond1 8
+atom 10 (1) (-2029, 2351, -1327) def
+bond1 1
+atom 11 (1) (-1621, 1031, -2187) def
+bond1 1
+atom 12 (1) (-3156, 475, -419) def
+bond1 2
+atom 13 (1) (-1622, -1250, -1221) def
+bond1 3
+atom 14 (1) (-1843, -1413, 552) def
+bond1 3
+atom 15 (1) (-2352, 2943, 1950) def
+bond1 5
+atom 16 (1) (394, -244, 921) def
+bond1 7
+atom 17 (1) (598, -90, -859) def
+bond1 7
+atom 18 (1) (3156, -2943, 128) def
+bond1 9
+atom 19 (1) (2687, -1511, 1131) def
+bond1 9
+atom 20 (1) (2928, -1330, -661) def
+bond1 9
+egroup (l_methionine_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_methionine_mm2_neutral

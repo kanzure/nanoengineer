@@ -1,0 +1,31 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (5.424294) (-0.330000, 0.274500, 0.283500) (1.000000)
+egroup (View Data)
+group ([R]aminochloromethanol)
+info opengroup open = True
+mol ([R]aminochloromethanol) def
+atom 1 (8) (-571, 0, -1341) def
+atom 2 (6) (237, 0, -192) def
+bond1 1
+atom 3 (1) (877, 888, -204) def
+bond1 2
+atom 4 (17) (1273, -1437, -211) def
+bond1 2
+atom 5 (7) (-613, 0, 968) def
+bond1 2
+atom 6 (1) (-416, -817, 1539) def
+bond1 5
+atom 7 (1) (-416, 817, 1539) def
+bond1 5
+atom 8 (1) (26, 0, -2106) def
+bond1 1
+egroup ([R]aminochloromethanol)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part [R]aminochloromethanol

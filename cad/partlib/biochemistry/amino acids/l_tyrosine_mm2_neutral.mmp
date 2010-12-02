@@ -1,0 +1,71 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (3.703223) (0.000000, 0.005000, 0.000000) (1.000000)
+egroup (View Data)
+group (l_tyrosine_mm2_neutral)
+info opengroup open = True
+mol (l_tyrosine_mm2_neutral) def
+atom 1 (7) (-2172, 1248, -1205) def
+atom 2 (6) (-2833, 178, -442) def
+bond1 1
+atom 3 (6) (-2136, -1167, -707) def
+bond1 2
+atom 4 (6) (-2935, 543, 1028) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-3185, 1855, 1195) def
+bond1 4
+atom 6 (8) (-2846, -204, 1973) def
+info atom atomtype = sp2
+bond2 4
+atom 7 (6) (-671, -1155, -328) def
+info atom atomtype = sp2
+bond1 3
+atom 8 (6) (-230, -1688, 888) def
+info atom atomtype = sp2
+bonda 7
+atom 9 (6) (292, -637, -1200) def
+info atom atomtype = sp2
+bonda 7
+atom 10 (6) (1124, -1676, 1228) def
+info atom atomtype = sp2
+bonda 8
+atom 11 (6) (1644, -627, -856) def
+info atom atomtype = sp2
+bonda 9
+atom 12 (6) (2087, -1142, 367) def
+info atom atomtype = sp2
+bonda 10 11
+atom 13 (8) (3408, -1130, 693) def
+bond1 12
+atom 14 (1) (-2703, 2117, -1154) def
+bond1 1
+atom 15 (1) (-2110, 1012, -2195) def
+bond1 1
+atom 16 (1) (-3886, 112, -810) def
+bond1 2
+atom 17 (1) (-2221, -1422, -1790) def
+bond1 3
+atom 18 (1) (-2667, -1984, -164) def
+bond1 3
+atom 19 (1) (-3256, 1985, 2155) def
+bond1 5
+atom 20 (1) (-953, -2127, 1593) def
+bond1 8
+atom 21 (1) (-14, -230, -2178) def
+bond1 9
+atom 22 (1) (1444, -2100, 2195) def
+bond1 10
+atom 23 (1) (2380, -208, -1562) def
+bond1 11
+atom 24 (1) (3886, -724, -48) def
+bond1 13
+egroup (l_tyrosine_mm2_neutral)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part l_tyrosine_mm2_neutral

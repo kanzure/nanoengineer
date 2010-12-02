@@ -1,0 +1,65 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.252240) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (glucose-cyclic)
+info opengroup open = True
+mol (Chunk-C75) def
+atom 1 (6) (180, -2704, -473) def
+atom 2 (1) (-530, -2590, -1292) def
+bond1 1
+atom 3 (6) (150, -1449, 463) def
+bond1 1
+atom 4 (1) (-720, -1494, 1119) def
+bond1 3
+atom 5 (6) (173, -84, -304) def
+bond1 3
+atom 6 (1) (1054, -25, -946) def
+bond1 5
+atom 7 (6) (96, 1167, 628) def
+bond1 5
+atom 8 (1) (-676, 1035, 1385) def
+bond1 7
+atom 9 (6) (-125, 2496, -151) def
+info atom atomtype = sp2
+bond1 7
+atom 10 (8) (724, 2981, -867) def
+info atom atomtype = sp2
+bond2 9
+atom 11 (1) (-1092, 2987, -60) def
+bond1 9
+atom 12 (6) (-104, -4050, 268) def
+bond1 1
+atom 13 (1) (-87, -4903, -410) def
+bond1 12
+atom 14 (1) (-1060, -4028, 788) def
+bond1 12
+atom 15 (8) (919, -4273, 1290) def
+bond1 12
+atom 16 (1) (1721, -4642, 898) def
+bond1 15
+atom 17 (8) (1513, -2801, -1075) def
+bond1 1
+atom 18 (1) (1539, -2366, -1938) def
+bond1 17
+atom 19 (8) (1342, -1502, 1317) def
+bond1 3
+atom 20 (1) (1107, -1437, 2253) def
+bond1 19
+atom 21 (8) (1369, 1279, 1342) def
+bond1 7
+atom 22 (1) (1306, 1934, 2050) def
+bond1 21
+atom 23 (8) (-1002, -54, -1180) def
+bond1 5
+atom 24 (1) (-798, 370, -2024) def
+bond1 23
+egroup (glucose-cyclic)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part glucose-cyclic

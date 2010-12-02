@@ -1,0 +1,26 @@
+COMPND  C4H8.pdb                                                                
+HETATM    1  C                  -1.020   0.594  -0.166                
+HETATM    2  C                   0.503   0.884  -0.077                
+HETATM    3  C                  -0.686  -0.918  -0.300                
+HETATM    4  C                   0.729  -0.615   0.265                
+HETATM    5  H                  -1.530   0.813   0.779                
+HETATM    6  H                  -1.584   1.065  -0.977                
+HETATM    7  H                   0.838   1.629   0.651                
+HETATM    8  H                   0.923   1.145  -1.054                
+HETATM    9  H                  -1.311  -1.629   0.250                
+HETATM   10  H                  -0.645  -1.234  -1.348                
+HETATM   11  H                   1.584  -1.120  -0.196                
+HETATM   12  H                   0.774  -0.775   1.348                
+CONECT    1    2    3    5    6                              
+CONECT    2    1    4    7    8                              
+CONECT    3    1    4    9   10                              
+CONECT    4    2    3   11   12                              
+CONECT    5    1                                             
+CONECT    6    1                                             
+CONECT    7    2                                             
+CONECT    8    2                                             
+CONECT    9    3                                             
+CONECT   10    3                                             
+CONECT   11    4                                             
+CONECT   12    4                                             
+END   

@@ -1,0 +1,25 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (2.541012) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (-COCl %28acyl chloride%29)
+info opengroup open = True
+mol (-COCl) def
+atom 1 (6) (18, -55, 0) def
+info atom atomtype = sp2
+atom 2 (0) (-336, -670, 0) def
+bond1 1
+atom 3 (17) (1718, -55, 0) def
+bond1 1
+atom 4 (8) (-611, 1035, 0) def
+info atom atomtype = sp2
+bond2 1
+egroup (-COCl %28acyl chloride%29)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part -COCl (acyl chloride)

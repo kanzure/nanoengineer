@@ -1,0 +1,69 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (030- rotarymotor and linear motor attached to same atoms)
+info opengroup open = True
+mol (chunk1) tub
+atom 1 (1) (-962, -1985, -1175) -
+atom 2 (1) (-1007, 16, 2258) -
+atom 3 (1) (-1050, 15, -2296) -
+atom 4 (1) (-945, -1987, 1113) -
+mol (chunk2) tub
+atom 5 (1) (-1061, 1971, 1136) -
+atom 6 (1) (-1083, 1989, -1151) -
+forward_ref (242586488) # thermo (Thermo-85)
+forward_ref (242587008) # ground (Anchor-86)
+forward_ref (242586568) # stat (Stat-87)
+mol (chunk1-frag178) tub
+atom 7 (6) (-172, -1319, -815) -
+bond1 1
+atom 8 (8) (1065, -1990, -1241) -
+bond1 7
+atom 9 (8) (1026, 56, 2351) -
+atom 10 (8) (981, 78, -2423) -
+atom 11 (8) (1071, -1999, 1144) -
+atom 12 (6) (-221, 36, -1587) -
+bond1 7 10 3
+atom 13 (6) (-195, 18, 1536) -
+bond1 9 2
+atom 14 (6) (-151, -1327, 746) -
+bond1 13 7 11 4
+atom 15 (8) (922, 2137, -1215) -
+atom 16 (8) (945, 2127, 1171) -
+atom 17 (6) (-246, 1376, 762) -
+bond1 13 16 5
+atom 18 (6) (-255, 1385, -799) -
+bond1 17 15 12 6
+atom 19 (6) (2167, 1461, 740) -
+bond1 16
+atom 20 (6) (2154, 1466, -815) -
+bond1 19 15
+atom 21 (6) (2251, -1239, -834) -
+bond1 8
+atom 22 (6) (2195, 116, -1601) -
+bond1 21 20 10
+atom 23 (6) (2221, 96, 1511) -
+bond1 19 9
+atom 24 (6) (2260, -1245, 729) -
+bond1 21 23 11
+atom 25 (1) (2957, 2106, -1182) -
+bond1 20
+atom 26 (1) (2984, 2102, 1107) -
+bond1 19
+atom 27 (1) (3115, -1829, 1089) -
+bond1 24
+atom 28 (1) (3080, -1846, -1211) -
+bond1 21
+atom 29 (1) (3022, 118, 2227) -
+bond1 23
+atom 30 (1) (2994, 167, -2336) -
+bond1 22
+thermo (Thermo-85) (153, 0, 51) 7 30 17
+info leaf forwarded = 242586488
+stat (Stat-87) (0, 0, 153) (300) 7 30 12
+info leaf forwarded = 242586568
+lmotor (Linear Motor-181) (85, 170, 127) 0.800000 0.100000 (-208, 28, -26) (999, 33, -7) 4.00 0.80 0.10
+shaft 7 12 13 14 17 18
+rmotor (Rotary Motor-182) (85, 170, 255) -0.80 1.00 (-208, 28, -26) (-999, -33, 7) 5.00 0.50 0.10
+shaft 7 12 13 14 17 18
+egroup (030- rotarymotor and linear motor attached to same atoms)
+end molecular machine part 030- rotarymotor and linear motor attached to same atoms

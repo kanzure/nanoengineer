@@ -1,0 +1,32 @@
+COMPND  C5H10.pdb                                                               
+HETATM    1  C                  -0.539   1.247  -0.246                
+HETATM    2  C                   0.997   1.107  -0.042                
+HETATM    3  C                  -1.128  -0.100   0.214                
+HETATM    4  C                  -0.055  -1.112  -0.220                
+HETATM    5  C                   1.263  -0.412   0.174                
+HETATM    6  H                  -0.960   2.100   0.296                
+HETATM    7  H                  -0.769   1.403  -1.307                
+HETATM    8  H                   1.335   1.689   0.823                
+HETATM    9  H                   1.546   1.490  -0.908                
+HETATM   10  H                  -2.121  -0.300  -0.200                
+HETATM   11  H                  -1.217  -0.113   1.309                
+HETATM   12  H                  -0.173  -2.100   0.237                
+HETATM   13  H                  -0.097  -1.241  -1.309                
+HETATM   14  H                   2.121  -0.775  -0.400                
+HETATM   15  H                   1.484  -0.614   1.230                
+CONECT    1    2    3    6    7                              
+CONECT    2    1    5    8    9                              
+CONECT    3    1    4   10   11                              
+CONECT    4    3    5   12   13                              
+CONECT    5    2    4   14   15                              
+CONECT    6    1                                             
+CONECT    7    1                                             
+CONECT    8    2                                             
+CONECT    9    2                                             
+CONECT   10    3                                             
+CONECT   11    3                                             
+CONECT   12    4                                             
+CONECT   13    4                                             
+CONECT   14    5                                             
+CONECT   15    5                                             
+END   

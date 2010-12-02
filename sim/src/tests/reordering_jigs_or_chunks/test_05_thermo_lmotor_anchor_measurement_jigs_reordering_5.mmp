@@ -1,0 +1,72 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (05-thermo-lmotor-anchor-measurement jigs reordering-4)
+info opengroup open = True
+forward_ref (241672880) # ground (Anchor-4)
+forward_ref (241878960) # lmotor (Linear Motor-3)
+forward_ref (241879280) # thermo (Thermo-4)
+forward_ref (241879240) # mangle (Angle-4-1-2)
+mol (1) tub
+atom 1 (6) (-4035, -61, 0) -
+atom 2 (1) (-3412, 563, 624) -
+bond1 1
+atom 3 (1) (-4661, 563, -624) -
+bond1 1
+atom 4 (1) (-3412, -686, -624) -
+bond1 1
+atom 5 (7) (-4903, -928, 867) -
+bond1 1
+atom 6 (1) (-4303, -1528, 1467) -
+bond1 5
+atom 7 (1) (-5504, -328, 1467) -
+bond1 5
+mol (2) tub
+atom 8 (6) (527, 5239, 0) -
+atom 9 (1) (-97, 5863, -624) -
+bond1 8
+atom 10 (1) (-97, 4614, 624) -
+bond1 8
+atom 11 (1) (1152, 4614, -624) -
+bond1 8
+atom 12 (8) (1371, 6083, 844) -
+bond1 8
+atom 13 (1) (1915, 6627, 204) -
+bond1 12
+forward_ref (241879560) # mdihedral (Dihedral-1-2-3-4)
+forward_ref (241879400) # mdistance (Distance-1-3)
+mol (3) tub
+atom 14 (6) (5901, -159, 0) -
+atom 15 (1) (6526, 465, 624) -
+bond1 14
+atom 16 (1) (5277, 465, -624) -
+bond1 14
+atom 17 (1) (5277, -784, 624) -
+bond1 14
+atom 18 (1) (6526, -784, -624) -
+bond1 14
+lmotor (Linear Motor-3) (127, 127, 127) 0.500000 0.050000 (5901, -159, 0) (-1000, 0, 0) 3.00 0.50 0.10
+shaft 14
+info leaf forwarded = 241878960
+mdistance (Distance-1-3) (0, 0, 0) (Helvetica) 10 1 14
+info leaf forwarded = 241879400
+mol (4) tub
+atom 19 (6) (1288, -5705, 0) -
+atom 20 (17) (2322, -4670, 1034) -
+bond1 19
+atom 21 (17) (253, -6740, 1034) -
+bond1 19
+atom 22 (17) (2322, -6740, -1034) -
+bond1 19
+atom 23 (17) (253, -4670, -1034) -
+bond1 19
+ground (Anchor-4) (0, 0, 0) 20
+info leaf forwarded = 241672880
+thermo (Thermo-4) (153, 0, 51) 19 23 19
+info leaf forwarded = 241879280
+mangle (Angle-4-1-2) (0, 0, 0) (Helvetica) 10 19 1 8
+info leaf forwarded = 241879240
+mdihedral (Dihedral-1-2-3-4) (0, 0, 0) (Helvetica) 10 5 12 14 23
+info leaf forwarded = 241879560
+thermo (Thermo-2) (153, 0, 51) 1 7 5
+egroup (05-thermo-lmotor-anchor-measurement jigs reordering-4)
+end molecular machine part 05-thermo-lmotor-anchor-measurement jigs reordering-4

@@ -1,0 +1,28 @@
+
+
+ Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
+DOCUMENTATION
+
+Note to self: it would be good if documentation could have some simple
+annotations to make it "structured", so that I could automatically
+crank out Docbook or HTML or whatever. Try to extend this to the
+docstrings, and think about how to connect the docstrings to this
+README.
+
+For now, the best documentation is the unit test.
+
+
+
+
+
+
+
+IMPROVEMENTS
+
+Replace "exit" with ";"? I dunno.
+
+Make each iguana verb a Python object, and give each one a doc string.
+Then, one way to write a program would be to write a Python list of
+verbs; strings wouldn't be the only option. This could allow for
+programmatically constructed iguana programs.

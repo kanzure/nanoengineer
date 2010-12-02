@@ -1,0 +1,160 @@
+$Id$
+
+nanoENGINEER-1 Packaging Instructions
+-------------------------------------
+
+
+WindowsXP
+---------
+
+These instructions are for packaging the Python code required by nanoENGINEER-1 for WindowsXP: 
+
+  1) Copy cad/src code souce directory into a packaging directory (i.e. C:/packaging). 
+     Make sure NE-1 works from this directory: python atom.py.
+
+  2) Remove all files from C:/packaging/cad/src whose names start with "gpl_only", 
+     since these are not legal for us to include with the Windows (non-GPL) distribution.
+     These files might include any or all of: 
+	
+	- gpl_only.py
+	- gpl_only.pyc
+	- gpl_only_ok
+	- gpl_only.pyo (this file may never be there)
+
+     Ideally, also remove butterfly.png and canvas-b-3.py (and any .pyc or .pyo file
+     made from it), which are derived from Qt and PyQt example code, and are probably legal
+     to distribute, but are just test or example code which is not part of our program.
+     
+     After removing these files, again make sure NE-1 works from this directory.
+
+  3) Put "setup.py" into C:/packaging.
+
+  4) In a Command Prompt, change directory to C:/packaging and run: 
+
+	python setup.py py2exe --includes sip --excludes OpenGL
+
+     This should create "build" and "dist" directories under C:/packaging.
+
+  5) Copy the "OpenGL" directory from the Python home directory 
+     (i.e. C:/python23/Lib/site-packages) to the C:/packages/dist directory.
+
+  6) Change library.zip to library1.zip, create a directory called libary.zip, 
+     unzip all the files in library1.zip into directory library.zip.
+
+  7) Copy the "OpenGL" directory into library.zip directory too.
+
+  8) Delete unnecessary files in "dist" and "dist/libary.zip", including:
+
+	- OpenGL extensions
+	- py files
+	- tcl/tk modules
+
+     *** THIS NEEDS MORE DETAIL *** - Mark 2005-01-18
+
+  9) Copy ImageFile.pyc, JpegImagePlugin.pyc into "dist/libary.zip".
+
+  10) Copy the following DLL files into C:/packages/dist:
+
+	- glut32.dll
+	- msvcr71.dll
+
+
+These instructions are for packaging nanoENGINEER-1 for WindowsXP:
+
+  1) Create a directory to build installation packages (i.e. C:/distribution)
+
+  2) Create the directory C:/distribution/program and copy everything from C:/packaging/dist into it.
+
+  3) Create the directory called C:/distribution/bin and copy the following files into it:
+
+	- assistant.exe (from QTDIR/bin)
+	- simulator.exe (from sim/src)
+
+  4) Copy "images" and "doc" from the cad directory into C:/distribution.
+
+  5) Modify "setup.iss" to customize the software installation.  
+     Compile it to build "setup.exe" in a directory called "output".
+
+
+
+List of 3rd Party Packages required by nanoENGINEER-1 (WindowsXP):
+
+ - GLUT 3.7
+ - Numerical Python 22.0
+ - PyOpenGL 2.0.1.07
+ - Python 2.3.4
+ - Python Imaging Library 1.1.4
+ - PyQt 3.12
+ - Qt 3.3.3
+ - SIP 4.0rc4
+ - SWIG 1.3.13
+
+
+MacOS
+-----
+
+These instructions are for packaging the Python code required by nanoENGINEER-1 for MacOS: 
+
+  1) Copy cad/src code souce directory into a packaging directory (i.e. C:/packaging). 
+     Make sure NE-1 works from this directory: python atom.py.
+
+     Ideally, remove the files butterfly.png and canvas-b-3.py (and any .pyc or .pyo file
+     made from it), which are derived from Qt and PyQt example code, and are probably legal
+     to distribute, but are just test or example code which is not part of our program.
+     
+     After removing these files, again make sure NE-1 works from this directory.
+
+  2) Put "setup.py" into C:/packaging.
+  
+    [bruce 050127 comment: C:/packaging doesn't look much like a Windows pathname! ###@@@]
+
+  3) In a Command Prompt, change directory to C:/packaging and run: 
+
+	python setup.py py2app --includes sip --packages OpenGL
+
+     This should create "build" and "dist" directories under C:/packaging.
+
+  4) Delete unnecessary files in "dist" and "dist/libary.zip", including:
+
+	- OpenGL extensions
+	- py files
+	- tcl/tk modules
+
+
+These instructions are for packaging nanoENGINEER-1 for MacOS:
+
+   1) Refer the instructions of packageMaker to build *.pkg file and optionally put the *.pkg into disk image file *.dmg.
+
+
+
+Linux
+------
+
+These instructions are for packaging the Python code required by nanoENGINEER-1 for Linux: 
+
+	
+
+
+
+List of 3rd Party Packages required by nanoENGINEER-1 (MacOS):
+
+###@@@ bruce comment 050127: the list below is just a copy of the list for Windows,
+and it's definitely not correct since it leaves out bsddb (whose full info and URL
+I mailed to the cad list a couple weeks ago). The actual list of packages used
+to make the Mac version can be found in mail from me to cad list some time ago
+and subsequent email from Huaicai who may have used slightly different packages.
+The version numbers might differ from the ones below, and some of the ones below
+are not needed since they come with MacOS Panther.
+
+ - GLUT 3.7
+ - Numerical Python 22.0
+ - PyOpenGL 2.0.1.07
+ - Python 2.3.4
+ - Python Imaging Library 1.1.4
+ - PyQt 3.12
+ - Qt 3.3.3
+ - SIP 4.0rc4
+ - SWIG 1.3.13
+
+
+

@@ -1,0 +1,21 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.030966) (-0.428000, -0.596500, -0.000000) (1.000000)
+egroup (View Data)
+group (H_SH_cs)
+info opengroup open = True
+mol (H_SH_cs.pdb) def
+atom 1 (16) (-27, -48, 0) def
+atom 2 (1) (1280, 284, 0) def
+bond1 1
+atom 3 (1) (-424, 1241, 0) def
+bond1 1
+egroup (H_SH_cs)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part H_SH_cs

@@ -1,0 +1,46 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.451982) (0.495000, 0.077500, -0.000000) (1.000000)
+egroup (View Data)
+group (C_CH3_3_OH)
+info opengroup open = True
+mol (C_CH3_3_OH.pdb) cpk
+atom 1 (6) (-479, -79, -229) def
+atom 2 (6) (-639, 961, 1230) def
+bond1 1
+atom 3 (6) (-756, 661, -1534) def
+bond1 1
+atom 4 (6) (-920, -1023, 136) def
+bond1 1
+atom 5 (8) (1111, 104, 290) def
+bond1 1
+atom 6 (1) (-580, 80, 2447) def
+bond1 2
+atom 7 (1) (-592, 130, -2127) def
+bond1 3
+atom 8 (1) (-495, 1450, 1033) def
+bond1 2
+atom 9 (1) (-494, 1830, -1349) def
+bond1 3
+atom 10 (1) (-1939, 965, 1264) def
+bond1 2
+atom 11 (1) (-2172, 951, -1222) def
+bond1 3
+atom 12 (1) (-598, -2341, 461) def
+bond1 4
+atom 13 (1) (-839, -2041, -714) def
+bond1 4
+atom 14 (1) (-2220, -717, 3) def
+bond1 4
+atom 15 (1) (1213, 700, -67) def
+bond1 5
+egroup (C_CH3_3_OH)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part C_CH3_3_OH
+

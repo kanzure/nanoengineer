@@ -1,0 +1,37 @@
+mmpformat 050502 required; 050706 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.666957, -0.567023, -0.280993, 0.393314) (6.143509) (-0.207500, 0.029500, -0.047000) (1.000000)
+egroup (View Data)
+group (gly)
+info opengroup open = True
+mol (gly.pdb) cpk
+atom 1 (7) (-1277, 490, 728) def
+atom 2 (6) (-217, -482, 958) def
+bond1 1
+atom 3 (6) (939, -526, -40) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (8) (2075, -853, 222) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (8) (549, -180, -1294) def
+bond1 3
+atom 6 (1) (-887, 1430, 747) def
+bond1 1
+atom 7 (1) (-1660, 365, -206) def
+bond1 1
+atom 8 (1) (230, -328, 1944) def
+bond1 2
+atom 9 (1) (-655, -1489, 970) def
+bond1 2
+atom 10 (1) (1342, -261, -1850) def
+bond1 5
+egroup (gly)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part gly
