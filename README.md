@@ -26,6 +26,8 @@ For simulation and analysis, NanoEngineer-1 supports multiple molecular dynamics
 
 2\.    [Helpful Links](#helpfullinks)
 
+3\.    [Video](#video)
+
 Developer/user group: http://groups.google.com/group/nanoengineer-dev
 
 <a name="gallery" />
@@ -110,4 +112,13 @@ In particular:
  * [Need help?](http://www.nanoengineer-1.net/mediawiki/index.php?title=Help)
  * [Documentation](http://www.nanoengineer-1.net/mediawiki/index.php?title=Category:Documentation) including manuals, tutorials, videos, API docs, etc.
  * [Getting involved](http://www.nanoengineer-1.net/mediawiki/index.php?title=Category:Contribute)
+
+<a name="video" />
+
+3\. Nanofactory video
+------------
+
+<object width="420" height="315"><param name="movie" value="http://www.youtube.com/v/vEYN18d7gHg?version=3&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/vEYN18d7gHg?version=3&amp;hl=en_US" type="application/x-shockwave-flash" width="420" height="315" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+
+The nanofactory animation was funded by a challenge grant. Read more [here](http://www.foresight.org/animation_challenge/index.html) (Foresight Institute).
 
