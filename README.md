@@ -70,7 +70,7 @@ Developer/user group: http://groups.google.com/group/nanoengineer-dev
 ### 1.3\. Structural DNA nanotechnology
 
 <a href="http://nanoengineer-1.com/content/index.php?option=com_content&task=view&id=37&Itemid=47">
-<img title="DNA origami" src="http://nanoengineer-1.com/content/index.php?option=com_content&task=view&id=55&Itemid=55" />
+<img title="DNA origami" src="http://nanoengineer-1.com/content/images/stories/gallery/sdn/dna_origami3_256.png" />
 <img title="DNA tetrahedron" src="http://nanoengineer-1.com/content/images/stories/gallery/sdn/dna_tetrahedron1_256.png" />
 <img title="DNA cube" src="http://nanoengineer-1.com/content/images/stories/gallery/sdn/dna_cube7.png" />
 </a>
