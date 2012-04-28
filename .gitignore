@@ -1,0 +1,9 @@
+#precompiled python files
+*.pyc
+
+#vim leftovers
+.*.swp
+.*.swo
+
+#compiled object files
+*.o
