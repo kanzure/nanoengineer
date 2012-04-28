@@ -118,7 +118,6 @@ In particular:
 3\. Nanofactory video
 ------------
 
-<object width="420" height="315"><param name="movie" value="http://www.youtube.com/v/vEYN18d7gHg?version=3&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/vEYN18d7gHg?version=3&amp;hl=en_US" type="application/x-shockwave-flash" width="420" height="315" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+http://www.youtube.com/watch?v=vEYN18d7gHg
 
-The nanofactory animation was funded by a challenge grant. Read more [here](http://www.foresight.org/animation_challenge/index.html) (Foresight Institute).
-
+The nanofactory animation was funded by a challenge grant. Read more [here](http://www.foresight.org/animation_challenge/index.html) (Foresight Institute). The original files are [here](http://www.foresight.org/nanofactory.mov) and [here](http://www.foresight.org/animation_challenge/nanofactory_360x240copyright_sor3.mov).
