@@ -1,9 +1,35 @@
-#precompiled python files
+# precompiled python files
 *.pyc
 
-#vim leftovers
+# vim leftovers
 .*.swp
 .*.swo
 
-#compiled object files
+# compiled object files
 *.o
+
+# automake-generated files
+Makefile.in
+cad/Makefile.in
+cad/doc/Makefile.in
+cad/partlib/Makefile.in
+cad/plugins/DNA/Makefile.in
+cad/plugins/HDF5_SimResults/Makefile.in
+cad/plugins/HDF5_SimResults/src/Makefile.in
+cad/plugins/HDF5_SimResults/src/Testing/Makefile.in
+cad/plugins/Makefile.in
+cad/src/Makefile.in
+sim/Makefile.in
+sim/src/Makefile.in
+acinclude.m4
+aclocal.m4
+autom4te.cache/
+config.guess
+config.h.in
+config.sub
+configure
+depcomp
+install-sh
+ltmain.sh
+missing
+
