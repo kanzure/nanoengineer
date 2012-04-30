@@ -1048,8 +1048,8 @@ initializeStaticBondTable(void)
 #include "bends.gen"
 }
 
-static const char bends_rcsid[] = RCSID_BENDS_H;
-static const char bonds_rcsid[] = RCSID_BONDS_H;
+//static const char bends_rcsid[] = RCSID_BENDS_H;
+//static const char bonds_rcsid[] = RCSID_BONDS_H;
 
 static char *systemBondTableOverlayFileName = NULL;
 static time_t systemBondTableOverlayModificationTime = 0;
