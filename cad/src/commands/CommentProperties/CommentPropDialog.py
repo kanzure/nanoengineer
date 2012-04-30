@@ -19,8 +19,10 @@ class Ui_CommentPropDialog(object):
         # note: this change will be lost when this file is remade from the .ui file.
         # it's a short term workaround only. [bruce 080808]
         from utilities.GlobalPreferences import debug_pref_support_Qt_4point2
-        if not debug_pref_support_Qt_4point2():
-            self.gridlayout.setContentsMargins(0,0,0,2)
+        
+        # doesn't seem to work with qt 4.2?
+        #if not debug_pref_support_Qt_4point2():
+        #    self.gridlayout.setContentsMargins(0,0,0,2)
         
         self.gridlayout.setSpacing(2)
         self.gridlayout.setObjectName("gridlayout")
