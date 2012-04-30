@@ -5,10 +5,13 @@
 .*.swp
 .*.swo
 
-# compiled object files
+# compiled object files and shared/linked libraries
 *.o
+*.a
 *.lo
 *.la
+*.dll
+*.so
 
 # automake-generated files
 Makefile.in
@@ -25,7 +28,7 @@ sim/Makefile.in
 sim/src/Makefile.in
 acinclude.m4
 aclocal.m4
-autom4te.cache/
+autom4te.cache
 config.guess
 config.h.in
 config.sub
@@ -35,6 +38,7 @@ install-sh
 ltmain.sh
 missing
 
+Makefile
 cad/Makefile
 cad/doc/Makefile
 cad/partlib/Makefile
@@ -52,10 +56,10 @@ config.status
 libtool
 stamp-h1
 
-.deps/
-.libs/
+.deps
+.libs
 
-# this is presently a file in the repo
+# these are presently a file in the repo
 # but it gets overwritten by automake
 cad/src/Makefile
 sim/src/Makefile
@@ -76,6 +80,7 @@ cad/plugins/HDF5_SimResults/src/libHDF5_SimResults.la
 cad/plugins/HDF5_SimResults/src/libHDF5_SimResults_la-HDF5_SimResults.lo
 cad/plugins/HDF5_SimResults/src/libHDF5_SimResults_la-SimResultsDataStore.lo
 cad/plugins/HDF5_SimResults/stamp-h1
+sim/src/sim.c
 sim/src/bends.gen
 sim/src/bonds.gen
 sim/src/simulator
