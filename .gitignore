@@ -85,4 +85,6 @@ sim/src/bends.gen
 sim/src/bonds.gen
 sim/src/simulator
 sim/src/version.h
+cad/src/atombase.c
+cad/src/samevals.c
 
