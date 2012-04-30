@@ -7,6 +7,8 @@
 
 # compiled object files
 *.o
+*.lo
+*.la
 
 # automake-generated files
 Makefile.in
@@ -32,4 +34,45 @@ depcomp
 install-sh
 ltmain.sh
 missing
+
+cad/Makefile
+cad/doc/Makefile
+cad/partlib/Makefile
+cad/plugins/DNA/Makefile
+cad/plugins/HDF5_SimResults/Makefile
+cad/plugins/HDF5_SimResults/src/Makefile
+cad/plugins/HDF5_SimResults/src/Testing/Makefile
+cad/plugins/Makefile
+sim/Makefile
+
+config.h
+config.h.in~
+config.log
+config.status
+libtool
+stamp-h1
+
+.deps/
+.libs/
+
+# other generated files
+config.log
+cad/plugins/HDF5_SimResults/Makefile
+cad/plugins/HDF5_SimResults/config.h
+cad/plugins/HDF5_SimResults/config.log
+cad/plugins/HDF5_SimResults/config.status
+cad/plugins/HDF5_SimResults/libtool
+cad/plugins/HDF5_SimResults/src/.deps/
+cad/plugins/HDF5_SimResults/src/.libs/
+cad/plugins/HDF5_SimResults/src/Makefile
+cad/plugins/HDF5_SimResults/src/Testing/.deps/
+cad/plugins/HDF5_SimResults/src/Testing/Makefile
+cad/plugins/HDF5_SimResults/src/libHDF5_SimResults.la
+cad/plugins/HDF5_SimResults/src/libHDF5_SimResults_la-HDF5_SimResults.lo
+cad/plugins/HDF5_SimResults/src/libHDF5_SimResults_la-SimResultsDataStore.lo
+cad/plugins/HDF5_SimResults/stamp-h1
+sim/src/bends.gen
+sim/src/bonds.gen
+sim/src/simulator
+sim/src/version.h
 
