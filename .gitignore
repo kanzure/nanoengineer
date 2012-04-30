@@ -55,6 +55,11 @@ stamp-h1
 .deps/
 .libs/
 
+# this is presently a file in the repo
+# but it gets overwritten by automake
+cad/src/Makefile
+sim/src/Makefile
+
 # other generated files
 config.log
 cad/plugins/HDF5_SimResults/Makefile
