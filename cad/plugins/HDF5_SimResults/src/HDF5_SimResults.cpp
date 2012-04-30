@@ -1820,7 +1820,7 @@ int HDF5_SimResults::writeMeasurement(const int& frame,
 		 hid_t filespace = H5Dget_space(datasetId);
 		 status =
 			 H5Sselect_elements(filespace, H5S_SELECT_SET, 1,
-								(const hsize_t*)coordinates);
+								(const hsize_t**)coordinates);
 		 
 		 // Write the data to the point.
 		 status =
@@ -2107,7 +2107,7 @@ int HDF5_SimResults::readMeasurement(const char* frameSetName,
 		hid_t filespace = H5Dget_space(datasetId);
 		status =
 			H5Sselect_elements(filespace, H5S_SELECT_SET, 1,
-							   (const hsize_t*)coordinates);
+							   (const hsize_t**)coordinates);
 		
 		// Read the data point
 		status =
