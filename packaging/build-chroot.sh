@@ -73,7 +73,12 @@ dpkg-reconfigure debconf
 # necessary to get locales working?
 export LANG=C
 
-sudo apt-get install locales git-core python2.5-dev g++ libqt4-dev qt4-dev-tools qt4-qtconfig python-numarray=1.5.2-2.2ubuntu1 python-numeric-ext=24.2-7ubuntu1 libgle3 python-imaging=1.1.6-0ubuntu3 libdb4.5=4.5.20-1ubuntu1 libdb4.5-dev=4.5.20-1ubuntu1 wget make python-setuptools automake libtool unzip libhdf5-serial-dev python-pyrex freeglut3 mesa-utils libgl1-mesa-swx11
+sudo apt-get install locales git-core python2.5-dev g++ libqt4-dev \
+     qt4-dev-tools qt4-qtconfig python-numarray=1.5.2-2.2ubuntu1 \
+     python-numeric-ext=24.2-7ubuntu1 libgle3 python-imaging=1.1.6-0ubuntu3 \
+     libdb4.5=4.5.20-1ubuntu1 libdb4.5-dev=4.5.20-1ubuntu1 wget make \
+     python-setuptools automake libtool unzip libhdf5-serial-dev python-pyrex \
+     freeglut3 mesa-utils libgl1-mesa-swx11
 
 mkdir -p ~/locals
 cd ~/locals
