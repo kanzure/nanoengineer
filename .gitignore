@@ -1,9 +1,15 @@
 # precompiled python files
 *.pyc
+*.pyo
 
-# vim leftovers
+# vim and editor leftovers
 .*.swp
 .*.swo
+.*~
+*~
+
+# osx leftovers
+.DS_Store
 
 # compiled object files and shared/linked libraries
 *.o
@@ -88,3 +94,5 @@ sim/src/version.h
 cad/src/atombase.c
 cad/src/samevals.c
 
+*.rej
+.*.rej
