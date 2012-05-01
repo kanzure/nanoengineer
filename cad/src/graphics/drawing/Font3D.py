@@ -17,8 +17,8 @@ bruce 071030 - split Font3D out of dimensions module (since used in drawer.py)
 __author__ = "Will"
 
 import types
-import Numeric
-from Numeric import dot
+import numpy
+from numpy import dot
 
 from OpenGL.GL import glVertex
 
@@ -363,7 +363,7 @@ class Font3D:
                         y1 = SCALE * (HEIGHT - 1 - y)
                     else:
                         y1 = SCALE * y
-                    return Numeric.array((xpos + yoff1 + y1, ypos + fx(x), 0.0))
+                    return numpy.array((xpos + yoff1 + y1, ypos + fx(x), 0.0))
             else:
                 xpos += xgap
                 ypos -= halfheight * SCALE
@@ -372,7 +372,7 @@ class Font3D:
                         y1 = SCALE * (HEIGHT - 1 - y)
                     else:
                         y1 = SCALE * y
-                    return Numeric.array((xpos + fx(x), ypos + yoff1 + y1, 0.0))
+                    return numpy.array((xpos + fx(x), ypos + yoff1 + y1, 0.0))
             self.tfm = tfm
 
     def drawString(self, str, yoff=1.0, color=None, tfm=None,
