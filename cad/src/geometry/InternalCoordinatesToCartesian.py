@@ -11,7 +11,8 @@ InternalCoordinatesToCartesian.py
 
 from geometry.VQT import V
 
-from Numeric import zeros, Float, cos, sin, sqrt, pi
+from numpy import zeros, cos, sin, sqrt, pi
+from numpy import float as Float
 
 DEG2RAD = (pi/180.0)
 

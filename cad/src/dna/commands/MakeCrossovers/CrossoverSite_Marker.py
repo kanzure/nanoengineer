@@ -38,7 +38,7 @@ from utilities.constants import black, banana
 from dna.commands.MakeCrossovers.MakeCrossovers_Handle import MakeCrossovers_Handle
 
 from geometry.VQT import orthodist, norm, vlen, angleBetween
-from Numeric import dot
+from numpy import dot
 from model.bonds import bond_direction
 
 

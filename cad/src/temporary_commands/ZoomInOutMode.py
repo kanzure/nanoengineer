@@ -8,7 +8,7 @@ Zoom in/out mode functionality.
 @license:   GPL
 """
 
-from Numeric import exp
+from numpy import exp
 from temporary_commands.TemporaryCommand import TemporaryCommand_Overdrawing
 
 # == GraphicsMode part

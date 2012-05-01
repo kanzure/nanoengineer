@@ -14,8 +14,8 @@ bruce 071030 - split Font3D out of dimensions module (since used in drawer.py)
 __author__ = "Will"
 
 import math
-import Numeric
-from Numeric import dot
+import numpy
+from numpy import dot
 
 from utilities import debug_flags
 from geometry.VQT import cross
@@ -58,8 +58,8 @@ class CylindricalCoordinates:
         z = dot(d, self.zn)
         d = d - z * self.zn
         r = vlen(d)
-        theta = Numeric.arctan2(dot(d, self.v), dot(d, self.u))
-        return Numeric.array((r, theta, z), 'd')
+        theta = numpy.arctan2(dot(d, self.v), dot(d, self.u))
+        return numpy.array((r, theta, z), 'd')
     def xyz(self, rtz):
         r, t, z = rtz
         du = (r * math.cos(t)) * self.u

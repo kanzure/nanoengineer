@@ -9,7 +9,7 @@ beam and each step represents duplex rise.
 @license:   GPL
 """
 import foundation.env as env
-from Numeric import  pi
+from numpy import  pi
 ONE_RADIAN = 180.0 / pi
 HALF_PI  = pi/2.0
 TWICE_PI = 2*pi

@@ -372,7 +372,7 @@ def calc_torsion_angle(atom_list):
     # Note: this appears to be very general and perhaps ought to be moved to a more
     # general place (someday), perhaps VQT.py or nearby. [bruce 080828 comment]
     
-    from Numeric import dot
+    from numpy import dot
     from math import atan2, pi, sqrt
     from geometry.VQT import cross
     

@@ -23,8 +23,8 @@ acceptable when the time comes for sim support.
 """
 
 import sys
-import Numeric
-from Numeric import dot
+import numpy
+from numpy import dot
 
 import foundation.env as env
 
@@ -188,7 +188,7 @@ class MeasurementJig(Jig):
         return True
 
     def center(self):
-        c = Numeric.array((0.0, 0.0, 0.0))
+        c = numpy.array((0.0, 0.0, 0.0))
         n = len(self.atoms)
         for a in self.atoms:
             c += a.posn() / n
@@ -200,9 +200,9 @@ class MeasurementJig(Jig):
         mapping.write("info leaf handle = %g %g %g\n" % (x, y, z))
 
     def readmmp_info_leaf_setitem(self, key, val, interp):
-        import string, Numeric
+        import string, numpy
         if key == ['handle']:
-            self.handle_offset = Numeric.array(map(string.atof, val.split())) - self.center()
+            self.handle_offset = numpy.array(map(string.atof, val.split())) - self.center()
         else:
             Jig.readmmp_info_leaf_setitem(self, key, val, interp)
 

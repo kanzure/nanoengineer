@@ -104,7 +104,7 @@ instructions for geometric calculations, rather than as ever-present overhead --
 
 """
 
-from Numeric import dot
+from numpy import dot
 
 from geometry.VQT import planeXline
 from geometry.VQT import norm

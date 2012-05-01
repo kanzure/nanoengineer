@@ -9,7 +9,7 @@ represent pi orbitals as "vanes".
 """
 
 import math
-from Numeric import dot
+from numpy import dot
 
 from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import glDisable

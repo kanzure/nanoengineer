@@ -17,7 +17,7 @@ Ninad 2008-08-22
 """
 
 import math # only for pi
-from Numeric import size, dot, sqrt, floor
+from numpy import size, dot, sqrt, floor
 
 from OpenGL.GL import GL_COLOR_LOGIC_OP
 from OpenGL.GL import GL_DEPTH_TEST

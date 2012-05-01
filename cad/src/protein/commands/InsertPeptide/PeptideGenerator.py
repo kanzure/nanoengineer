@@ -31,7 +31,8 @@ from protein.model.Protein import Protein
 from protein.model.Residue import Residue
 from protein.model.Residue import SS_HELIX, SS_STRAND, SS_COIL, AA_3_TO_1
 
-from Numeric import zeros, sqrt, pi, sin, cos, Float
+from numpy import zeros, sqrt, pi, sin, cos
+from numpy import float as Float
 from geometry.VQT import Q, V, norm, vlen, cross, angleBetween
 
 from utilities.debug import print_compact_stack

@@ -255,8 +255,8 @@ class Q(DataMixin):
             
         elif type(y) in numTypes:
             # axis vector and angle [used often]
-            v = (x / vlen(x)) * Numeric.sin(y * 0.5)
-            self.vec = V(Numeric.cos(y * 0.5), v[0], v[1], v[2])
+            v = (x / vlen(x)) * numpy.sin(y * 0.5)
+            self.vec = V(numpy.cos(y * 0.5), v[0], v[1], v[2])
             
         elif y is not None:
             # rotation between 2 vectors [used often]
@@ -377,7 +377,9 @@ class Q(DataMixin):
         except AttributeError:
             # some objects have no __class__ (e.g. Numeric arrays)
             return False
-        return not (self.vec != other.vec) # assumes all quats have .vec; true except for bugs
+        #return not (self.vec != other.vec) # assumes all quats have .vec; true except for bugs
+        #                when the vecs are equivalent - test is (false), then NOT makes it True
+        return (False in numpy.logical_and(self.vec,other.vec))
             #bruce 070227 fixed "Numeric array == bug" encountered by this line (when it said "self.vec == other.vec"),
             # which made Q(1, 0, 0, 0) == Q(0.877583, 0.287655, 0.38354, 0) (since they're equal in at least one component)!!
             # Apparently it was my own bug, since it says above that I wrote this method on 060209.
@@ -539,7 +541,7 @@ class Q(DataMixin):
         return self
 
     def unrot(self, v):
-        return numpy.matrixmultiply(self.matrix, v)
+        return numpy.dot(self.matrix, v)
 
     def vunrot(self, v):
         # for use with row vectors

@@ -38,7 +38,7 @@ from graphics.drawing.CS_draw_primitives import drawsphere
 from graphics.drawing.CS_draw_primitives import drawline
 from graphics.drawing.CS_draw_primitives import drawtriangle_strip
 
-from Numeric import dot
+from numpy import dot
 
 from OpenGL.GL import glMaterialfv
 from OpenGL.GL import GL_FRONT_AND_BACK

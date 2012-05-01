@@ -23,7 +23,7 @@ in class GraphicsMode to look private.
 """
 
 import math # just for pi
-from Numeric import exp
+from numpy import exp
 
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QMenu

@@ -341,7 +341,7 @@ class GLPane_image_methods(object):
         if 1: # confirm if possible
             print "readback of depth at 0,0:", glReadPixels( 0, 0, 1, 1, GL_DEPTH_COMPONENT, _GL_TYPE_FOR_DEPTH )[0][0] ######
                 ## BUG: readback of depth at 0,0: 1.0
-##            import Numeric
+##            import numpy
 ##            print "min depth:" , Numeric.minimum( glReadPixels( 0, 0, w, h, GL_DEPTH_COMPONENT, _GL_TYPE_FOR_DEPTH ) ) #### 6 args required
 ##            ## ValueError: invalid number of arguments
             print

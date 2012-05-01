@@ -1,5 +1,5 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-import Numeric
+import numpy
 import types
 import unittest
 import random

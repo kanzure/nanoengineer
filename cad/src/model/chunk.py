@@ -73,7 +73,7 @@ scratch/TransformNode.py.)
 
 import numpy # for sqrt
 
-import math # only used for pi, everything else is from Numeric [as of before 071113]
+import math # only used for pi, everything else is from numpy [as of before 071113]
 
 from numpy import array
 from numpy import add
@@ -1458,7 +1458,8 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         atomitems.sort() 
             # in order of atom keys; probably doesn't yet matter, but makes order deterministic
         atlist = [atom for (key, atom) in atomitems]
-        self.atlist = array(atlist, PyObject) #review: untested whether making it an array is good or bad
+        #nmz787self.atlist = array(atlist, PyObject) #review: untested whether making it an array is good or bad
+        self.atlist = array(atlist) #review: untested whether making it an array is good or bad
         for atom, i in zip(atlist, range(len(atlist))):
             atom.index = i 
         return        

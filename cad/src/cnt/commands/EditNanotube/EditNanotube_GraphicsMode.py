@@ -18,7 +18,7 @@ History:
 Created 2008-03-10 from copy of DnaSegment_GraphicsMode.py
 Recreated 2008-04-02 from copy of DnaSegment_GraphicsMode.py
 """
-from Numeric import dot
+from numpy import dot
 from PyQt4.Qt import QMouseEvent
 
 from cnt.commands.BuildNanotube.BuildNanotube_GraphicsMode import BuildNanotube_GraphicsMode

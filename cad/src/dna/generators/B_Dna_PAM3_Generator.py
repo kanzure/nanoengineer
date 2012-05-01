@@ -30,7 +30,7 @@ RIGHT_HANDED = -1
 LEFT_HANDED  =  1
 
 from geometry.VQT import norm
-from Numeric import dot
+from numpy import dot
 from dna.generators.B_Dna_Generator import B_Dna_Generator
 
 class B_Dna_PAM3_Generator(B_Dna_Generator):

@@ -52,7 +52,7 @@ LEFT_HANDED  =  1
 
 from geometry.VQT import V, Q, norm, cross  
 from geometry.VQT import  vlen
-from Numeric import dot
+from numpy import dot
 
 from utilities.debug import print_compact_stack
 from model.bonds import bond_at_singlets

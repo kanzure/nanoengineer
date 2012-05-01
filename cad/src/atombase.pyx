@@ -9,7 +9,7 @@ make atombase.so ; valgrind python atombasetests.py >& OUCH; less OUCH
 __author__ = "Will"
 
 import types
-import Numeric
+import numpy
 from foundation.inval import InvalMixin
 
 cdef extern from "atombasehelp.c":

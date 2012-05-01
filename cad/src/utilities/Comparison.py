@@ -24,7 +24,7 @@ from types import InstanceType
 _haveNumeric = True # might be modified below
 
 try:
-    from Numeric import array, PyObject
+    from numpy import array, PyObject
 except:
     # this gets warned about in state_utils
     _haveNumeric = False
@@ -63,7 +63,7 @@ if SAMEVALS_SPEEDUP:
         # the extension. [wware]
 
         from samevals import setArrayType
-        import Numeric
+        import numpy
         setArrayType(type(Numeric.array((1,2,3))))
         print "SAMEVALS_SPEEDUP is True, and import samevals succeeded"
     except ImportError:

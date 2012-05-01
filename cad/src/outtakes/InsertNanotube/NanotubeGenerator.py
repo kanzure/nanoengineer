@@ -11,7 +11,7 @@ for notes about what's going on here.
 """
 
 from math import atan2, sin, cos, pi, asin
-from Numeric import dot
+from numpy import dot
 
 from geometry.VQT import vlen, cross, norm, V
 import foundation.env as env

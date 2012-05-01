@@ -35,7 +35,7 @@ $Id$
 # == imports from python itself
 
 import sys, os
-from Numeric import dot
+from numpy import dot
 
 sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease debugging, but REMOVE WHEN DEVEL IS DONE [061121]
 

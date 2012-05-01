@@ -16,7 +16,7 @@ How to demo the pyrex/C code for SurfaceChunks
 see cad/src/experimental/oleksandr/README.txt.
 """
 
-from Numeric import sqrt, pi, sin, cos
+from numpy import sqrt, pi, sin, cos
 import types
 
 from PyQt4.Qt import QApplication, Qt, QCursor

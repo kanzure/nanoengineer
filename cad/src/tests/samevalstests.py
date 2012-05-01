@@ -8,7 +8,7 @@
 
 import unittest
 from samevals import same_vals, setArrayType
-import Numeric
+import numpy
 
 class SameValsTests(unittest.TestCase):
 

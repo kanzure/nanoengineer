@@ -15,7 +15,7 @@ History:
 2008-05-09 - 2008-05-14 Created / modified.
 
 """
-from Numeric import dot
+from numpy import dot
 from geometry.VQT import V, norm, vlen
 from utilities.constants import applegreen
 

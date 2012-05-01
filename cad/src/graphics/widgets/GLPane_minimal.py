@@ -37,7 +37,7 @@ from OpenGL.GLU import gluPickMatrix
 from PyQt4.QtOpenGL import QGLFormat
 from PyQt4.QtOpenGL import QGLWidget
 
-from Numeric import dot
+from numpy import dot
 
 from geometry.VQT import norm, angleBetween
 from geometry.VQT import V, Q

@@ -38,7 +38,7 @@ from utilities import debug_flags
 import foundation.env as env
 import foundation.changes as changes
 
-from Numeric import dot
+from numpy import dot
 
 from OpenGL.GL import GL_CW
 from OpenGL.GL import glFrontFace

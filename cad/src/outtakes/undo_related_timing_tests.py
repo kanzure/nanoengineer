@@ -77,7 +77,7 @@ def loadposns_cmd( target):
 
 # ==
 
-from Numeric import concatenate, array, UnsignedInt8
+from numpy import concatenate, array, UnsignedInt8
 
 def atom_array_of_part(part):
     "Return an Array of all atoms in the Part. Try to be linear time."

@@ -81,7 +81,7 @@ for help making the OpenGL do what it used to do, if that's ever needed.)
 """
 
 from math import pi
-from Numeric import dot, cos, sin
+from numpy import dot, cos, sin
 
 from OpenGL.GL import GL_LIGHTING
 from OpenGL.GL import glDisable

@@ -6,7 +6,7 @@
 """
 
 import types
-import Numeric
+import numpy
 
 cdef extern from "Python.h":
     int PyType_Check(obj)

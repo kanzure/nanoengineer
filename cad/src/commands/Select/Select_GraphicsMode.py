@@ -50,7 +50,7 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
                           related methods into this class from selectMode.py
 
 """
-from Numeric import dot
+from numpy import dot
 
 from OpenGL.GL import GL_CLIP_PLANE0
 from OpenGL.GL import GL_DEPTH_COMPONENT

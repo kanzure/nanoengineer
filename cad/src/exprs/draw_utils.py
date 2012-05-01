@@ -25,7 +25,7 @@ from OpenGL.GL import GL_QUAD_STRIP
 from OpenGL.GLU import gluUnProject
 
 from geometry.VQT import norm, A
-from Numeric import dot
+from numpy import dot
 
 from array import array
 # ==

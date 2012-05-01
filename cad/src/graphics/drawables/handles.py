@@ -14,7 +14,7 @@ TODO:
 Needs cleanup.
 """
 
-from Numeric import sqrt
+from numpy import sqrt
 
 from geometry.VQT import V
 from geometry.VQT import vlen

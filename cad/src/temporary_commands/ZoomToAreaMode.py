@@ -11,7 +11,7 @@ History:
 Mark 2008-01-31: Renamed from ZoomMode to ZoomToAreaMode.py
 """
 
-from Numeric import dot
+from numpy import dot
 
 from OpenGL.GL import GL_DEPTH_TEST
 from OpenGL.GL import glDisable

@@ -15,7 +15,7 @@ actual model.
 import foundation.env as env
 
 from math import asin, acos
-from Numeric import sin, cos, pi
+from numpy import sin, cos, pi
 ONE_RADIAN = 180.0 / pi
 HALF_PI  = pi/2.0
 TWICE_PI = 2*pi
@@ -38,7 +38,7 @@ from geometry.VQT import orthodist, angleBetween
 from utilities.constants import white, blue
 from utilities.constants import diTrueCPK, diTUBES, diLINES
 
-from Numeric import dot
+from numpy import dot
 
 
 from utilities.prefs_constants import DarkBackgroundContrastColor_prefs_key

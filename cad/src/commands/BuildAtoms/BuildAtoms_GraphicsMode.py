@@ -29,7 +29,7 @@ GraphicsMode parts and the these classes were moved into their own module
 
 
 import math
-from Numeric import dot
+from numpy import dot
 
 from OpenGL.GL import GL_FALSE
 from OpenGL.GL import glDepthMask
