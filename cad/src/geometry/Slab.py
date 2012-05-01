@@ -11,7 +11,7 @@ Module classification: geometry
 Note: bruce 071215 split class Slab our of shape.py into its own module.
 """
 
-from Numeric import dot
+from numpy import dot
 
 from geometry.VQT import norm
 
