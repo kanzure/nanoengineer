@@ -14,11 +14,11 @@ History:
 # imports from math vs. Numeric as discovered from running code on 2007/06/25.
 from math import asin, atan2
 
-from Numeric import pi
-from Numeric import sqrt
-from Numeric import dot
-from Numeric import argmax
-from Numeric import reshape
+from numpy import pi
+from numpy import sqrt
+from numpy import dot
+from numpy import argmax
+from numpy import reshape
 
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
