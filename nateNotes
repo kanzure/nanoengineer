@@ -1,0 +1,17 @@
+sudo apt-get install python-dev g++ qt4-dev-tools qt4-qtconfig libqt4-dev python-sip python-qt4 python-qt4-gl python-qt4-dev python-numpy python-ctypeslib python-opengl libgle3 python-imaging python-bsddb3 python-pyrex idle-python2.7
+
+
+these files mention PyObject, which seems deprecated in numpy for passing arrays around
+
+./cad/src/gdb_help.c
+./cad/src/experimental/pyrex-atoms-bonds/proto.c
+./cad/src/experimental/pyrex-atoms-bonds/basehelp.c
+./cad/src/experimental/pyrex-atoms-bonds/iguana/ighelp.c
+./cad/src/experimental/pyrex-opengl/quux_help.c
+./cad/src/experimental/pyrex-opengl/bradg.cpp
+./cad/src/experimental/LearningOpenGL/foo.c
+./cad/src/experimental/finite-element/comphelp.c
+./cad/src/atombasehelp.c
+./cad/src/samevalshelp.c
+./sim/src/sim.c
+./sim/src/simhelp.c
