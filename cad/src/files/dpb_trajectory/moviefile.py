@@ -17,7 +17,7 @@ moviefile.py -- classes and other code for interpreting movie files
 import os, sys
 from struct import unpack # fyi: used for old-format header, no longer for delta frames
 ## from VQT import A
-from Numeric import array, Int8
+from numpy import array, Int8
 from utilities import debug_flags
 from utilities.debug import print_compact_stack, print_compact_traceback
 import foundation.env as env
