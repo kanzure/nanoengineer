@@ -35,7 +35,7 @@ entries for PAM elements, and some bond_geometry_error_string things
 # Atom, as opposed to on a PAM-specific subclass of class Atom; and having
 # that class Atom known directly to class Chunk.) [bruce 090119]
 
-from Numeric import dot
+from numpy import dot
 
 from geometry.VQT import norm, V
 

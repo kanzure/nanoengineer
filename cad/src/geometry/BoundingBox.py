@@ -20,8 +20,8 @@ about its use for our model objects (atoms).
 """
 
 from graphics.drawing.drawers import drawwirebox
-from Numeric import add, subtract, sqrt 
-from Numeric import maximum, minimum, dot
+from numpy import add, subtract, sqrt 
+from numpy import maximum, minimum, dot
 
 from geometry.VQT import V, A, cat
 from utilities.constants import black
