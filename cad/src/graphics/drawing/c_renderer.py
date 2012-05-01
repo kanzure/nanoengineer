@@ -34,7 +34,7 @@ import foundation.env as env #bruce 051126
 import utilities.EndUser as EndUser
 import sys
 import os
-import Numeric
+import numpy
 
 # these are used only by the test code at the bottom;
 # if these ever cause an import cycle, move that code to a separate module.
@@ -146,7 +146,7 @@ class ShapeList_inplace:
         if (len(self.spheres) == 0 or
             self.spheres[-1][1] == ShapeList_inplace._blocking):
             # size of struct Sphere in floats is 9
-            block = Numeric.zeros((ShapeList_inplace._blocking, 9), 'f')
+            block = numpy.zeros((ShapeList_inplace._blocking, 9), 'f')
             self.spheres.append([block, 0])
 
         (block, count) = self.spheres[-1]
@@ -183,7 +183,7 @@ class ShapeList_inplace:
         if (len(self.cylinders) == 0 or
             self.cylinders[-1][1] == ShapeList_inplace._blocking):
             # size of struct Cylinder in floats is 13
-            block = Numeric.zeros((ShapeList_inplace._blocking, 13), 'f')
+            block = numpy.zeros((ShapeList_inplace._blocking, 13), 'f')
             self.cylinders.append([block, 0])
 
         (block, count) = self.cylinders[-1]
@@ -216,14 +216,14 @@ class ShapeList_inplace:
             count = self.spheres[-1][1]
             if count < ShapeList_inplace._blocking:
                 block = self.spheres[-1][0]
-                newblock = Numeric.array(block[0:count], 'f')
+                newblock = numpy.array(block[0:count], 'f')
                 self.spheres[-1][0] = newblock
 
         if len(self.cylinders) > 0:
             count = self.cylinders[-1][1]
             if count < ShapeList_inplace._blocking:
                 block = self.cylinders[-1][0]
-                newblock = Numeric.array(block[0:count], 'f')
+                newblock = numpy.array(block[0:count], 'f')
                 self.cylinders[-1][0] = newblock
 
     pass
@@ -268,17 +268,17 @@ class ShapeList: # not used as of before 090303
         # GL Names are uint32.  Numeric.array appears to have only
         # int32.  Winging it...
 
-        self.sphere_colors_array = Numeric.array(self.sphere_colors, 'f')
-        self.sphere_radii_array = Numeric.array(self.sphere_radii, 'f')
-        self.sphere_centers_array = Numeric.array(self.sphere_centers, 'f')
-        self.sphere_names_array = Numeric.array(self.sphere_names, 'i')
+        self.sphere_colors_array = numpy.array(self.sphere_colors, 'f')
+        self.sphere_radii_array = numpy.array(self.sphere_radii, 'f')
+        self.sphere_centers_array = numpy.array(self.sphere_centers, 'f')
+        self.sphere_names_array = numpy.array(self.sphere_names, 'i')
 
-        self.cylinder_colors_array = Numeric.array(self.cylinder_colors, 'f')
-        self.cylinder_radii_array = Numeric.array(self.cylinder_radii, 'f')
-        self.cylinder_pos1_array = Numeric.array(self.cylinder_pos1, 'f')
-        self.cylinder_pos2_array = Numeric.array(self.cylinder_pos2, 'f')
-        self.cylinder_cappings_array = Numeric.array(self.cylinder_cappings,'f')
-        self.cylinder_names_array = Numeric.array(self.cylinder_names, 'i')
+        self.cylinder_colors_array = numpy.array(self.cylinder_colors, 'f')
+        self.cylinder_radii_array = numpy.array(self.cylinder_radii, 'f')
+        self.cylinder_pos1_array = numpy.array(self.cylinder_pos1, 'f')
+        self.cylinder_pos2_array = numpy.array(self.cylinder_pos2, 'f')
+        self.cylinder_cappings_array = numpy.array(self.cylinder_cappings,'f')
+        self.cylinder_names_array = numpy.array(self.cylinder_names, 'i')
 
 
     def draw(self):
@@ -389,24 +389,24 @@ def test_pyrex_opengl(test_type): # not tested since major refactoring
         quux.shapeRendererSetUseDynamicLOD(0)
         quux.shapeRendererStartDrawing()
         if test_type == 1:
-            center = Numeric.array((Numeric.array((0, 0, 0), 'f'),
-                                    Numeric.array((0, 0, 1), 'f'),
-                                    Numeric.array((0, 1, 0), 'f'),
-                                    Numeric.array((0, 1, 1), 'f'),
-                                    Numeric.array((1, 0, 0), 'f'),
-                                    Numeric.array((1, 0, 1), 'f'),
-                                    Numeric.array((1, 1, 0), 'f'),
-                                    Numeric.array((1, 1, 1), 'f')), 'f')
-            radius = Numeric.array((0.2, 0.4, 0.6, 0.8,
+            center = numpy.array((numpy.array((0, 0, 0), 'f'),
+                                    numpy.array((0, 0, 1), 'f'),
+                                    numpy.array((0, 1, 0), 'f'),
+                                    numpy.array((0, 1, 1), 'f'),
+                                    numpy.array((1, 0, 0), 'f'),
+                                    numpy.array((1, 0, 1), 'f'),
+                                    numpy.array((1, 1, 0), 'f'),
+                                    numpy.array((1, 1, 1), 'f')), 'f')
+            radius = numpy.array((0.2, 0.4, 0.6, 0.8,
                                     1.2, 1.4, 1.6, 1.8), 'f')
-            color = Numeric.array((Numeric.array((0, 0, 0, 0.5), 'f'),
-                                   Numeric.array((0, 0, 1, 0.5), 'f'),
-                                   Numeric.array((0, 1, 0, 0.5), 'f'),
-                                   Numeric.array((0, 1, 1, 0.5), 'f'),
-                                   Numeric.array((1, 0, 0, 0.5), 'f'),
-                                   Numeric.array((1, 0, 1, 0.5), 'f'),
-                                   Numeric.array((1, 1, 0, 0.5), 'f'),
-                                   Numeric.array((1, 1, 1, 0.5), 'f')), 'f')
+            color = numpy.array((numpy.array((0, 0, 0, 0.5), 'f'),
+                                   numpy.array((0, 0, 1, 0.5), 'f'),
+                                   numpy.array((0, 1, 0, 0.5), 'f'),
+                                   numpy.array((0, 1, 1, 0.5), 'f'),
+                                   numpy.array((1, 0, 0, 0.5), 'f'),
+                                   numpy.array((1, 0, 1, 0.5), 'f'),
+                                   numpy.array((1, 1, 0, 0.5), 'f'),
+                                   numpy.array((1, 1, 1, 0.5), 'f')), 'f')
             result = quux.shapeRendererDrawSpheres(8, center, radius, color)
         elif test_type == 2:
             # grantham - I'm pretty sure the actual compilation, init,

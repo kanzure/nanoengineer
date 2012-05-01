@@ -25,8 +25,8 @@ gl_lighting.py gl_buffers.py
 # the imports from math vs. Numeric are as discovered in existing code
 # as of 2007/06/25.  It's not clear why acos is coming from math...
 from math import floor, ceil, acos
-import Numeric
-from Numeric import pi
+import numpy
+from numpy import pi
 
 import foundation.env as env
 
@@ -270,7 +270,7 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     else:
         glRotate(angle, axis[1], -axis[0], 0.0)
     glRotate(rotation, 0.0, 0.0, 1.0) #bruce 050518
-    glScale(radius,radius,Numeric.dot(vec,vec)**.5)
+    glScale(radius,radius,numpy.dot(vec,vec)**.5)
 
     glLineWidth(2.0)
     glDisable(GL_LIGHTING)
@@ -798,8 +798,8 @@ def drawrectangle(pt1, pt2, rt, up, color):
     """
     glColor3f(color[0], color[1], color[2])
     glDisable(GL_LIGHTING)
-    c2 = pt1 + rt * Numeric.dot(rt, pt2 - pt1)
-    c3 = pt1 + up * Numeric.dot(up, pt2 - pt1)
+    c2 = pt1 + rt * numpy.dot(rt, pt2 - pt1)
+    c3 = pt1 + up * numpy.dot(up, pt2 - pt1)
     glBegin(GL_LINE_LOOP)
     glVertex(pt1[0], pt1[1], pt1[2])
     glVertex(c2[0], c2[1], c2[2])
