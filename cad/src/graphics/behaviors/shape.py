@@ -28,7 +28,7 @@ that I can call all these "graphics_behavior". We'll see.
 I'd be more confident that a package import cycle was unlikely.)
 """
 
-from Numeric import array, zeros, maximum, minimum, ceil, dot, floor
+from numpy import array, zeros, maximum, minimum, ceil, dot, floor
 
 from geometry.VQT import A, vlen, V
 
