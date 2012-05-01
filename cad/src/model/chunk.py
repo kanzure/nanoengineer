@@ -71,19 +71,19 @@ scratch/TransformNode.py.)
 
 """
 
-import Numeric # for sqrt
+import numpy # for sqrt
 
 import math # only used for pi, everything else is from Numeric [as of before 071113]
 
-from Numeric import array
-from Numeric import add
-from Numeric import dot
-from Numeric import PyObject
-from Numeric import argsort
-from Numeric import compress
-from Numeric import nonzero
-from Numeric import take
-from Numeric import argmax
+from numpy import array
+from numpy import add
+from numpy import dot
+#from numpy import PyObject
+from numpy import argsort
+from numpy import compress
+from numpy import nonzero
+from numpy import take
+from numpy import argmax
 
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
@@ -2563,7 +2563,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # atom half-thicknesses at places they're hit
         r_xy_2_p1 = take( r_xy_2, p1inds)
         radii_2_p1 = take( radii_2, p1inds)
-        thicks_p1 = Numeric.sqrt( radii_2_p1 - r_xy_2_p1 )
+        thicks_p1 = numpy.sqrt( radii_2_p1 - r_xy_2_p1 )
         # now front surfaces are at vp1z + thicks_p1, backs at vp1z - thicks_p1
 
         fronts = vp1z + thicks_p1 # arbitrary order (same as vp1)
@@ -2607,7 +2607,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                     r_xy_2_0 = r_xy_2[ind]
                     radii_2_0 = rad2
                     if r_xy_2_0 <= radii_2_0:
-                        thick_0 = Numeric.sqrt( radii_2_0 - r_xy_2_0 )
+                        thick_0 = numpy.sqrt( radii_2_0 - r_xy_2_0 )
                         zz = v[ind][2] + thick_0
                         if zz < near_cutoff:
                             pairs.append( (zz, ind) )
@@ -2673,7 +2673,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         v = singlpos - point
         try:
             #bruce 051129 add try/except and printout to help debug bug 829
-            r = Numeric.sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2) # this line had OverflowError in bug 829
+            r = numpy.sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2) # this line had OverflowError in bug 829
             p = (r <= radius)
             i = argsort(compress(p, r))
             return take(compress(p, self.singlets), i)
