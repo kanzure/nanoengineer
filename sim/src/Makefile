@@ -186,7 +186,7 @@ noopt:
 	make CFLAGS=-g $(SIMTARGET)
 
 $(SIMTARGET): $(SIMOBJS) version.h
-	$(CC) -o $(SIMTARGET) $(LDFLAGS) $(SIMOBJS)
+	$(CC) -o $(SIMTARGET) $(LDFLAGS) $(SIMOBJS) -lm
 
 testminimize: minimize.c allocate.o
 	$(CC) -o testminimize.o $(CFLAGS) -DTEST -c minimize.c
