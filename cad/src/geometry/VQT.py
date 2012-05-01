@@ -20,7 +20,7 @@ import math
 from utilities import debug_flags
 from foundation.state_utils import DataMixin
 
-import Numeric 
+import numpy 
 
 _DEBUG_QUATS = False
     #bruce 050518; I'll leave this turned on in the main sources for awhile
@@ -34,10 +34,10 @@ floType = type(2.0)
 numTypes = [intType, floType]
 
 def V(*v):
-    return Numeric.array(v, Numeric.Float)
+    return numpy.array(v, numpy.float)
 
 def A(a):
-    return Numeric.array(a, Numeric.Float)
+    return numpy.array(a, numpy.float)
 
 def cross(v1, v2):
     #bruce 050518 comment: for int vectors, this presumably gives an int vector result
@@ -51,7 +51,7 @@ def vlen(v1):
     #bruce 050518 question: is vlen correct for int vectors, not only float ones?
     # In theory it should be, since sqrt works for int args and always gives float answers.
     # And is it correct for Numeric arrays of vectors? I don't know; norm is definitely not.
-    return Numeric.dot(v1, v1) ** 0.5
+    return numpy.dot(v1, v1) ** 0.5
 
 def norm(v1):
     #bruce 050518 questions:
@@ -61,7 +61,7 @@ def norm(v1):
     # No... clearly the "if" makes the same choice for all of them, but even ignoring that,
     # it gives an alignment exception for any vector-array rather than working at all.
     # I don't know how hard that would be to fix.
-    lng = Numeric.dot(v1, v1) ** 0.5
+    lng = numpy.dot(v1, v1) ** 0.5
     if lng:
         return v1 / lng
         # bruce 041012 optimized this by using lng instead of
@@ -78,10 +78,10 @@ def angleBetween(vec1, vec2):
     # paranoid acos(dotproduct) function, wware 051103
     # [TODO: should merge with threepoint_angle_in_radians]
     TEENY = 1.0e-10
-    lensq1 = Numeric.dot(vec1, vec1)
+    lensq1 = numpy.dot(vec1, vec1)
     if lensq1 < TEENY:
         return 0.0
-    lensq2 = Numeric.dot(vec2, vec2)
+    lensq2 = numpy.dot(vec2, vec2)
     if lensq2 < TEENY:
         return 0.0
     
@@ -98,7 +98,7 @@ def angleBetween(vec1, vec2):
     #diff = vec1 - vec2
     #if dot(diff, diff) < TEENY:
     #    return 0.0
-    dprod = Numeric.dot(vec1, vec2)
+    dprod = numpy.dot(vec1, vec2)
     if dprod >= 1.0:
         return 0.0
     if dprod <= -1.0:
@@ -116,7 +116,7 @@ def threepoint_angle_in_radians(p1, p2, p3):
     # Also compare with def angle in jigs_motors.
     v1 = norm(p1 - p2)
     v2 = norm(p3 - p2)
-    dotprod = Numeric.dot(v1, v2)
+    dotprod = numpy.dot(v1, v2)
     if dotprod > 1.0:
         #bruce 050414 investigating bugs 361 and 498 (probably the same underlying bug);
         # though (btw) it would probably be better to skip this [now caller's] angle-printing entirely ###e
@@ -151,7 +151,7 @@ def atom_angle_radians(atom1, atom2, atom3):
 #  distance from p2 to the p1-v1 line.
 # v1 should be a unit vector.
 def orthodist(p1, v1, p2):
-    dist = Numeric.dot(v1, p2 - p1)
+    dist = numpy.dot(v1, p2 - p1)
     wid = vlen(p1 + dist * v1 - p2)
     return (dist, wid)
 
@@ -270,9 +270,9 @@ class Q(DataMixin):
             # I didn't fix that problem.
             x = norm(x)
             y = norm(y)
-            dotxy = Numeric.dot(x, y)
+            dotxy = numpy.dot(x, y)
             v = cross(x, y)
-            vl = Numeric.dot(v, v) ** .5
+            vl = numpy.dot(v, v) ** .5
             if vl<0.000001:
                 # x, y are very close, or very close to opposite, or one of them is zero
                 if dotxy < 0:
@@ -296,9 +296,9 @@ class Q(DataMixin):
                 # old code's method is numerically unstable if abs(dotxy) is close to 1. I didn't fix this.
                 # I also didn't review this code (unchanged from old code) for correctness. [bruce 050730]
                 theta = math.acos(min(1.0, max(-1.0, dotxy)))
-                if Numeric.dot(y, cross(x, v)) > 0.0:
+                if numpy.dot(y, cross(x, v)) > 0.0:
                     theta = 2.0 * math.pi - theta
-                w = Numeric.cos(theta * 0.5)
+                w = numpy.cos(theta * 0.5)
                 s = ((1 - w**2)**.5) / vl
                 self.vec = V(w, v[0]*s, v[1]*s, v[2]*s)
             pass
@@ -343,7 +343,7 @@ class Q(DataMixin):
             #  This will optimize it too (avoiding 42 __getattr__ calls!).
             # ]
             w, x, y, z = self.vec
-            self.__dict__['matrix'] = mat = Numeric.array([
+            self.__dict__['matrix'] = mat = numpy.array([
                     [1.0 - 2.0 * (y**2 + z**2),
                      2.0 * (x*y + z*w),
                      2.0 * (z*x - y*w)],
@@ -391,9 +391,9 @@ class Q(DataMixin):
         Set the quaternion's rotation to theta (destructive modification).
         (In the same direction as before.)
         """
-        theta = Numeric.remainder(theta / 2.0, math.pi)
-        self.vec[1:] = norm(self.vec[1:]) * Numeric.sin(theta)
-        self.vec[0] = Numeric.cos(theta)
+        theta = numpy.remainder(theta / 2.0, math.pi)
+        self.vec[1:] = norm(self.vec[1:]) * numpy.sin(theta)
+        self.vec[0] = numpy.cos(theta)
         self.__reset()
         return self
 
@@ -507,7 +507,7 @@ class Q(DataMixin):
 
     def __str__(self):
         a= "<q:%6.2f @ " % (2.0 * math.acos(self.w) * 180 / math.pi)
-        l = Numeric.sqrt(self.x**2 + self.y**2 + self.z**2)
+        l = numpy.sqrt(self.x**2 + self.y**2 + self.z**2)
         if l:
             z = V(self.x, self.y, self.z) / l
             a += "[%4.3f, %4.3f, %4.3f] " % (z[0], z[1], z[2])
@@ -530,7 +530,7 @@ class Q(DataMixin):
     def normalize(self):
         w = self.vec[0]
         v = V(self.vec[1],self.vec[2],self.vec[3])
-        length = Numeric.dot(v, v) ** .5
+        length = numpy.dot(v, v) ** .5
         if length:
             s = ((1.0 - w**2)**0.5) / length
             self.vec = V(w, v[0]*s, v[1]*s, v[2]*s)
@@ -539,7 +539,7 @@ class Q(DataMixin):
         return self
 
     def unrot(self, v):
-        return Numeric.matrixmultiply(self.matrix, v)
+        return numpy.matrixmultiply(self.matrix, v)
 
     def vunrot(self, v):
         # for use with row vectors
@@ -547,10 +547,11 @@ class Q(DataMixin):
         #  the comment about 'matrix' in __getattr__ (also old and by Josh)
         #  that it's the transpose of the normal form so it can be used for row vectors.
         #  See the other comment for more info.]
-        return Numeric.matrixmultiply(v, Numeric.transpose(self.matrix))
+	#nmz787 changed Numeric.matrixmultiply to numpy.dot as per http://comments.gmane.org/gmane.comp.python.numeric.general/19918
+        return numpy.dot(v, numpy.transpose(self.matrix))
 
     def rot(self, v):
-        return Numeric.matrixmultiply(v, self.matrix)
+        return numpy.dot(v, self.matrix)
 
     pass # end of class Q
 
@@ -579,9 +580,9 @@ def proj2sphere(x, y):
     """
     d = (x*x + y*y) ** .5
     theta = math.pi * 0.5 * d
-    s = Numeric.sin(theta)
+    s = numpy.sin(theta)
     if d > 0.0001:
-        return V(s*x/d, s*y/d, Numeric.cos(theta))
+        return V(s*x/d, s*y/d, numpy.cos(theta))
     else:
         return V(0.0, 0.0, 1.0)
 
@@ -591,7 +592,7 @@ def ptonline(xpt, lpt, ldr):
     nearest to point xpt
     """
     ldr = norm(ldr)
-    return Numeric.dot(xpt - lpt, ldr) * ldr + lpt
+    return numpy.dot(xpt - lpt, ldr) * ldr + lpt
 
 def planeXline(ppt, pv, lpt, lv):
     """
@@ -601,10 +602,10 @@ def planeXline(ppt, pv, lpt, lv):
        WARNING: don't use a boolean test on the return value, since V(0,0,0) is a real point
     but has boolean value False. Use "point is not None" instead.
     """
-    d = Numeric.dot(lv, pv)
+    d = numpy.dot(lv, pv)
     if abs(d) < 0.000001:
         return None
-    return lpt + lv * (Numeric.dot(ppt - lpt, pv) / d)
+    return lpt + lv * (numpy.dot(ppt - lpt, pv) / d)
 
 def cat(a, b):
     """
@@ -621,20 +622,20 @@ def cat(a, b):
         if (_DEBUG_QUATS or debug_flags.atom_debug):
             print "_DEBUG_QUATS: cat(a, b) with false b -- is it right?", b
         return a
-    r1 = Numeric.shape(a)
-    r2 = Numeric.shape(b)
+    r1 = numpy.shape(a)
+    r2 = numpy.shape(b)
     if len(r1) == len(r2):
-        return Numeric.concatenate((a, b))
+        return numpy.concatenate((a, b))
     if len(r1) < len(r2):
-        return Numeric.concatenate((Numeric.reshape(a,(1,) + r1), b))
+        return numpy.concatenate((numpy.reshape(a,(1,) + r1), b))
     else:
-        return Numeric.concatenate((a, Numeric.reshape(b,(1,) + r2)))
+        return numpy.concatenate((a, numpy.reshape(b,(1,) + r2)))
 
 def Veq(v1, v2):
     """
     tells if v1 is all equal to v2
     """
-    return Numeric.logical_and.reduce(v1 == v2)
+    return numpy.logical_and.reduce(v1 == v2)
     #bruce comment 050518: I guess that not (v1 != v2) would also work (and be slightly faster)
     # (in principle it would work, based on my current understanding of Numeric...)
 
