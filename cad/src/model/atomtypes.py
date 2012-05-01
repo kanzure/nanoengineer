@@ -94,7 +94,7 @@ class AtomType(IdentityCopyMixin):
 
         self.base = None
         self.quats = [] # ends up one shorter than self.numbonds [bruce 041217]
-        if (bondvectors):
+        if (bondvectors!=None):
             # number of distinct bonds to different other atoms (a
             # double bond is counted as 1)
             self.numbonds = len(bondvectors)
@@ -103,9 +103,11 @@ class AtomType(IdentityCopyMixin):
             self.base = s
             for v in bondvectors[1:]:
                 self.quats += [Q(s,v)]
+            self.bondvectors = bondvectors
         else:
             self.numbonds = 0
-        self.bondvectors = bondvectors or [] # not sure if [] (in place of None) matters
+            self.bondvectors = None
+        #nmz787 self.bondvectors = bondvectors or [] # not sure if [] (in place of None) matters
         
         self.charge = formalCharge
         #self._init_electronic_structure() # this uses self.numbonds, so don't call it too early
