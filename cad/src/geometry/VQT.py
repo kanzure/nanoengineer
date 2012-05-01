@@ -614,11 +614,11 @@ def cat(a, b):
     #bruce comment 050518: these boolean tests look like bugs!
     # I bet they should be testing the number of entries being 0, or so.
     # So I added some debug code to warn us if this happens.
-    if not a:
+    if a == None:
         if (_DEBUG_QUATS or debug_flags.atom_debug):
             print "_DEBUG_QUATS: cat(a, b) with false a -- is it right?", a
         return b
-    if not b:
+    if b == None:
         if (_DEBUG_QUATS or debug_flags.atom_debug):
             print "_DEBUG_QUATS: cat(a, b) with false b -- is it right?", b
         return a
