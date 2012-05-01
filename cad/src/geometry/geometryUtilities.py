@@ -21,8 +21,8 @@ History:
 # this file should remain purely geometric.
 
 import math
-from Numeric import transpose, minimum, maximum, remainder, size, add
-from Numeric import Float, zeros, multiply, sign, dot
+from numpy import transpose, minimum, maximum, remainder, size, add
+from numpy import Float, zeros, multiply, sign, dot
 from LinearAlgebra import solve_linear_equations, eigenvectors
 
 from utilities import debug_flags # for atom_debug
