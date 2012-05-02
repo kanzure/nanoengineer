@@ -144,7 +144,7 @@ git clone git://diyhpl.us/nanoengineer.git nanoengineer
 cd ~/code/nanoengineer
 
 # get a particular version of the sources
-git checkout 4a5b6dc163d3c248f688433d40d39ae1307d95cf
+#git checkout 4a5b6dc163d3c248f688433d40d39ae1307d95cf
 
 # any change you make should be on your own branch
 git checkout -b experimental
