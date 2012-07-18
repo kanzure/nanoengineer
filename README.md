@@ -24,9 +24,11 @@ For simulation and analysis, NanoEngineer-1 supports multiple molecular dynamics
 
 1.5\.    [About these images](#abouttheseimages)
 
-2\.    [Helpful Links](#helpfullinks)
+2\.    [Helpful links and installing](#helpfullinks)
 
-3\.    [Video](#video)
+3\.    [Installing from source](#installing)
+
+4\.    [Video](#video)
 
 Developer/user group: http://groups.google.com/group/nanoengineer-dev
 
@@ -99,7 +101,7 @@ Many of the images and animations in these galleries have been rendered with [Qu
 
 <a name="helpfullinks" />
 
-2\. Helpful Links
+2\. Helpful links and installing
 ------------
 
  * Nanorex http://nanorex.com/
@@ -113,9 +115,34 @@ In particular:
  * [Documentation](http://www.nanoengineer-1.net/mediawiki/index.php?title=Category:Documentation) including manuals, tutorials, videos, API docs, etc.
  * [Getting involved](http://www.nanoengineer-1.net/mediawiki/index.php?title=Category:Contribute)
 
+<a name="installing" />
+
+3\. Installing from source
+------------
+
+Nanoengineer is a tricky beast to install. The [2008 release](http://www.nanoengineer-1.net/mediawiki/index.php?title=Get_NanoEngineer-1) will install and run on OS X and Windows. Compiling and running from source on Linux is the current ongoing project. To facilitate this effort, users can either create a chroot and install an older distribution of Ubuntu, or download a ready-made chroot. The development efforts are presently centered around upgrading dependencies in successive versions of modernized Ubuntu chroots, instead of trying to fix all problems simultaneously while running NanoEngineer on a modern GNU/Linux distribution.
+
+To download and use the chroot:
+
+```bash
+# download the ready-made chroot archive
+wget http://diyhpl.us/~bryan/irc/nanoengineer/nanoengineer-chroot.tar.gz
+
+# extract the chroot
+tar -zxvf nanoengineer-chroot.tar.gz
+
+# jump in
+sudo chroot nanoengineer-chroot/
+
+# run nanoengineer
+su nanoengineeruser -c "python ~/code/nanoengineer/cad/src/main.py"
+```
+
+Alternatively, you can follow [instructions to create a chroot](http://diyhpl.us/~bryan/irc/nanoengineer/nanoengineer-chroot-debootstrap). Developers can be reached on the [mailing list](http://groups.google.com/group/nanoengineer-dev) or on irc.freenode.net in the ##hplusroadmap channel.
+
 <a name="video" />
 
-3\. Nanofactory video
+4\. Nanofactory video
 ------------
 
 http://www.youtube.com/watch?v=vEYN18d7gHg
