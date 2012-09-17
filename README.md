@@ -138,6 +138,12 @@ sudo chroot nanoengineer-chroot/
 su nanoengineeruser -c "python ~/code/nanoengineer/cad/src/main.py"
 ```
 
+Additionally, you might want to hook up /dev/dri to make the frame rate match your native setup.
+
+```bash
+for i in tmp proc dev; do mount --bind /$i /path/to/chroot/$i; done
+```
+
 Alternatively, you can follow [instructions to create a chroot](http://diyhpl.us/~bryan/irc/nanoengineer/nanoengineer-chroot-debootstrap). Developers can be reached on the [mailing list](http://groups.google.com/group/nanoengineer-dev) or on irc.freenode.net in the ##hplusroadmap channel.
 
 <a name="video" />
