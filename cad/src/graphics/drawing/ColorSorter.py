@@ -397,7 +397,7 @@ class ColorSorter:
             else:
                 opacity = 1.0
 
-            if opacity >= 0.0 and opacity != 1.0:	
+            if opacity >= 0.0 and opacity != 1.0:
                 glDepthMask(GL_FALSE)
                 glEnable(GL_BLEND)
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -463,10 +463,10 @@ class ColorSorter:
                               ColorSorter.glpane.glprefs.sphereShader_desired() and
                               drawing_globals.sphereShader_available()
                             )
-            if len(color) == 3:		
+            if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
-                lcolor = color	
+                lcolor = color
                 pass
 
             if sphereBatches and ColorSorter._parent_csdl: # Russ 080925: Added.
@@ -519,10 +519,10 @@ class ColorSorter:
             ColorSorter._cur_shapelist.add_wiresphere(
                 lcolor, pos, radius, ColorSorter._gl_name_stack[-1])
         else:
-            if len(color) == 3:		
+            if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
-                lcolor = color		
+                lcolor = color
 
             ColorSorter.schedule(lcolor, drawwiresphere_worker,
                                  # Use constant-color line drawing.
@@ -580,10 +580,10 @@ class ColorSorter:
                 lcolor, pos1, pos2, radius,
                 ColorSorter._gl_name_stack[-1], capped)
         else:
-            if len(color) == 3:		
+            if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
-                lcolor = color		
+                lcolor = color
 
             # Russ 090119: Added.
             cylinderBatches = ( ColorSorter._permit_shaders and
@@ -695,10 +695,10 @@ class ColorSorter:
                 lcolor, pos_array, rad_array,
                 ColorSorter._gl_name_stack[-1], capped)
         else:
-            if len(color) == 3:		
+            if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
-                lcolor = color		
+                lcolor = color
 
             ColorSorter.schedule(lcolor, drawpolycone_worker,
                                  (pos_array, rad_array))
@@ -729,10 +729,10 @@ class ColorSorter:
                 lcolor, pos_array, color_array, rad_array,
                 ColorSorter._gl_name_stack[-1], capped)
         else:
-            if len(color) == 3:		
+            if len(color) == 3:
                 lcolor = (color[0], color[1], color[2], opacity)
             else:
-                lcolor = color		
+                lcolor = color
 
             ColorSorter.schedule(lcolor,
                                  drawpolycone_multicolor_worker,
@@ -751,10 +751,10 @@ class ColorSorter:
             if ColorSorter._relative_transforms():
                 ColorSorter._warn_transforms_nim("schedule_surface")
 
-        if len(color) == 3:		
+        if len(color) == 3:
             lcolor = (color[0], color[1], color[2], 1.0)
         else:
-            lcolor = color		
+            lcolor = color
         ColorSorter.schedule(lcolor, drawsurface_worker, (pos, radius, tm, nm))
 
     schedule_surface = staticmethod(schedule_surface)

@@ -218,7 +218,7 @@ class InsertPeptide_EditCommand(EditCommand):
         #        peptide.kill_with_contents()
         #    self._revertNumber()
 
-        self._peptideList = []	
+        self._peptideList = []
         self.win.win_update()
         return
 

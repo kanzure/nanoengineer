@@ -525,7 +525,7 @@ class SimRunner:
                             os.mkdir(hdf5DataStoreDir)
 
                         sleep(1) # Give GMX/HDF5 a chance to write basic info
-						
+
                         # Determine the GMX process id (pid) for passing to nv1.
                         #
                         # (Py)QProcess.pid() doesn't return anything useable
@@ -560,7 +560,7 @@ class SimRunner:
                             all_atoms = {}
                             self.part.writemmpfile(inputFileName,
                                                    add_atomids_to_dict = all_atoms)
-						
+
                         # Write a file that maps the ids of the atoms actually
                         # used for simulation to the atom ids of the complete
                         # structure stored in the MMP file above.
@@ -1039,7 +1039,7 @@ class SimRunner:
                 else:
                     electrostaticFlag = self.getElectrostaticPrefValueForMinimize()
 
-##		electrostaticArg.append(str(electrostaticFlag))
+##              electrostaticArg.append(str(electrostaticFlag))
                 electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 
                 if (self.useGromacs):
@@ -1068,9 +1068,9 @@ class SimRunner:
                 # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
                 # The timestep argument "-s + (movie.timestep)" is not supported for Alpha. #SIMOPT
 
-                electrostaticArg = '--enable-electrostatic='		
+                electrostaticArg = '--enable-electrostatic='
                 electrostaticFlag = self.getElectrostaticPrefValueForDynamics()
-##		electrostaticArg.append(str(electrostaticFlag))
+##              electrostaticArg.append(str(electrostaticFlag))
                 electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 
                 args = [program,
@@ -1129,7 +1129,7 @@ class SimRunner:
                 simopts.EnableElectrostatic = self.getElectrostaticPrefValueForDynamics()
             if mflag:
                 self.set_minimize_threshhold_prefs(simopts)
-                if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':		
+                if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':
                     simopts.EnableElectrostatic = self.getElectrostaticPrefValueForAdjust()
                     simopts.NeighborSearching = 0
                 else:
@@ -1163,7 +1163,7 @@ class SimRunner:
         if self.useGromacs and env.prefs[electrostaticsForDnaDuringAdjust_prefs_key]:
             val = 1
         else:
-            val = 0	
+            val = 0
         return val
 
     def getElectrostaticPrefValueForMinimize(self):
@@ -1173,14 +1173,14 @@ class SimRunner:
         if self.useGromacs and env.prefs[electrostaticsForDnaDuringMinimize_prefs_key]:
             val = 1
         else:
-            val = 0	
+            val = 0
         return val
 
     def getNeighborSearchingPrefValue(self):
         if env.prefs[neighborSearchingInGromacs_prefs_key]:
             val = 1
         else:
-            val = 0	
+            val = 0
         return val
 
 
@@ -1191,7 +1191,7 @@ class SimRunner:
         if env.prefs[electrostaticsForDnaDuringDynamics_prefs_key]:
             val = 1
         else:
-            val = 0	
+            val = 0
         return val
 
     def set_minimize_threshhold_prefs(self, simopts): #bruce 060628, revised 060705

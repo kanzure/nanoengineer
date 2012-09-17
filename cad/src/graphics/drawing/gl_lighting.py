@@ -53,7 +53,7 @@ try:
     from OpenGL.GL import glFogv # piotr 080515
 except:
     # The installed version of OpenGL requires argument-typed glFog calls.
-    from OpenGL.GL import glFogf as glFog	
+    from OpenGL.GL import glFogf as glFog
     from OpenGL.GL import glFogfv as glFogv
     pass
 

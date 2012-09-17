@@ -235,7 +235,7 @@ class TreeView(QTreeView):
 
         # try doing these first, but if that fails, do them after columns are made [as before]:
         qt4skipit('self.setSorting(-1)')
-		
+
         self.setRootIsDecorated(1)
         qt4skipit('self.setShowSortIndicator(0) # [this used to be done after setResizePolicy]')
 

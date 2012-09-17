@@ -163,7 +163,7 @@ def drawPeptideTrace_orig(endCenter1,
         previousLadderBeam1Point = ladderBeam1Point
         previousLadderBeam2Point = ladderBeam2Point
 
-        pointOnAxis = pointOnAxis + unitVector * cntRise		
+        pointOnAxis = pointOnAxis + unitVector * cntRise
         x += cntRise
 
         ladderBeam1Point = previousPoint + \

@@ -359,7 +359,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
                original list will be appended to self.overlapping_atoms
                (and will be eventually deleted)
 
-	"""
+        """
 
         overlapping_atoms_to_delete = []
 

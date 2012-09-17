@@ -166,14 +166,14 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         @type  glpane: L{GLPane}
         @param color: Highlight color
         """
-        q = self.parent.quat 	
-        glPushMatrix() 	
-        glTranslatef( self.parent.center[0], 	
-                      self.parent.center[1], 	
-                      self.parent.center[2]) 	
-        glRotatef( q.angle * ONE_RADIAN, 	
-                   q.x, 	
-                   q.y, 	
+        q = self.parent.quat
+        glPushMatrix()
+        glTranslatef( self.parent.center[0],
+                      self.parent.center[1],
+                      self.parent.center[2])
+        glRotatef( q.angle * ONE_RADIAN,
+                   q.x,
+                   q.y,
                    q.z)
 
         if self.flipDirection:

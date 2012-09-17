@@ -1003,7 +1003,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                 item = (("Currently editing %r"%self.struct.name),
                         noop, 'disabled')
                 self.Menu_spec.append(item)
-                return	
+                return
             #following should be self.struct.getDnaGroup or self.struct.getDnaGroup
             #need to formalize method name and then make change.
             dnaGroup = self.struct.parent_node_of_class(self.assy.DnaGroup)

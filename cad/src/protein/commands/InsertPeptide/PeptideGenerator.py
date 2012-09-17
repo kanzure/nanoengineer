@@ -969,8 +969,8 @@ class PeptideGenerator:
 
                 atom.set_atomtype_but_dont_revise_singlets(atom_type)
 
-                ### debug - output in PDB format	
-                ### print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, xyz[0], xyz[1], xyz[2])	
+                ### debug - output in PDB format
+                ### print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, xyz[0], xyz[1], xyz[2])
 
         self.prev_psi = psi # Remember previous psi angle.
 

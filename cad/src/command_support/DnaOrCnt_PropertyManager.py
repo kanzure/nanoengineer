@@ -75,7 +75,7 @@ class DnaOrCnt_PropertyManager(EditCommand_PM):
     def show(self):
         """
         Show this PM
-	"""
+        """
         _superclass.show(self)
 
         if isinstance(self.showCursorTextCheckBox, PM_CheckBox):

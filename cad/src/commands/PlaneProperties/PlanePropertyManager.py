@@ -752,9 +752,9 @@ class PlanePropertyManager(EditCommand_PM):
             # checkbox is set.
             plane.glpane.gl_update()
 
-    def update_spinboxes(self): 	
-        """ 	
-	Update the width and height spinboxes. 	
+    def update_spinboxes(self):
+        """
+        Update the width and height spinboxes.
         @see: Plane.resizeGeometry()
         This typically gets called when the plane is resized from the
         3D workspace (which marks assy as modified) .So, update the spinboxes
@@ -764,14 +764,14 @@ class PlanePropertyManager(EditCommand_PM):
         @see: Plane.resizeGeometry()
         @see: self._update_UI_do_updates()
         @see: Plane_EditCommand.command_update_internal_state()
-	""" 	
-        # blockSignals = True make sure that spinbox.valueChanged() 	
+        """
+        # blockSignals = True make sure that spinbox.valueChanged()
         # signal is not emitted after calling spinbox.setValue().  This is done
         #because the spinbox valu changes as a result of resizing the plane
         #from the 3D workspace.
-        if self.command.hasValidStructure():            	
+        if self.command.hasValidStructure():
             self.heightDblSpinBox.setValue(self.command.struct.height,
-                                           blockSignals = True) 	
+                                           blockSignals = True)
             self.widthDblSpinBox.setValue(self.command.struct.width,
                                           blockSignals = True)
 

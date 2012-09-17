@@ -10,131 +10,131 @@ IMAGE_2
 
 
 class Parameter:
-	"""
-	A GUI editable key/value pair. When newly constructed, the value is
-	officially un-set (see the L{getValue} method.)
-	
-	This is an abstract/interface class and should not be instantiated.
-	"""
-	
-	
-	def __init__(self, key):
-		"""
-		Constructs a Parameter object with the given key - should only be called
-		by L{ParameterFactory}.
-		"""
-		hasValue = 0;
+    """
+    A GUI editable key/value pair. When newly constructed, the value is
+    officially un-set (see the L{getValue} method.)
+
+    This is an abstract/interface class and should not be instantiated.
+    """
 
 
-	def getKey(self):
-		"""
-		Returns the dotted descriptor of what this parameter is.
-		"""
-		pass
+    def __init__(self, key):
+        """
+        Constructs a Parameter object with the given key - should only be called
+        by L{ParameterFactory}.
+        """
+        hasValue = 0;
 
-		
-	def getValue(self):
-		"""
-		Returns whether this Parameter has a set value, and what that value is.
-		@return: (0=no value set, 1=value set), (value)
-		"""
-		pass
-	def setValue(self, value):
-		"""
-		Sets the value of this Parameter.
-		"""
-		pass
-	def unSetValue(self):
-		"""
-		Un-sets this Parameter's value.
-		"""
-		hasValue = 0;
-		
+
+    def getKey(self):
+        """
+        Returns the dotted descriptor of what this parameter is.
+        """
+        pass
+
+
+    def getValue(self):
+        """
+        Returns whether this Parameter has a set value, and what that value is.
+        @return: (0=no value set, 1=value set), (value)
+        """
+        pass
+    def setValue(self, value):
+        """
+        Sets the value of this Parameter.
+        """
+        pass
+    def unSetValue(self):
+        """
+        Un-sets this Parameter's value.
+        """
+        hasValue = 0;
+
 
 
 class ParameterFactory:
-	"""
-	Creates fully configured Parameter subclass objects.
-	
-	Key names are dot-separated based on the L{SimSpecification} object model.
-	Here is the list of reserved key names:
-	
-	B{simSpec.timestep} [float seconds] - The amount of time
-	between the calculations of a system's state. Widget: lineedit,
-	min=0.05e-15, max=5.00e-15, default=0.1e-15, suffix=s
-	
-	B{simSpec.startStep} [integer] - The number of the first step -
-	usually zero, but may be non-zero when a simulation is continuing on
-	fromwhere a previous simulation stopped. Widget: lineedit,
-	min=0, max=-1, default=0
-	
-	and etc. etc. for
-	
-	B{simSpec.}maxSteps, stepsPerFrame,
-	environmentTemperature, environmentPressure, workingDirectory
-	
-	B{simSpec.input.}type, file
-	
-	B{simSpec.motionPath.interval.}start, end
-	
-	B{simSpec.motionPath.interval.velocity.}fixed, xyzComponents, etc.
-	
-	B{simSpec.operation.}action
-	
-	B{simSpec.operation.}engine, atomSet, method,
-	basisSet, functional, multiplicity, integrator, energyAccuracy,
-	maxConvergenceAttempts, unscripted, applyFrom, applyTo
-	
-	B{simSpec.operation.constraint.}motion, atomSet
-	
-	B{simSpec.operation.measurement.}measure, atomSet
-	
-	B{simSpec.preSimChecks.}all, detectUnMinimized, checkJigSanity,
-	detectUnusedJigs, detectReactionPoints, checkSpinMultiplicity
-	"""
-	
-	
-	def createParameter(self, key):
-		"""Returns a fully configured Parameter subclass for the given key."""
-		pass
+    """
+    Creates fully configured Parameter subclass objects.
+
+    Key names are dot-separated based on the L{SimSpecification} object model.
+    Here is the list of reserved key names:
+
+    B{simSpec.timestep} [float seconds] - The amount of time
+    between the calculations of a system's state. Widget: lineedit,
+    min=0.05e-15, max=5.00e-15, default=0.1e-15, suffix=s
+
+    B{simSpec.startStep} [integer] - The number of the first step -
+    usually zero, but may be non-zero when a simulation is continuing on
+    fromwhere a previous simulation stopped. Widget: lineedit,
+    min=0, max=-1, default=0
+
+    and etc. etc. for
+
+    B{simSpec.}maxSteps, stepsPerFrame,
+    environmentTemperature, environmentPressure, workingDirectory
+
+    B{simSpec.input.}type, file
+
+    B{simSpec.motionPath.interval.}start, end
+
+    B{simSpec.motionPath.interval.velocity.}fixed, xyzComponents, etc.
+
+    B{simSpec.operation.}action
+
+    B{simSpec.operation.}engine, atomSet, method,
+    basisSet, functional, multiplicity, integrator, energyAccuracy,
+    maxConvergenceAttempts, unscripted, applyFrom, applyTo
+
+    B{simSpec.operation.constraint.}motion, atomSet
+
+    B{simSpec.operation.measurement.}measure, atomSet
+
+    B{simSpec.preSimChecks.}all, detectUnMinimized, checkJigSanity,
+    detectUnusedJigs, detectReactionPoints, checkSpinMultiplicity
+    """
+
+
+    def createParameter(self, key):
+        """Returns a fully configured Parameter subclass for the given key."""
+        pass
 
 
 class ParameterSet:
-	"""A set of Parameters."""
-	
-	
-	def getGroupName(self):
-		"""Returns this ParameterSet's group name for GUI use."""
-		return self.groupName
-	
-	
-	def getParameter(self, key):
-		"""
-		Returns whether or not the Parameter with the given key is in this set,
-		and the Parameter itself if it is.
-		@return: (0=the Parameter for the given key is not in this set, 1=the
-				  Parameter is present), (the Parameter)
-		"""
-		pass
-	def getParameterArray(self):
-		"""
-		Returns this object's Parameters in an array in the correct order. The
-		correct order is determined by each Parameter's "order" attribute.
-		"""
-		pass
-	def setParameter(self, Parameter):
-		"""
-		Sets the given parameter. Any existing Parameter with the same key will
-		be clobbered.
-		"""
-		# Insert the Parameter such that the array remains sorted by
-		# Parameter.order
-		pass
+    """A set of Parameters."""
+
+
+    def getGroupName(self):
+        """Returns this ParameterSet's group name for GUI use."""
+        return self.groupName
+
+
+    def getParameter(self, key):
+        """
+        Returns whether or not the Parameter with the given key is in this set,
+        and the Parameter itself if it is.
+        @return: (0=the Parameter for the given key is not in this set, 1=the
+                  Parameter is present), (the Parameter)
+        """
+        pass
+    def getParameterArray(self):
+        """
+        Returns this object's Parameters in an array in the correct order. The
+        correct order is determined by each Parameter's "order" attribute.
+        """
+        pass
+    def setParameter(self, Parameter):
+        """
+        Sets the given parameter. Any existing Parameter with the same key will
+        be clobbered.
+        """
+        # Insert the Parameter such that the array remains sorted by
+        # Parameter.order
+        pass
 
 
 
-		
-		
+
+
 
 
 

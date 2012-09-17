@@ -120,7 +120,7 @@ def drawDnaLadder(endCenter1,
         previousLadderBeam1Point = ladderBeam1Point
         previousLadderBeam2Point = ladderBeam2Point
 
-        pointOnAxis = pointOnAxis + unitVector*duplexRise		
+        pointOnAxis = pointOnAxis + unitVector*duplexRise
         x += duplexRise
 
         ladderBeam1Point = previousPoint + \

@@ -800,20 +800,20 @@ class Dna_Generator:
                 if not atomsScheduledForDeletionDict.has_key(id(a)):
                     atomsScheduledForDeletionDict[id(a)] = a
 
-            #Add the axis atom to the atoms scheduled for deletion only when 	
-            #both the strand neighbors of this axis atom are scheduled for 	
-            #deletion. But this is not true if its a sticky end i.e. the 	
-            #axis atom has only one strand atom. To fix that problem 	
-            #we also check (second condition) if all the strand neighbors 	
-            #of an axis atom are scheduled for deletion... if so, ot also 	
-            #adds that axis atom to the atom scheduled for deletion) 	
-            #Axis atoms are explicitely deleted to fix part of memory 	
-            #leak bug 2880 (and thus no longer depends on dna updater 	
-            #to delete bare axis atoms .. which is good because there is a 	
-            #debug pref that permits bare axis atoms for some other 	
-            #uses -- Ninad 2008-05-15 	
+            #Add the axis atom to the atoms scheduled for deletion only when
+            #both the strand neighbors of this axis atom are scheduled for
+            #deletion. But this is not true if its a sticky end i.e. the
+            #axis atom has only one strand atom. To fix that problem
+            #we also check (second condition) if all the strand neighbors
+            #of an axis atom are scheduled for deletion... if so, ot also
+            #adds that axis atom to the atom scheduled for deletion)
+            #Axis atoms are explicitely deleted to fix part of memory
+            #leak bug 2880 (and thus no longer depends on dna updater
+            #to delete bare axis atoms .. which is good because there is a
+            #debug pref that permits bare axis atoms for some other
+            #uses -- Ninad 2008-05-15
             if len(strand_neighbors_to_delete) == 2 or \
-               len(atm.strand_neighbors()) == len(strand_neighbors_to_delete): 	
+               len(atm.strand_neighbors()) == len(strand_neighbors_to_delete):
                 if not atomsScheduledForDeletionDict.has_key(id(atm)):
                     atomsScheduledForDeletionDict[id(atm)] = atm
                 else:

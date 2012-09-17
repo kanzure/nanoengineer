@@ -234,12 +234,12 @@ class displaySlotsMixin:
             # it should be unpicked after changing its color.
             # The user has most likely selected the chunk to change its color
             # and won't like it still shown 'green'(the selection color)
-            # even after changing the color. so deselect it. 	
+            # even after changing the color. so deselect it.
             # The chunk is NOT unpicked IF the color is changed via chunk
             # property dialog. see ChunkProp.change_chunk_color for details.
             # This is intentional.
 
-            for ob in list: 		
+            for ob in list:
                 ob.unpick()
 
             self.win_update()

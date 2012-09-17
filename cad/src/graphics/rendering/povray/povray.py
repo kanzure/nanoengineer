@@ -322,7 +322,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
             # unless it matters that it reads and discards stdout/stderr
             # (eg so large output would not block -- unlikely that this matters).
             # It doesn't echo stdout/stderr. See also blabout/blaberr in other files. Maybe fix this? ###@@@
-        p.setWorkingDirectory(workdir)	
+        p.setWorkingDirectory(workdir)
         p.start(program, arguments)
 
         # Put up hourglass cursor to indicate we are busy. Restore the cursor below. Mark 060621.

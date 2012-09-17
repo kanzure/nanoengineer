@@ -144,11 +144,11 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
             else:
                 item = (("%s of [%s]" % (strand.name, dnaGroup.name)),
                         noop,
-                        'disabled')	
+                        'disabled')
             contextMenuList.append(None) # adds a separator in the contextmenu
-            contextMenuList.append(item)	
+            contextMenuList.append(item)
             item = (("Edit DnaStrand Properties..."),
-                    strand.edit) 			
+                    strand.edit)
             contextMenuList.append(item)
             contextMenuList.append(None) # separator
 

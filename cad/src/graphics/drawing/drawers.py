@@ -836,7 +836,7 @@ def drawbrick(color, center, axis, l, h, w, opacity = 1.0):
     if len(color) == 3:
         color = (color[0], color[1], color[2], opacity)
 
-    if opacity != 1.0:	
+    if opacity != 1.0:
         glDepthMask(GL_FALSE)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -860,7 +860,7 @@ def drawbrick(color, center, axis, l, h, w, opacity = 1.0):
     #bruce 060302 revised the contents of solidCubeList while fixing bug 1595
     glCallList(drawing_globals.solidCubeList)
 
-    if opacity != 1.0:	
+    if opacity != 1.0:
         glDisable(GL_BLEND)
         glDepthMask(GL_TRUE)
 
@@ -1221,7 +1221,7 @@ def renderSurface(surfaceEntities, surfaceNormals):
             onevert(entity[1])
             onevert(entity[2])
         glEnd()
-    else:	
+    else:
         glBegin(GL_QUADS)
         for entity in entityIndex:
             onevert(entity[0])

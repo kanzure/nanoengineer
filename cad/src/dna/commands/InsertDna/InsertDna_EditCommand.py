@@ -419,7 +419,7 @@ class InsertDna_EditCommand(EditCommand):
             self._fallbackDnaGroup = None
 
 
-        self._segmentList = []	
+        self._segmentList = []
         self.win.win_update()
 
     def _createStructure(self):

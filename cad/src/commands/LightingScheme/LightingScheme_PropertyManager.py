@@ -563,12 +563,11 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
 
     def change_lighting(self, specularityValueJunk = None):
         """
-	Updates win.glpane lighting using the current lighting parameters from
-	the light checkboxes and sliders. This is also the slot for the light
-	spin boxes.
-	@param specularityValueJunk: This value from the spin box is not used
-				     We are interested in valueChanged signal
-				     only
+        Updates win.glpane lighting using the current lighting parameters from
+        the light checkboxes and sliders. This is also the slot for the light
+        spin boxes.
+        @param specularityValueJunk: This value from the spin box is not used
+                     We are interested in valueChanged signal only
         @type specularityValueJunk = int or None
 
         """
@@ -599,9 +598,9 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
 
     def change_active_light(self, currentIndexJunk = None):
         """
-	Slot for the Light number combobox.  This changes the current light.
-	@param currentIndexJunk: This index value from the combobox is not used
-				 We are interested in 'activated' signal only
+        Slot for the Light number combobox.  This changes the current light.
+        @param currentIndexJunk: This index value from the combobox is not used
+            We are interested in 'activated' signal only
         @type currentIndexJunk = int or None
         """
         self._updatePage_Lighting()

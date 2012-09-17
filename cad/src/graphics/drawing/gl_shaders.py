@@ -101,13 +101,13 @@ CHECK_TEXTURE_XFORM_LOADING = False # True  ## Never check in a True value.
 #   Exception Type:  EXC_BAD_ACCESS (SIGSEGV)
 #   Exception Codes: KERN_INVALID_ADDRESS at 0x0000000013b88000
 #   Thread 0 Crashed:
-#   0   libSystem.B.dylib 	0xffff08a0 __memcpy + 256
-#   1   libGLImage.dylib  	0x913ea5e9 glgCopyRowsWithMemCopy(
+#   0   libSystem.B.dylib     0xffff08a0 __memcpy + 256
+#   1   libGLImage.dylib      0x913ea5e9 glgCopyRowsWithMemCopy(
 #           GLGOperation const*, unsigned long, GLDPixelMode const*) + 121
-#   2   libGLImage.dylib  	0x913e8ac6 glgProcessPixelsWithProcessor + 326
-#   3   GLEngine          	0x1ea16198 gleTextureImagePut + 1752
-#   4   GLEngine          	0x1ea1f896 glTexSubImage2D_Exec + 1350
-#   5   libGL.dylib       	0x91708cdb glTexSubImage2D + 155
+#   2   libGLImage.dylib      0x913e8ac6 glgProcessPixelsWithProcessor + 326
+#   3   GLEngine              0x1ea16198 gleTextureImagePut + 1752
+#   4   GLEngine              0x1ea1f896 glTexSubImage2D_Exec + 1350
+#   5   libGL.dylib           0x91708cdb glTexSubImage2D + 155
 
 
 from geometry.VQT import A, norm

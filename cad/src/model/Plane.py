@@ -288,7 +288,7 @@ class Plane(ReferenceGeometry):
         """
         if not previewing:
             try:
-                self.fill_color   =  self.default_fill_color				
+                self.fill_color   =  self.default_fill_color
                 self.border_color =  self.default_border_color
                 self.opacity      =  self.default_opacity
             except:

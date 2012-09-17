@@ -24,40 +24,40 @@ class UnitsMismatch(Exception):
 
 class Quantity:
     def __init__(self,stuff,units=None):
-	if units == None:
-	    stuff = stuff.copy()
-	    c = stuff[coeff]
-	    del stuff[coeff]
-	    self.stuff = stuff
-	else:
-	    c = 1. * stuff
-	    self.stuff = units.copy()
-	for k in self.stuff.keys():
-	    if self.stuff[k] == 0:
-		del self.stuff[k]
-	self.stuff[coeff] = c
+        if units == None:
+            stuff = stuff.copy()
+            c = stuff[coeff]
+            del stuff[coeff]
+            self.stuff = stuff
+        else:
+            c = 1. * stuff
+            self.stuff = units.copy()
+        for k in self.stuff.keys():
+            if self.stuff[k] == 0:
+                del self.stuff[k]
+        self.stuff[coeff] = c
     def __repr__(self):
-	str = '<%g' % self.stuff[coeff]
-	for k in self.stuff.keys():
-	    if k != coeff:
-		str = str + ' ' + k
-		if self.stuff[k] != 1:
-		    str = str + '^' + `self.stuff[k]`
-	return str + '>'
+        str = '<%g' % self.stuff[coeff]
+        for k in self.stuff.keys():
+            if k != coeff:
+                str = str + ' ' + k
+                if self.stuff[k] != 1:
+                    str = str + '^' + `self.stuff[k]`
+        return str + '>'
     def __add__(self, other):
-	self.testUnitsMatch(other)
-	stuff = self.stuff.copy()
-	stuff[coeff] += other.stuff[coeff]
-	return Quantity(stuff)
+        self.testUnitsMatch(other)
+        stuff = self.stuff.copy()
+        stuff[coeff] += other.stuff[coeff]
+        return Quantity(stuff)
     def __neg__(self):
-	stuff = self.stuff.copy()
-	stuff[coeff] = -stuff[coeff]
-	return Quantity(stuff)
+        stuff = self.stuff.copy()
+        stuff[coeff] = -stuff[coeff]
+        return Quantity(stuff)
     def __sub__(self, other):
         return self + (-other)
     def __cmp__(self, other):
-	self.testUnitsMatch(other)
-	return cmp(self.stuff[coeff], other.stuff[coeff])
+        self.testUnitsMatch(other)
+        return cmp(self.stuff[coeff], other.stuff[coeff])
     def __mul__(self, other):
         if type(other) in (types.IntType, types.FloatType, types.ComplexType):
             stuff = self.stuff.copy()
@@ -97,12 +97,12 @@ class Quantity:
     def unitsMatch(self, other):
         if not isinstance(other, Quantity):
             return False
-	otherkeys = other.stuff.keys()
-	for k in self.stuff.keys():
-	    if k not in otherkeys:
-		return False
-	    if k != coeff and self.stuff[k] != other.stuff[k]:
-		return False
+        otherkeys = other.stuff.keys()
+        for k in self.stuff.keys():
+            if k not in otherkeys:
+                return False
+            if k != coeff and self.stuff[k] != other.stuff[k]:
+                return False
         return True
     def testUnitsMatch(self, other):
         if not self.unitsMatch(other):

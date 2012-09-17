@@ -672,14 +672,14 @@ class Jig(NodeWith3DContents, Selobj_API):
         so all they need to override is mmp_record_jigspecific_midpart.]
         """
         if mapping is not None:
-            ndix = mapping.atnums				
+            ndix = mapping.atnums
             name = mapping.encode_name(self.name)
             # flags related to what we can do about atoms on this jig which have no encoding in mapping
             permit_fwd_ref = not mapping.min #bruce 051031 (kluge, mapping should say this more directly)
             permit_missing_jig_atoms = mapping.min #bruce 051031 (ditto on kluge)
             assert not (permit_fwd_ref and permit_missing_jig_atoms) # otherwise wouldn't know which one to do with missing atoms!
         else:
-            ndix = None	
+            ndix = None
             name = self.name
             permit_fwd_ref = False #bruce 051031
             permit_missing_jig_atoms = False # guess [bruce 051031]

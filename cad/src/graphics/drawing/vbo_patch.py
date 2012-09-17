@@ -43,11 +43,11 @@ glBufferSubDataARB = wrapper.wrapper( glBufferSubDataARB ).setPyConverter(
 # Changed the "indices" argument type from ctypes.POINTER(ctypes.c_void_p) to
 # arrays.GLintArray, like the "first" argument of glMultiDrawArrays.
 glMultiDrawElementsVBO = platform.createExtensionFunction(
-	'glMultiDrawElementsEXT', dll=platform.GL,
-	resultType=None,
-	argTypes=(constants.GLenum, arrays.GLsizeiArray,
+    'glMultiDrawElementsEXT', dll=platform.GL,
+    resultType=None,
+    argTypes=(constants.GLenum, arrays.GLsizeiArray,
               constants.GLenum, arrays.GLintArray, constants.GLsizei,),
-	doc = ('glMultiDrawElementsEXT( GLenum(mode), GLsizeiArray(count), '
+    doc = ('glMultiDrawElementsEXT( GLenum(mode), GLsizeiArray(count), '
            'GLenum(type), GLintArray(indices), GLsizei(primcount) ) -> None'),
-	argNames = ('mode', 'count', 'type', 'indices', 'primcount',),
+    argNames = ('mode', 'count', 'type', 'indices', 'primcount',),
 )

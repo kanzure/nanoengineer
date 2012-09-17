@@ -123,7 +123,7 @@ glCompileShaderARB.errcheck = _afterCheck( GL_OBJECT_COMPILE_STATUS_ARB )
 glLinkProgramARB.errcheck = _afterCheck( GL_OBJECT_LINK_STATUS_ARB )
 ## Not sure why, but these give invalid operation :(
 ##if glValidateProgramARB and OpenGL.ERROR_CHECKING:
-##	glValidateProgramARB.errcheck = _afterCheck( GL_OBJECT_VALIDATE_STATUS_ARB )
+##    glValidateProgramARB.errcheck = _afterCheck( GL_OBJECT_VALIDATE_STATUS_ARB )
 
 base_glGetInfoLogARB = glGetInfoLogARB
 def glGetInfoLogARB( obj ):

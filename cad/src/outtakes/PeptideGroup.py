@@ -102,11 +102,11 @@ class PeptideGroup(Group):
 
     def getProps(self):
         """
-	Method to support Dna duplex editing. see Group.__init__ for
-	a comment
+        Method to support Dna duplex editing. see Group.__init__ for
+        a comment
 
         THIS IS THE DEFAULT IMPLEMENTATION. TO BE MODIFIED
-	"""
+        """
         #Should it supply the Dna Segment list (children) and then add
         #individual segments when setProps is called??
         # [probably not; see B&N email discussion from when this comment was added]
@@ -116,10 +116,11 @@ class PeptideGroup(Group):
 
     def setProps(self, props):
         """
-	Method  to support Dna duplex editing. see Group.__init__ for
-	a comment
+        Method  to support Dna duplex editing. see Group.__init__ for
+        a comment
+
         THIS IS THE DEFAULT IMPLEMENTATION. TO BE MODIFIED
-	"""
+        """
         #Should it accept the Dna Segment list and then add individual segments?
         pass
 

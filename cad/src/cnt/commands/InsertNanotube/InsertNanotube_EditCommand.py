@@ -249,7 +249,7 @@ class InsertNanotube_EditCommand(EditCommand):
             self._revertNumber()
 
 
-        self._segmentList = []	
+        self._segmentList = []
         self.win.win_update()
 
     def _createStructure(self):
