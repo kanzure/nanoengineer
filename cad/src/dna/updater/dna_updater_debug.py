@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_debug.py -- debug code for dna_updater
 
@@ -194,7 +194,7 @@ def select_atoms_with_errors_command(glpane):
     msg = fix_plurals(msg)
     env.history.message(quote_html(msg))
     return
-            
+
 register_debug_menu_command( "DNA updater: select atoms with errors", select_atoms_with_errors_command )
 
 def mark_selected_atoms_command(glpane): # untested
@@ -206,7 +206,7 @@ def mark_selected_atoms_command(glpane): # untested
     mark_atoms(atoms)
     msg = "marked %d selected atom(s)" % len(atoms) #e could use part of this string in jig name too
     msg = fix_plurals(msg)
-    env.history.message(quote_html(msg))    
+    env.history.message(quote_html(msg))
     return
 
 register_debug_menu_command( "Mark selected atoms", mark_selected_atoms_command )

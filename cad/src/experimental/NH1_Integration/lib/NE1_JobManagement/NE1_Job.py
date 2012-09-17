@@ -1,5 +1,5 @@
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 A job that the NE1 Job Manager schedules and monitors.
 """

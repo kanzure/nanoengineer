@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 """
@@ -12,7 +12,7 @@ def setupUi(win):
     @param win: NE1's main window object.
     @type  win: Ui_MainWindow
     """
-    
+
     # Populate the "Help" menu.
     win.helpMenu.addAction(win.helpTutorialsAction)
     win.helpMenu.addAction(win.helpKeyboardShortcutsAction)
@@ -23,7 +23,7 @@ def setupUi(win):
     win.helpMenu.addAction(win.helpGraphicsCardAction)
     win.helpMenu.addSeparator()
     win.helpMenu.addAction(win.helpAboutAction)
-    
+
 def retranslateUi(win):
     """
     Sets text related attributes for the "Help" menu.
@@ -33,5 +33,5 @@ def retranslateUi(win):
     """
     win.helpMenu.setTitle(
         QtGui.QApplication.translate(
-            "MainWindow", "&Help", 
+            "MainWindow", "&Help",
             None, QtGui.QApplication.UnicodeUTF8))

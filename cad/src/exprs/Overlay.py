@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Overlay.py
 
@@ -41,12 +41,12 @@ class Overlay(InstanceOrExpr, DelegatingMixin):
     args = list_Expr(a0,a1,a2,a3,a4,a5, a6,a7,a8,a9,a10, # could say or_Expr(a0, Spacer(0)) but here is not where it matters
                      and_Expr(a11, TextRect("too many args in Overlay"))
                      )
-    
+
     delegate = or_Expr(a0, Spacer(0)) ## _self.a0 # needed by DelegatingMixin
 ##    args = list_Expr(arg0, arg1) # not sure if [arg0, arg1] would work, but I doubt it --
         ###e should make it work sometime, if possible (e.g. by delving inside all literal list ns-values in ExprsMeta)
     #e add an option to make each element slightly closer, maybe just as a depth increment? makes hover highlighting more complicated...
-    def draw(self):        
+    def draw(self):
         args = self.args # this order is correct since we set glDepthFunc to GL_LEQUAL (not GL_LESS)
         for a in args:
             self.drawkid( a)

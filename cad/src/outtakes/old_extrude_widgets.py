@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 old_extrude_widgets.py - these were used in the original Extrude Mode dashboard.
 
@@ -168,12 +168,12 @@ class TogglePrefCheckBox(QCheckBox):
         self.attr = kws.pop('attr', None) # name of mode attribute (if any) which this should set
         self.repaintQ = kws.pop('repaintQ', False) # whether mode might need to repaint if this changes
         assert not kws, "keyword arguments are not supported by QCheckBox"
-        
+
         assert len(args) is 3
         assert type(args[0]) is type('abc')
-        assert type(args[2]) is type('abc')        
+        assert type(args[2]) is type('abc')
         QCheckBox.__init__(self, args[0])
-        
+
         self.setObjectName(args[2])
         #e set tooltip - how? see .py file made from .ui to find out (qt assistant didn't say).
     def value(self):

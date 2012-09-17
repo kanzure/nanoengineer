@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 @author: Ninad
@@ -21,26 +21,26 @@ class MoveFlyout(Ui_AbstractFlyout):
     """
     def _action_in_controlArea_to_show_this_flyout(self):
         """
-        Required action in the 'Control Area' as a reference for this 
+        Required action in the 'Control Area' as a reference for this
         flyout toolbar. See superclass method for documentation and todo note.
         """
-        #Partlibrary is available as a sub item of the Insert menu in the 
+        #Partlibrary is available as a sub item of the Insert menu in the
         #control area
         try:
             action = self.win.toolsMoveRotateActionGroup.checkedAction()
         except:
             print_compact_traceback("bug: no move action checked?")
             action = None
-            
+
         return action
-    
+
     def _getExitActionText(self):
         """
-        Overrides superclass method. 
+        Overrides superclass method.
         @see: self._createActions()
         """
         return "Exit Move"
-    
+
     def getFlyoutActionList(self): #Ninad 20070618
         """
         Returns a tuple that contains mode spcific actionlists in the
@@ -58,11 +58,11 @@ class MoveFlyout(Ui_AbstractFlyout):
         #We will treat subcontrol area same as 'command area'
         #(subcontrol area buttons will have an empty list as their command area
         #list). We will set  the Comamnd Area palette background color to the
-        #subcontrol area.        
-       
+        #subcontrol area.
+
         subControlAreaActionList =[]
-        
-        
+
+
         subControlAreaActionList.append(self.exitModeAction)
 
         separator = QAction(self.win)
@@ -87,18 +87,18 @@ class MoveFlyout(Ui_AbstractFlyout):
         params = (subControlAreaActionList, commandActionLists, allActionsList)
 
         return params
-    
+
     def _addWhatsThisText(self):
         """
-        Add 'What's This' help text for all actions on toolbar. 
+        Add 'What's This' help text for all actions on toolbar.
         """
         from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForMoveCommandToolbar
         whatsThisTextForMoveCommandToolbar(self)
         return
-    
+
     def _addToolTipText(self):
         """
-        Add 'Tool tip' help text for all actions on toolbar. 
+        Add 'Tool tip' help text for all actions on toolbar.
         """
         from ne1_ui.ToolTipText_for_CommandToolbars import toolTipTextForMoveCommandToolbar
         toolTipTextForMoveCommandToolbar(self)

@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Sponsors.py - sponsors system, exporting PermissionDialog and SponsorableMixin
 
@@ -109,9 +109,9 @@ class _Sponsor: #bruce 071217 renamed this to be private
 
     def configureSponsorButton(self, btn):
         """
-        Load the image in the Sponsor button I{btn} that is displayed at the 
+        Load the image in the Sponsor button I{btn} that is displayed at the
         top of the Property Manager.
-        
+
         @param btn: The sponsor button.
         @type  btn: QToolButton
         """
@@ -129,22 +129,22 @@ class _Sponsor: #bruce 071217 renamed this to be private
 def _get_remote_file(filename, prefix):
     """
     Get file I{filename} from the sponsor server.
-    
+
     @param filename: the name of the file to get
     @type  filename: string
     @param prefix: a short string that is expected at the beginning of the file
                    for the retrieval to be denoted as successful
     @type  prefix: string
-               
+
     @return: gotContents, fileContents
     @rtype:  gotContents - True if the file contents were successfully retrieved,
                            False otherwise
              fileContents - the contents of the requested file
     """
-    
+
     # Try to connect for up to five seconds per host
     socket.setdefaulttimeout(5)
-    
+
     fileContents = ""
     gotContents = False
     for host in _sponsor_servers:
@@ -156,14 +156,14 @@ def _get_remote_file(filename, prefix):
             if fileContents.startswith(prefix):
                 gotContents = True
                 break
-            
+
         except IOError:
             pass # Fail silently
-            
+
     return gotContents, fileContents
 
-    
-def _download_xml_file(xmlfile):  
+
+def _download_xml_file(xmlfile):
     (gotSponsorsFile, fileContents) = _get_remote_file("sponsors.xml", "<?xml")
     if gotSponsorsFile:
         # If we got this far, we have info to replace the local copy of
@@ -175,7 +175,7 @@ def _download_xml_file(xmlfile):
         fileHandle.write(fileContents)
         fileHandle.close()
 
-        
+
 def _load_sponsor_info(xmlfile, win):
     def getXmlText(doc, tag):
         parent = doc.getElementsByTagName(tag)[0]
@@ -245,11 +245,11 @@ class PermissionDialog(QDialog, threading.Thread):
     def __init__(self, win):
         self.xmlfile = os.path.join(_sponsordir, 'sponsors.xml')
         self.win = win
-        
+
         self.needToAsk = False
         self.downloadSponsors = False
         threading.Thread.__init__(self)
-        
+
         if not self.refreshWanted():
             return
         if env.prefs[sponsor_permanent_permission_prefs_key]:
@@ -257,11 +257,11 @@ class PermissionDialog(QDialog, threading.Thread):
             if env.prefs[sponsor_download_permission_prefs_key]:
                 self.downloadSponsors = True
             return
-            
+
         self.needToAsk = True
         QDialog.__init__(self, None)
         self.setObjectName("Permission")
-        self.setModal(True) #This fixes bug 2296. Mitigates bug 2297 
+        self.setModal(True) #This fixes bug 2296. Mitigates bug 2297
         layout = QGridLayout()
         self.setLayout(layout)
         layout.setMargin(0)
@@ -315,7 +315,7 @@ class PermissionDialog(QDialog, threading.Thread):
         env.prefs[sponsor_permanent_permission_prefs_key] = False
         self.close()
 
-        
+
     def run(self):
         #
         # Implements superclass's threading.Thread.run() function
@@ -324,17 +324,17 @@ class PermissionDialog(QDialog, threading.Thread):
             _download_xml_file(self.xmlfile)
         self.finish()
         env.prefs[sponsor_md5_mismatch_flag_key] = self.md5Mismatch()
-        
-        
+
+
     def refreshWanted(self):
         if not os.path.exists(self.xmlfile):
             return True
 
         if env.prefs[sponsor_md5_mismatch_flag_key]:
             return True
-            
+
         return False
-        
+
 
     def md5Mismatch(self):
         # Check the MD5 hash - if it hasn't changed, then there is
@@ -349,13 +349,13 @@ class PermissionDialog(QDialog, threading.Thread):
                 remoteDigest = remoteDigest.rstrip()
                 localDigest = localDigest.rstrip()
                 return (remoteDigest != localDigest)
-                
+
             else:
                 return True
         except:
             return True
 
-            
+
     def finish(self):
         _load_sponsor_info(self.xmlfile, self.win)
 
@@ -368,7 +368,7 @@ class PermissionDialog(QDialog, threading.Thread):
 _nanorexText = """\
 Nanorex created NanoEngineer-1, the program you're using right now.
 <p>
-See the <A HREF="http://www.nanoengineer-1.net/">NanoEngineer-1 wiki </A> 
+See the <A HREF="http://www.nanoengineer-1.net/">NanoEngineer-1 wiki </A>
 for tutorials and other information.</p>
 <p>
 See <A HREF="http://www.nanorex.com/">www.nanorex.com</A> for more information
@@ -376,9 +376,9 @@ about Nanorex.</p>
 """
 from utilities.icon_utilities import image_directory
 _sponsorImagePath = os.path.join( image_directory(), "ui/sponsors/nanorex.png")
-_defaultSponsor = _Sponsor('Nanorex', 
+_defaultSponsor = _Sponsor('Nanorex',
                            _fixHtml(_nanorexText), _sponsorImagePath)
-                           
+
 
 ###############################################
 
@@ -386,14 +386,14 @@ class SponsorableMixin:
     """
     To use this mixin class, instances of a main class which inherits it
     (which is typically a QDialog or PM_Dialog) should provide:
-    
+
         - an attribute sponsor_keyword, which can be None, or a keyword
           string, or a list or tuple of sponsor keyword strings.
         - an attribute sponsor_btn, which must be a QPushButton object
           whose pixmap will be replaced with a sponsor logo during this
           mixin's __init__ or setSponsor methods. This button must
           already exist when our __init__ method is called.
-    
+
     This mixin class then provides:
         - an __init__ method (which should only be called when the above
           attributes are ready)

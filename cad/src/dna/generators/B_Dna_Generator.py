@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 B_Dna_Generator.py -- DNA duplex generator helper classes, based on empirical data.
 
@@ -38,7 +38,7 @@ class B_Dna_Generator(Dna_Generator):
     baseRise   =  dnaDict['B-DNA']['DuplexRise']
     handedness =  RIGHT_HANDED
 
-    basesPerTurn = getDuplexBasesPerTurn('B-DNA')   
+    basesPerTurn = getDuplexBasesPerTurn('B-DNA')
 
     pass
 

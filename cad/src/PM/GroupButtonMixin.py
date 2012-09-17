@@ -73,7 +73,7 @@ _down_arrow_data = \
     "\x1f\xfe\x72\xad\x6f\xd8\xd4\x50\x37\x09\xb5\x93\x63\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
-class GroupButtonMixin: 
+class GroupButtonMixin:
     """
     Mixin class for providing the method toggle_groupbox_in_dialogs,
     suitable as part of a slot method for toggling the state of a dialog GroupBox.
@@ -92,7 +92,7 @@ class GroupButtonMixin:
         _down_arrow = QPixmap()
         _down_arrow.loadFromData(_down_arrow_data)
     initialize = staticmethod(initialize)
-    
+
     def toggle_groupbox_in_dialogs(self, button, *things):
         """
         This is intended to be part of the slot method for clicking on an open/close icon

@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 demo_ui.py - try out a more CAD-like UI organization
 
@@ -75,7 +75,7 @@ class SketchTool(Tool): #e move to demo_sketch?
     # - in general, a PM has a bunch of possible groups, but each one has a condition for being shown.
     #   and some of them exist on more than one PM. So a PM is an expr made of PMGroup exprs...
     #   we could make one from a list of field names & types, but in general it's not made that way.
-    
+
     # and an ability to host subcommands
     # - it makes a new Sketch for them if necessary;
     # - or like any command, since it needs a Sketch, maybe one is selected when it's entered;
@@ -94,7 +94,7 @@ class SketchTool(Tool): #e move to demo_sketch?
     #
     # and a way to filter available commands to find subcommands to put on its flyout toolbar as subtools
     # which means it has a flyout toolbar, btw; and more fundamentally it has the list of items on it (since it has cmenu of those too)
-    
+
     pass
 
 class main_ui_layout(DelegatingInstanceOrExpr):
@@ -102,7 +102,7 @@ class main_ui_layout(DelegatingInstanceOrExpr):
     #e merge in the App obj from test.py, and the _recent_tests system in some form?
 
     # args (none yet)
-    
+
     # internal state - permanent
     ###e note: when we reload and remake this instance, we'd prefer it if the world state stayed unchanged (as i presume it does)
     # but if the default_tool instance and toolstack state got remade. The lack of the latter has been confusing me

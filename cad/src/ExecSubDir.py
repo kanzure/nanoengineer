@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 ExecSubDir.py
@@ -24,7 +24,7 @@ and it will get it right.
 
 @author: Eric Messick
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import sys

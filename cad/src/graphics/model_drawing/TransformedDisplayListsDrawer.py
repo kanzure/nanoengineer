@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 TransformedDisplayListsDrawer.py - abstract class for something that draws
 using display lists which it caches under a local coordinate system.
@@ -43,7 +43,7 @@ class TransformedDisplayListsDrawer(object,
     (actually CSDLs) to be drawn relative to a transform known to the specific
     subclass, and to be invalidated at appropriate times (with help from the
     subclass).
-    
+
     (The specific subclass knows where to get the transform,
      and when to invalidate the display lists beyond when usage tracking
      does so.)
@@ -64,7 +64,7 @@ class TransformedDisplayListsDrawer(object,
     # that is handled outside by choosing the right rule (this class)
 
     _havelist_inval_counter = 0 # see also self.havelist
-    
+
     # there is no class default for displist; see __get_displist.
 
     glpane = None
@@ -72,7 +72,7 @@ class TransformedDisplayListsDrawer(object,
     havelist = 0
 
     def __init__(self):
-        # note: self.displist is allocated on demand by __get_displist 
+        # note: self.displist is allocated on demand by __get_displist
         # [bruce 070523]
 
         self.extra_displists = {} # precaution, probably not needed
@@ -83,11 +83,11 @@ class TransformedDisplayListsDrawer(object,
             # subclasses would know about self.extra_displists, and so
             # this class could have methods to fill it in which its
             # subclass would be overriding. [bruce 090224 comment]
-        
+
         return
 
     # ==
-    
+
     def invalidate_display_lists_for_style(self, style): #bruce 090217
         """
         @see: documentation of same method in class Chunk
@@ -99,17 +99,17 @@ class TransformedDisplayListsDrawer(object,
         return
 
     # ======
-    
+
     #### note: many following methods were moved here from our subclass Chunk
     # by bruce 090213, but their docstrings and comments are mostly not yet
     # updated for that move.
-    
+
     def invalidate_display_lists(self): #bruce 050804, revised 090212
         """
         [public, though uses outside this class or class Chunk are suspicious
          re modularity, and traditionally have been coded as changeapp calls
          on Chunk instead]
-        
+
         This is meant to be called when something whose usage we tracked
         (while making our main display list) next changes.
         """
@@ -127,12 +127,12 @@ class TransformedDisplayListsDrawer(object,
         # rigidly dragged. Once TransformNode works well enough, it won't be
         # called at all for rigid drag. (It will still be called often in some
         # other cases, so it ought to be fast.)
-        
+
         return
 
     # == Methods relating to our main OpenGL display list (or CSDL),
     #    self.displist [revised, bruce 090212]
-    
+
     # (Note: most of these methods could be moved to a new superclass
     #  concerned with maintaining self.displist for any sort of object
     #  that needs one (TransformedDisplayListsDrawer?). If that's done, see also
@@ -142,7 +142,7 @@ class TransformedDisplayListsDrawer(object,
     #  not just a single one -- even this class has some like that,
     #  in self.extra_displists. That might be more useful to generalize.
     #  [bruce 071103/090123/090212 comment])
-    
+
     # Note: to invalidate the drawing effects of
     # executing self.displist (along with our extra_displists),
     # when our graphical appearance changes,
@@ -155,11 +155,11 @@ class TransformedDisplayListsDrawer(object,
     # that follows.
 
     _displist = None
-    
+
     def __get_displist(self):
         """
         get method for self.displist property:
-        
+
         Initialize self._displist if necessary, and return it.
 
         @note: This must only be called when the correct GL context is current.
@@ -177,17 +177,17 @@ class TransformedDisplayListsDrawer(object,
         """
         @return: the transformControl to use for our ColorSortedDisplayLists
                  (perhaps None)
-        
+
         [subclasses should override as needed]
         """
         return None
-        
+
     def __set_displist(self):
         """
         set method for self.displist property; should never be called
         """
         assert 0
-    
+
     def __del_displist(self):
         """
         del method for self.displist property
@@ -210,7 +210,7 @@ class TransformedDisplayListsDrawer(object,
                contents.
         """
         return self._displist is not None
-    
+
     # new feature [bruce 071103]:
     # deallocate display lists of killed chunks.
     # TODO items re this:
@@ -228,7 +228,7 @@ class TransformedDisplayListsDrawer(object,
     def _immediately_deallocate_displists(self): #bruce 071103
         """
         [private method]
-        
+
         Deallocate our OpenGL display lists, and make sure they'll be
         reallocated when next needed.
 
@@ -248,7 +248,7 @@ class TransformedDisplayListsDrawer(object,
                 # display list when next called (e.g. if a killed chunk is revived by Undo)
             self.havelist = 0
             self._havelist_inval_counter += 1 # precaution, need not analyzed
-            
+
             ## REVIEWED: this self.glpane = None seems suspicious,
             # but removing it could mess up _gl_context_if_any
             # if that needs to return None, but the docstring of that
@@ -321,7 +321,7 @@ class TransformedDisplayListsDrawer(object,
                 ## print "undo or redo calling _deallocate_displist_later on %r" % self
                 self._deallocate_displist_later()
         return
-        
+
     def _f_kill_displists(self): #bruce 090123 split this out of Chunk.kill
         """
         Private helper for model kill methods such as Chunk.kill
@@ -395,16 +395,16 @@ class TransformedDisplayListsDrawer(object,
         if self._csdl_for_funcs:
             glpane.draw_csdl( self._csdl_for_funcs )
         return
-    
+
     # =====
 
     def draw(self, glpane):
-        
+
         raise Exception("subclass must implement")
 
         # someday, we'll either have a real draw method here,
         # or at least some significant helper methods for it.
-    
+
     pass # end of class
 
 # end

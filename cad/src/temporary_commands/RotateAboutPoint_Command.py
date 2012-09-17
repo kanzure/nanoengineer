@@ -45,26 +45,26 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
         #in command.restore_GUI. Need changes in superclasses etc
         #-- Ninad 2008-04-17
         self.resetVariables() # For safety
-        
+
     def Draw_other(self):
         """
         """
         _superclass_for_GM.Draw_other(self)
-        
+
         if len(self.command.mouseClickPoints) >= 2:
-            #Draw reference vector.             
+            #Draw reference vector.
             drawline(env.prefs[DarkBackgroundContrastColor_prefs_key],
-                     self.command.mouseClickPoints[0], 
-                     self.command.mouseClickPoints[1], 
+                     self.command.mouseClickPoints[0],
+                     self.command.mouseClickPoints[1],
                      width = 4,
-                     dashEnabled = True)  
-            
+                     dashEnabled = True)
+
 
     def resetVariables(self):
         _superclass_for_GM.resetVariables(self)
         self.pivotPoint = None
-        
-        
+
+
     def _determine_pivotPoint(self, event):
         """
         Determine the pivot point about which to rotate the selection
@@ -75,8 +75,8 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
             self.pivotPoint = selobj.posn()
         else:
             farQ_junk, self.pivotPoint = self.dragstart_using_GL_DEPTH( event)
-            
-        
+
+
     def leftDown(self, event):
         """
         Event handler for LMB press event.
@@ -88,23 +88,23 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
         # coordinates of a highlighted object (e.g. atom center) as endpoints
         # of the line
         selobj = self.glpane.selobj
-        
+
         if len(self.command.mouseClickPoints) == 0:
             self._determine_pivotPoint(event)
-            
+
         self.endPoint1 = self.pivotPoint
-            
+
         if isinstance(selobj, Atom):
             mouseClickPoint = selobj.posn()
         else:
-            if self.pivotPoint is not None:      
+            if self.pivotPoint is not None:
                 planeAxis = self.glpane.lineOfSight
-                planePoint = self.pivotPoint               
-                mouseClickPoint = self.dragstart_using_plane_depth( 
+                planePoint = self.pivotPoint
+                mouseClickPoint = self.dragstart_using_plane_depth(
                         event,
-                        planeAxis = planeAxis, 
+                        planeAxis = planeAxis,
                         planePoint = planePoint)
-            else:        
+            else:
                 farQ_junk, mouseClickPoint = self.dragstart_using_GL_DEPTH( event)
 
         if self._snapOn and self.endPoint2 is not None:
@@ -126,7 +126,7 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
         Event handler for Left Mouse button left-up event
         @see: Line_Command._f_results_for_caller_and_prepare_for_new_input()
         """
-        
+
         if len(self.command.mouseClickPoints) == 3:
             self.endPoint2 = None
             self.command.rotateAboutPoint()
@@ -138,7 +138,7 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
                     "'_f_results_for_caller_and_prepare_for_new_input'.")
                 self.command.mouseClickPoints = []
                 self.resetVariables()
-    
+
             self.glpane.gl_update()
             return
 
@@ -154,32 +154,32 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
             #Exit this GM's command (i.e. the command 'RotateAboutPoint')
             self.command.command_Done()
         return
-        
+
     def _getCursorText_length(self, vec):
         """
-        Overrides superclass method. 
-        @see: self._drawCursorText() for details. 
+        Overrides superclass method.
+        @see: self._drawCursorText() for details.
         """
         #Based on Mark's email (as of 2008-12-08) , the rotate about point don't
         #need length in the cursor text. So just return an empty string
         return ''
-    
+
     def _getCursorText_angle(self, vec):
         """
-        Subclasses may override this method. 
-        @see: self._drawCursorText() for details. 
+        Subclasses may override this method.
+        @see: self._drawCursorText() for details.
         """
         thetaString = ''
-        
+
         if len(self.command.mouseClickPoints) < 2:
-            theta = self.glpane.get_angle_made_with_screen_right(vec) 
+            theta = self.glpane.get_angle_made_with_screen_right(vec)
             thetaString = "%5.2f deg" % (theta,)
-        else:            
+        else:
             ref_vector = norm(self.command.mouseClickPoints[1] - self.pivotPoint)
             quat = Q(vec, ref_vector)
             theta = quat.angle * 180.0 / math.pi
             thetaString = "%5.2f deg" % (theta,)
-        
+
         return thetaString
 
 
@@ -203,8 +203,8 @@ class RotateAboutPoint_GraphicsMode(Line_GraphicsMode):
 # ==
 
 class RotateAboutPoint_Command(Line_Command):
-    
-   
+
+
     GraphicsMode_class = RotateAboutPoint_GraphicsMode
 
     commandName = 'RotateAboutPoint'
@@ -218,32 +218,32 @@ class RotateAboutPoint_Command(Line_Command):
         #  derived from it. [bruce 071227])
     from utilities.constants import CL_REQUEST
     command_level = CL_REQUEST
-    
+
     def rotateAboutPoint(self):
         """
         Rotates the selected entities along the specified vector, about the
         specified pivot point (pivot point it the starting point of the
         drawn vector.
         """
-        
+
         if len(self.mouseClickPoints) != self.mouseClickLimit:
             print_compact_stack("Rotate about point bug: mouseclick points != mouseclicklimit: ")
             return
-            
-        
+
+
         pivotPoint = self.mouseClickPoints[0]
         ref_vec_endPoint = self.mouseClickPoints[1]
         rot_vec_endPoint = self.mouseClickPoints[2]
-        
+
         reference_vec = norm(ref_vec_endPoint - pivotPoint)
-        
+
         lineVector = norm(rot_vec_endPoint - pivotPoint)
-                           
-            
+
+
         #lineVector = endPoint - startPoint
 
         quat1 = Q(lineVector, reference_vec)
-                
+
         #DEBUG Disabled temporarily . will not be used
         if dot(lineVector, reference_vec) < 0:
             theta = math.pi - quat1.angle
@@ -254,8 +254,8 @@ class RotateAboutPoint_Command(Line_Command):
         theta = quat1.angle
 
         rot_axis = cross(lineVector, reference_vec)
-        
-        
+
+
         if dot(lineVector, reference_vec) < 0:
             rot_axis = - rot_axis
 
@@ -275,22 +275,22 @@ class RotateAboutPoint_Command(Line_Command):
 
         self.glpane.gl_update()
         return
-    
+
     def _results_for_request_command_caller(self):
         """
         @return: tuple of results to return to whatever "called"
                  self as a "request command"
-        
+
         [overrides Line_GraphicsMode method]
         @see: Line_Command._f_results_for_caller_and_prepare_for_new_input()
         """
         #bruce 080801 split this out of former restore_gui method (now inherited).
-        
+
         # note (updated 2008-09-26): superclass Line_Command.command_entered()
         # sets self._results_callback,and superclass command_will_exit()
         #calls it with this method's return value
         return ()
-    
+
     pass # end of class RotateAboutPoint_Command
 
 # end

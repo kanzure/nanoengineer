@@ -45,7 +45,7 @@ from demoapp.geometry.vectors import A, V
 from demoapp.models.TrivalentGraph_Graphics import TrivalentGraph_HighlightGraphics
 
 # ==
-        
+
 class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFromNode?
     """
     Mouse motion draws out a new edge from a given node (if that's not None),
@@ -55,13 +55,13 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
     # (in superclass: _tip_and_highlight_info)
     node = None
     _ever_moved_off_self_node = False
-    
+
     def __init__(self, tool, node):
         super(HuntForNode, self).__init__(tool)
         if node and not node.new_edge_ok():
             node = None
         self.node = node # last-clicked node, start of rubber edge to a new node
-    
+
     def on_mouse_press_would_do(self, x, y, button, modifiers):
         """
         Click makes new node or finds existing one,
@@ -86,7 +86,7 @@ class HuntForNode(HuntForClickAction_ToolStateBehavior): # rename: HuntForNodeFr
                     indicators = None,
                     command = None,
                     next_state = (HuntForNode, None)
-                 )                
+                 )
         elif isinstance(obj, model.Node):
             # click on another node: connect our node to it, if both nodes permit
             if self.node and obj.new_edge_ok_to(self.node):
@@ -244,7 +244,7 @@ class DragNode(HuntForReleaseAction_ToolStateBehavior): # works, except for bugs
 
     ### REVIEW: what about on_draw_handle? (to highlight this node to indicate we're dragging it)
     # different look for could drag or is dragging? text tip "dragging"?
-    
+
     pass
 
 # ==

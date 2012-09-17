@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 BoundingBox.py
 
@@ -8,7 +8,7 @@ BoundingBox.py
 
 History:
 
-This class BBox was originally in shape.py. Moved to its own module on 
+This class BBox was originally in shape.py. Moved to its own module on
 2007-10-17.
 
 Module classification: [bruce 080103]
@@ -20,13 +20,13 @@ about its use for our model objects (atoms).
 """
 
 from graphics.drawing.drawers import drawwirebox
-from Numeric import add, subtract, sqrt 
+from Numeric import add, subtract, sqrt
 from Numeric import maximum, minimum, dot
 
 from geometry.VQT import V, A, cat
 from utilities.constants import black
 
-# piotr 080402 moved this to constants, default value = 1.8A 
+# piotr 080402 moved this to constants, default value = 1.8A
 from utilities.constants import BBOX_MARGIN
 
 class BBox:
@@ -40,14 +40,14 @@ class BBox:
     def __init__(self, point1 = None, point2 = None, slab = None):
         # Huaicai 4/23/05: added some comments below to help understand the code.
         if slab:
-            # convert from 2d (x, y) coordinates into its 3d world (x, y, 0) 
-            #coordinates(the lower-left and upper-right corner). 
+            # convert from 2d (x, y) coordinates into its 3d world (x, y, 0)
+            #coordinates(the lower-left and upper-right corner).
             #In another word, the 3d coordinates minus the z offset of the plane
             x = dot(A(point1), A(point2))
             # Get the vector from upper-right point to the lower-left point
             dx = subtract.reduce(x)
             # Get the upper-left and lower right corner points
-            oc = x[1] + V(point2[0]*dot(dx,point2[0]), 
+            oc = x[1] + V(point2[0]*dot(dx,point2[0]),
                           point2[1]*dot(dx,point2[1]))
             # Get the four 3d cooridinates on the bottom crystal-cutting plane
             sq1 = cat(x,oc) + slab.normal*dot(slab.point, slab.normal)
@@ -59,9 +59,9 @@ class BBox:
             # just 2 3d points
             self.data = V(maximum(point1, point2), minimum(point1, point2))
         elif point1:
-            # list of points: could be 2d or 3d?  +/- 1.8 to make the bounding 
+            # list of points: could be 2d or 3d?  +/- 1.8 to make the bounding
             #box enclose the vDw ball of an atom?
-            self.data = V(maximum.reduce(point1) + BBOX_MARGIN, 
+            self.data = V(maximum.reduce(point1) + BBOX_MARGIN,
                           minimum.reduce(point1) - BBOX_MARGIN)
         else:
             # a null bbox

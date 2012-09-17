@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 elements.py -- elements, periodic table, element display prefs
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -66,7 +66,7 @@ class _ElementPeriodicTable(object):
         #bruce 071105 added the color tables:
         self._defaultRadiusAndColor = {} # maps elem.symbol to (radius, color) pairs
         self._alternateRadiusAndColor = {} # alternate rad/color values (ok if incomplete)
-                
+
         # bruce 050419 add public attributes to count changes
         # to any element's color or rvdw; the only requirement is that
         # each one changes at least once per user event which
@@ -88,7 +88,7 @@ class _ElementPeriodicTable(object):
         Create elements for all members of <elmTable> (list of tuples).
         (Ok to call this more than once for non-overlapping elmTables
         (unique element symbols).
-        
+
         Use preference value for radius and color of each element,
         if available (using element symbol as prefs key);
         otherwise, use values from defaultRadiusAndColor dictionary,
@@ -97,7 +97,7 @@ class _ElementPeriodicTable(object):
 
         Also store all values in defaultRadiusAndColor, alternateRadiusAndColor tables
         for later use by loadDefaults or loadAlternates methods.
-        
+
         @param elmTable: a list of elements to create, as tuples of a format
                          documented in elements_data.py.
 
@@ -173,10 +173,10 @@ class _ElementPeriodicTable(object):
                                      at_geometry));
 
         return
-    
+
     def _loadTableSettings(self, elSym2rad_color ):
         """
-        Load a table of element radius/color settings into self. 
+        Load a table of element radius/color settings into self.
 
         @param elSym2rad_color: A dictionary of (eleSym : (rvdw, [r,g,b])).
                 [r,g,b] can be None or missing, in which case use color from
@@ -196,26 +196,26 @@ class _ElementPeriodicTable(object):
                     rad_color = self._defaultRadiusAndColor[e_symbol]
                 elm.color = rad_color[1]
                     # guess: this is what will routinely fail if [r,g,b] is None
-            except:                
+            except:
                 rad_color = self._defaultRadiusAndColor[e_symbol]
                 elm.rvdw = rad_color[0]
                 elm.color = rad_color[1]
                 pass
         return
-    
+
     def loadDefaults(self):
         """
         Update the elements properties in self from self._defaultRadiusAndColor.
         """
         self. _loadTableSettings( self._defaultRadiusAndColor)
-        
+
     def loadAlternates(self):
         """
         Update the elements properties in self from self._alternateRadiusAndColor;
         for missing or partly-missing values, use self._defaultRadiusAndColor.
         """
         self. _loadTableSettings( self._alternateRadiusAndColor)
-        
+
     def deepCopy(self):
         """
         Deep copy the current settings of element rvdw/color,
@@ -229,16 +229,16 @@ class _ElementPeriodicTable(object):
                 print "Error: ", elm
             copyPTable[elm.symbol] = (elm.rvdw, elm.color[:])
         return copyPTable
-    
+
     def resetElemTable(self, elmTable):
         """
         Set the current table of element settings to equal those in <elmTable>
         """
         self._loadTableSettings(elmTable)
-    
+
     def setElemColors(self, colTab):
         """
-        Set a list of element colors. 
+        Set a list of element colors.
 
         @param colTab: A list of tuples in the form of <elNum, r, g, b>
         """
@@ -247,7 +247,7 @@ class _ElementPeriodicTable(object):
         for elm in colTab:
             self._periodicTable[elm[0]].color = [elm[1], elm[2], elm[3]]
         return
-    
+
     def setElemColor(self, eleNum, c):
         """
         Set element <eleNum> color as <c>
@@ -257,7 +257,7 @@ class _ElementPeriodicTable(object):
         assert type(c) == type([1, 1, 1])
         self.color_change_counter += 1
         self._periodicTable[eleNum].color = c
-        
+
     def getElemColor(self, eleNum):
         """
         Return the element color as a triple list for <eleNum>
@@ -265,7 +265,7 @@ class _ElementPeriodicTable(object):
         assert type(eleNum) == type(1)
         assert eleNum >= 0
         return self._periodicTable[eleNum].color
-    
+
     def getPTsenil(self):
         """
         Return a nested list of elements for use in Passivate,
@@ -274,28 +274,28 @@ class _ElementPeriodicTable(object):
         """
         pTsenil = [
             [self._periodicTable[2], self._periodicTable[1]],
-            
+
             [self._periodicTable[10], self._periodicTable[9],
              self._periodicTable[8], self._periodicTable[7],
              self._periodicTable[6]],
-            
+
             [self._periodicTable[18], self._periodicTable[17],
              self._periodicTable[16], self._periodicTable[15],
              self._periodicTable[14]],
-            
+
             [self._periodicTable[36], self._periodicTable[35],
              self._periodicTable[34], self._periodicTable[33],
              self._periodicTable[32]]
          ]
         return pTsenil
-    
+
     def getAllElements(self):
         """
         Return the whole list of elements of periodic table as a dictionary.
         The caller should not modify this dictionary.
         """
         return self._periodicTable
-    
+
     def getElement(self, num_or_name_or_symbol):
         """
         Return the element for <num_or_name_or_symbol>,
@@ -309,7 +309,7 @@ class _ElementPeriodicTable(object):
         elif type(s) != type(1):
             assert 0, "don't recognize element name or symbol %r" % (s,)
         return self._periodicTable[s]
-            
+
     def close(self):
         # The 'def __del__(self)' is not guaranteed to be called.
         # It is not called in my try on Windows. [Huaicai]
@@ -369,6 +369,6 @@ if __name__ == '__main__':
     print pt1.getElement(6)
     print pt1.getElement(18)
 
-    pt1.deepCopy() 
+    pt1.deepCopy()
 
 # end

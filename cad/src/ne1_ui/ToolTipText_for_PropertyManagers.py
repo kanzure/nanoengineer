@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ToolTipText_for_MainWindow.py
 
@@ -25,7 +25,7 @@ def ToolTip_CookiePropertyManager(propMgr):
 
     propMgr.layerCellsSpinBox.setToolTip("Number of Lattice Cells")
 
-    propMgr.dispModeComboBox.setToolTip("Display Style")   
+    propMgr.dispModeComboBox.setToolTip("Display Style")
 
     propMgr.layerThicknessLineEdit.setToolTip(\
         "Thickness of Layer in Angstroms is Displayed")
@@ -36,7 +36,7 @@ def ToolTip_CookiePropertyManager(propMgr):
 
     propMgr.snapGridCheckBox.setToolTip("Snap to Grid")
 
-    propMgr.freeViewCheckBox.setToolTip("Free View") 
+    propMgr.freeViewCheckBox.setToolTip("Free View")
 
 
 def ToolTip_RotaryMotorPropertyManager(propMgr):
@@ -88,7 +88,7 @@ def ToolTip_LinearMotorPropertyManager(propMgr):
 
     propMgr.motorColorComboBox.setToolTip("Change motor color")
 
-    propMgr.directionPushButton.setToolTip("Set motor direction")  
+    propMgr.directionPushButton.setToolTip("Set motor direction")
 
 def ToolTip_GrapheneGeneratorPropertyManager(propMgr):
 
@@ -102,7 +102,7 @@ def ToolTip_GrapheneGeneratorPropertyManager(propMgr):
 
     propMgr.bondLengthField.setToolTip("Adjust Bond Length")
 
-    propMgr.endingsComboBox.setToolTip("Set Sheet Endings")  
+    propMgr.endingsComboBox.setToolTip("Set Sheet Endings")
 
 def ToolTip_NanotubeGeneratorPropertyManager(propMgr):
 
@@ -154,7 +154,7 @@ def ToolTip_InsertDna_PropertyManager(propMgr):
                                                         "Ladder")
 
     propMgr.lineSnapCheckBox.setToolTip("Enable Line Snap")
-    
+
 def ToolTip_InsertPeptide_PropertyManager(propMgr):
     """
     "ToolTip" text for the Peptide Generator Property Manager
@@ -168,7 +168,7 @@ def ToolTip_BuildAtomsPropertyManager(propMgr):
     propMgr.selectionFilterCheckBox.setToolTip("Atom Selection Filter")
 
     propMgr.filterlistLE.setToolTip("Atom Selection Filter List")
-    
+
     propMgr.reshapeSelectionCheckBox.setToolTip("Enable/disable reshaping the selection while dragging selected atom")
 
     propMgr.autoBondCheckBox.setToolTip("Enable/disable atomic auto-bonding")
@@ -248,7 +248,7 @@ def ToolTip_ProteinSequenceEditor(propMgr):
     propMgr.replacePushButton.setToolTip("Replace")
 
     propMgr.secStrucTextEdit.setToolTip("Secondary structure (read-only)")
-    
+
     propMgr.aaRulerTextEdit.setToolTip("Sequence ruler")
 
     return
@@ -258,7 +258,7 @@ def ToolTip_MovePropertyManager(propMgr):
     "ToolTip" text for widgets in the Move Property Manager.
     """
 
-    # Translate group box widgets 
+    # Translate group box widgets
 
     propMgr.translateComboBox.setToolTip("Translation Options")
 
@@ -299,7 +299,7 @@ def ToolTip_MovePropertyManager(propMgr):
     propMgr.moveAbsoluteButton.setToolTip(
         "Move selection to absolute XYZ position")
 
-    # Rotate group box widgets 
+    # Rotate group box widgets
 
     propMgr.rotateComboBox.setToolTip("Rotate Options")
 
@@ -341,24 +341,24 @@ def ToolTip_PartLibPropertyManager(propMgr) :
     Add "What's This" text for widgets in the Part Library Property Manager.
     """
     propMgr.previewGroupBox.setToolTip("Preview Window")
-    
+
     propMgr.partLibGroupBox.setToolTip("Part Library")
-        
+
 
 def ToolTip_PasteItemPropertyManager(propMgr) :
     """
     Add "What's This" text for widgets in the Paste Items Property Manager.
     """
     propMgr.previewGroupBox.setToolTip("Preview Window")
-    
+
     propMgr.clipboardGroupBox.setToolTip("Clipboard")
-    
+
 def ToolTip_EditProteinDisplayStyle_PropertyManager(propMgr):
     """
     Add "What's This" text for widgets in the Edit DNA Display Style Property Manager.
     """
     return
-    
+
 def ToolTip_EditDnaDisplayStyle_PropertyManager(propMgr):
     """
     Add "What's This" text for widgets in the Edit DNA Display Style Property Manager.
@@ -392,14 +392,14 @@ def ToolTip_ColorScheme_PropertyManager(propMgr):
     propMgr.favoritesComboBox.setToolTip("List of favorites")
     propMgr.backgroundColorComboBox.setToolTip("Change background color")
     propMgr.hoverHighlightingStyleComboBox.setToolTip("Change hover highlighting style")
-    propMgr.hoverHighlightingColorComboBox.setToolTip("Change hover highlighting color") 
+    propMgr.hoverHighlightingColorComboBox.setToolTip("Change hover highlighting color")
     propMgr.selectionStyleComboBox.setToolTip("Change selection style")
     propMgr.selectionColorComboBox.setToolTip("Change selection color")
     return
 
 def ToolTip_LightingScheme_PropertyManager(propMgr):
     """
-    Add tooltip text for widgets in the Lighting Scheme Property 
+    Add tooltip text for widgets in the Lighting Scheme Property
     Manager.
     """
     return

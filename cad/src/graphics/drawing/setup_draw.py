@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 setup_draw.py - The function to allocate and compile our standard display lists
 into the current GL context, and initialize the globals that hold their opengl
@@ -9,7 +9,7 @@ since it's specific to a "GL resource context" (of which we only use one so far,
 since all our GLPanes share display lists).
 
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -83,7 +83,7 @@ def setup_drawer():
     drawer.py, since the allocated display list names are stored in globals set
     by this function, but in general those names might differ if this was called
     in different GL contexts.
-    """    
+    """
     spherelistbase = glGenLists(_NUM_SPHERE_SIZES)
     sphereList = []
     for i in range(_NUM_SPHERE_SIZES):
@@ -275,13 +275,13 @@ def setup_drawer():
     glNewList(solidCubeList, GL_COMPILE)
     glBegin(GL_QUADS)
     for i in xrange(len(drawing_globals.cubeIndices)):
-        avenormals = V(0,0,0) #bruce 060302 fixed normals for flat shading 
-        for j in xrange(4) :    
+        avenormals = V(0,0,0) #bruce 060302 fixed normals for flat shading
+        for j in xrange(4) :
             nTuple = tuple(
                 drawing_globals.cubeNormals[drawing_globals.cubeIndices[i][j]])
             avenormals += A(nTuple)
         avenormals = norm(avenormals)
-        for j in xrange(4) :    
+        for j in xrange(4) :
             vTuple = tuple(
                 drawing_globals.cubeVertices[drawing_globals.cubeIndices[i][j]])
             #bruce 060302 made size compatible with glut.glutSolidCube(1.0)
@@ -289,7 +289,7 @@ def setup_drawer():
             glNormal3fv(avenormals)
             glVertex3fv(vTuple)
     glEnd()
-    glEndList()                
+    glEndList()
 
     drawing_globals.rotSignList = rotSignList = glGenLists(1)
     glNewList(rotSignList, GL_COMPILE)
@@ -332,7 +332,7 @@ def setup_drawer():
         x = cos(ii*2.0*pi/60)
         y = sin(ii*2.0*pi/60)
         glVertex3f(x, y, 0.0)
-    glEnd()    
+    glEnd()
     glEndList()
 
     # piotr 080405
@@ -343,7 +343,7 @@ def setup_drawer():
         x = cos(ii*2.0*pi/60)
         y = sin(ii*2.0*pi/60)
         glVertex3f(x, y, 0.0)
-    glEnd()    
+    glEnd()
     glEndList()
 
     drawing_globals.lineCubeList = lineCubeList = glGenLists(1)

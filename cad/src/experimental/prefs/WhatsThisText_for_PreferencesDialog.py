@@ -1,11 +1,11 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 WhatsThisText_for_PreferencesDialog.py
 
 This file provides functions for setting the "What's This" and tooltip text
-for widgets in the NE1 Preferences dialog only. 
+for widgets in the NE1 Preferences dialog only.
 
-Edit WhatsThisText_for_MainWindow.py to set "What's This" and tooltip text 
+Edit WhatsThisText_for_MainWindow.py to set "What's This" and tooltip text
 for widgets in the Main Window.
 
 @version: $Id: WhatsThisText_for_PreferencesDialog.py 13141 2008-06-06 19:06:39Z ninadsathaye $
@@ -15,94 +15,94 @@ for widgets in the Main Window.
 
 PLUGIN_TEXT = {
     "MegaPOV":
-    { 
-        "checkbox" : 
+    {
+        "checkbox" :
         """<p>This enables MegaPOV as a plug-in. MegaPOV is a free addon
         raytracing program available from http://megapov.inetart.net/.
         Both MegaPOV and POV-Ray must be installed on your computer before
         you can enable the MegaPOV plug-in. MegaPOV allows rendering to
         happen silently on Windows (i.e. no POV_Ray GUI is displayed while
-        rendering).</p>""", 
-        "chooser" : 
+        rendering).</p>""",
+        "chooser" :
         """The full path to the MegaPOV executable file (megapov.exe).""",
-        "button" : 
+        "button" :
         """Allows you to choose the path to the MegaPOV executable."""
-    },    
+    },
     "POV include dir":
-    { 
-        "checkbox" : 
-        """<p>Specify a directory for where to find POV-Ray or MegaPOV include
-        files such as transforms.inc.</p>""", 
-        "chooser" : 
+    {
+        "checkbox" :
         """<p>Specify a directory for where to find POV-Ray or MegaPOV include
         files such as transforms.inc.</p>""",
-        "button" : 
+        "chooser" :
+        """<p>Specify a directory for where to find POV-Ray or MegaPOV include
+        files such as transforms.inc.</p>""",
+        "button" :
         """Allows you to choose the path to the include directory."""
-    },    
+    },
     "Rosetta":
-    { 
-        "checkbox" : 
-        """This enables the use of Rosetta as a plug-in.""", 
-        "chooser" : 
+    {
+        "checkbox" :
+        """This enables the use of Rosetta as a plug-in.""",
+        "chooser" :
         """The full path to the Rosetta executable file.""",
-        "button" : 
+        "button" :
         """Allows you to choose the path to the Rosetta executable."""
-    },    
+    },
     "Rosetta DB":
-    { 
-        "checkbox" : 
-        """This enables the selection of the path to the Rosetta Database.""", 
-        "chooser" : 
+    {
+        "checkbox" :
+        """This enables the selection of the path to the Rosetta Database.""",
+        "chooser" :
         """The full path to the Rosetta Database.""",
-        "button" : 
+        "button" :
         """Allows you to choose the path to the Rosetta Database."""
-    },    
+    },
     "QuteMolX" :
-    { 
-        "checkbox" : 
+    {
+        "checkbox" :
         """<p>This enables QuteMolX as a plug-in. QuteMolX is available for
         download from http://nanoengineer-1.com/QuteMolX. QuteMolX must be
-        installed on your computer before you can enable this plug-in.</p>""", 
-        "chooser" : 
+        installed on your computer before you can enable this plug-in.</p>""",
+        "chooser" :
         """The full path to the QuteMolX executable.""",
-        "button" : 
+        "button" :
         """Allows you to choose the path to the QuteMolX executable."""
     },
-    "GROMACS" : 
-    { 
-        "checkbox" : 
+    "GROMACS" :
+    {
+        "checkbox" :
         """<p>This enables GROMACS as a plug-in. GROMACS is a free rendering
         program available from http://www.gromacs.org/. GROMACS must be
         installed on your computer before you can enable the GROMACS plug-in.
         Check this and choose the the path to the mdrun executable from
-        your GROMACS distribution.</p>""", 
-        "chooser" : 
+        your GROMACS distribution.</p>""",
+        "chooser" :
         """The full path to the mdrun executable file for GROMACS.""",
-        "button" : 
+        "button" :
         """<p>This opens up a file chooser dialog so that you can specify the
         location of the GROMACS executable (mdrun).</p>"""
     },
     "cpp" :
     {
-        "checkbox" : 
-        """This enables selecting the C-preprocessor that GROMACS will use""", 
-        "chooser" : 
+        "checkbox" :
+        """This enables selecting the C-preprocessor that GROMACS will use""",
+        "chooser" :
         """<p>The full path to the C-preprocessor (cpp) executable file
         for GROMACS to use.</p>""",
-        "button" : 
+        "button" :
         """<p>Allows you to choose the path to the C-preprocessor (cpp)
         executable file for GROMACS to use.</p>"""
     },
     "POV-Ray" :
     {
-        "checkbox" : 
+        "checkbox" :
         """<p>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing
         program available from http://www.povray.org/. POV-Ray must be
         installed on your computer before you can enable the POV-Ray plug-in.
         </p>""",
-        "chooser" : 
+        "chooser" :
         """The full path to the POV-Ray executable.""",
-        "button" : 
+        "button" :
         """Allows you to choose the path to the POV-Ray executable."""
     } }
 
@@ -113,9 +113,9 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     """
     Assigning the I{What's This} text for the Preferences dialog.
     """
-    
+
     _pd = preferencesDialog
-    
+
     setWhatsThis_General(_pd)
     setWhatsThis_Graphics_Area(_pd)
     setWhatsThis_Zoom_Pan_and_Rotate(_pd)
@@ -134,7 +134,7 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     return
 
 def setWhatsThis_General(pd):
-    if sys.platform == 'darwin':        
+    if sys.platform == 'darwin':
         _keyString = "<b>(Cmd + C and Cmd + V)</b> respectively"
     else:
         _keyString = "<b>(Ctrl + C and Ctrl + V)</b> respectively"
@@ -163,20 +163,20 @@ def setWhatsThis_General(pd):
         When depositing atoms, clipboard chunks or library parts,
         their atoms will automatically be selected.""")
     _text = """<b>Offset scale factor for pasting chunks</b>
-            <p>When one or more chunks, that are placed as independent nodes in the 
-            Model Tree, are copied and then pasted using the modifier 
-            keys %s, this scale factor determines the offset of the pasted chunks 
-            from the original chunks. Note that if the copied selection includes any 
-            DNA objects such as DNA segments, strands etc, the program will use 
-            an offset scale that is used for pasting the DNA objects instead of this 
+            <p>When one or more chunks, that are placed as independent nodes in the
+            Model Tree, are copied and then pasted using the modifier
+            keys %s, this scale factor determines the offset of the pasted chunks
+            from the original chunks. Note that if the copied selection includes any
+            DNA objects such as DNA segments, strands etc, the program will use
+            an offset scale that is used for pasting the DNA objects instead of this
             offset scale) </p>"""%(_keyString)
     pd.pasteOffsetForChunks_doublespinbox.setWhatsThis(_text)
     pd.pasteOffsetForChunks_doublespinbox.labelWidget.setWhatsThis(_text)
     _text = """<b>Offset scale factor for pasting Dna objects</b>
-            <p>When one or more DNA objects such as DNA segments, strands etc, are 
-            copied and then pasted using the modifier keys %s, this scale factor 
-            determines the offset of the pasted DNA objects from the original ones. 
-            Note that this also applies to pasting chunks within a group in the Model 
+            <p>When one or more DNA objects such as DNA segments, strands etc, are
+            copied and then pasted using the modifier keys %s, this scale factor
+            determines the offset of the pasted DNA objects from the original ones.
+            Note that this also applies to pasting chunks within a group in the Model
             Tree. </p>"""%(_keyString)
     pd.pasteOffsetForDNA_doublespinbox.setWhatsThis(_text)
     pd.pasteOffsetForDNA_doublespinbox.labelWidget.setWhatsThis(_text)
@@ -209,7 +209,7 @@ def setWhatsThis_Graphics_Area(pd):
         """Enables/Disables the display of the "Confirmation Corner" within the
         draw window""")
     pd.anti_aliasing_CheckBox.setWhatsThis(
-        """Enables/Disables anti-aliased text.  <p>This will not be in effect 
+        """Enables/Disables anti-aliased text.  <p>This will not be in effect
         until the next session.</p>""")
     return
 
@@ -221,8 +221,8 @@ def setWhatsThis_Zoom_Pan_and_Rotate(pd):
         </p>""")
     pd.view_animation_speed_Slider.setWhatsThis("""<p><b>View animation speed</b></p>
         <p>
-        Sets the animation speed when animating between views 
-        (i.e. Front view to Right view).  It is recommended that this be set 
+        Sets the animation speed when animating between views
+        (i.e. Front view to Right view).  It is recommended that this be set
         to Fast when working on large models.
         </p>""")
     pd.view_animation_speed_reset_ToolButton.setWhatsThis(
@@ -270,7 +270,7 @@ def setWhatsThis_Rulers(pd):
 
 def setWhatsThis_Atoms(pd):
     pd.change_element_colors_PushButton.setWhatsThis(
-        """<p>This brings up another dialog which allows the user to change the 
+        """<p>This brings up another dialog which allows the user to change the
         colors that each of the avaliable atoms is drawn in.</p>""")
     #_text = """Sets the color used when highlighting atoms."""
     #pd.atom_highlighting_ColorComboBox.setWhatsThis(_text)
@@ -282,15 +282,15 @@ def setWhatsThis_Atoms(pd):
     #pd.bondpoint_hotspots_ColorComboBox.setWhatsThis(_text)
     #pd.bondpoint_hotspots_ColorComboBox.labelWidget.setWhatsThis(_text)
     pd.restore_element_colors_PushButton.setWhatsThis(
-        """<p>Restores the atom and bondpoint hightlighting colors to their 
+        """<p>Restores the atom and bondpoint hightlighting colors to their
         default colors.</p>""")
     _text = \
         """<p><b>Level of detail</b></p>
         <p>
         Sets the level of detail for atoms and bonds.<br>
-        <br>  
+        <br>
         <b>High</b> = Best graphics quality (slowest rendering speed)<br>
-        <b>Medium</b> = Good graphics quality<br> 
+        <b>Medium</b> = Good graphics quality<br>
         <b>Low</b> = Poor graphics quality (fastest rendering speed) <br>
         <b>Variable</b> automatically switches between High, Medium and Low
         based on the model size (number of atoms).
@@ -304,7 +304,7 @@ def setWhatsThis_Atoms(pd):
         in ball and stick mode."""
     pd.ball_and_stick_atom_scale_SpinBox.setWhatsThis(_text)
     pd.ball_and_stick_atom_scale_reset_ToolButton.setWhatsThis(
-        """<p>Sets the ball and stick atom scale factor back to its default 
+        """<p>Sets the ball and stick atom scale factor back to its default
         value</p>""")
     pd.CPK_atom_scale_doubleSpinBox.setWhatsThis(
         """<p><b>CPK atom scale</b></p>
@@ -313,7 +313,7 @@ def setWhatsThis_Atoms(pd):
         factor while in CPK display mode so you can see the graphical effect of
         changing the scale.""")
     pd.CPK_atom_scale_reset_ToolButton.setWhatsThis(
-        """<p>Sets the CPK atom scale factor back to its default 
+        """<p>Sets the CPK atom scale factor back to its default
         value</p>""")
     #pd.overlapping_atom_indicators_CheckBox.setWhatsThis(""" """)
     #pd.force_to_keep_bonds_during_transmute_CheckBox.setWhatsThis(""" """)
@@ -419,7 +419,7 @@ def setWhatsThis_Minor_groove_error_indicator(pd):
 #    pd.minor_groove_error_maximum_angle_SpinBox.setWhatsThis(""" """)
 #    pd.minor_groove_error_color_ColorComboBox.setWhatsThis(""" """)
     pd.minor_groove_error_reset_PushButton.setWhatsThis(
-        """<p>Resets all minor groove error indicator settings to their 
+        """<p>Resets all minor groove error indicator settings to their
         default values.</p>""")
     return
 
@@ -477,14 +477,14 @@ def setWhatsThis_Adjust(pd):
     return
 
 def setWhatsThis_Plugins(pd):
-    for plugin in PLUGIN_TEXT: 
+    for plugin in PLUGIN_TEXT:
         pd.checkboxes[plugin].setWhatsThis(PLUGIN_TEXT[plugin]["checkbox"])
         pd.choosers[plugin].lineEdit.setWhatsThis(
             PLUGIN_TEXT[plugin]["chooser"])
         pd.choosers[plugin].browseButton.setWhatsThis(
             PLUGIN_TEXT[plugin]["button"])
     return
-    
+
 def setWhatsThis_Undo(pd):
     pd.undo_restore_view_CheckBox.setWhatsThis(
         """<p><b>Restore view when undoing structural changes</b></p>
@@ -516,7 +516,7 @@ def setWhatsThis_Undo(pd):
         when automatic checkpointing is disabled.</i></b></p>
         <p>""")
     _text = """<p><b>Undo stack memory limit</b></p>
-        <p>This is the maximum amount of system memory that will be assigned 
+        <p>This is the maximum amount of system memory that will be assigned
         to handle the <b>undo stack</b>.</p>"""
     pd.undo_stack_memory_limit_SpinBox.setWhatsThis(_text)
     pd.undo_stack_memory_limit_SpinBox.labelWidget.setWhatsThis(_text)

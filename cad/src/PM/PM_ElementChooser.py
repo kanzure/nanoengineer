@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 PM_ElementChooser.py
 
@@ -17,10 +17,10 @@ from PyQt4.Qt import SIGNAL, QSpacerItem, QSizePolicy
 from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 
 # Elements button list to create elements tool button group.
-# Format: 
+# Format:
 # - button type
-# - buttonId (element number), 
-# - buttonText (element symbol), 
+# - buttonId (element number),
+# - buttonText (element symbol),
 # - iconPath
 # - tooltip (element name)
 # - shortcut
@@ -50,7 +50,7 @@ ELEMENTS_BUTTON_LIST = [ \
 ]
 
 ELEMENT_ATOM_TYPES = { \
-    6: ("sp3", "sp2", "sp"                  ), 
+    6: ("sp3", "sp2", "sp"                  ),
     7: ("sp3", "sp2", "sp", "sp2(graphitic)"),
     8: ("sp3", "sp2", "sp2(-)", "sp2(-.5)"  ),
    15: ("sp3", "sp3(p)"             ),
@@ -58,9 +58,9 @@ ELEMENT_ATOM_TYPES = { \
 }
 
 ATOM_TYPES = ("sp3", "sp2", "sp", "sp2(graphitic)", "sp3(p)", "sp2(-)", "sp2(-.5)")
-            
+
 # Atom types (hybrids) button list to create atom types tool button group.
-# Format: 
+# Format:
 # - buttonId (hybrid number)
 # - buttonText (hybrid symbol)
 # - iconPath
@@ -73,8 +73,8 @@ ATOM_TYPES_BUTTON_LIST = [ \
     ( "QToolButton", 0, "sp3", "", "sp3", None, 0, 0 ),
     ( "QToolButton", 1, "sp2", "", "sp2", None, 1, 0 ),
     ( "QToolButton", 2, "sp",  "", "sp",  None, 2, 0 ),
-    ( "QToolButton", 3, "sp2(graphitic)", "ui/actions/Properties Manager/N_graphitic.png", 
-      "Graphitic", None, 3, 0 ), 
+    ( "QToolButton", 3, "sp2(graphitic)", "ui/actions/Properties Manager/N_graphitic.png",
+      "Graphitic", None, 3, 0 ),
     ( "QToolButton", 4, "sp3(p)",  "", "sp3(phosphate)",  None, 4, 0 ),
     ( "QToolButton", 5, "sp2(-)",  "", "sp2(-)",  None, 5, 0 ),
     ( "QToolButton", 6, "sp2(-.5)",  "", "sp2(-.5)",  None, 6, 0 ),
@@ -97,58 +97,58 @@ class PM_ElementChooser( PM_MolecularModelingKit ):
     """
     The PM_ElementChooser widget provides an Element Chooser widget,
     contained in its own group box, for a Property Manager dialog.
-    
-    A PM_ElementChooser is a selection widget that displays all elements, 
+
+    A PM_ElementChooser is a selection widget that displays all elements,
     including their atom types (atomic hybrids), supported in NE1. Methods
     are provided to set and get the selected element and atom type
     (e.g., L{setElement()}, L{getElement()}, L{getElementNumber()} and
     L{getElementSymbolAndAtomType()}).
-    
+
     @cvar element: The current element.
     @type element: Elem
-    
+
     @cvar atomType: The current atom type of the current element.
     @type atomType: str
-    
+
     @see: B{elements.py}
     """
-    
-    def __init__(self, 
-                 parentWidget, 
+
+    def __init__(self,
+                 parentWidget,
                  parentPropMgr   = None,
                  title           = "",
                  element         = "Carbon",
                  elementViewer   =  None
                  ):
         """
-        Appends a PM_ElementChooser widget to the bottom of I{parentWidget}, 
-        a Property Manager dialog. (or as a sub groupbox for Atom Chooser 
+        Appends a PM_ElementChooser widget to the bottom of I{parentWidget},
+        a Property Manager dialog. (or as a sub groupbox for Atom Chooser
         GroupBox.)
-        
+
         @param parentWidget: The parent PM_Dialog or PM_groupBox containing this
                              widget.
         @type  parentWidget: PM_Dialog or PM_GroupBox
-        
-        @param parentPropMgr: The parent Property Manager 
+
+        @param parentPropMgr: The parent Property Manager
         @type  parentPropMgr: PM_Dialog or None
-        
+
         @param title: The button title on the group box containing the
                       Element Chooser.
         @type  title: str
-        
+
         @param element: The initially selected element. It can be either an
                         element symbol or name.
         @type  element: str
         """
-        
-        PM_MolecularModelingKit.__init__( self, 
-                                          parentWidget, 
+
+        PM_MolecularModelingKit.__init__( self,
+                                          parentWidget,
                                           parentPropMgr,
                                           title,
                                           element,
                                           elementViewer)
-        
-           
+
+
     def _addGroupBoxes(self):
         """
         Add various groupboxes present inside the ElementChooser groupbox
@@ -159,52 +159,52 @@ class PM_ElementChooser( PM_MolecularModelingKit ):
     def _addAtomTypesGroupBox(self, inPmGroupBox):
         """
         Creates a row of atom type buttons (i.e. sp3, sp2, sp and graphitic).
-        
-        @param inPmGroupBox: The parent group box to contain the atom type 
+
+        @param inPmGroupBox: The parent group box to contain the atom type
                              buttons.
         @type  inPmGroupBox: PM_GroupBox
         """
         self._atomTypesButtonGroup = \
-            PM_ToolButtonGrid( inPmGroupBox, 
+            PM_ToolButtonGrid( inPmGroupBox,
                                buttonList = self.getAtomTypesButtonList(),
                                label      = "Atomic hybrids:",
                                checkedId  = 0,
                                setAsDefault = True )
-        #Increase the button width for atom hybrids so that 
-        # button texts such as sp3(p), sp2(-), sp2(-.5) fit. 
-        # This change can be removed once we have icons 
+        #Increase the button width for atom hybrids so that
+        # button texts such as sp3(p), sp2(-), sp2(-.5) fit.
+        # This change can be removed once we have icons
         # for the buttons with long text -- Ninad 2008-09-04
         self._atomTypesButtonGroup.setButtonSize(width = 44)
-        
+
         # Horizontal spacer to keep buttons grouped close together.
-        _hSpacer = QSpacerItem( 1, 32, 
-                                QSizePolicy.Expanding, 
+        _hSpacer = QSpacerItem( 1, 32,
+                                QSizePolicy.Expanding,
                                 QSizePolicy.Fixed )
-        
+
         self._atomTypesButtonGroup.gridLayout.addItem( _hSpacer, 0, 4, 1, 1 )
-        
-        
-        
-        self.connect( self._atomTypesButtonGroup.buttonGroup, 
-                      SIGNAL("buttonClicked(int)"), 
+
+
+
+        self.connect( self._atomTypesButtonGroup.buttonGroup,
+                      SIGNAL("buttonClicked(int)"),
                       self._setAtomType )
-        
+
         self._updateAtomTypesButtons()
-        
+
     def _updateAtomTypesButtons(self):
         """
-        Updates the hybrid buttons based on the currently selected 
+        Updates the hybrid buttons based on the currently selected
         element button.
         """
         currentElementNumber = self.getElementNumber()
-        
+
         if ELEMENT_ATOM_TYPES.has_key(currentElementNumber):
             elementAtomTypes = ELEMENT_ATOM_TYPES[currentElementNumber]
         else:
             # Selected element has no hybrids.
             elementAtomTypes = []
             self.atomType = ""
-            
+
         for atomType in ATOM_TYPES:
             button = self._atomTypesButtonGroup.getButtonByText(atomType)
             if atomType in elementAtomTypes:
@@ -212,35 +212,35 @@ class PM_ElementChooser( PM_MolecularModelingKit ):
                 if atomType == elementAtomTypes[0]:
                     # Select the first atomType button.
                     button.setChecked(True)
-                    self.atomType = atomType                    
+                    self.atomType = atomType
             else:
                 button.hide()
-                
+
         self._updateAtomTypesTitle()
-                
+
     def _updateAtomTypesTitle(self):
         """
         Updates the title for the Atom Types group box.
         """
         title = "Atomic Hybrids for " + self.element.name + ":"
         self._atomTypesButtonGroup.setTitle(title)
-        
+
     def _setAtomType(self, atomTypeIndex):
         """
         Set the current atom type.
-        
+
         @param atomTypeIndex: The atom type index, where:
                               0 = sp3,
                               1 = sp2,
                               2 = sp,
                               3 = sp2(graphitic)
         @type  atomTypeIndex: int
-        
+
         @note: Calling this method does not update the atom type buttons.
         """
         self.atomType = ATOM_TYPES[atomTypeIndex]
         self.updateElementViewer()
-    
+
     def getElementsButtonList(self):
         """
         Return the list of buttons in the Element chooser.
@@ -248,15 +248,15 @@ class PM_ElementChooser( PM_MolecularModelingKit ):
         @rtype:  list
         """
         return ELEMENTS_BUTTON_LIST
-    
+
     def getAtomTypesButtonList(self):
         """
-        Return the list of buttons for the various atom types (hybrids) of the 
+        Return the list of buttons for the various atom types (hybrids) of the
         selected atom in the    Element  chooser.
-        @return: List containing information about the toolbuttons for 
+        @return: List containing information about the toolbuttons for
                  the atom types (hybrids) of the selected atom  in the element
                  chooser.
-        @rtype:  list 
-        
+        @rtype:  list
+
         """
-        return ATOM_TYPES_BUTTON_LIST        
+        return ATOM_TYPES_BUTTON_LIST

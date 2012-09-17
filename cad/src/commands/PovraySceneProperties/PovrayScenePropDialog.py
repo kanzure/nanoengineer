@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 PovrayScenePropDialog.py
 

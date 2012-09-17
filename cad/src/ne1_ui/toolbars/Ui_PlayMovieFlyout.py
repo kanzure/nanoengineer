@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 This class provides the flyout toolbar for movieMode (Play Movie command)
 
@@ -17,18 +17,18 @@ from PyQt4.Qt import QAction
 class PlayMovieFlyout(Ui_AbstractFlyout):
     def _action_in_controlArea_to_show_this_flyout(self):
         """
-        Required action in the 'Control Area' as a reference for this 
+        Required action in the 'Control Area' as a reference for this
         flyout toolbar. See superclass method for documentation and todo note.
         """
         return self.win.simMoviePlayerAction
-    
+
     def _getExitActionText(self):
         """
-        Overrides superclass method. 
+        Overrides superclass method.
         @see: self._createActions()
         """
         return "Exit Movie"
-    
+
     def getFlyoutActionList(self):
         """
         Returns a tuple that contains mode spcific actionlists in the
@@ -46,18 +46,18 @@ class PlayMovieFlyout(Ui_AbstractFlyout):
         #We will treat subcontrol area same as 'command area'
         #(subcontrol area buttons will have an empty list as their command area
         #list). We will set  the Comamnd Area palette background color to the
-        #subcontrol area.        
-       
+        #subcontrol area.
+
         subControlAreaActionList =[]
-        
+
         subControlAreaActionList.append(self.exitModeAction)
-                
+
         separator = QAction(self.win)
         separator.setSeparator(True)
         subControlAreaActionList.append(separator)
 
         subControlAreaActionList.append(self.win.simPlotToolAction)
-        
+
         allActionsList.extend(subControlAreaActionList)
 
         #Empty actionlist for the 'Command Area'

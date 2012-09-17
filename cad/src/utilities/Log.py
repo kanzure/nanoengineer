@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 utilities/Log.py -- utility functions related to message logging
 
@@ -20,14 +20,14 @@ def greenmsg(text):
     Add the html tags needed to display text in green in the HistoryWidget.
     """
     return "<span style=\"color:#006600\">" + text + "</span>"
-    
+
 def redmsg(text):
     """
     Add the html tags needed to display text in red in the HistoryWidget.
     Used for serious error messages, bug reports, etc.
     """
     return "<span style=\"color:#ff0000\">" + text + "</span>"
-    
+
 def orangemsg(text): # some redmsgs might need replacement with this
     """
     Add the html tags needed to display text in orange in the HistoryWidget.

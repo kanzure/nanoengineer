@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 FuseChunks_GraphicsMode.py
 
@@ -11,7 +11,7 @@ History:
 Originally by Mark as class 'fuseChunksMode'.
 
 Ninad 2008-01-25: Split Command and GraphicsMode classes
-                  out of class fuseChunksMode. The command class can be 
+                  out of class fuseChunksMode. The command class can be
                   found in FuseChunks_Command.py
 """
 from utilities.constants import green
@@ -36,50 +36,50 @@ class _FuseChunks_GraphicsMode_preMixin:
     FuseChunks_Command. This should strictly be a pre-Mixin class.
     The intention is to override some methods of Move_GraphicsMode,
     such as Draw_*, and use them in the graphics modes of FuseChunks_Command.
-    
+
     The Move_GraphicsMode also has two subclasses TranslateChunks_GraphicsMode
-    and RotateChunks_GraphicsMode. Even in FuseChunks mode (command), we 
+    and RotateChunks_GraphicsMode. Even in FuseChunks mode (command), we
     need to use these two modes , at the same time we also need to override
-    the Draw methods etc so that the 3D workspace shows things like fusable atoms 
+    the Draw methods etc so that the 3D workspace shows things like fusable atoms
     and bonds. To achieve this, we have made this special Mixin class to define
-    Draw methods etc. Then, the class FuseChunks_GraphicsMode inherits this 
-    first and then the Move_GraphicsMode (so that, for example 
-    self.Draw_other in that class actually uses the method defined in this mixin 
+    Draw methods etc. Then, the class FuseChunks_GraphicsMode inherits this
+    first and then the Move_GraphicsMode (so that, for example
+    self.Draw_other in that class actually uses the method defined in this mixin
     class instead of Move_GraphicsMode.Draw_other).
-    
+
     We are doing similar thing in classes such as
-    Translate_in_FuseChunks_GraphicsMode, where it uses Draw-related methods 
-    from this class and special drag-related methods from 
+    Translate_in_FuseChunks_GraphicsMode, where it uses Draw-related methods
+    from this class and special drag-related methods from
     TranslateChunks_GraphicsMode
-    
-    @see: B{TranslateChunks_GraphicsMode} 
-    @see: B{Translate_in_FuseChunks_GraphicsMode} 
+
+    @see: B{TranslateChunks_GraphicsMode}
+    @see: B{Translate_in_FuseChunks_GraphicsMode}
     @see: B{RotateChunks_GraphicsMode}
-    @see: B{Rotate_in_FuseChunks_GraphicsMode} 
+    @see: B{Rotate_in_FuseChunks_GraphicsMode}
     @see: Move_GraphicsMode
     @see: FuseChunks_Command
     """
     _recompute_fusables = True
-        # _recompute_fusables is used to optimize redraws by skipping the 
+        # _recompute_fusables is used to optimize redraws by skipping the
         # recomputing of fusables (bondable pairs or overlapping atoms).
-        # When set to False, Draw() will not recompute fusables 
-        # before repainting the GLPane. When False, _recompute_fusables is 
+        # When set to False, Draw() will not recompute fusables
+        # before repainting the GLPane. When False, _recompute_fusables is
         # reset to True in Draw(), so it is the responsibility of whatever
         # triggers the next call of paintGL (which calls Draw()) (e.g. one
         # of our mouse event handlers which calls gl_update) to reset it
         # to False before each redraw if desired. For more info, see comments
         # in Draw(). [by Mark; comment clarified/corrected by bruce 090310]
-        
+
         ### WARNING: this scheme can't work correctly in general.
         # See comments elsewhere. [bruce 090310]
-    
+
     something_was_picked = False
         # 'something_was_picked' is a special boolean flag needed by Draw()
         # to determine when the state has changed from something selected
         # to nothing selected. It is used to properly update the tolerance
         # label in the Property Manager when all chunks are unselected.
         # It is set both here and in the associated command class. [by Mark?]
-        
+
         ### NOTE ABOUT INCORRECT CODE
         # [bruce 090310-11 update and review comment]:
         #
@@ -102,43 +102,43 @@ class _FuseChunks_GraphicsMode_preMixin:
         # command (for which I don't have time). In fact, it makes this more
         # correct than it was before, since it's called exactly once per
         # paintGL call (but the refactoring mentioned should still be done).
-    
+
     def Enter_GraphicsMode(self):
         Move_GraphicsMode.Enter_GraphicsMode(self)
         self._recompute_fusables = True
         return
-    
+
     def Draw_preparation(self):
         """
         """
         if self.o.is_animating or self.o.button == 'MMB':
-            # Don't need to recompute fusables if we are animating between views 
+            # Don't need to recompute fusables if we are animating between views
             # or zooming, panning or rotating with the MMB.
             self._recompute_fusables = False
 
-        # _recompute_fusables is set to False when the bondable pairs or 
+        # _recompute_fusables is set to False when the bondable pairs or
         # overlapping atoms don't need to be recomputed.
         # Scenerios when _recompute_fusables is set to False:
-        #   1. animating between views. Done above, boolean attr 
+        #   1. animating between views. Done above, boolean attr
         #      'self.o.is_animating' is checked.
-        #   2. zooming, panning and rotating with MMB. Done above, 
+        #   2. zooming, panning and rotating with MMB. Done above,
         #      check if self.o.button == 'MMB'
         #   3. Zooming with mouse wheel, done in self.Wheel().
-        # If _recompute_fusables is False here, it is immediately reset to 
+        # If _recompute_fusables is False here, it is immediately reset to
         # True below. mark 060405
         if self._recompute_fusables:
-            # This is important and needed in case there is nothing selected.  
+            # This is important and needed in case there is nothing selected.
             # I mention this because it looks redundant since is the first thing
-            # done in find_bondable_pairs(). 
+            # done in find_bondable_pairs().
             self.command.bondable_pairs = []
             self.command.ways_of_bonding = {}
             self.command.overlapping_atoms = []
 
-            if self.o.assy.selmols: 
-                # Recompute fusables. This can be very expensive, especially 
+            if self.o.assy.selmols:
+                # Recompute fusables. This can be very expensive, especially
                 # with large parts.
-                self.command.find_fusables() 
-                if not self.something_was_picked: 
+                self.command.find_fusables()
+                if not self.something_was_picked:
                     self.something_was_picked = True
             else:
                 # Nothing is selected, so there can be no fusables.
@@ -165,30 +165,30 @@ class _FuseChunks_GraphicsMode_preMixin:
             self.draw_overlapping_atoms()
 
         return
-    
+
     def draw_bondable_pairs(self):
         """
-        Draws bondable pairs of singlets and the bond lines between them. 
+        Draws bondable pairs of singlets and the bond lines between them.
         Singlets in the selected chunk(s) are colored green.
         Singlets in the unselected chunk(s) are colored blue.
         Singlets with more than one way to bond are colored magenta.
         """
         # Color of bond lines
-        bondline_color = get_selCurve_color(0,self.o.backgroundColor) 
+        bondline_color = get_selCurve_color(0,self.o.backgroundColor)
         for s1,s2 in self.command.bondable_pairs:
             color = (self.command.ways_of_bonding[s1.key] > 1) and magenta or green
             s1.overdraw_with_special_color(color)
             color = (self.command.ways_of_bonding[s2.key] > 1) and magenta or blue
             s2.overdraw_with_special_color(color)
             # Draw bond lines between singlets
-            drawline(bondline_color, s1.posn(), s2.posn()) 
+            drawline(bondline_color, s1.posn(), s2.posn())
         return
 
     def draw_overlapping_atoms(self):
         """
-        Draws overlapping atoms. 
+        Draws overlapping atoms.
         Atoms in the selected chunk(s) are colored green.
-        Atoms in the unselected chunk(s) that will be deleted are colored 
+        Atoms in the unselected chunk(s) that will be deleted are colored
         darkred.
         """
         for a1,a2 in self.command.overlapping_atoms:
@@ -197,9 +197,9 @@ class _FuseChunks_GraphicsMode_preMixin:
             # a2 atoms are the unselected chunk(s) atoms
             a2.overdraw_with_special_color(darkred)
         return
-    
+
     def leftDouble(self, event):
-        # This keeps us from leaving Fuse Chunks mode, 
+        # This keeps us from leaving Fuse Chunks mode,
         # as is the case in Move Chunks mode.
         return
 
@@ -222,36 +222,36 @@ class _FuseChunks_GraphicsMode_preMixin:
 
 # ==
 
-class FuseChunks_GraphicsMode( _FuseChunks_GraphicsMode_preMixin, 
+class FuseChunks_GraphicsMode( _FuseChunks_GraphicsMode_preMixin,
                                Move_GraphicsMode):
     """
     The default Graphics mode for the FuseChunks_Command
     @see: _FuseChunks_GraphicsMode_preMixin for comments on multiple inheritance
-    @see: B{FuseChunks_Command} where it is used as a default graphics mode 
+    @see: B{FuseChunks_Command} where it is used as a default graphics mode
          class
-    @see: B{FuseChunks_Command._createGraphicsMode} 
-    """    
+    @see: B{FuseChunks_Command._createGraphicsMode}
+    """
     pass
 
 class Translate_in_FuseChunks_GraphicsMode( _FuseChunks_GraphicsMode_preMixin,
                                             TranslateChunks_GraphicsMode):
     """
-    When the translate groupbox of the FuseChunks Command  property manager is 
-    active, the graphics mode for the command will be 
-    Translate_in_FuseChunks_GraphicsMode. 
+    When the translate groupbox of the FuseChunks Command  property manager is
+    active, the graphics mode for the command will be
+    Translate_in_FuseChunks_GraphicsMode.
     @see: _FuseChunks_GraphicsMode_preMixin for comments on multiple inheritance
-    @see: B{FuseChunks_Command._createGraphicsMode} 
+    @see: B{FuseChunks_Command._createGraphicsMode}
     """
     pass
 
 class Rotate_in_FuseChunks_GraphicsMode( _FuseChunks_GraphicsMode_preMixin,
                                          RotateChunks_GraphicsMode):
     """
-    When the translate groupbox of the FuseChunks Command  property manager is 
-    active, the graphics mode for the command will be 
-    Rotate_in_FuseChunks_GraphicsMode. 
+    When the translate groupbox of the FuseChunks Command  property manager is
+    active, the graphics mode for the command will be
+    Rotate_in_FuseChunks_GraphicsMode.
     @see: _FuseChunks_GraphicsMode_preMixin for comments on multiple inheritance
-    @see: B{FuseChunks_Command._createGraphicsMode} 
+    @see: B{FuseChunks_Command._createGraphicsMode}
     """
     pass
 

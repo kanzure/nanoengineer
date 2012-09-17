@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 widget_env.py -- an environment for the instantiation and use of widget exprs
 
@@ -148,7 +148,7 @@ class widget_env(Delegator):
         # renamed _e_eval_symbol -> lexval_of_symbol
         # but I'm not sure it's really more lexenv than dynenv, at least as seen w/in env... [061028] ####@@@@
         # btw, so far this is probably only used for _self.
-        # As of 061114, also for _this_whatever -- no, that uses our helper lexval_of_symbolname. 
+        # As of 061114, also for _this_whatever -- no, that uses our helper lexval_of_symbolname.
         name = sym._e_name
         return self.lexval_of_symbolname(name, sym)
     def lexval_of_symbolname(self, name, dflt):

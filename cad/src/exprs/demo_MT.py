@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 demo_MT.py - demo of "model tree in GLPane" (primitive, but works)
 
@@ -160,14 +160,14 @@ class Interface:
     (recomputable, tracked), not methods, to make it easier and more concise to give formulae for them when defining
     how some IorE subclass should satisfy the interface. If you want to define them with methods in a particular case,
     use the standard compute method prefix _C_, e.g.
-    
+
         def _C_mt_kids(self):
             return a sequence of the MT_kids (which the caller promises it will not try to modify).
-            
+
         or
-        
+
         mt_kids = formulae for sequence of MT_kids
-        
+
     This means that to tell if a node follows this interface, until we introduce a new formalism for that [#e as we should],
     or a way to ask whether a given attr is available (perhaps for recomputation) without getting its value [#e as we should],
     you may not be able to avoid getting the current value of at least one attr unique to the interface. ### DESIGN FLAW
@@ -328,7 +328,7 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
     except AttributeError:
         pass
     else:
-        if print_mt_node_id:        
+        if print_mt_node_id:
             print "this node %r has mt_node_id %r" % (node,node.mt_node_id)
             # old Q: where do our Rects get it?
             # A: they don't -- the bug fixed by bugfix070218 meant this was never called except for World!!
@@ -347,9 +347,9 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
         # use the ipath (non-ideal, since captures wrappers like Draggable etc, but tolerable,
         # esp since this effectively means use the world-index, which will work ok for now [070218 late])
         return node.ipath ###e should intern it as optim
-        
+
     assert not is_Expr(node), "pure exprs like %r don't belong as nodes in the model tree" % (node,)
-    
+
     # look for legacy Node property
     from foundation.Utility import node_id
     res = node_id(node) # not sure what to do if this fails -- let it be an error for now -- consider using id(node) if we need to
@@ -378,7 +378,7 @@ def mt_node_selected(node): #070216 experiment
         return node.picked
 
     return False
-    
+
 # ===
 
 ModelNode = ModelObject ###stub -- should mean "something that satisfies (aka supports) ModelNodeInterface"
@@ -408,7 +408,7 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
         # which means coercing object enough into ModelNodeInterface to tell us its mt_node_id.
         # Maybe try to make that fast by making most of it lazily done?
         #
-        #e coerce object into supporting ModelNodeInterface 
+        #e coerce object into supporting ModelNodeInterface
         object = identity(object) ###e STUB: just assume it already does support it
         index = ('MT_item_for_object', mt_node_id(object))
             # note: the constant string in the index is to avoid confusion with Arg & Instance indices;
@@ -462,13 +462,13 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
     initial_open = Option(bool, False, doc = "initial value of boolean state 'open'; only used when this item is first created")
         ##e should ask the node itself for the initial value of open (e.g. so new groups, trying to start open, can do so),
         # and also advise it when we open/close it, in case it wants to make that state persistent in some manner
-        
+
     # WARNING: compare to MT_try1 -- lots of copied code after this point
     # WARNING: the comments are also copied, and not yet reviewed much for their new context! (so they could be wrong or obs) ###k
-    
+
     # state refs
     open = State(bool, initial_open)
-    
+
     # other formulae
     ###e optim: some of these could have shared instances over this class, since they don't depend on _self; should autodetect this
     # Note, + means openable (ie closed), - means closable (ie open) -- this is the Windows convention (I guess; not sure about Linux)
@@ -485,7 +485,7 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
         sbar_text = getattr_Expr( _self, '_e_serno') #070301 this permits finding out how often MT gets remade/shared
             # (results as of 070301: remade when main instance is, even if going back to a prior testexpr, out of _19i & _30i)
      )
-    
+
     openclose_slot = If( call_Expr(node_openable, node), openclose_visible, openclose_spacer )
 
 
@@ -518,7 +518,7 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
     node_is_selected = call_Expr( mt_node_selected, node)
     kluge_icon_color = If( node_is_selected, blue, green)
     sbar_format_for_name = If( node_is_selected, "%s (selected)", "%s")
-    
+
     ###STUB for the type_icon ##e the Highlightable would be useful on the label too
     icon = Highlightable(
         Rect(0.4, 0.4, kluge_icon_color), ##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
@@ -527,7 +527,7 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
                  pointer_to_obj ),
         sbar_text = format_Expr( sbar_format_for_name, call_Expr(node_name, node) )
      )
-    
+
     ##e selection behavior too
 
     label = DisplayListChunk(
@@ -539,7 +539,7 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
         #e probably not in these items but in the surrounding Row (incl invis bg? maybe not, in case model appears behind it!)
         ##e italic for disabled nodes
         ##e support cmenu
-    
+
     delegate = SimpleRow(
         CenterY(openclose_slot),
         SimpleColumn(
@@ -627,7 +627,7 @@ class test_drag_pixmap(InstanceMacro):
         # but what can i do with a <sip.voidptr object>? Can Python buffers help?? Can PIL use it somehow??
         # Or do I have to write a C routine? Or can I pass it directly to OpenGL as texture data, if I get the format right?
         # Hmm, maybe look for Qt/OpenGL example code doing this, even if in C. ##e
-        
+
         _value = Image( "notfound")
         env = self.env
         ipath = self.ipath

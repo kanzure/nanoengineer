@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_model_constants.py -- constants for dna_model internals
 (not the same as Dna_Constants.py, which is about DNA itself)
@@ -57,6 +57,6 @@ MAX_LADDER_LENGTH = 500     # @@@@ TODO: also use this to split long ladders
     # (resulting in history-dependence of final state) will be rare.
     #
     # [bruce 080314]
-    
+
 
 # end

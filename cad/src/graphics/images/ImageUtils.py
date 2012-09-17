@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ImageUtils.py - Image utilities based on PIL.
 (Some doc of PIL can be found at http://www.pythonware.com/library/pil/handbook .)
@@ -8,7 +8,7 @@ ImageUtils.py - Image utilities based on PIL.
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 
-History: 
+History:
 
 050930. Split off image utilities from drawer.py into this file. Mark
 
@@ -37,7 +37,7 @@ class nEImageOps:
     # note: bruce 061127 renamed these to ideal_width, ideal_height, as public self attrs and __init__ options
 
     DESIRED_MODE = "RGBX" #bruce 061128 split this out
-    
+
     def __init__(self, imageName,
                  ideal_width = None, ideal_height = None,
                  rescale = True, ##e filter = ...
@@ -125,31 +125,31 @@ class nEImageOps:
     def __repr__(self): #bruce 061127
         #e add size & mode? if so, make sure it works in __init__ before self.img has been set!
         return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.imageName) #e use basename only?
-    
+
     def getPowerOfTwo(self, num): # [never reviewed by bruce]
         """
         Returns the nearest number for <num> that's a power of 2. Currently, it's not used.
         """
         assert(type(num) == type(1))
         a = 0
-        
+
         # This proves that a large image may crash the program. This value works on my machine.   H.
         maxValue = 256
-        
+
         oNum = num
         while num>1:
            num = num>>1
            a += 1
-        
+
         s = min(1<<a, maxValue) ; b = min(1<<(a+1), maxValue)
-        
+
         if (oNum-s) > (b-oNum):
             return b
         else: return s
-    
+
     def getTextureData(self): #bruce 061127 revised API, implem and docstring
         """
-        Returns (width, height, data), where data contains the RGB values (required by OpenGL) of the image 
+        Returns (width, height, data), where data contains the RGB values (required by OpenGL) of the image
         to be texture mapped onto a polygon. If self.rescale is false and if both image dims need to expand,
         the rgb pixels include padding which is outside the original image. Otherwise (including if one dim
         needs to expand and one to shrink), the image is stretched/shrunk to fit in each dim independently.
@@ -199,7 +199,7 @@ class nEImageOps:
         # Before that, it acted as if self.ideal_width, self.ideal_height were always passed (as they in fact were).
         width = self.img.size[0]
         height = self.img.size[1]
-            
+
         if (width, height) != (wd, ht): # actual != desired
             if self.rescale or wd < width or ht < height: # have to rescale if either dim needs to shrink
                 # we will rescale.
@@ -261,7 +261,7 @@ class nEImageOps:
         # Without saving/opening, 'tostring()' is not working right.
         # [bruce guess 061127 about the cause: maybe related to ops that don't
         #  work before or after image is loaded. The docs mentioned elsewhere
-        #  are not very clear about this.] 
+        #  are not very clear about this.]
         import os
         from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
@@ -285,11 +285,11 @@ class nEImageOps:
         if oldmode != newmode and debug_flags.atom_debug and self.debug: #k does this ever happen??
             print "debug warning: oldmode != newmode (%r != %r) in %r.update" % (oldmode, newmode, self)
         #e could set actual-size attrs here
-        
+
     def flip(self):
         self.img = ImageOps.flip(self.img)
         self.update()
-            
+
     def mirror(self):
         self.img = ImageOps.mirror(self.img)
         self.update()
@@ -300,7 +300,7 @@ class nEImageOps:
         """
         self.img = self.img.rotate(deg)
         self.update()
-            
+
     pass # end of class nEImageOps
 
 # end

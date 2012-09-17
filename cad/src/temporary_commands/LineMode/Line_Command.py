@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 @author:    Ninad
 @version:   $Id$
@@ -11,14 +11,14 @@ Split this out of LineMode.py (and deprecated that class)
 
 TODOs:
 - Refactor/ expand snap code. Should all the snapping code be in its own module?
-- Need to discuss and derive various snap rules 
-  Examples: If 'theta_snap' between dragged line and the  two reference enties 
-            is the same, then the snap should use the entity with shortest  
+- Need to discuss and derive various snap rules
+  Examples: If 'theta_snap' between dragged line and the  two reference enties
+            is the same, then the snap should use the entity with shortest
             distance
-            Should horizontal/vertical snap checks always be done before 
+            Should horizontal/vertical snap checks always be done before
             standard axis  snap checks -- guess-- No. The current implementation
-            however skips the standard axis snap check if the 
-            horizontal/vertical snap checks succeed.           
+            however skips the standard axis snap check if the
+            horizontal/vertical snap checks succeed.
 
 """
 
@@ -27,11 +27,11 @@ from temporary_commands.LineMode.Line_GraphicsMode import Line_GraphicsMode
 from utilities.debug import print_compact_traceback
 # == Command part
 
-class Line_Command(Select_Command): 
+class Line_Command(Select_Command):
     """
     Encapsulates the Line_Command tool functionality.
     """
-        
+
     # class constants
 
     commandName = 'Line_Command'
@@ -48,24 +48,24 @@ class Line_Command(Select_Command):
 
     GraphicsMode_class = Line_GraphicsMode
 
-    # Initial value for the instance variable. (Note that although it is assigned 
-    # an empty tuple, later it is assigned a list.) Empty tuple is just for 
-    # the safer implementation than an empty list. Also, it is not 'None' 
+    # Initial value for the instance variable. (Note that although it is assigned
+    # an empty tuple, later it is assigned a list.) Empty tuple is just for
+    # the safer implementation than an empty list. Also, it is not 'None'
     # because in Line_GraphicsMode.bareMotion, it does a check using
     # len(mouseClickPoints)
     mouseClickPoints = ()
 
-    command_should_resume_prevMode = True 
+    command_should_resume_prevMode = True
     command_has_its_own_PM = False
 
     _results_callback = None #bruce 080801
-    
-    
+
+
 
     def setParams(self, params):
         """
         Assign values obtained from the parent mode to the instance variables
-        of this command object. 
+        of this command object.
         """
         # REVIEW: I think this is only called from self.command_entered(),
         # and ought to be private or inlined. I revised it to accept a tuple
@@ -76,27 +76,27 @@ class Line_Command(Select_Command):
         # change might cause bugs. [bruce 080801]
         assert len(params) == 1 #bruce 080801
         (self.mouseClickLimit,) = params
-        
+
     def _f_results_for_caller_and_prepare_for_new_input(self):
         """
-        This is called only from GraphicsMode.leftUp() 
-        Give results for the caller of this request command and then prepare for 
+        This is called only from GraphicsMode.leftUp()
+        Give results for the caller of this request command and then prepare for
         next input (mouse click points) from the user. Note that this is called
         from Line_GraphiceMode.leftUp() only when the mouseClickLimit
         is not specified (i.e. the command is not exited automatically after
-        'n' number of mouseclicks) 
-        
+        'n' number of mouseclicks)
+
         @see: Line_GraphiceMode.leftUp()
         @see: RotateAboutPoints_GraphiceMode.leftUp()
         """
         if self._results_callback:
             # note: see comment in command_will_exit version of this code
             params = self._results_for_request_command_caller()
-            self._results_callback( params)    
-        
-        self.mouseClickPoints = []          
+            self._results_callback( params)
+
+        self.mouseClickPoints = []
         self.graphicsMode.resetVariables()
-      
+
 
     def _results_for_request_command_caller(self):
         """
@@ -125,7 +125,7 @@ class Line_Command(Select_Command):
         else:
             # maybe: set default params?
             self._results_callback = None
-            
+
     def command_will_exit(self):
         super(Line_Command, self).command_will_exit()
         if self._results_callback:
@@ -142,4 +142,4 @@ class Line_Command(Select_Command):
         self.mouseClickPoints = []
 
         self.graphicsMode.resetVariables()
-        return  
+        return

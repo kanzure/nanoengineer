@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLSphereBuffer.py -- Subclass of GLPrimitiveBuffer for sphere primitives.
 
@@ -31,7 +31,7 @@ class GLSphereBuffer(GLPrimitiveBuffer):
     Draws a bounding-box of quads (or a single billboard quad) to a custom
     sphere shader for each sphere primitive, along with control attribute data.
     """
-    
+
     def __init__(self, shaderGlobals):
         """
         @param shaderGlobals: the instance of class ShaderGlobals
@@ -47,7 +47,7 @@ class GLSphereBuffer(GLPrimitiveBuffer):
         self.hunkBuffers += [self.ctrRadHunks]
 
         return
-    
+
     def addSpheres(self, centers, radii, colors, transform_ids, glnames):
         """
         Sphere centers must be a list of VQT points.
@@ -75,7 +75,7 @@ class GLSphereBuffer(GLPrimitiveBuffer):
         else:
             radii = nSpheres * [float(radii)]
             pass
-        
+
         if type(colors) == type([]):
             assert len(colors) == nSpheres
             colors = [self.color4(colors) for color in colors]
@@ -114,7 +114,7 @@ class GLSphereBuffer(GLPrimitiveBuffer):
                 self.transform_id_Hunks.setData(newID, transform_id)
             # Break the glname into RGBA pixel color components, 0.0 to 1.0 .
             # (Per-vertex attributes are all multiples (1-4) of Float32.)
-            ##rgba = [(glname >> bits & 0xff) / 255.0 for bits in range(24,-1,-8)] 
+            ##rgba = [(glname >> bits & 0xff) / 255.0 for bits in range(24,-1,-8)]
             ## Temp fix: Ignore the last byte, which always comes back 255 on Windows.
             rgba = [(glname >> bits & 0xff) / 255.0 for bits in range(16,-1,-8)]+[0.0]
             self.glname_color_Hunks.setData(newID, rgba)
@@ -142,5 +142,5 @@ class GLSphereBuffer(GLPrimitiveBuffer):
         ctrRad = V(point[0], point[1], point[2], radius)
         self.ctrRadHunks.setData(primID, ctrRad)
         return
-        
+
     pass # End of class GLSphereBuffer.

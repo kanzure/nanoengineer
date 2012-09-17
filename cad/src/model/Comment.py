@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Comment.py - The Comment class.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -36,7 +36,7 @@ class Comment(SimpleCopyMixin, Node):
 
     copyable_attrs = Node.copyable_attrs + ('lines',)
         #bruce 060523 this fixes bug 1939 (undo) and apparently 1938 (file modified),
-        # and together with SimpleCopyMixin it also fixes bug 1940 (copy) 
+        # and together with SimpleCopyMixin it also fixes bug 1940 (copy)
 
     def __init__(self, assy, name, text=''):
         self.const_pixmap = imagename_to_pixmap("modeltree/comment.png")
@@ -50,7 +50,7 @@ class Comment(SimpleCopyMixin, Node):
     def assert_valid_line(self, line): #bruce 070502
         assert type(line) in (type(""), type(u"")), "invalid type for line = %r, with str = %s" % (line, line)
         return
-    
+
     def set_text(self, text):
         """
         Set our text (represented in self.lines, a list of 1 or more str or unicode strings, no newlines)
@@ -70,7 +70,7 @@ class Comment(SimpleCopyMixin, Node):
             ## self.text = text # see if edit still works after this -- it does
             lines = text.split('\n')
             # ok that they are unicode but needn't be? yes.
-        map( self.assert_valid_line, lines) 
+        map( self.assert_valid_line, lines)
         self.lines = lines
         if oldlines != lines:
             self.changed()
@@ -128,13 +128,13 @@ class Comment(SimpleCopyMixin, Node):
         else:
             Node.readmmp_info_leaf_setitem( self, key, val, interp)
         return
-    
+
     def edit(self):
         """
         Opens Comment dialog with current text.
         """
         self.assy.w.commentcntl.setup(self)
-        
+
     def writemmp(self, mapping):
         lines = self.lines
         def encodeline(line):
@@ -154,7 +154,7 @@ class Comment(SimpleCopyMixin, Node):
 
     def __str__(self):
         return "<comment " + self.name + ">"
-        
+
     pass # end of class Comment
 
 # ==

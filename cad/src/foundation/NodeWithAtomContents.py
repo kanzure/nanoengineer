@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 NodeWithAtomContents.py -- abstract class for Node subclasses which
 can contain Atoms.
@@ -43,17 +43,17 @@ class NodeWithAtomContents(NodeWith3DContents):
     # initial values of instance variables
 
     # atom content bits, minimum possible value and maximum possible value
-    # 
+    #
     # (When the min and max bits at the same position differ, the corresponding
     #  atom content bit is not known, and will be recomputed as needed, and
     #  stored in both instance variables. The initial values correspond to all
     #  content bits being uncertain.)
-    
+
     _min_atom_content = 0 # instance variable value is always >= 0
     _max_atom_content = -1 # instance variable value might be < 0 or not
 
     # access
-    
+
     def get_atom_content(self, flags = -1):
         """
         [overrides Node method]
@@ -73,7 +73,7 @@ class NodeWithAtomContents(NodeWith3DContents):
         return min_content
 
     # recomputation
-    
+
     def _f_updated_atom_content(self):
         """
         Recompute, record, and return our atom content,
@@ -135,7 +135,7 @@ class NodeWithAtomContents(NodeWith3DContents):
         return
 
     # incremental update
-    
+
     def remove_some_atom_content(self, flags):
         """
         One of your kids is, or might be (it makes no difference which one
@@ -226,7 +226,7 @@ class NodeWithAtomContents(NodeWith3DContents):
         ## if (old_max, new_max) != (-1, -1):
         ##     print "max: added %#x to %#x to get %#x" % (flags, old_max, new_max)
         added_max = new_max - old_max # often 0, so we optimize for that
-        
+
         new_min = old_min = self._min_atom_content
         new_min |= flags
         assert new_min >= 0

@@ -1,6 +1,6 @@
 
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 # usage:
 #
 # python Generate.py adenine > adenine.mmp
@@ -132,7 +132,7 @@ elif (baseName == 'end2'):
     printAtom(10, 0, strand2(bondpoint2), 8)
 
 else:
-    
+
     # Axis
     printAtom(1, 200, (0, 0, 0), 0) # Ax
     printAtom(2, 0, (0, 0, zSpacing/2), 1) # Axis bondpoint

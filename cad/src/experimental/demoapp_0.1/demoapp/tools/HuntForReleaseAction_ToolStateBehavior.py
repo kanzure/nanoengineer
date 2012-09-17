@@ -49,10 +49,10 @@ class HuntForReleaseAction_ToolStateBehavior(ToolStateBehavior): # rename?
         self._cmd_retval = self._doit(command) # this value is used for CMD_RETVAL
         assert self._cmd_retval or not command, "error: %r returns %r in %r" % \
                (command, self._cmd_retval, self)
-            # not ok in general, but will help catch bugs for now ### 
+            # not ok in general, but will help catch bugs for now ###
         self.transition_to(next_state)
         return handled
-    
+
     def _doit(self, command): # rename to mention "command"?
         name, args = parse_command(command)
         if not name:

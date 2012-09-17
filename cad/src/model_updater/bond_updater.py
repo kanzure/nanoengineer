@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 bond_updater.py
 
@@ -40,7 +40,7 @@ def update_bonds_after_each_event( changed_structure_atoms):
     """
     [should be called only from _master_model_updater, which is in turn
      called from env.do_post_event_updates]
-    
+
     This should be called at the end of every user event which might affect
     the atomtypes or bond-sets of any atoms or singlets, which are passed as the
     values of the dict changed_structure_atoms, which we should not modify
@@ -77,11 +77,11 @@ def update_bonds_after_each_event( changed_structure_atoms):
     bonds_to_fix = {}
     mols_changed = {} #bruce 060126, so atom._changed_structure() doesn't need
         # to call atom.changed() directly
-    
+
     for atm in changed_structure_atoms.values():
         #bruce 060405 precaution: itervalues -> values,
         # due to jig.changed_structure calls
-        
+
         # ignore killed atoms
         # [bruce 071018 bugfix of old bug
         #  "reguess_atomtype of bondpoint with no bonds"]
@@ -112,15 +112,15 @@ def update_bonds_after_each_event( changed_structure_atoms):
         # for singlets, just look at their base atoms
         # [I'm not sure where that comment shows up in the code, or whether the
         #  following comment was meant to be a change to it -- bruce 071115]
-        
+
         # [as of 050707 just look at all bonds of all unkilled atoms]
-        
+
         #e when info must be recorded for later, do this per-chunk or per-part.
         ##k Do we move existing such info when atoms moved or were killed??
-        
+
         mol = atm.molecule # might be None or nullMol; check later
         mols_changed[id(mol)] = mol
-        
+
         atype = atm.atomtype # make sure this is defined; also it will tell us
             # the permitted bond orders for any bond on this atom
         for bond in atm.bonds:
@@ -141,7 +141,7 @@ def update_bonds_after_each_event( changed_structure_atoms):
         # For now, these are stored in jigs; one jig might contain just one
         # perceived structure, or all of one kind in one set of atoms
         # (the following code needn't know which).
-        
+
         if atm.jigs: # most atoms have no jigs, so initial 'if' is worthwhile
             for jig in atm.jigs[:]: # list copy is necessary, see below
                 try:
@@ -159,10 +159,10 @@ def update_bonds_after_each_event( changed_structure_atoms):
                               "for %r: " % (atm, jig)
                         print_compact_traceback( msg)
                 continue
-        
+
         # atom-valence checks can't be done until we fix illegal bond types,
         # below
-        
+
         # comments about future atom-valence checks:
         #
         #e should we also check atypes against numbonds and total bond valence
@@ -180,7 +180,7 @@ def update_bonds_after_each_event( changed_structure_atoms):
     for mol in mols_changed.itervalues():
         if mol is not None:
             mol.changed() # should be safe for nullMol (but not for None)
-    
+
     if not bonds_to_fix:
         return # optim [will be wrong once we have atom valence checks below]
 
@@ -219,7 +219,7 @@ def _best_corrected_v6(bond):
      changed automatically by increase_valence_noupdate
      when the user bonds two bondpoints to increase order of
      existing bond, as in bug 1951).
-    
+
     Say how we want to fix it (or perhaps fix the atomtypes?? #e
      [i doubt it, they might have just changed -- 060629]).
     """
@@ -241,7 +241,7 @@ def _best_corrected_v6(bond):
     # or depends on other bonds/valences?
     # ... we might return a list of legal btypes in order of preference,
     # for inference code (see paper notes)
-    
+
     v6 = bond.v6
     try:
         lis = _corrected_v6_list[v6]

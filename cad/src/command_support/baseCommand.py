@@ -10,7 +10,7 @@ baseCommand.py - base class for command objects on a command sequencer stack
 from utilities.debug import print_compact_traceback
 _pct = print_compact_traceback # local abbreviation for readability
 
-from utilities.constants import CL_ABSTRACT 
+from utilities.constants import CL_ABSTRACT
 
 from commandSequencer.command_levels import FIXED_PARENT_LEVELS
 from commandSequencer.command_levels import AFFECTS_FLYOUT_LEVELS
@@ -34,7 +34,7 @@ class baseCommand(object):
            in anyCommand or basicCommand.
     """
     __abstract_command_class = True
-    
+
     # default values of command subclass constants
 
     # WARNING: presently some of these are overridden in anyCommand and/or
@@ -43,13 +43,13 @@ class baseCommand(object):
 
     #Temporary attr 'command_porting_status'. Used ONLY to keep a track of
     #commands that are ported to the new command API. the default value is
-    #'UNKNOWN'. This is overridden in subclasses. command_porting_status is set 
+    #'UNKNOWN'. This is overridden in subclasses. command_porting_status is set
     #to 'None' when the command is fully ported to USE_COMMAND_STACK
     command_porting_status = 'UNKNOWN'
-    
+
     command_level = CL_ABSTRACT
         #doc command_level; see command_levels.py
-    
+
     command_parent = None # TODO: rename this to command_parentName or ... ###
         # Subclasses should set this to the commandName of the parent command
         # they require, if any (and if that is not the default command).
@@ -63,16 +63,16 @@ class baseCommand(object):
     # only seen by users in "debug" error messages;
     # might be used to create some prefs_keys and/or in some prefs values
     # [but I don't know if any such uses remain -- bruce 080727 comment]
-    commandName = "(bug: missing commandName 1)" 
+    commandName = "(bug: missing commandName 1)"
 
     # default values of instance variables; properties; access methods
 
     # - related to parentCommand
 
     is_null = False # overridden only in nullCommand
-    
+
     _parentCommand = None # parent command object, when self is on command stack
-    
+
     def _get_parentCommand( self):
         return self._parentCommand
 
@@ -90,29 +90,29 @@ class baseCommand(object):
         return self.parentCommand is not None
 
     # - related to flyout toolbar
-    
+
     FlyoutToolbar_class = None  #Ninad 2008-09-12
        #Command subclasses can override this class attr with the appropriate
-       #Flyout Toolbar class. This is used to create a FlyoutToolbar object 
-       #for the commands. this attr is also used to do flyout toolbar updates. 
-       #Example: if the value of this attr is None then it either implies the 
-       #command should use the flyout toolbar of the parent command and do 
-       #some more UI changes to it (example check an action) OR the command 
-       #shouldn't do anything with the flyout at all (this is decided using the 
+       #Flyout Toolbar class. This is used to create a FlyoutToolbar object
+       #for the commands. this attr is also used to do flyout toolbar updates.
+       #Example: if the value of this attr is None then it either implies the
+       #command should use the flyout toolbar of the parent command and do
+       #some more UI changes to it (example check an action) OR the command
+       #shouldn't do anything with the flyout at all (this is decided using the
        #'command_level)
        #@see: self.command_update_flyout()
        #@see: self._command_entered_prepare_flyout()
        #@see: self._createFlyouttoolbarObject()
-       
+
     flyoutToolbar = None
 
     # - related to a command's property manager (PM)
-    
+
     command_has_its_own_PM = True
         # TODO: merge related code from our toplevel subclasses
         # REVIEW: can this be replaced by the condition (self.PM_class is not None)?
         # [bruce 081125 comments]
-    
+
     propMgr = None # will be set to the PM to use with self (whether or not created by self);
         # some methods assume that object is a subclass of PM_Dialog,
         # or perhaps (more likely) of its subclass Command_PropertyManager.
@@ -128,19 +128,19 @@ class baseCommand(object):
         [overridden in basicCommand, see there for doc]
         """
         # revised, bruce 080727; moved to this class, bruce 080929
-        return "null command" # should never be seen 
+        return "null command" # should never be seen
 
     def is_fixed_parent_command(cls):
         """
         Is this command instance or class a "fixed-parent command",
         i.e. one which requires self.parentCommand to be an instance
         of a specific command?
-        
+
         @note: it works to call this classmethod directly on the class,
                or on an instance
         """
         return cls.command_level in FIXED_PARENT_LEVELS
-    
+
     is_fixed_parent_command = classmethod(is_fixed_parent_command)
 
     def command_affects_flyout(cls):
@@ -152,14 +152,14 @@ class baseCommand(object):
         Used to decide when to call command_update_flyout, and when to
         restore the default flyout state for the current command if the
         user has temporarily modified it.
-        
+
         @note: it works to call this classmethod directly on the class,
                or on an instance
         """
         return cls.command_level in AFFECTS_FLYOUT_LEVELS
-    
+
     command_affects_flyout = classmethod(command_affects_flyout)
-    
+
     def command_that_supplies_PM(self):
         """
         Return the innermost command (of self or its parent/grandparent/etc)
@@ -191,7 +191,7 @@ class baseCommand(object):
                    "%r.PM %r has wrong .command %r, found from %r" % \
                    (res, res.propMgr, res.propMgr.command, self)
         return res
-            
+
     # == exit-related methods (see also CommandSequencer.exit_all_commands)
 
     def command_Done(self, implicit = False):
@@ -212,7 +212,7 @@ class baseCommand(object):
         """
         self.commandSequencer._f_exit_active_command(self, implicit = implicit)
         return
-    
+
     def command_Cancel(self):
         """
         Exit this command, after also exiting any subcommands it may have,
@@ -225,20 +225,20 @@ class baseCommand(object):
         """
         self.commandSequencer._f_exit_active_command(self, cancel = True)
         return
-    
+
     def _f_command_do_exit_if_ok(self):
         # todo: args: anything needed to decide if ok or when asking user
         """
         Exit this command (but not any other commands), when it's the current
         command, if possible or if self.commandSequencer.exit_is_forced is true,
         and return True.
-        
+
         If not possible for some reason, emit messages as needed,
         and return False.
 
         @return: whether exit succeeded.
         @rtype: boolean
-        
+
         @note: caller must only call this if this command *should* exit if
                possible, and if it's the current command (not merely an active
                command, even if it's the command which is supplying the PM).
@@ -263,7 +263,7 @@ class baseCommand(object):
             except:
                 _pct()
                 ok = True
-            
+
             if not ok and not self.commandSequencer.exit_is_forced:
                 self._command_log("not exiting")
                 return False
@@ -292,7 +292,7 @@ class baseCommand(object):
         """
         @return: whether user should be asked whether it's ok to exit self
         @rtype: boolean
-        
+
         @warning: not yet properly implemented in caller
 
         @warning: overriding this method should be rare.
@@ -307,7 +307,7 @@ class baseCommand(object):
         # and if that returns true, check a user pref to decide what to do.
         # Initially it's ok if it always returns False.
         return False
-    
+
     def command_will_exit(self):
         """
         Perform side effects on self and the UI, needed when self
@@ -325,19 +325,19 @@ class baseCommand(object):
                but it may or may not have been on top when the current user
                event handler started (e.g. some other command may have already
                exited during the same user event).
-               
+
         @note: base class implementation calls self methods
                command_exit_misc_actions and command_exit_PM.
-        
+
         [subclasses should extend this as needed, typically calling
          superclass implementation at the end]
         """
         # note: we call these in the reverse order of how
         # command_entered calls the corresponding _enter_ methods.
-        self.command_exit_misc_actions()            
+        self.command_exit_misc_actions()
         self.command_exit_PM()
         return
-    
+
     def command_exit_PM(self):
         """
         Do whatever needs to be done to a command's PM
@@ -347,7 +347,7 @@ class baseCommand(object):
         [subclasses should override this as needed]
         """
         return
-    
+
     def command_exit_misc_actions(self):
         """
         Undo whatever was done
@@ -372,15 +372,15 @@ class baseCommand(object):
         self._parentCommand = None
         return
 
-    # == enter-related methods 
-    
+    # == enter-related methods
+
     def _command_do_enter_if_ok(self, args = None):
         """
         #doc
 
         @return: whether enter succeeded.
         @rtype: boolean
-        
+
         @note: caller must only call this if this command *should* enter if possible.
 
         @note: always called on an instance, even if a command class alone
@@ -393,7 +393,7 @@ class baseCommand(object):
             except:
                 _pct()
                 ok = True
-            
+
             if not ok:
                 self._command_log("not entering")
                 return False
@@ -437,7 +437,7 @@ class baseCommand(object):
         @note: overriding this should be rare, and is always a UI design flaw.
                Instead, commands should enter, then help the user make it ok
                to use them (e.g. help them select an appropriate argument).
-                
+
         [a few subclasses should override or extend, most don't need to]
         """
         return True
@@ -445,7 +445,7 @@ class baseCommand(object):
     def command_prepare_to_enter(self):
         """
         #doc
-        
+
         [some subclasses should extend, most don't need to]
         """
         return
@@ -479,73 +479,73 @@ class baseCommand(object):
 
         [subclasses should extend as needed, by calling superclass
          implementation at the start]
-        
+
         @see: self._command_entered_prepare_flyout()
         @see: self.command_update_flyout()
         """
         self.graphicsMode.Enter_GraphicsMode()
-        
+
         if not self.command_has_its_own_PM:
             # note: that flag must be True (so this doesn't run) in the default
             # command, since it has no self.parentCommand
             self.propMgr = self.parentCommand.propMgr
-        
+
         self.command_enter_PM()
-        
+
         if self.flyoutToolbar is None:
             self._command_entered_prepare_flyout()
-                
+
         self.command_enter_misc_actions()
         return
-    
+
     def _command_entered_prepare_flyout(self): #Ninad 2008-09-12
         """
-        Create flyout toolbar object for the command if needed. Whether to 
-        create it is decided using the class attr self.FlyoutToolbar_class.  
-        
-        Example: if FlyoutToolbar_class is None, 
+        Create flyout toolbar object for the command if needed. Whether to
+        create it is decided using the class attr self.FlyoutToolbar_class.
+
+        Example: if FlyoutToolbar_class is None,
         it means the command should use the flyout of the parent command
-        if one exists. When FlyoutToolbar_class is defined by the command, 
-        it uses that to create one for the command. 
+        if one exists. When FlyoutToolbar_class is defined by the command,
+        it uses that to create one for the command.
 
         This method is called in self.command_entered(). Subclasses should
-        NEVER override this method. 
-        
-        @see: self.command_update_flyout()  which actually does the updates to 
-              the flyout toolbar. 
+        NEVER override this method.
+
+        @see: self.command_update_flyout()  which actually does the updates to
+              the flyout toolbar.
         @see: self.command_entered() which calls this method.
-        """        
+        """
         if self.FlyoutToolbar_class is None:
-            #The FlyoutToolbar_class is not define. This means either of the 
+            #The FlyoutToolbar_class is not define. This means either of the
             #following: A) the command is , for example, a subcommand,
             #which reuses the flyoutToolbar of the parent command and an action
-            #representing this command is checked in the flyout toolbar. 
-            #B) The command is an internal request command and doesn't have 
-            #a specific action to be checked in the flyout. So all it does is 
+            #representing this command is checked in the flyout toolbar.
+            #B) The command is an internal request command and doesn't have
+            #a specific action to be checked in the flyout. So all it does is
             #to not do any changes to the flyout and just continue using it.
-            
-            #The following line of code makes sure that the self.parentCommand 
-            #exists and if it does, it assigns self's flyout the value of 
+
+            #The following line of code makes sure that the self.parentCommand
+            #exists and if it does, it assigns self's flyout the value of
             #parentCommand's flyoutToolbar object.
-            self.flyoutToolbar = self.parentCommand and self.parentCommand.flyoutToolbar             
-                
+            self.flyoutToolbar = self.parentCommand and self.parentCommand.flyoutToolbar
+
         else:
             #FlyoutToolbar_class is specified. So create a flyoutToolBarObject
             #if necessary
             if self.flyoutToolbar is None:
-                self.flyoutToolbar = self._createFlyoutToolbarObject() 
-                
+                self.flyoutToolbar = self._createFlyoutToolbarObject()
+
     def _createFlyoutToolbarObject(self): #Ninad 2008-09-12
         """
-        Creates and returns a FlyoutToolbar object of the specified 
-        FlyoutToolbar_class. 
+        Creates and returns a FlyoutToolbar object of the specified
+        FlyoutToolbar_class.
         @see: self._command_entered_prepare_flyout()
         @see: self.command_update_flyout()
         @see: self._createPropMgrObject()
         """
         if self.FlyoutToolbar_class is None:
             return None
-        
+
         flyout = self.FlyoutToolbar_class(self)
         return flyout
 
@@ -558,7 +558,7 @@ class baseCommand(object):
         been assigned to self.propMgr, assuming this method is called by
         the base class implementation of command_entered (as usual)
         and that self.command_has_its_own_PM is false.
-        
+
         In that case, this method is allowed to perform side effects on
         that "parent PM" (and this is the best place to do them),
         but this is only safe if the parent command and PM are of the expected
@@ -578,14 +578,14 @@ class baseCommand(object):
         @note: base class implementation of command_entered calls this,
                after setting self.propMgr to PM from parent command if
                self.command_has_its_own_PM is false.
-               
+
         @see: CommandSequencer._f_update_current_command() which calls PM.show()
-              for the desired PM.              
+              for the desired PM.
 
         [subclasses should override as needed]
         """
         return
-    
+
     def command_enter_misc_actions(self):
         """
         incrementally modify the state of miscellaneous UI actions
@@ -642,10 +642,10 @@ class baseCommand(object):
         will call self.command_update_internal_state(), which should update
         internal state for all commands on the command stack, in bottom to top
         order (see its docstring for details ### superclass calls, base implem).
-        
+
         The command sequencer will then call self.command_update_UI()
         (and, possibly, other update_UI methods on other UI objects ###doc).
-        
+
         @note: For any command that has a "state machine", its logic should be
                implemented within this method.
 
@@ -677,7 +677,7 @@ class baseCommand(object):
 
         @see: command_update_state, for prior updates that might change the
               command stack; see its docstring for the context of this call
-              
+
         @see: command_update_UI, for subsequent updates of UI elements only
         """
         if self.parentCommand:
@@ -701,7 +701,7 @@ class baseCommand(object):
         @see: command_update_internal_state, for prior updates that change
               internal state variables in all active commands (even if those
               are stored in their property manager objects)
-              
+
         @see: self.command_update_flyout()
         """
         if self.propMgr:
@@ -712,97 +712,97 @@ class baseCommand(object):
                 # commandSequencer._f_update_current_command,
                 # after we return.
 
-        # Note: 2008-09-16: updating flyout toolbar is now done by 
-        #self.command_update_flyout() See that method for details. 
-        
+        # Note: 2008-09-16: updating flyout toolbar is now done by
+        #self.command_update_flyout() See that method for details.
+
         return
 
     def command_update_flyout(self): #bruce 080910; Ninad 2008-09-16
         """
-        Subclasses should NEVER override this method. 
-        
+        Subclasses should NEVER override this method.
+
         This method is only called for command stack changes involving commands
         that affect the flyout toolbar (according to their command_level).
 
         When this is called, self is the current command and
         all other update methods defined above have been called.
-        
+
         @note: called only when command stack changed (counting
                only commands that affect flyout) since
                the last time this was called for any command
-        
+
         @see: self.command_update_UI() where updates to PM are done
         @see: self._command_entered_prepare_flyout() which actually creates the
               flyout toolbar.
-        @see: command_levels._IGNORE_FLYOUT_LEVELS 
+        @see: command_levels._IGNORE_FLYOUT_LEVELS
         @see: AbstractFlyout.resetStateOfActions()
         @see: AbstractFlyout.activateFlyoutToolbar()
         @see: CommandToolbar.resetToDefaultState()
-        """  
+        """
         if self.flyoutToolbar:
-            #activate the flyout toolbar. 
-            self.flyoutToolbar.activateFlyoutToolbar()   
-            
+            #activate the flyout toolbar.
+            self.flyoutToolbar.activateFlyoutToolbar()
+
             if self.FlyoutToolbar_class is None:
-                #@see:self._getFlyoutToolBarActionAndParentCommand() docstring 
+                #@see:self._getFlyoutToolBarActionAndParentCommand() docstring
                 #for a detailed documentation.
                 flyoutActionToCheck, parentCommandString = self._getFlyoutToolBarActionAndParentCommand()
-                #The following method needs to handle the empty action 
+                #The following method needs to handle the empty action
                 #string (flyoutActionToCheck)
-                self._init_gui_flyout_action(flyoutActionToCheck, 
+                self._init_gui_flyout_action(flyoutActionToCheck,
                                              parentCommandName = parentCommandString)
             else:
                 #Its not a subcommand that is using the flyout toolbar. So
-                #make sure that no action is checked when this flyout is shown 
-                #(e.g. an action might be checked because the earlier command 
-                #was a subcommand using this flyout) 
+                #make sure that no action is checked when this flyout is shown
+                #(e.g. an action might be checked because the earlier command
+                #was a subcommand using this flyout)
                 self.flyoutToolbar.resetStateOfActions()
         else:
-            #The flyout toolbar is None. NOTE: self.command_update_flyout is 
-            #only called for command stack changes involving commands that 
+            #The flyout toolbar is None. NOTE: self.command_update_flyout is
+            #only called for command stack changes involving commands that
             #affect flyout. Thus, this method is never called for commands whose
             #command_level is in 'ignore list' (such as CL_VIEW_CHANGE)
-            #What this all means, is when this 'else' condition (i.e. flyoutToolbar 
+            #What this all means, is when this 'else' condition (i.e. flyoutToolbar
             #is None, is reached program needs to reset the flyout toolbar to its
-            #default state. i.e. Check the Build Control button and show the 
-            #Build control button menu in the flyout toolbar.                 
-            self.win.commandToolbar.resetToDefaultState()  
-                
+            #default state. i.e. Check the Build Control button and show the
+            #Build control button menu in the flyout toolbar.
+            self.win.commandToolbar.resetToDefaultState()
+
     def _getFlyoutToolBarActionAndParentCommand(self): #Ninad 2008-09-15
         """
         Subclasses can override this method.
-        Returns text of the action to check in the flyout toolbar and also in 
+        Returns text of the action to check in the flyout toolbar and also in
         some cases, the name of the parentCommand (value is None or the
-        command name string) 
-        
+        command name string)
+
         Consider the following cases:
-        A) The command is , for example, a subcommand, which reuses the 
-        flyoutToolbar of the parent command and an action representing this 
-        command is checked in the flyout toolbar. 
-        
-        B) The command is an internal request command and doesn't have 
-        a specific action to be checked in the flyout. So all it does is 
-        to not do any changes to the flyout and just continue using it. 
-                 
-        For case (A) the 'flyoutActionToCheck' returns a string with action name 
-        for case (B), it returns 'None' (indicating that no 
+        A) The command is , for example, a subcommand, which reuses the
+        flyoutToolbar of the parent command and an action representing this
+        command is checked in the flyout toolbar.
+
+        B) The command is an internal request command and doesn't have
+        a specific action to be checked in the flyout. So all it does is
+        to not do any changes to the flyout and just continue using it.
+
+        For case (A) the 'flyoutActionToCheck' returns a string with action name
+        for case (B), it returns 'None' (indicating that no
         modifications are necessary)
-        
-        The 'parentCommandName' string is usually empty. But some commands 
-        like OrderDna (global commands) need to specify this. 
-                
+
+        The 'parentCommandName' string is usually empty. But some commands
+        like OrderDna (global commands) need to specify this.
+
         @see: self.command_update_flyout()
         @see: self._init_gui_glyout_action()
         @see: DnaDuplex_Editcommand._getFlyoutToolBarActionAndParentCommand()
         """
         flyoutActionToCheck = ''
-        parentCommandName = None        
+        parentCommandName = None
         return flyoutActionToCheck, parentCommandName
 
     def _init_gui_flyout_action( self, action_attr, parentCommandName = None ):
         """
         [helper method for command entry]
-        
+
         If our direct parent command has the expected commandName,
         copy self.flyoutToolbar from it and call setChecked on the specified
         action in it (if it has that action) (setting self.flyoutToolbar = None
@@ -822,13 +822,13 @@ class baseCommand(object):
 
         @return: parent command, if it has expected commandName, otherwise None.
         @rtype: Command or None
-        
+
         [helper method for use in init_gui implementations;
          might need refactoring]
         """
         if not action_attr:
-            return 
-        
+            return
+
         #bruce 080726 split this out of init_gui methods (by Ninad)
         # of several Commands; 080929 moved it into baseCommmand
         if parentCommandName is None:
@@ -843,15 +843,15 @@ class baseCommand(object):
             # that's always defined, and if it's true, interpret
             # command_parent = None as being the name of the default command.
             # [bruce 080814 comment]
-        
+
         #bruce 080804
         parentCommand = self.parentCommand
         assert parentCommand # should be already set by now (during command_entered)
         if parentCommand.commandName == parentCommandName:
             try:
                 self.flyoutToolbar = parentCommand.flyoutToolbar
-                #Need a better way to deal with changing state of the 
-                #corresponding action in the flyout toolbar. To be revised 
+                #Need a better way to deal with changing state of the
+                #corresponding action in the flyout toolbar. To be revised
                 #during command toolbar cleanup
                 action = getattr(self.flyoutToolbar, action_attr)
                 action.setChecked(True)
@@ -865,12 +865,12 @@ class baseCommand(object):
                   "of parent command" % self # not sure if this ever happens; might be a bug if so
             return None
         pass
-    
+
     # == other methods
 
     def _command_log(self, msg):
         print msg
-    
+
     pass
 
 # end

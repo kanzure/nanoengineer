@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 gl_shaders.py - OpenGL shader objects.
 
@@ -206,7 +206,7 @@ class GLShaderObject(object):
     """
 
     # default values of per-subclass constants
-    
+
     _has_uniform_debug_code = False
         # whether this shader has the uniform variable 'debug_code'
         # (a boolean which enables debug behavior)
@@ -256,7 +256,7 @@ class GLShaderObject(object):
                        (N_CONST_XFORMS, oldNCX, maxComponents))
                 pass
             pass
-        
+
         # Version statement has to come first in GLSL source.
         prefix = """// requires GLSL version 1.20
                     #version 120
@@ -289,7 +289,7 @@ class GLShaderObject(object):
         # remove whitespace before and after each prefix line [bruce 090306]
         prefix = '\n'.join( [line.strip() for line in prefix.split('\n')] )
         assert prefix[-1] == '\n'
-        
+
         # Pass the source strings to the shader compiler.
         self.vertShader = self.createShader(shaderName, GL_VERTEX_SHADER,
                                             prefix + shaderVertSrc)
@@ -308,7 +308,7 @@ class GLShaderObject(object):
             print shaderName, "shader program link error"
             print glGetInfoLogARB(self.progObj)
             return              # Can't do anything good after an error.
-        
+
         # Optional, may be useful for debugging.
         glValidateProgramARB(self.progObj)
         status = glGetObjectParameterivARB(self.progObj, GL_VALIDATE_STATUS)
@@ -331,7 +331,7 @@ class GLShaderObject(object):
         except:
             self.error = True
             types = {GL_VERTEX_SHADER:"vertex", GL_FRAGMENT_SHADER:"fragment"}
-            print ("\n%s %s shader program compilation error" % 
+            print ("\n%s %s shader program compilation error" %
                    (shaderName, types[shaderType]))
             print glGetInfoLogARB(shader)
             pass
@@ -425,7 +425,7 @@ class GLShaderObject(object):
                                   patterning and
                                   isPatternedDrawing(highlight = highlighted))
            # note: patterned_highlighting variable is not yet used here [bruce 090304 comment]
-           
+
         halo_selection = (selected and
                           env.prefs[selectionColorStyle_prefs_key] == SS_HALO)
         halo_highlighting = (highlighted and
@@ -485,7 +485,7 @@ class GLShaderObject(object):
         primitives with glnames as colors in glRenderMode(GL_RENDER),
         then read back the pixel color (glname) and depth value.
 
-        @param tf: Boolean, draw glnames-as-color if True. 
+        @param tf: Boolean, draw glnames-as-color if True.
         """
         # Shader needs to be active to set uniform variables.
         wasActive = self._active
@@ -504,7 +504,7 @@ class GLShaderObject(object):
         """
         @return: whether the specified uniform (input)
                  shader variable has a location.
-        @rtype: boolean        
+        @rtype: boolean
 
         @note: this can differ for different platforms based on the
             level of optimization done by their implementation of GLSL
@@ -530,12 +530,12 @@ class GLShaderObject(object):
             #   "name must be an active uniform variable name in program that is
             #    not a structure, an array of structures, or a subcomponent of a
             #    vector or a matrix."
-            # 
+            #
             # It "returns -1 if the name does not correspond to an active
             # uniform variable in program".  Then getUniform ignores it: "If
             # location is equal to -1, the data passed in will be silently
             # ignored and the specified uniform variable will not be changed."
-            # 
+            #
             # Lets not be so quiet.
             msg = "Invalid or unused uniform shader variable name '%s'." % name
             if EndUser.enableDeveloperFeatures():
@@ -567,7 +567,7 @@ class GLShaderObject(object):
         """
         @return: whether the specified attribute (per-vertex input)
                  shader variable has a location.
-        @rtype: boolean        
+        @rtype: boolean
 
         @note: this can differ for different platforms based on the
             level of optimization done by their implementation of GLSL
@@ -649,9 +649,9 @@ class GLShaderObject(object):
         if not self.supports_transforms():
             assert not nTransforms, "%r doesn't support transforms" % self
             return
-        
+
         self.setActive(True)                # Must activate before setting uniforms.
-        
+
         assert self._has_uniform("n_transforms") # redundant with following
         glUniform1iARB(self._uniform("n_transforms"), self.n_transforms)
 
@@ -761,7 +761,7 @@ class GLCylinderShaderObject(GLShaderObject):
     end-points determining an axis line-segment, and two radii at the
     end-points.  A constant-radius cylinder is tapered by perspective anyway, so
     the same shader does cones as well as cylinders.
-    
+
     The rendered cylinders are smooth, with no polygon facets.  Exact shading, Z
     depth, and normals are calculated in parallel in the GPU for each pixel.
 

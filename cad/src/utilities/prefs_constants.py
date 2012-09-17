@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 prefs_constants.py
 
@@ -7,7 +7,7 @@ which need to be defined immediately upon startup.
 
 @author: Mark, Bruce, Ninad
 @version: $Id$
-@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -56,7 +56,7 @@ HHS_BW_PATTERN = 'BW_PATTERN'
 HHS_POLYGON_EDGES = 'POLYGON_EDGES'
 HHS_DISABLED = 'DISABLED'
 
-HHS_INDEXES = [HHS_HALO, HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1, 
+HHS_INDEXES = [HHS_HALO, HHS_SOLID, HHS_SCREENDOOR1, HHS_CROSSHATCH1,
                ## russ 080604 NIMs: HHS_BW_PATTERN, HHS_POLYGON_EDGES, HHS_DISABLED]
                HHS_POLYGON_EDGES]
 
@@ -77,7 +77,7 @@ SS_CROSSHATCH1 = 'CROSSHATCH1'
 SS_BW_PATTERN = 'BW_PATTERN'
 SS_POLYGON_EDGES = 'POLYGON_EDGES'
 
-SS_INDEXES = [SS_HALO, SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1, 
+SS_INDEXES = [SS_HALO, SS_SOLID, SS_SCREENDOOR1, SS_CROSSHATCH1,
               ## russ 080604 NIM: SS_BW_PATTERN,
               SS_POLYGON_EDGES]
 
@@ -89,7 +89,7 @@ SS_OPTIONS = ["Colored halo (default)",
               "Colored polygon edges"]
 
 # Compass position constants.  These are used to preserve the preference value
-# for the compass position and relate directly to the radio button group values for the options 
+# for the compass position and relate directly to the radio button group values for the options
 # presented in the Preferences/General dialog.  Do not change the value of these 4 constants!
 # Mark 050919.
 # (Note: they are also used for other, analogous purposes. [bruce 071215 comment])
@@ -155,7 +155,7 @@ fogEnabled_prefs_key = "V110/Enable fog"
 # Cursor text prefs on "Graphics Area" page.
 cursorTextFontSize_prefs_key = "V120/Cursor text font size"
 cursorTextColor_prefs_key = "V120/Cursor text color"
-     
+
 #General preferences for copy-paste operation (see ops_copy_mixin._pasteGroup
 #for details) Feature introduced in v1.1.0, on 2008-06-06
 pasteOffsetScaleFactorForChunks_prefs_key = 'V110/Scale factor is used to offset chunks to be pasted w.r.t. original chunks'
@@ -192,21 +192,21 @@ panArrowKeysDirection_prefs_key = 'V1.2.0.0/Pan Arrow Keys Direction'
 
 
 #GLpane scale preferences
-#GLPane scale preferences . As of 2008-04-07, the GLPane_scale_* preferece 
-#can not be set by the user. Its just used internally. 
+#GLPane scale preferences . As of 2008-04-07, the GLPane_scale_* preferece
+#can not be set by the user. Its just used internally.
 #@see: GLPane_Minimial.__init__() and GLPane._adjust_GLPane_scale_if_needed()
 #for more implementation details
 
-#The GLPane scale setup initially (at startup) i.e. while starting a new 
+#The GLPane scale setup initially (at startup) i.e. while starting a new
 #(empty) model
 startup_GLPane_scale_prefs_key = 'A10/GLPane Scale at startup'
 
 #Preferred GLPane scale is user starts with an empty model and directly enters
-#commands such as Build Atoms. 
+#commands such as Build Atoms.
 GLPane_scale_for_atom_commands_prefs_key = 'A10/ Initial GLPane scale for Atom commands'
 
-#Preferred GLPane scale if user starts with an empty model and without changing 
-#the initial scale, directly enters a Dna command (such as BuildDna) 
+#Preferred GLPane scale if user starts with an empty model and without changing
+#the initial scale, directly enters a Dna command (such as BuildDna)
 GLPane_scale_for_dna_commands_prefs_key = 'A10/Initial GLPane Scale for Dna commands'
 
 
@@ -236,7 +236,7 @@ Adjust_cutoverMax_prefs_key = 'A8/Cutover Max Adjust'
 
 Adjust_minimizationEngine_prefs_key = 'A10/Adjust Minimization Engine'
 
-#Ninad 20070509 Adjust , Minimize and Simulation(Dynamics) Preferences for DNA 
+#Ninad 20070509 Adjust , Minimize and Simulation(Dynamics) Preferences for DNA
 #reduced model(Enable or disable elecrostatics)
 electrostaticsForDnaDuringAdjust_prefs_key = 'A9/ Electrostatics for Dna During Adjust'
 electrostaticsForDnaDuringMinimize_prefs_key = 'A9/ Electrostatics For Dna During Minimize'
@@ -246,7 +246,7 @@ neighborSearchingInGromacs_prefs_key = 'A110/Neighbor Searching in GROMACS' # Er
 
 # Minimize prefs for Minimize Energy dialog (independent settings, different defaults) [bruce 060705]
 Minimize_watchRealtimeMinimization_prefs_key = 'A8/Watch Realtime Minimization Minimize'
-Minimize_endRMS_prefs_key = 'A8/End RMS Minimize' 
+Minimize_endRMS_prefs_key = 'A8/End RMS Minimize'
 Minimize_endMax_prefs_key = 'A8/End Max Minimize'
 Minimize_cutoverRMS_prefs_key = 'A8/Cutover RMS Minimize'
 Minimize_cutoverMax_prefs_key = 'A8/Cutover Max Minimize'
@@ -286,7 +286,7 @@ linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 #CPK cylinder radius (percentage), mark 051003
 diBALL_BondCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage' # about diBALL, called Ball and Stick as of 060307
     #bruce 060607 renamed cpkCylinderRadius_prefs_key -> diBALL_BondCylinderRadius_prefs_key ###DOIT
-diDNACYLINDER_BondCylinderRadius_prefs_key = 'A10/DNA Cylinder Bond Radius Percentage' 
+diDNACYLINDER_BondCylinderRadius_prefs_key = 'A10/DNA Cylinder Bond Radius Percentage'
 
 #== DNA PREFERENCES ============================================================
 adnaBasesPerTurn_prefs_key = 'A10/A-DNA bases per turn' # Twist computed from this.
@@ -299,14 +299,14 @@ dnaDefaultStrand1Color_prefs_key = 'V110/DNA default strand1 color'
 dnaDefaultStrand2Color_prefs_key = 'V110/DNA default strand2 color'
 dnaDefaultSegmentColor_prefs_key = 'A10/DNA default segment color'
 dnaStrutScaleFactor_prefs_key = 'A10/DNA strut scale factor'
-arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
+arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds'
 arrowsOnThreePrimeEnds_prefs_key = 'A9/ Show three prime ends as out arrow heads'
 arrowsOnFivePrimeEnds_prefs_key = 'A9/ Show five prime ends as in arrow heads'
 useCustomColorForThreePrimeArrowheads_prefs_key = 'A111/ Use custom color for three-prime arrowheads/spheres'
 dnaStrandThreePrimeArrowheadsCustomColor_prefs_key = 'A111/ Custom color for strand three-prime arrowheads/spheres'
 useCustomColorForFivePrimeArrowheads_prefs_key = 'A111/ Use custom color for five-prime arrowheads/spheres'
 dnaStrandFivePrimeArrowheadsCustomColor_prefs_key = 'A111/ Custom color for five-prime strand arrowheads/spheres'
-#Join strands command prefs 
+#Join strands command prefs
 
 joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key = 'A110/ While in Join strands command, show three prime ends as out arrow heads'
 joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key = 'A110/ While in Join strands command, show five prime ends as in arrow heads'
@@ -365,10 +365,10 @@ dnaMaxMinorGrooveAngle_prefs_key = 'A10/DNA maximum minor groove angle'
 dnaMinorGrooveErrorIndicatorColor_prefs_key = 'A10/DNA minor groove error indicator color'
 
 # DNA renditions prefs. Mark 2008-05-15
-dnaRendition_prefs_key = 'A110/DNA rendition' 
+dnaRendition_prefs_key = 'A110/DNA rendition'
 
 # DNA style prefs piotr 080310
-dnaStyleStrandsShape_prefs_key = 'A10/DNA style strands shape' 
+dnaStyleStrandsShape_prefs_key = 'A10/DNA style strands shape'
 dnaStyleStrandsColor_prefs_key = 'A10/DNA style strands color'
 dnaStyleStrandsScale_prefs_key = 'A10/DNA style strands scale'
 dnaStyleStrandsArrows_prefs_key = 'A10/DNA style strands arrows'
@@ -583,7 +583,7 @@ _default_bondColor = (0.25, 0.25, 0.25)
 # [However, it probably doesn't belong in this file either.
 #  Sometime try putting it into a file in a platform-dependent package.
 #  bruce 071215 comment]
-def getDefaultWorkingDirectory(): 
+def getDefaultWorkingDirectory():
     """
     Get the default Working Directory.
 
@@ -598,7 +598,7 @@ def getDefaultWorkingDirectory():
         # e.g. "C:\Documents and Settings\Mark\My Documents"
         wd = os.path.normpath(os.path.expanduser("~/My Documents"))
         # Check <wd> since some Windows OSes (i.e. Win95) may not have "~\My Documents".
-        if not os.path.isdir(wd): 
+        if not os.path.isdir(wd):
             wd = os.path.normpath(os.path.expanduser("~"))
     else: # Linux and MacOS
         # e.g. "/usr/mark"
@@ -618,7 +618,7 @@ prefs_table = (
     # entries are: (attribute name, prefs type-and-db-format code, prefs key, optional default value)
     ##e add categories or tags?
 
-    # General preferences [added to this table by mark 050919] 
+    # General preferences [added to this table by mark 050919]
 
     ('display_compass', 'boolean', displayCompass_prefs_key, True),
     ('display_compass_labels', 'boolean', displayCompassLabels_prefs_key, True),
@@ -635,18 +635,18 @@ prefs_table = (
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
     ('working_directory', 'string', workingDirectory_prefs_key,  _default_workingDirectory ), # Mark 060726.
     ('startup_display_style', 'int', startupGlobalDisplayStyle_prefs_key, diBALL), # Mark 060815 diTUBES; revised Ninad 080423 diBALL
-    ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
+    ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906.
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
-    
+
     # Cursor text preferences (located on "Graphics Area" page).
-    ('', 'int', cursorTextFontSize_prefs_key, 11), 
+    ('', 'int', cursorTextFontSize_prefs_key, 11),
     ('', 'color', cursorTextColor_prefs_key, black ),
 
     #Paste offset scale factor preferences (see Ops_copy_Mixin._pasteGroup)
-    ('paste offset scale for chunks', 'float', 
+    ('paste offset scale for chunks', 'float',
      pasteOffsetScaleFactorForChunks_prefs_key, 0.1),
 
-    ('paste offset scale for dna objects' , 'float', 
+    ('paste offset scale for dna objects' , 'float',
      pasteOffsetScaleFactorForDnaObjects_prefs_key, 3.0),
 
     # Color (page) preferences
@@ -657,7 +657,7 @@ prefs_table = (
     ('', 'string',   selectionColorStyle_prefs_key, SS_HALO),
     ('', 'color', selectionColor_prefs_key, darkgreen),
     ('', 'int',   haloWidth_prefs_key, 5),
-    
+
     # Special colors. Mark 2008-07-10
     # DarkBackgroundContrastColor_prefs_key is the default color used for
     # lassos and other line drawing colors the first time NE1 is run.
@@ -666,15 +666,15 @@ prefs_table = (
     ('', 'color', LightBackgroundContrastColor_prefs_key, gray),
 
     # stereo view settings added by piotr 080516
-    ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 1), 
-    ('stereo_view_separation', 'int', stereoViewSeparation_prefs_key, 50), 
-    ('stereo_view_angle', 'int', stereoViewAngle_prefs_key, 50), 
+    ('stereo_view_mode', 'int', stereoViewMode_prefs_key, 1),
+    ('stereo_view_separation', 'int', stereoViewSeparation_prefs_key, 50),
+    ('stereo_view_angle', 'int', stereoViewAngle_prefs_key, 50),
 
     # Fog setting. Mark 2008-05-21
     ('', 'boolean', fogEnabled_prefs_key, False),
 
-    #GLPane scale preferences . As of 2008-04-07, the GLPane_scale_* preferece 
-    #can not be set by the user. Its just used internally. 
+    #GLPane scale preferences . As of 2008-04-07, the GLPane_scale_* preferece
+    #can not be set by the user. Its just used internally.
     #@see: GLPane_Minimial.__init__() and GLPane._adjust_GLPane_scale_if_needed()
     #for more implementation details
     ('', 'float', startup_GLPane_scale_prefs_key, 10.0),
@@ -686,12 +686,12 @@ prefs_table = (
     ('', 'int', zoomInAboutScreenCenter_prefs_key,  0),
     ('', 'int', zoomOutAboutScreenCenter_prefs_key, 1),
     ('', 'float', mouseWheelTimeoutInterval_prefs_key, 0.5),
-    
+
     # Pan settings prefs. Mark 2008-12-12
     ('', 'int', panArrowKeysDirection_prefs_key, 1),
 
     # Ruler prefs. Mark 2008-02-12
-    # Ruler constants defined in Constants_Rulers.py. 
+    # Ruler constants defined in Constants_Rulers.py.
     ('', 'boolean', displayRulers_prefs_key, True),
     ('', 'boolean', displayVertRuler_prefs_key, True),
     ('', 'boolean', displayHorzRuler_prefs_key, True),
@@ -700,7 +700,7 @@ prefs_table = (
     ('', 'float', rulerOpacity_prefs_key, 0.7),
     ('', 'boolean', showRulersInPerspectiveView_prefs_key, False),
 
-    #Ninad 20070509 Adjust,Minimize and Simulation(Dynamics)preferences for DNA 
+    #Ninad 20070509 Adjust,Minimize and Simulation(Dynamics)preferences for DNA
     #reduced model(enable or disable elecrostatics)
     ('Electrostatics for Dna During Adjust','boolean',
      electrostaticsForDnaDuringAdjust_prefs_key, False),
@@ -723,11 +723,11 @@ prefs_table = (
 
     ('', 'int', Adjust_minimizationEngine_prefs_key, MINIMIZE_ENGINE_ND1_FOREGROUND),
 
-    ('', 'boolean', Minimize_watchRealtimeMinimization_prefs_key, True), 
+    ('', 'boolean', Minimize_watchRealtimeMinimization_prefs_key, True),
     ('', 'float', Minimize_endRMS_prefs_key, +1.0), # WARNING: this value may also be hardcoded in runSim.py
-    ('', 'float', Minimize_endMax_prefs_key, -1.0), 
-    ('', 'float', Minimize_cutoverRMS_prefs_key, -1.0), 
-    ('', 'float', Minimize_cutoverMax_prefs_key, -1.0), 
+    ('', 'float', Minimize_endMax_prefs_key, -1.0),
+    ('', 'float', Minimize_cutoverRMS_prefs_key, -1.0),
+    ('', 'float', Minimize_cutoverMax_prefs_key, -1.0),
 
     ('', 'int', Minimize_minimizationEngine_prefs_key, MINIMIZE_ENGINE_ND1_FOREGROUND),
 
@@ -749,7 +749,7 @@ prefs_table = (
     ('', 'float', diBALL_AtomRadius_prefs_key, 1.0), #mark 051003 [about Ball and Stick]
     ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.775), #mark 060307 [about diTrueCPK, called CPK in UI as of now]
     ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
-    # Preference to force to keep bonds while transmuting atoms 
+    # Preference to force to keep bonds while transmuting atoms
     ('keep_bonds_during_transmute', 'boolean', keepBondsDuringTransmute_prefs_key, False),
     ('', 'boolean', reshapeAtomsSelection_prefs_key, False), # --Mark 2008-04-06
     ('', 'boolean', indicateOverlappingAtoms_prefs_key, False),
@@ -766,8 +766,8 @@ prefs_table = (
     # Bond preferences - other
 
     #ninad 070430 Enable or disable display of bond stretch indicators --
-    ('show_bond_stretch_indicators', 'boolean', 
-     showBondStretchIndicators_prefs_key, True),   
+    ('show_bond_stretch_indicators', 'boolean',
+     showBondStretchIndicators_prefs_key, True),
 
     ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
@@ -792,9 +792,9 @@ prefs_table = (
     ('', 'int', dnaSearchTypeLabelChoice_prefs_key, 0),
 
     # Strand arrowheads display option prefs.
-    ('', 'boolean', arrowsOnBackBones_prefs_key, True), 
-    ('', 'boolean', arrowsOnThreePrimeEnds_prefs_key, True), 
-    ('', 'boolean', arrowsOnFivePrimeEnds_prefs_key, False), 
+    ('', 'boolean', arrowsOnBackBones_prefs_key, True),
+    ('', 'boolean', arrowsOnThreePrimeEnds_prefs_key, True),
+    ('', 'boolean', arrowsOnFivePrimeEnds_prefs_key, False),
     #custom color for arrowheads -- default changed to False in v1.1.0
     ('', 'boolean', useCustomColorForThreePrimeArrowheads_prefs_key, False),
     ('', 'color', dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
@@ -802,8 +802,8 @@ prefs_table = (
     ('', 'color', dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, green),
 
     #Join strands command arrowhead display pref.(should it override global pref)
-    ('', 'boolean', joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key, True), 
-    ('', 'boolean', joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key, True), 
+    ('', 'boolean', joinStrandsCommand_arrowsOnThreePrimeEnds_prefs_key, True),
+    ('', 'boolean', joinStrandsCommand_arrowsOnFivePrimeEnds_prefs_key, True),
     ('', 'boolean', joinStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key, True),
     ('', 'color', joinStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', joinStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
@@ -819,20 +819,20 @@ prefs_table = (
     ('','boolean',PlanePM_showGrid_prefs_key, False),
     ('','boolean',PlanePM_showGridLabels_prefs_key, False),
 
-    #Break strands command preferences 
+    #Break strands command preferences
       #=== arrowhead display pref.(should it override global pref)
 
-    ('', 'boolean', breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key, True), 
-    ('', 'boolean', breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key, True), 
+    ('', 'boolean', breakStrandsCommand_arrowsOnThreePrimeEnds_prefs_key, True),
+    ('', 'boolean', breakStrandsCommand_arrowsOnFivePrimeEnds_prefs_key, True),
     ('', 'boolean', breakStrandsCommand_useCustomColorForThreePrimeArrowheads_prefs_key, True),
     ('', 'color', breakStrandsCommand_dnaStrandThreePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'boolean', breakStrandsCommand_useCustomColorForFivePrimeArrowheads_prefs_key, True),
-    ('', 'color', breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, green),    
+    ('', 'color', breakStrandsCommand_dnaStrandFivePrimeArrowheadsCustomColor_prefs_key, green),
     ('', 'int', breakStrandsCommand_numberOfBasesBeforeNextBreak_prefs_key, 5),
-    
-    #DNA cursor text preferences 
 
-    #Cursor text prefs while in InsertDna_EditCommand 
+    #DNA cursor text preferences
+
+    #Cursor text prefs while in InsertDna_EditCommand
     ('', 'boolean',
      dnaDuplexEditCommand_showCursorTextCheckBox_prefs_key, True),
 
@@ -842,10 +842,10 @@ prefs_table = (
      dnaDuplexEditCommand_cursorTextCheckBox_numberOfTurns_prefs_key, True),
 
     ('', 'boolean',
-     dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key, True), 
+     dnaDuplexEditCommand_cursorTextCheckBox_length_prefs_key, True),
 
     ('', 'boolean',
-     dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key, True), 
+     dnaDuplexEditCommand_cursorTextCheckBox_angle_prefs_key, True),
 
     #DnaSegment_EditCommand
 
@@ -860,9 +860,9 @@ prefs_table = (
 
     ('', 'boolean',
      dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key, True),
-    
+
     #DnaSegment_ResizeHandle preferences
-    ('', 'float', dnaSegmentResizeHandle_discRadius_prefs_key, 12.5), 
+    ('', 'float', dnaSegmentResizeHandle_discRadius_prefs_key, 12.5),
     ('', 'float', dnaSegmentResizeHandle_discThickness_prefs_key, 0.25),
 
 
@@ -877,14 +877,14 @@ prefs_table = (
      dnaStrandEditCommand_cursorTextCheckBox_changedBases_prefs_key, True),
 
 
-    #Make crossovers command 
+    #Make crossovers command
     ('', 'boolean',
      makeCrossoversCommand_crossoverSearch_bet_given_segments_only_prefs_key,
-     True),    
+     True),
 
 
     #Nanotube cursor text prefs
-    ('', 'boolean', 
+    ('', 'boolean',
      insertNanotubeEditCommand_cursorTextCheckBox_angle_prefs_key, True),
 
     ('', 'boolean',
@@ -964,17 +964,17 @@ prefs_table = (
     #bruce 080709 commented these out, not used since A9:
     ## ('startup_mode', 'string', startupMode_prefs_key,   '$DEFAULT_MODE' ),
     ## ('default_mode', 'string', defaultMode_prefs_key,   'DEPOSIT' ), # as suggested by Eric.  Mark 051028.
-    ## #ninad070430:  made select chunks mode the only startup and default option 
+    ## #ninad070430:  made select chunks mode the only startup and default option
     ## #for A9 based on discussion
     ## ('default_mode', 'string', defaultMode_prefs_key,   'SELECTMOLS' ),
-    
+
     ('buildmode_autobond', 'boolean', buildModeAutobondEnabled_prefs_key, True ), # mark 060203.
     ('buildmode_water', 'boolean', buildModeWaterEnabled_prefs_key, False ), # mark 060218.
     ('buildmode_highlighting', 'boolean', buildModeHighlightingEnabled_prefs_key, True ), # mark 060203.
     ('buildmode_selectatomsdepositobj', 'boolean', buildModeSelectAtomsOfDepositedObjEnabled_prefs_key, False ), # mark 060310.
 
     # Lighting preferences [added to this table by mark 051124]
-    # If any default light colors are changed here, you must also change the color of 
+    # If any default light colors are changed here, you must also change the color of
     # the light in '_lights' in GLPane to keep them synchronized.  Mark 051204.
     ('light1_color', 'color', light1Color_prefs_key, white ),
     ('light2_color', 'color', light2Color_prefs_key, white ),
@@ -982,7 +982,7 @@ prefs_table = (
     # Material specular properties.
     ('ms_highlights', 'boolean', material_specular_highlights_prefs_key, True),
     ('ms_finish', 'float', material_specular_finish_prefs_key, 0.5),
-    ('ms_shininess', 'float', material_specular_shininess_prefs_key, 35.0), 
+    ('ms_shininess', 'float', material_specular_shininess_prefs_key, 35.0),
     ('ms_brightness', 'float', material_specular_brightness_prefs_key, 1.0), #bruce 051203 bugfix: default value should be 1.0
 
     # File management / filename / URL preferences [added by bruce 051130; category is a guess, doesn't have prefs UI page yet]
@@ -1039,7 +1039,7 @@ prefs_table = (
     #Following saves the toolbar and dockwidget positions between NE1 sessions
     ('toolbar_state', 'string' , toolbar_state_prefs_key, 'defaultToolbarState'),
     ('', 'boolean', displayReportsWidget_prefs_key, True),
-    # ...    
+    # ...
     ('', 'boolean', sponsor_download_permission_prefs_key, False ),
     ('', 'boolean', sponsor_permanent_permission_prefs_key, False ),
     ('', 'boolean', sponsor_md5_mismatch_flag_key, True ),
@@ -1047,7 +1047,7 @@ prefs_table = (
     # Dynamic Tooltip preferences [added to this table by ninad 060818]
     ('wake_up_delay', 'float', dynamicToolTipWakeUpDelay_prefs_key, 1.0), # 1 second. Mark 060817.
     ('atom_distance_precision', 'int', dynamicToolTipAtomDistancePrecision_prefs_key, 3), # number of decimal places  ninad 060821
-    ('bend_angle_precision', 'int', dynamicToolTipBendAnglePrecision_prefs_key, 3), # number of decimal places 
+    ('bend_angle_precision', 'int', dynamicToolTipBendAnglePrecision_prefs_key, 3), # number of decimal places
 
     ('atom_chunk_info', 'boolean', dynamicToolTipAtomChunkInfo_prefs_key, False), # checkbox for displaying chunk name an atom belongs to
     ('bond_chunk_info', 'boolean', dynamicToolTipBondChunkInfo_prefs_key, False), # checkbox -chunk name(s) of the two atoms in the bond
@@ -1056,14 +1056,14 @@ prefs_table = (
     ('bond_length', 'boolean', dynamicToolTipBondLength_prefs_key, False), # displays the bond length (precision determined by atom distance precision) @@@ ninad060823: It only returns the nuclear distance between the bonded atoms doesn't return covalent bond length.
     ('atom_mass', 'boolean', dynamicToolTipAtomMass_prefs_key, False), #displays mass of the atom ninad060829
 
-    #This preference adds VDW radii of the two atoms to the distance 
+    #This preference adds VDW radii of the two atoms to the distance
     #in the 'distance between atoms' information given by the dynamic tooltip.
     ('vdw_radii_in_atom_distance', 'boolean',
      dynamicToolTipVdwRadiiInAtomDistance_prefs_key,
      False),
 
     #=== Start of NIYs ninad060822===#
-    ('torsion_angle_precision', 'int', dynamicToolTipTorsionAnglePrecision_prefs_key, 3), # number of decimal places 
+    ('torsion_angle_precision', 'int', dynamicToolTipTorsionAnglePrecision_prefs_key, 3), # number of decimal places
     #===End of NIYs ninad060822 ===#
 
 )

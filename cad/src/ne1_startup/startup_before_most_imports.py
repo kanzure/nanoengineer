@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 startup_before_most_imports.py - some application startup functions
 which need to be run before most imports are done, and which therefore
 need to be careful about doing imports themselves.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -140,10 +140,10 @@ def before_most_imports( main_globals ):
         # (Doing so might cause bugs to exist in the end-user version but not the developer version,
         #  which would make them very hard to notice or debug. This risk is only justified in a few
         #  special cases.)
-    
+
     return # from before_most_imports
 
-    
+
 def before_creating_app():
     """
     Do other things that should be done before creating the application object.

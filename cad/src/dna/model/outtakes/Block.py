@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Block.py - ... DEPRECATED CLASS (as of shortly before 080331)
 
@@ -18,7 +18,7 @@ from utilities.debug_prefs import debug_pref, Choice_boolean_False
 class Block(Group):
     """
     DEPRECATED CLASS (as of shortly before 080331). DO NOT USE IN NEW CODE.
-    
+
     Model object which represents a user-visible grouping of nodes inside a
     DnaGroup (or similar object, if we have any).
 
@@ -78,7 +78,7 @@ class Block(Group):
             # Model Tree: show content of DnaGroup?
             # Model Tree: show content of Block?
         return debug_pref( debug_pref_name, Choice_boolean_False )
-        
+
     def openable(self):
         return not not self._raw_MT_kids()
         # REVIEW: if we are open and lose our _raw_MT_kids, we become open but
@@ -92,7 +92,7 @@ class Block(Group):
     # is DND of self permitted?
     # is DND of visible members (subblocks) of self permitted?
     # and maybe more...
-    
+
     pass
 
 # end

@@ -1,7 +1,7 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
-test_drawing.py -- replaces or augments GLPane.paintGL() to try various 
-OpenGL rendering models, determine whether the performance bottleneck is 
+test_drawing.py -- replaces or augments GLPane.paintGL() to try various
+OpenGL rendering models, determine whether the performance bottleneck is
 in OpenGL, Qt, or somewhere else, and find a better alternative.
 
 @author: Russ
@@ -63,7 +63,7 @@ def test_Draw_model(glpane):
         glColor3i(127, 127, 127)
         glCallList(test_dl)
     elif int(testCase) == 3:
-        test_spheres.draw() 
+        test_spheres.draw()
     elif int(testCase) == 8:
         test_Draw_8x(glpane)
         pass
@@ -92,14 +92,14 @@ def test_Draw_8x(glpane): #bruce 090223 refactoring of common code
             draw_cylinder_axes()
         pass
     return
-    
+
 def animate_TCs():
     # Animate TCs, rotating them slowly.
-    
+
     # Note: as of 090223 and before, this works in DL case but not in shader
     # case, because coordinate updates after TCs are modified are nim in
     # shader case (I think). [bruce 090223 comment]
-    
+
     slow = 10.0 # Seconds.
     angle = 2*pi * fmod(time.time(), slow) / slow
     # Leave the first one as identity, and rotate the others in
@@ -389,7 +389,7 @@ def test_drawing(glpane, initOnly = False):
     # NE1 with test toploop, single CSDL per draw (test case 1)
     # . 17,424 spheres (132x132, through the color sorter) 4.8 FPS
     #   Russ 080919: More recently, 12.2 FPS.
-    # . Level 2 spheres have 9 triangles x 20 faces, 162 distinct vertices, 
+    # . Level 2 spheres have 9 triangles x 20 faces, 162 distinct vertices,
     #   visited on the average 2.3 times, giving 384 tri-strip vertices.
     # . 17,424 spheres is 6.7 million tri-strip vertices.  (6,690,816)
     if testCase == 1:
@@ -497,7 +497,7 @@ def test_drawing(glpane, initOnly = False):
             for x in range(nSpheres):
                 for y in range(nSpheres):
                     centers += [sphereLoc(x, y)]
-                    
+
                     # Sphere radii progress from 3/4 to full size.
                     t = float(x+y)/(nSpheres+nSpheres) # 0 to 1 fraction.
                     thisRad = radius * (.75 + t*.25)
@@ -639,7 +639,7 @@ def test_drawing(glpane, initOnly = False):
                 pass
 
             # Options: color = [0.0, 1.0, 0.0], transform_id = 1, radius = 1.0
-            test_spheres.draw() 
+            test_spheres.draw()
         pass
 
     # NE1 with test toploop, separate sphere VBO/IBO box/shader draws (test case 4)
@@ -704,7 +704,7 @@ def test_drawing(glpane, initOnly = False):
             glDisableClientState(GL_VERTEX_ARRAY)
         pass
 
-    # NE1 with test toploop, 
+    # NE1 with test toploop,
     # One DL around separate VBO/IBO shader/box buffer sphere calls (test case 5)
     # . 17,424 spheres (1 box/shader DL draw call) 9.2 FPS
     elif testCase == 5:
@@ -774,7 +774,7 @@ def test_drawing(glpane, initOnly = False):
             pass
         pass
 
-    # NE1 with test toploop, 
+    # NE1 with test toploop,
     # N column DL's around VBO/IBO shader/box buffer sphere calls (test case 6)
     # .   2,500 (50x50)   spheres 58 FPS
     # .  10,000 (100x100) spheres 57 FPS
@@ -788,7 +788,7 @@ def test_drawing(glpane, initOnly = False):
             print ("Test case 6, %d^2 spheres\n  %s." %
                    (nSpheres,
                     "N col DL's around VBO/IBO shader/box buffer sphere calls"))
-            
+
             # Wrap n display lists around the draws (one per column.)
             test_dls = glGenLists(nSpheres) # Returns ID of first DL in the set.
             test_spheres = []
@@ -804,7 +804,7 @@ def test_drawing(glpane, initOnly = False):
                 pos = sphereLoc(x, 0) - V(nSpheres/2.0, nSpheres/2.0, 0)
                 for y in range(nSpheres):
                     centers += [sphereLoc(0, y)]
-                    
+
                     # Sphere radii progress from 3/4 to full size.
                     t = float(x+y)/(nSpheres+nSpheres) # 0 to 1 fraction.
                     thisRad = radius * (.75 + t*.25)
@@ -836,7 +836,7 @@ def test_drawing(glpane, initOnly = False):
             pass
         pass
 
-    # NE1 with test toploop, 
+    # NE1 with test toploop,
     # N column VBO sets of shader/box buffer sphere calls (test case 7)
     # .   2,500 (50x50)   spheres 50 FPS
     # .  10,000 (100x100) spheres 30.5 FPS
@@ -857,7 +857,7 @@ def test_drawing(glpane, initOnly = False):
                 colors = []
                 for y in range(nSpheres):
                     centers += [sphereLoc(x, y)]
-                    
+
                     # Sphere radii progress from 3/4 to full size.
                     t = float(x+y)/(nSpheres+nSpheres) # 0 to 1 fraction.
                     thisRad = radius * (.75 + t*.25)
@@ -878,7 +878,7 @@ def test_drawing(glpane, initOnly = False):
                 chunk.draw()
         pass
 
-    # NE1 with test toploop, 
+    # NE1 with test toploop,
     # Short chunk VBO sets of shader/box buffer sphere calls (test case 8)
     # .     625 (25x25)   spheres 30 FPS,     79 chunk buffers of length 8.
     # .   2,500 (50x50)   spheres 13.6 FPS,  313 chunk buffers of length 8.
@@ -1002,7 +1002,7 @@ def test_drawing(glpane, initOnly = False):
                     # of TC domains, separated by X coord of first center point.
                     # Chunking will be visible when transforms are changed.
                     xCoord = centers[0][0] - start_pos[0] # Negate centering X.
-                    xPercent = (xCoord / 
+                    xPercent = (xCoord /
                                 (nSpheres + nSpheres/10 +
                                  nSpheres/100 - 1 + (nSpheres <= 1)))
                     xTenth = int(xPercent * 10 + .5)
@@ -1015,7 +1015,7 @@ def test_drawing(glpane, initOnly = False):
                 for (color, center, radius) in zip(colors, centers, radii):
                     if not doCylinders:
                         # Through ColorSorter to the sphere primitive buffer...
-                        drawsphere(color, center, radius, 
+                        drawsphere(color, center, radius,
                                    DRAWSPHERE_DETAIL_LEVEL)
                     else:
                         # Through ColorSorter to cylinder primitive buffer...
@@ -1063,7 +1063,7 @@ def test_drawing(glpane, initOnly = False):
             for x in range(nSpheres):
                 for y in range(nSpheres):
                     centers += [sphereLoc(x, y)]
-                    
+
                     # Sphere radii progress from 3/4 to full size.
                     t = float(x+y)/(nSpheres+nSpheres) # 0 to 1 fraction.
                     thisRad = radius * (.5 + t*.5)
@@ -1095,7 +1095,7 @@ def test_drawing(glpane, initOnly = False):
         # before making more of these, modularize it somehow
         from commands.TestGraphics.test_selection_redraw import test_selection_redraw
         test_class = test_selection_redraw
-        params = ( nSpheres, ) 
+        params = ( nSpheres, )
             # note: test size is not directly comparable to other tests with same value of nSpheres
         if test_Object is None \
            or not isinstance(test_Object, test_class) \

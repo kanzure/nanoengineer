@@ -1,10 +1,10 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 test_commands_init.py -- make the commands in test_commands available in the UI.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 How to run these test commands: see test_commands.py docstring.
 
@@ -52,7 +52,7 @@ def start_cmdrun( cmdrun):
     # we'd consider "nestable", per the likely intent of starting it
     # as a temporary command.
     commandSequencer.userEnterCommand( cmdrun, always_update = True)
-    
+
     print "done with start_cmdrun for", cmdrun
         # returns as soon as user is in it, doesn't wait for it to "finish" -- so run is not a good name -- use Enter??
         # problem: Enter is only meant to be called internally by glue code in CommandSequencer.
@@ -75,7 +75,7 @@ def enter_example_command(widget, example_command_classname):
 ##                reload(selectMode)
 ##                import commands.SelectAtoms.SelectAtoms_Command as SelectAtoms_Command
 ##                reload(SelectAtoms_Command)
-##            
+##
 ##            # revised 071010 (glpane == commandSequencer), new code UNTESTED:
 ##            glpane._recreate_nullmode()
 ##            glpane._use_nullmode()
@@ -92,9 +92,9 @@ def enter_example_command(widget, example_command_classname):
 ##            #  to call initialize explicitly rather than as import side effect,
 ##            #  done together with splitting this module out of test_commands)
 ##        pass
-    
+
     from prototype.test_commands_init import enter_example_command_doit
-        
+
     enter_example_command_doit(glpane, example_command_classname)
     return
 
@@ -113,12 +113,12 @@ def enter_example_command_doit(glpane, example_command_classname):
 def initialize():
     if (Initialize.startInitialization(__name__)):
         return
-    
+
     # initialization code (note: it's all a kluge, could be cleaned up pretty easily)
 
     # Note: the global declarations are needed due to the kluge above
     # involving globals()[example_command_classname]
-    
+
     classnames = [ ] # extended below
 
     global ExampleCommand1
@@ -140,7 +140,7 @@ def initialize():
     for classname in classnames:
         cmdname = classname # for now
         register_debug_menu_command( cmdname, (lambda widget, classname = classname: enter_example_command(widget, classname)) )
-    
+
     Initialize.endInitialization(__name__)
     return
 

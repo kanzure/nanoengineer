@@ -41,7 +41,7 @@ def _pop_arbitrary_atom_with_qualifying_bond(atoms_dict, bond_ok_func):
 
     Warning: there is no atom_ok_func, and we consider all atoms or bondpoints
     with no checks at all, not even of atom.killed().
-    
+
     In typical usage, the caller might add atoms to or remove atoms from
     atoms_dict between repeated calls, terminating a loop when we return
     (None, None) and/or when atoms_dict becomes empty.
@@ -81,19 +81,19 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
             assert not unprocessed_atoms
             break
         (ringQ, listb, lista) = res_element = grow_bond_chain(bond, atom, next_bond_in_chain)
-        
+
         ### BUG: only grows in one direction!
         # see some caller
         #   of grow_bond_chain
         #   or grow_directional_bond_chain
         # which calls it twice...
         # ... hmm, make_pi_bond_obj calls twice grow_pi_sp_chain
-        
+
         for atom in lista:
             unprocessed_atoms.pop(atom.key, None)
         res.append( res_element)
         continue
-    
+
 
     return ksddskj
 
@@ -122,7 +122,7 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
         # divide atoms into chunks of the right classes, in the right way
 
         # some bond classes can't be internal bonds... some must be...
-        
+
         # (If any improper branching is found, complain, and let it break up
         #  the chunks so that each one is properly structured.)
 
@@ -154,12 +154,12 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
     # - are the indices undoable?
     #   (guess: no, they're always derived;
     #    but if we make arb choices like ring-origin, create undoable/mmp state for them, either fields/tags or jigs. ###)
-    # - do they affect display? (eg in rainbow coloring mode) 
+    # - do they affect display? (eg in rainbow coloring mode)
 
     # misc:
     # - if earlier stage assigns atom classes, it could also order the bonds in a definite way,
     #   e.g. a strand atom's first bond could be to the axis
-    
+
     for axis_set in axis_chains:
         axis_set.ringQ
         axis_set.lista # or atoms_list or atoms_dict?
@@ -199,7 +199,7 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
 
 
             # worry about "adjacent" for rings!
-            
+
             ### LOGIC BUG: earlier code that moved markers forgot to use ringness in checking index adjacency
             # or in the lookup of an old index!!! Might need to ask the ring to canonicalize the index...
 

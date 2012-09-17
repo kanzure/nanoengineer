@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 chem.py -- class Atom, and related code. An instance of Atom represents one
 atom, pseudoatom, or bondpoint in 3d space, with a list of bonds and
@@ -229,7 +229,7 @@ def _undo_update_Atom_jigs(archive, assy):
     if 1:
         # bruce 060414 fix bug 1779 (more efficient than doing something in
         # Atom._undo_update, for every atom)
-        
+
         # KLUGE: assume this always runs (true as of 060414), not only if
         # there are jigs or under some other "when needed" conds.
 
@@ -257,14 +257,14 @@ def _undo_update_Atom_jigs(archive, assy):
     for m in mols:
         for a in m.atoms.itervalues():
             if a.jigs:
-                _changed_structure_Atoms[a.key] = a 
+                _changed_structure_Atoms[a.key] = a
                     #bruce 060322; try to only do this to atoms that need it
-                
+
                 #k tracking this change is probably not needed by Undo but
                 #might be needed by future non-Undo subscribers to that dict;
                 #Undo itself needs to remember to clear its subscribed cache
                 #of it after this ###@@@DOIT
-                a.jigs = [] 
+                a.jigs = []
                     #e or del it if we make that optim in Jig (and review
                     #whether this needs to occur outside 'if a.jigs')
             for b in a.bonds:
@@ -279,7 +279,7 @@ def _undo_update_Atom_jigs(archive, assy):
     for j in jigs:
         for a in j.atoms:
             a.jigs.append(j)
-            _changed_structure_Atoms[a.key] = a 
+            _changed_structure_Atoms[a.key] = a
                 #bruce 060322; see comment about same statement above
     for j in jigs:
         for a in j.atoms[:]:
@@ -296,7 +296,7 @@ def _undo_update_Atom_jigs(archive, assy):
                 break
             continue # next atom
         continue # next jig
-    
+
     return
 
 # WARNING: register_undo_updater does not yet pay attention to its arguments
@@ -307,14 +307,14 @@ register_undo_updater( _undo_update_Atom_jigs,
                        updates = ('Atom.jigs', 'Bond.pi_bond_obj'),
                        after_update_of = ('Assembly', 'Node', 'Atom.bonds')
                            # Node also covers its subclasses Chunk and Jig.
-                           # We don't care if Atom is updated except for .bonds, 
+                           # We don't care if Atom is updated except for .bonds,
                            # nor whether Bond is updated at all,
                            # which is good because *we* are presumably a
                            # required part of updating both of those classes!
-                       
-                       # FYI, we use 'Assembly' (string) rather than Assembly (class) 
+
+                       # FYI, we use 'Assembly' (string) rather than Assembly (class)
                        # to avoid a recursive import problem,
-                       # and also to avoid an inappropriate import dependency 
+                       # and also to avoid an inappropriate import dependency
                        # (low-level -> high-level).
                     )
 
@@ -344,7 +344,7 @@ from model.global_model_changedicts import _changed_parent_Atoms
     # declare these?? not yet sure if that should be per-attr or not, re
     # subclasses... WARNING: name is private, but it's directly accessed in
     # many places in chunk.py [bruce 071106 comment]
-    
+
 register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed', ATOM_CHUNK_ATTRIBUTE_NAME) )
     #k or must we say _Atom__killed?? (It depends on whether that routine
     #knows how to mangle it itself.) (As of long before 071018 that arg of
@@ -353,7 +353,7 @@ register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed'
 
 from model.global_model_changedicts import _changed_structure_Atoms
     # tracks changes to element, atomtype, bond set, bond direction (not bond order #k)
-    
+
     # WARNING: there is also a related but different global dict earlier than
     # this one in the same file (global_model_changedicts.py), whose spelling
     # differs only in 'A' vs 'a' in Atoms, and in having no initial
@@ -366,13 +366,13 @@ from model.global_model_changedicts import _changed_structure_Atoms
     # Ways this one has more atoms added to it than that one does: jigs, info,
     # kill, bond direction. (See also the comment where the other one is
     # defined.)
-    
+
     # See also: _changed_parent_Atoms, which also covers kill (probably in a
     # better way).
     #
     # related attributes: bonds, element, atomtype, info, jigs # (not only
     # '.jigs =', but '.jigs.remove' or '.jigs.append')
-    
+
     # (we include info since it's used for repeat-unit correspondences in
     # extrude; this is questionable)
 
@@ -385,7 +385,7 @@ register_changedict( _changed_structure_Atoms, '_changed_structure_Atoms', ('bon
 
 from model.global_model_changedicts import _changed_posn_Atoms
     # tracks changes to atom._posn (not clear what it'll do when we can treat
-    # baseposn as defining state). 
+    # baseposn as defining state).
     # related attributes: _posn
 
 register_changedict( _changed_posn_Atoms, '_changed_posn_Atoms', ('_posn',) )
@@ -440,12 +440,12 @@ def Atom_prekill_prep(): #bruce 060328
     ###e this should be merged with similar code in class Node
     Utility._will_kill_count += 1
     return Utility._will_kill_count
-    
+
 class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     #bruce 050610 renamed this from class atom, but most code still uses
     # "atom" for now (so we have to assign atom = Atom, after this class
     # definition, until all code has been revised)
-    
+
     # update, bruce 071113: I am removing that assignment below. See comment there.
     #bruce 080327 moved a lot of PAM-specific methods to mixin PAM_Atom_methods.
     """
@@ -479,7 +479,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     info = None #bruce 050524 optim (can remove try/except if all atoms have this)
     ## atomtype -- set when first demanded, or can be explicitly set using
     ## set_atomtype or set_atomtype_but_dont_revise_singlets
-    index = -1 
+    index = -1
         #bruce 060311 add this as a precaution re bug 1661, and since it seems
         #necessary in principle, given that we store it as undoable state, but
         #(I guess, re that bug) don't always set it very soon after making an
@@ -487,7 +487,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #indexed therein; in theory the value doesn't matter at all for a
         #chunkless atom, but a removed atom (see Chunk.delatom) will have -1
         #here, so imitating that seems most correct.
-        
+
     # _s_attr decls for state attributes -- children, parents, refs, bulky
     # data, optional data [bruce 060223]
 
@@ -521,7 +521,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     _s_attr_bonds = S_CHILDREN
 
     _s_attr_molecule = S_PARENT # note: most direct sets of self.molecule are in chunk.py
-    
+
         # note: self.molecule is initially None. Later it's self's chunk. If
         # self is then killed, it's _nullMol. Some buglike behavior might
         # effectively kill or never-make-fully-alive self's chunk, without
@@ -552,11 +552,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     assert ATOM_CHUNK_ATTRIBUTE_NAME == 'molecule'
         # must match this _s_attr_molecule decl attr name,
         # and all the atom.molecule refs in all files [bruce 071114]
-    
-    _s_attr_jigs = S_CACHE 
+
+    _s_attr_jigs = S_CACHE
         # first i said S_REFS, but this is more efficient, and helps handle
         # pi_bond_sp_chain.py's Jigs.
-        
+
         # [not sure if following comment written 060223 is obs as of 060224:]
 
         # This means that restored state will unset the .jigs attr, for *all*
@@ -586,7 +586,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     #bruce 060322 zapping _s_attr_key = S_DATA decl -- should be unnecessary
     #since .key never changes. ####@@@@ TEST
-    
+
     # NOTE: for using this for binary mmp files, it might be necessary --
     # review that when we have them. ###@@@
 
@@ -602,31 +602,31 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     # we'll want an "optional" decl on the following, so they're reset to
     # class attr (or unset) when they equal it:
     _s_attr_picked = S_DATA
-    _s_categorize_picked = 'selection' 
+    _s_categorize_picked = 'selection'
         ##k this is noticed and stored, but I don't think it yet has any
         ##effect (??) [bruce 060313]
     _s_attr_display = S_DATA
     _s_attr__dnaBaseName = S_DATA #bruce 080319
     # decided to leave out _s_attr_ghost, for now [bruce 080530]:
-    ## _s_attr_ghost = S_DATA #bruce 080529; might not be needed 
+    ## _s_attr_ghost = S_DATA #bruce 080529; might not be needed
     ##     # (since no ops change this except on newly made atoms, so far)
     _s_attr_info = S_DATA
-    _s_attr__Atom__killed = S_DATA 
+    _s_attr__Atom__killed = S_DATA
         # Declaring (name-mangled) __killed seems needed just like for any
         # other attribute... (and without it, reviving a dead atom triggered
         # an assertfail, unsurprisingly)
-    
+
     #e declare these later when i revise code to unset/redflt them most of the time: ###@@@
     ## _picked_time = _picked_time_2 = -1
-    
+
     # note: atoms don't yet have individual colors, labels, names...
-    
+
     ###e need atomtype - hard part is when it's unset, might have to revise
     #how we handle that, e.g. derive it from _hyb; actually, for pure scan,
     #why is 'unset' hard to handle? i bet it's not. It just has no default
     #value. It's down here under the 'optional' data since we should derive it
     #from _hyb which is usually 'default for element'.
-    
+
     _s_attr_atomtype = S_DATA
 
     # The attributes _PAM3plus5_Pl_Gv_data and _f_Pl_posn_is_definitive
@@ -661,11 +661,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     _f_will_kill = 0 #bruce 060327
 
     _f_dna_updater_should_reposition_baggage = False #bruce 080404
-    
-    # The iconPath specifies path(string) of an icon that represents the 
+
+    # The iconPath specifies path(string) of an icon that represents the
     # objects of this class  (in this case its gives the path of an 'atom' icon')
     # see PM.PM_SelectionListWidget.insertItems for an example use of this
-    # attribute. 
+    # attribute.
     iconPath = "ui/modeltree/Single_Atom.png"
 
     # Text to be drawn floating over the atom.  Note, you must also
@@ -674,7 +674,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     overlayText = None
 
     # piotr 080822: The pdb_info dictionary stores information
-    # read from PDB file (or equivalent information generated by 
+    # read from PDB file (or equivalent information generated by
     # Peptide Builder).
     # piotr 080828: Changed the default value of pdb_info to None and
     # moved it to here from __init__
@@ -706,7 +706,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             b.setup_invalidate()
             b.invalidate_bonded_mols()
         self.molecule.invalidate_attr('singlets')
-        self.molecule.invalidate_attr('externs') 
+        self.molecule.invalidate_attr('externs')
             #bruce 070602: fix Undo bug after Make Crossover (crossovers.py)
             # -- the bug was that bonds being (supposedly) deleted during this
             # undo state-mashing would remain in mol.externs and continue to
@@ -724,7 +724,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         self._changed_structure()
         self.changed()
         posn = self.posn()
-        self.setposn( posn - V(1,1,1) ) 
+        self.setposn( posn - V(1,1,1) )
             # i hope it doesn't optimize for posn being unchanged! just in
             # case, set wrong then right
         self.setposn( posn )
@@ -743,7 +743,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         atomtype, or element-symbol, or another atom to copy these from) at
         location 'where' (e.g. V(36, 24, 36)) belonging to molecule mol (can
         be None or missing).
-        
+
         Atom initially has no real or open bonds, and default hybridization type.
         """
         # note: it's not necessary to track changes to self's attrs (in e.g.
@@ -758,7 +758,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         # done later, since our assy is not yet known: [bruce 080220]
         ## self._glname = assy.alloc_my_glselect_name( self)
-        
+
         # self.element is an Elem object which specifies this atom's element
         # (this will be redundant with self.atomtype when that's set,
         #  but at least for now we keep it as a separate attr,
@@ -766,7 +766,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #  and since a lot of old code wants to use self.element directly)
 
         # figure out atomtype to assume; atype = None means default atomtype for element will be set.
-        
+
         # [bruce 050707 revised this; previously the default behavior was to
         # set no atomtype now (picking one when first asked for), not to set
         # the default atomtype now. This worked ok when the atomtype guessed
@@ -781,7 +781,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         #bruce 080327 revised this to not use try/except routinely
         # (possible optimization, and for clarity)
-        
+
         atype = None # might be changed during following if/else chain
 
         if type(sym) == type(""):
@@ -797,27 +797,27 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # note: passing an Element object would probably make sense
             # to allow, but is nim. [bruce 080514 comment]
             assert 0, "can't initialize Atom.element from %r" % (sym,)
-        
-        #e could assert self.element is now an Elem, but don't bother -- 
+
+        #e could assert self.element is now an Elem, but don't bother --
         # if not, we'll find out soon enough
-        
+
         if atype is not None:
             assert atype.element is self.element # trivial in one of these cases, should improve #e
-        
+
         # this atomtype atype (or the default one, if atype is None)
         # will be stored at the end of this init method.
-        
+
         # 'where' is atom's absolute location in model space,
         # until replaced with 'no' by various private methods in Atom or Chunk, indicating
         # the location should be found using the formula in self.posn();
         # or it can be passed as 'no' by caller of __init__
-        
+
         if 1: #bruce 060308 rewrote this part:
             assert where != 'no'
             assert type(where) is type(V(0,0,0))
             self._posn = + where
             _changed_posn_Atoms[self.key] = self #bruce 060322
-            
+
         # list of bond objects
         self.bonds = []
         # list of jigs (###e should be treated analogously to self.bonds)
@@ -847,12 +847,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     _f_assy = None # friend attribute for classes Atom, Chunk, perhaps Bond,
         # and perhaps Undo and updaters [bruce 080220]
-    
+
     def _f_set_assy(self, assy): #bruce 080220
         """
         [friend method for anything that can change our assy or be the first
          to realize what it is.]
-        
+
         Set a new or different value of self._f_assy.
         Do necessary internal updates.
 
@@ -879,7 +879,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         assert type(assy) is not type("")
             # make sure we're not given a fake assy from _nullMol.
             # If we ever are, we'll need a special case in the caller.
-        
+
         # leave old assy, if any
         if self._f_assy is not None:
             print "%r._f_set_assy: leaving old assy %r, for new one %r. " \
@@ -894,7 +894,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # which calls this method if necessary to set it
             # [bruce 050610, revised 080220]
         self._f_assy = assy
-        
+
         return
 
     def _assy_may_have_changed(self): #bruce 080220; UNTESTED & not yet used, see comment
@@ -921,7 +921,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if self._f_assy is not assy:
                 self._f_set_assy(assy)
         return
-    
+
     def _undo_aliveQ(self, archive): #bruce 060406
         """
         Would this (Atom) object be picked up as a child object in a
@@ -940,9 +940,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     def _f_jigs_append(self, jig, changed_structure = True):
         """
         [friend method for class Jig]
-        
+
         Append a jig to self.jigs, and perform necessary invalidations.
-        
+
         @param changed_structure: if true (the default, though whether that's
         needed has not been reviewed), record this as a change to this
         atom's structure for purposes of Undo and updaters.
@@ -958,9 +958,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     def _f_jigs_remove(self, jig, changed_structure = True):
         """
         [friend method for class Jig]
-        
+
         Remove a jig from self.jigs, and perform necessary invalidations.
-        
+
         @param changed_structure: if true (the default, though whether that's
         needed has not been reviewed), record this as a change to this
         atom's structure for purposes of Undo and updaters.
@@ -992,7 +992,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     # For each entry in this dictionary, add a context menu command on atoms
     # of the key element type allowing transmutation to each of the element
     # types in the value list.
-    
+
     # (bruce 070412 addition: if the selected atoms are all one element, and
     #  one of those is the context menu target, make this command apply to all
     #  those selected atoms.
@@ -1082,7 +1082,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if (transmute_entries.has_key(fromSymbol)):
             #bruce 070412 (enhancing EricM's recent new feature):
             # If unpicked, do it for just this atom;
-            # If picked, do it for all picked atoms, 
+            # If picked, do it for all picked atoms,
             # but only if they are all the same element.
             # (But if they're not, still offer to do it for
             # just this atom, clearly saying so if possible.)
@@ -1159,7 +1159,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             return []
         chunk = self.molecule
         return chunk.containing_nodes()
-        
+
     def set_as_undo_debug_obj(self):
         undo_archive._undo_debug_obj = self
         undo_archive._undo_debug_message( '_undo_debug_obj = %r' % self )
@@ -1168,7 +1168,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     def setOverlayText(self, text): # by EricM
         self.overlayText = text
         self.molecule.chunkHasOverlayText = True
-    
+
     def __getattr__(self, attr): # in class Atom
         assert attr != 'xyz' # temporary: catch bugs in bruce 060308 rewrite
         try:
@@ -1179,13 +1179,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     def destroy(self): #bruce 060322 (not yet called) ###@@@
         """
         [see comments in Node.destroy or perhaps StateMixin.destroy]
-        
+
         @note: it should be (but may not now be) legal to call this multiple
         times, in any order w/ other objs' destroy methods.
-        
+
         @warning: SEMANTICS ARE UNCLEAR -- whether it should destroy bonds in
         self.bonds (esp in light of rebond method).
-        
+
         @see: comments in assy_clear by bruce 060322 (the "misguided" ones,
         written as if that was assy.destroy, which it's not).
         """
@@ -1216,13 +1216,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             dict1.pop(key, None) # remove self, if it's there
             ###e we need to also tell the subscribers to those dicts that
             ###we're being destroyed, I think
-            
+
         # is the following in a superclass (StateMixin) method?? ###k
         self.__dict__.clear() ###k is this safe???
         ## self.bonds = self.jigs = self.molecule = \
         ## self.atomtype = self.element = self.info = None # etc...
         return
-    
+
     def unset_atomtype(self): #bruce 050707
         """
         Unset self.atomtype, so that it will be guessed when next used
@@ -1234,10 +1234,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # assume already deleted
             pass
         return
-    
+
     def atomtype_iff_set(self):
         return self.__dict__.get('atomtype', None)
-    
+
     _inputs_for_atomtype = []
     def _recompute_atomtype(self): # used automatically by __getattr__
         """
@@ -1256,16 +1256,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         @warning: This is only correct for a new atom if it has
                   already been given all its bonds (real or open).
         """
-        #bruce 050702 revised this; 050707 using it much less often 
+        #bruce 050702 revised this; 050707 using it much less often
         # (only on special request ###doc what)
-        
+
         ###@@@ Bug: This does not yet [050707] guess correctly for all bond
         #patterns; e.g. it probably never picks N/sp2(graphitic). That means
         #there is presently no way to save and reload that atomtype in an mmp
         #file, and only a "direct way" (specifying it as an atomtype, not
         #relying on inferring from bonds) would work unless this bug is fixed
         #here.
-        
+
         ###@@@ (need to report this bug)
         if self.__killed:
             # bruce 071018 new bug check and new mitigation (return default atomtype)
@@ -1282,37 +1282,37 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                     (elt, self) )
         return self.best_atomtype_for_numbonds(elt = elt)
 
-    def set_atomtype_but_dont_revise_singlets(self, atomtype): 
+    def set_atomtype_but_dont_revise_singlets(self, atomtype):
         ####@@@@ should merge with set_atomtype; perhaps use more widely
         """
         #doc;
         atomtype is None means use default atomtype
         """
-        atomtype = self.element.find_atomtype( atomtype) 
+        atomtype = self.element.find_atomtype( atomtype)
             # handles all forms of the request; exception if none matches
         assert atomtype.element is self.element # [redundant with find_atomtype]
         self.atomtype = atomtype
-        self._changed_structure() 
+        self._changed_structure()
             #bruce 050627; note: as of 050707 this is always called during Atom.__init__
         ###e need any more invals or updates for this method?? ###@@@
         return
-        
+
     def set_atomtype(self, atomtype, always_remake_bondpoints = False):
         """
         [public method; not super-fast]
-        
+
         Set this atom's atomtype as requested, and do all necessary
         invalidations or updates, including remaking our singlets as
         appropriate, and [###@@@ NIM] invalidating or updating bond valences.
-        
+
         It's ok to pass None (warning: this sets default atomtype even if
         current one is different!), atomtype's name (specific to self.element)
         or fullname, or atomtype object. ###@@@ also match to
         fullname_for_msg()??? ###e
-        
+
         The atomtype's element must match the current value of self.element --
         we never change self.element (for that, see mvElement).
-        
+
         Special case: if new atomtype would be same as existing one (and that
         is already set), do nothing (rather than killing and remaking
         singlets, or even correcting their positions), unless
@@ -1323,33 +1323,33 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # method, we'd have infrecur!
         atomtype = self.element.find_atomtype( atomtype)
             # handles all forms of the request; exception if none matches
-        assert atomtype.element is self.element 
+        assert atomtype.element is self.element
             # [redundant with find_atomtype] #e or transmute if not??
         if always_remake_bondpoints or (self.atomtype_iff_set() is not atomtype):
-            self.direct_Transmute( atomtype.element, atomtype ) 
+            self.direct_Transmute( atomtype.element, atomtype )
                 ###@@@ not all its needed invals/updates are implemented yet
             # note: self.atomtype = atomtype is done in direct_Transmute when it calls mvElement
         return
-    
+
     def setAtomType(self, atomtype, always_remake_bondpoints = False):
         """
         Same as self.set_atomtype(), provided for convenience.
         """
         self.set_atomtype(atomtype, always_remake_bondpoints)
-        
+
     def getAtomType(self):
         """
         Returns the atomtype.
-        
+
         @return: The atomtype.
         @rtype:  L{AtomType}
         """
         return self.atomtype
-    
+
     def getAtomTypeName(self):
         """
         Returns the name of this atom's atomtype.
-        
+
         @return: The atomtype name.
         @rtype:  str
         """
@@ -1367,7 +1367,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # posns of the same atom was getting a reference to the curpos[index]
         # array element, even though this was part of a longer array, so it
         # always got two refs to the same mutable data (which compared equal)!
-        #bruce 060308 rewrote the following        
+        #bruce 060308 rewrote the following
         res = + self._posn
         try:
             #bruce 060208: try to protect callers against almost-overflowing values stored by buggy code
@@ -1377,11 +1377,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # note: print_compact_traceback is not informative -- the call stack might be, tho it's long.
             print_compact_stack("bug: atom position overflow for %r; setting position to 0,0,0: " % self)
             ##e history message too? only if we can prevent lots of them from coming out at once.
-            res = V(0,0,0) ##e is there any better choice of position for this purpose? 
+            res = V(0,0,0) ##e is there any better choice of position for this purpose?
                 # e.g. a small random one, so it's unique?
             self.setposn(res) # I hope this is safe here... we need the invals it does.
         return res
-    
+
     def sim_posn(self): #bruce 060111
         """
         Return our posn, as the simulator should see it -- same as posn except
@@ -1418,15 +1418,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #new code from 050513:
         mol = self.molecule
         basepos = mol.__dict__.get('basepos') #bruce 050513
-        if basepos is not None: 
-            ##[bruce 060308 zapped:]## and self.xyz == 'no': 
+        if basepos is not None:
+            ##[bruce 060308 zapped:]## and self.xyz == 'no':
             #bruce 050516 bugfix: fix sense of comparison to 'no'
             return basepos[self.index]
                 # note: since mol.basepos exists, mol.atlist does, so
                 # self.index is a valid index into both of them [bruce 060313
                 # comment]
         # fallback to slower code from 041201:
-        return mol.quat.unrot(self.posn() - mol.basecenter) 
+        return mol.quat.unrot(self.posn() - mol.basecenter)
             # this inlines mol.abs_to_base( self.posn() ) [bruce 060411 comment]
 
     def setposn(self, pos):
@@ -1445,7 +1445,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         mol = self.molecule
         if mol is not None:
             mol.changed_atom_posn()
-        
+
         # also invalidate the bonds or jigs which depend on our position.
         # (review: should this be a separate method -- does anything else need
         # it?) note: the comment mentions jigs, but this code doesn't alert
@@ -1453,7 +1453,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         for b in self.bonds:
             b.setup_invalidate()
         return # from setposn
-    
+
     def _f_setposn_no_chunk_or_bond_invals(self, pos): #bruce 060308 (private for Chunk and Atom)
         self._posn = + pos
         _changed_posn_Atoms[self.key] = self #bruce 060322
@@ -1467,7 +1467,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 #different lists are needed, so it's unlikely the complexity
                 #is justified.
         return # from setposn_no_chunk_or_bond_invals
-    
+
     def adjBaggage(self, atom, nupos):
         """
         We're going to move atom, a neighbor of yours, to nupos,
@@ -1515,13 +1515,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             #bruce 060629 for bondpoint problem
             self.reposition_baggage(baggage, (atom, nupos))
         return
-    
+
     def __repr__(self):
         return self.element.symbol_for_printing + str(self.key)
 
     def __str__(self):
         return self.element.symbol_for_printing + str(self.key)
-    
+
     _f_valid_neighbor_geom = False # privately, also used as valid_data tuple
         # this is reset to False by some Atom methods, and when any bond of self
         # is invalidated, which covers (I think) motion or element change of a
@@ -1571,7 +1571,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         #
         # I'll do only the "short term kluge" solution, for now. [bruce 080214]
         return
-    
+
     def check_bond_geometry(self, external = -1): # bruce 080214
         # todo: probably should move this method within class
         """
@@ -1618,7 +1618,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                     "exception in _recompute_bond_geometry_error_string"
                         # only seen in case of bugs
                 msg = "\n*** BUG: %s: " % error_string
-                print_compact_stack(msg)                
+                print_compact_stack(msg)
             if error_string != self.bond_geometry_error_string:
                 # error string changed
                 if (not error_string) != (not self.bond_geometry_error_string):
@@ -1639,7 +1639,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # into the chunk display list or not (for explanation, see comment
             # in _f_invalidate_neighbor_geom)
             draw_externally = not not self.has_external_bonds()
-            self._f_draw_bond_geometry_error_indicator_externally = draw_externally 
+            self._f_draw_bond_geometry_error_indicator_externally = draw_externally
                 # this attr might never be used
             if external == -1 or external == draw_externally:
                 return self.bond_geometry_error_string
@@ -1657,7 +1657,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 ## todo: def bond.is_external()?
                 return True
         return False
-    
+
     def _recompute_bond_geometry_error_string(self): # bruce 080214
         # todo: should refactor, put some in AxisAtom section, or atomtype
         """
@@ -1696,7 +1696,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # (done each time we draw it). The latter would be part of
                 # drawing code, and would test all related prefs, and capture
                 # their usage as for other drawing prefs. [bruce 080326]
-                if not (low <= angle <= high): 
+                if not (low <= angle <= high):
                     error = "minor groove angle %d degrees (should be %d-%d)" % \
                             (angle, low, high)
                     return error
@@ -1704,7 +1704,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     _BOND_GEOM_ERROR_RADIUS_MULTIPLIER = 1.5 # not sure this big is good
         # (or that a solid sphere is the best error indicator)
-    
+
     def overdraw_bond_geometry_error_indicator(self, glpane, dispdef):
         #bruce 080214, revised 080406
         """
@@ -1712,7 +1712,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         assert self._f_draw_bond_geometry_error_indicator_externally # for now
         assert self.bond_geometry_error_string # make private??
-        
+
         disp = dispdef ### REVIEW -- is it ok if diDEFAULT is passed?? does that happen?
         pos = self.posn() # assume in abs coords
         pickedrad = 2 ### STUB, WRONG -- unless we want it to stay extra big; maybe we do...
@@ -1762,8 +1762,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             pass
         return glname
 
-    def draw(self, glpane, dispdef, col, level, 
-             special_drawing_handler = None, 
+    def draw(self, glpane, dispdef, col, level,
+             special_drawing_handler = None,
              special_drawing_prefs = USE_CURRENT):
         """
         Draw this atom (self), using an appearance which depends on
@@ -1778,7 +1778,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         @note: this method doesn't draw any bonds -- caller must draw bonds
         separately. (Unlike self.draw_in_abs_coords, which *does* draw self's
         bond when self is a bondpoint.)
-        
+
         @return: the display mode we used (whether self's or inherited),
                  or will use (if our drawing is handled by
                  special_drawing_handler).
@@ -1794,11 +1794,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         # figure out display style to use
         disp, drawrad = self.howdraw(dispdef)
-        
+
         # review: future: should we always compute _draw_atom_style here,
         # just once, so we can avoid calling it multiple times inside
         # various methods we call?
-        
+
         if special_drawing_handler and (
             self._draw_atom_style(special_drawing_handler = special_drawing_handler) ==
             'special_drawing_handler'
@@ -1818,7 +1818,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             special_drawing_handler.draw_by_calling_with_prefsvalues(
                 SPECIAL_DRAWING_STRAND_END, func )
             return disp
-        
+
         # if we didn't defer, we shouldn't use special_drawing_handler at all
         del special_drawing_handler
 
@@ -1827,13 +1827,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # note use of basepos (in atom.baseposn) since it's being drawn under
         # rotation/translation of molecule
         pos = self.baseposn()
-        
+
         if disp == diTUBES:
-            pickedrad = drawrad * 1.8 
+            pickedrad = drawrad * 1.8
                 # this code snippet is now shared between draw and draw_in_abs_coords [bruce 060315]
         else:
             pickedrad = drawrad * 1.1
-        
+
         color = col or self.drawing_color()
 
         glPushName( glname) #bruce 050610 (for comments, see same code in Bond.draw)
@@ -1877,7 +1877,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 ##            color = orange
         return color
 
-    # bruce 070409 split this out of draw_atom_sphere; 
+    # bruce 070409 split this out of draw_atom_sphere;
     # 070424 revised return value (None -> "")
     def _draw_atom_style(self, special_drawing_handler = None, special_drawing_prefs = None):
         """
@@ -1899,7 +1899,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                                    along with special_drawing_handler -- only passed
                                    if we're doing drawing which was *already*
                                    deferred do that.
-        
+
         @return: Returns one of the following values:
                  - "" (Not None) means to draw an actual sphere.
                  - "special_drawing_handler" means to defer drawing to the special_drawing_handler.
@@ -1907,15 +1907,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                  - "arrowhead-out" means to draw a 3' arrowhead.
                  - "do not draw" means don't draw anything.
                  - "bondpoint-stub" means to draw a stub.
-                 - 'five_prime_end_atom' means draw 5' end base atom in a special 
+                 - 'five_prime_end_atom' means draw 5' end base atom in a special
                    color if arrows are not drawn at 5' end
-                 - 'three_prime_end_atom' means draw 3' end base atom in a special 
+                 - 'three_prime_end_atom' means draw 3' end base atom in a special
                    color if arrows are not drawn at 3' end
 
-        @note: We check not only the desirability of the special cases, but all 
+        @note: We check not only the desirability of the special cases, but all
         their correctness conditions, making sure that those don't depend on
         the other parameters of L{draw_atom_sphere} (like abs_coords),
-        and making it easier for L{draw_atom_sphere} to fallback to its default 
+        and making it easier for L{draw_atom_sphere} to fallback to its default
         style when those conditions fail.
         """
         # WARNING: various routines make use of this return value in different
@@ -1958,7 +1958,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # note: for optimal redraw (by avoiding needless remakes of some
             # display lists), only access each of the values this can provide
             # when that value is actually needed to do the drawing.
-        
+
         if self.isFivePrimeEndAtom() and not special_drawing_prefs[arrowsOnFivePrimeEnds_prefs_key]:
             # (this happens even if self.isThreePrimeEndAtom() is also true
             #  (which may happen for a length-1 PAM3 strand);
@@ -1966,7 +1966,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             return 'five_prime_end_atom'
         elif self.isThreePrimeEndAtom() and not special_drawing_prefs[arrowsOnThreePrimeEnds_prefs_key]:
             return 'three_prime_end_atom'
-        
+
         bond = self.strand_end_bond()
             # never non-None if self has two bonds with directions set
             # (assuming no errors) -- i.e. for -Ss3-X, only non-None
@@ -1984,11 +1984,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 return 'do not draw'
             #e REVIEW: does Bond.draw need to be updated due to this, if "draw
             #bondpoints as stubs" is True?
-            
+
             #e REVIEW: Do we want to draw even an isolated Pe (with bondpoint)
             #as a cone, in case it's in MMKit, since it usually looks like a
             #cone when it's correctly used? Current code won't do that.
-            
+
             #e Maybe add option to draw the dir == 0 case too, to point out
             #you ought to propogate the direction
             pass
@@ -2009,7 +2009,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         @param dispdef: can be None if not known to caller
 
         @param special_drawing_handler: see _draw_atom_style for related doc
-        
+
         @param special_drawing_prefs: see _draw_atom_style for doc
 
         @return: None
@@ -2055,32 +2055,32 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 #e see related code in Bond.draw; drawrad is slightly more than the bond rad
         elif style.startswith('arrowhead-'):
             #arrowColor will be changed later
-            arrowColor = color                    
+            arrowColor = color
             # two options, bruce 070415:
             # - arrowhead-in means pointing in along the strand_end_bond
             # - arrowhead-out means pointing outwards from the strand_end_bond
             if style == 'arrowhead-in':
                 bond = self.strand_end_bond()
                 other = bond.other(self)
-                otherdir = 1 
+                otherdir = 1
                 # Following implements custom arrowhead colors for the 3' and 5' end
-                # (can be changed using Preferences > Dna page). Feature implemented 
+                # (can be changed using Preferences > Dna page). Feature implemented
                 # for Rattlesnake v1.0.1.
                 bool_custom_arrowhead_color = special_drawing_prefs[
-                    useCustomColorForFivePrimeArrowheads_prefs_key]                
+                    useCustomColorForFivePrimeArrowheads_prefs_key]
                 if bool_custom_arrowhead_color and not abs_coords:
                     arrowColor = special_drawing_prefs[
                         dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
-                
+
             elif style == 'arrowhead-out':
                 bond = self.strand_end_bond()
                 other = bond.other(self)
                 otherdir = -1
                 # Following implements custom arrowhead colors for the 3' and 5' end
-                # (can be changed using Preferences > Dna page). Feature implemented 
+                # (can be changed using Preferences > Dna page). Feature implemented
                 # for Rattlesnake v1.0.1.
                 bool_custom_arrowhead_color = special_drawing_prefs[
-                    useCustomColorForThreePrimeArrowheads_prefs_key]                
+                    useCustomColorForThreePrimeArrowheads_prefs_key]
                 if bool_custom_arrowhead_color and not abs_coords:
                     arrowColor = special_drawing_prefs[
                         dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
@@ -2094,11 +2094,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 otherpos = self.molecule.abs_to_base(other.posn())
                     ###BUG: this becomes wrong if the chunks move relative to
                     ###each other! But we don't get updated then. ###FIX
-                
+
                 ## color = gray # to indicate the direction is suspicious and
                 ##     # might become invalid (for now)
             out = norm(otherpos - pos) * otherdir
-            
+
             # Set the axis and arrow radius.
             if self.element is Singlet:
                 assert Singlet.bonds_can_be_directional #bruce 071105
@@ -2115,14 +2115,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             else:
                 axis = out * drawrad
                 arrowRadius = drawrad * 2
-                    
+
             # the following cone dimensions enclose the original sphere (and
             # therefore the bond-cylinder end too) (when axis and arrowRadius
             # have their default values above -- not sure if this remains true
             # after [mark 071014]): cone base at pos - axis, radius = 2 *
             # drawrad, cone midplane (radius = drawrad) at pos + axis, thus
             # cone tip at pos + 3 * axis.
-            
+
             # WARNING: this cone would obscure the wirespheres, except for
             # special cases in self.draw_wirespheres(). If you make the cone
             # bigger you might need to change that code too.
@@ -2130,18 +2130,18 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             ### TODO: a newer, better way to draw a cone is by passing a tuple
             # of two radii (one 0) to drawcylinder. This uses shaders when
             # available, and makes a polycone otherwise. [bruce 090225 comment]
-            
+
             drawpolycone(arrowColor,
-                         [[pos[0] - 2 * axis[0], 
+                         [[pos[0] - 2 * axis[0],
                           pos[1] - 2 * axis[1],
                           pos[2] - 2 * axis[2]],
-                         [pos[0] - axis[0], 
-                          pos[1] - axis[1], 
+                         [pos[0] - axis[0],
+                          pos[1] - axis[1],
                           pos[2] - axis[2]],
-                         [pos[0] + 3 * axis[0], 
+                         [pos[0] + 3 * axis[0],
                           pos[1] + 3 * axis[1],
                           pos[2] + 3 * axis[2]],
-                         [pos[0] + 5 * axis[0], 
+                         [pos[0] + 5 * axis[0],
                           pos[1] + 5 * axis[1],
                           pos[2] + 5 * axis[2]]], # Point array (the two end
                                                   # points not drawn)
@@ -2150,16 +2150,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         elif style == 'five_prime_end_atom':
             sphereColor = color
             bool_custom_color = special_drawing_prefs[
-                    useCustomColorForFivePrimeArrowheads_prefs_key]                
+                    useCustomColorForFivePrimeArrowheads_prefs_key]
             if bool_custom_color and not abs_coords:
                 sphereColor = special_drawing_prefs[
                     dnaStrandFivePrimeArrowheadsCustomColor_prefs_key]
-                    
+
             drawsphere(sphereColor, pos, drawrad, level)
         elif style == 'three_prime_end_atom':
             sphereColor = color
             bool_custom_color = special_drawing_prefs[
-                    useCustomColorForThreePrimeArrowheads_prefs_key]                
+                    useCustomColorForThreePrimeArrowheads_prefs_key]
             if bool_custom_color and not abs_coords:
                 sphereColor = special_drawing_prefs[
                     dnaStrandThreePrimeArrowheadsCustomColor_prefs_key]
@@ -2177,14 +2177,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             else:
                 drawsphere(color, pos, drawrad, level)
         return # from draw_atom_sphere
-    
+
     def draw_wirespheres(self, glpane, disp, pos, pickedrad, special_drawing_prefs = USE_CURRENT):
         #bruce 060315 split this out of self.draw so I can add it to draw_in_abs_coords
         if self._draw_atom_style(special_drawing_prefs = special_drawing_prefs).startswith('arrowhead-'):
-            # compensate for the cone (drawn by draw_atom_sphere 
+            # compensate for the cone (drawn by draw_atom_sphere
             # in this case) being bigger than the sphere [bruce 070409]
             pickedrad *= debug_pref("Pe pickedrad ratio", Choice([1.8, 1.9, 1.7, 1.0])) ####
-        if self.picked: 
+        if self.picked:
             # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
             #bruce 041217 experiment: show valence errors for picked atoms by
             # using a different color for the wireframe.
@@ -2197,7 +2197,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             else:
                 # russ 080530: Changed to pref from PickedColor constant (blue).
                 color = env.prefs[selectionColor_prefs_key]
-            drawwiresphere(color, pos, pickedrad) 
+            drawwiresphere(color, pos, pickedrad)
                 ##e worry about glname hit test if atom is invisible? [bruce 050825 comment]
         #bruce 050806: check valence more generally, and not only for picked atoms.
         self.draw_error_wireframe_if_needed(glpane, disp, pos, pickedrad,
@@ -2280,7 +2280,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             radius = maxrad * 1.12
             drawwiresphere(color, pos, radius)
         return
-        
+
     def max_pixel_radius(self): #bruce 070409
         """
         Return an estimate (upper bound) of the maximum distance
@@ -2290,7 +2290,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if self._draw_atom_style(special_drawing_prefs = USE_CURRENT).startswith('arrowhead-'):
             res *= 3
         return res
-    
+
     def bad(self): #bruce 041217 experiment; note: some of this is inlined into self.getinfo()
         """
         is this atom breaking any rules?
@@ -2428,7 +2428,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     def deficient_v6(self): #bruce 051215
         return valence_to_v6(self.deficient_valence())
-    
+
     def mouseover_statusbar_message(self):
         msg = self.getInformationString()
         more = self.bad_valence_explanation()
@@ -2451,7 +2451,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 continue
             return True
         return False
-    
+
     def overdraw_with_special_color(self, color, level = None, factor = 1.0):
         """
         Draw this atom slightly larger than usual with the given
@@ -2473,20 +2473,20 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                               )
             #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
         return
-    
-    def draw_in_abs_coords(self, glpane, color): 
+
+    def draw_in_abs_coords(self, glpane, color):
         """
         Draw this atom in absolute (world) coordinates, using the specified
         color (ignoring the color it would naturally be drawn with). See code
         comments about radius and display mode (current behavior might not be
         correct or optimal).
-        
+
         This is only called for special purposes related to
         mouseover-highlighting, and should be renamed to reflect that, since
         its behavior can and should be specialized for that use. (E.g. it
         doesn't happen inside display lists; and it need not use glName at
         all.)
-        
+
         In this case (Atom), this method (unlike the main draw method) will
         also draw self's bond, provided self is a singlet with a bond which
         gets drawn, so that for an "open bond" it draws the entire thing (bond
@@ -2502,7 +2502,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             return # I hope this is always ok...
         level = self.molecule.assy.drawLevel # this doesn't work if atom has been killed!
         pos = self.posn()
-        ###@@@ remaining code might or might not be correct 
+        ###@@@ remaining code might or might not be correct
         # (issues: larger radius, display-mode independence)
         drawrad = self.highlighting_radius() # slightly larger than normal drawing radius
         if self.bond_geometry_error_string:
@@ -2510,16 +2510,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         ## drawsphere(color, pos, drawrad, level)
         self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
             # always draw, regardless of display mode
-            
+
             #bruce 050825 comment: it's probably incorrect to do this even for
             #invisible atoms. This probably caused the "highlighting part" of
             #bug 870, but bug 870 has been fixed by other changes today, but
             #this still might cause other bugs of highlighting
             #otherwise-invisible atoms. Needs review. ###@@@
-            
+
             # (Indirectly related: drawwiresphere acts like drawsphere for
             # hit-test purposes.)
-        if len(self.bonds) == 1 and self.element is Singlet: 
+        if len(self.bonds) == 1 and self.element is Singlet:
             #bruce 050708 new feature - bond is part of self for highlighting
             dispdef = self.molecule.get_dispdef()
                 #bruce 050719 question: is it correct to ignore .display of self
@@ -2542,11 +2542,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # but makes further use of intermediate values which that method
             # computes but does not return, so merging them would require a
             # variant method that returned more values. [bruce 080411 comment]
-            dispdef = self.molecule.get_dispdef() 
+            dispdef = self.molecule.get_dispdef()
                 #e could optimize, since sometimes computed above -- but doesn't matter.
             disp, drawrad = self.howdraw(dispdef)
             if disp == diTUBES:
-                pickedrad = drawrad * 1.8 
+                pickedrad = drawrad * 1.8
                     # this code snippet is now shared between several places
                     # [bruce 060315/080411]
             else:
@@ -2559,14 +2559,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             pass
         self.molecule.popMatrix(glpane)
         return
-    
+
     def drawing_radius(self, picked_radius = False):
         """
-        Return the current drawing radius of the atom. It determines it using 
-        the following order -- Returns drawing radius based on atom's current 
-        display. If the atom's display is 'default display'it then looks for 
-        the chunk's display. If even the chunk's display is default display, 
-        it returns the GLPane's current display. Note that these things are 
+        Return the current drawing radius of the atom. It determines it using
+        the following order -- Returns drawing radius based on atom's current
+        display. If the atom's display is 'default display'it then looks for
+        the chunk's display. If even the chunk's display is default display,
+        it returns the GLPane's current display. Note that these things are
         done in self.molecule.get_dispdef() and self.howdraw().
 
         @param picked_radius: instead of the drawing radius, return the larger
@@ -2574,10 +2574,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                               (Note: not all effects on that radius are
                                implemented yet.)
         @type: bool
-        
-        @see: DnaSegment_EditCommand._determine_resize_handle_radius() that 
+
+        @see: DnaSegment_EditCommand._determine_resize_handle_radius() that
         uses this method to draw the resize handles.
-        
+
         @see: self.howdraw()
         @see: Chunk.get_dispdef()
         """
@@ -2592,14 +2592,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 pickedrad = drawrad * 1.1
             return pickedrad
         return drawrad
-    
+
     def highlighting_radius(self, dispdef = None):
         """
         @return: the radius to use for highlighting this atom (self),
                  in the given display style (by default, in the style
                  it would currently be drawn in). This is larger than
                  self's drawing_radius.
-        
+
         @note: this is not used for atoms that are part of highlighted chunks.
         """
         # maybe todo: integrate this with draw_as_selatom
@@ -2642,7 +2642,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         _changed_otherwise_Atoms[self.key] = self #bruce 060322
         self.molecule.changeapp(1)
         self.changed() # bruce 041206 bugfix (unreported bug); revised, bruce 050509
-        
+
         # bruce 041109 comment:
         # Atom.setDisplayStyle changes appearance of this atom's bonds,
         # so: do we need to invalidate the bonds? No, they don't store display
@@ -2669,7 +2669,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             self.molecule.add_some_atom_content(new & ~old)
         return
 
-    def howdraw(self, dispdef): 
+    def howdraw(self, dispdef):
         # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
         """
         Tell how to draw the atom depending on its display mode (possibly
@@ -2687,7 +2687,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         if dispdef == diDEFAULT: #bruce 041129 permanent debug code, re bug 21
             #bruce 050419 disable this since always happens for Element Color Prefs dialog:
-            ## if debug_flags.atom_debug: 
+            ## if debug_flags.atom_debug:
             ##     print "bug warning: dispdef == diDEFAULT in Atom.howdraw for %r" % self
             dispdef = default_display_mode # silently work around that bug [bruce 041206]
         if self.element is Singlet:
@@ -2704,26 +2704,26 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 disp = dispdef
             else:
                 disp = self.display
-        
+
         # Compute "rad"
-        if disp == diTUBES: 
+        if disp == diTUBES:
             rad = TubeRadius * 1.1
         else:
             #bruce 060307 moved all this into else clause; this might prevent
             #some needless (and rare) gl_updates when all is shown in Tubes
             #but prefs for other dispmodes are changed.
-            rad = self.element.rvdw 
-                # correct value for diTrueCPK (formerly, default); 
+            rad = self.element.rvdw
+                # correct value for diTrueCPK (formerly, default);
                 # modified to produce values for other dispmodes
             if disp == diTrueCPK:
-                rad = rad * env.prefs[cpkScaleFactor_prefs_key] 
+                rad = rad * env.prefs[cpkScaleFactor_prefs_key]
             if disp != diTrueCPK:
                 rad = rad * BALL_vs_CPK # all other dispmode radii are based on diBALL radius
             if disp == diBALL:
-                rad = rad * env.prefs[diBALL_AtomRadius_prefs_key] 
+                rad = rad * env.prefs[diBALL_AtomRadius_prefs_key]
         return (disp, rad)
 
-    def selradius_prefs_values(): # staticmethod in Atom 
+    def selradius_prefs_values(): # staticmethod in Atom
         #bruce 060317 for bug 1639 (and perhaps an analogue for other prefs)
         """
         Return a tuple of all prefs values that are ever used in computing
@@ -2733,7 +2733,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     selradius_prefs_values = staticmethod( selradius_prefs_values)
 
-    def selradius_squared(self): 
+    def selradius_squared(self):
         # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
         """
         Return square of desired "selection radius",
@@ -2794,9 +2794,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if self.molecule.hidden:
             return True
         return not self.visible()
-    
+
     # == file input/output methods (ideally to be refactored out of this class)
-    
+
     def writemmp(self, mapping, dont_write_bonds_for_these_atoms = ()):
         """
         Write the mmp atom record for self,
@@ -2817,7 +2817,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                                                  nor any dnaBaseName for those
                                                  atoms, nor (KLUGE) any rung
                                                  bonds for those atoms.
-                                                 
+
         @note: compatible with Node.writemmp, though we're not a subclass of
                Node, except for additional optional args.
 
@@ -2847,19 +2847,19 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # e.g. BONDPOINT_ANCHORED (can't yet happen)
                 assert 0, "not yet implemented: bondpoint_policy of %r" % (policy,)
             pass
-        
+
         num_str = mapping.encode_next_atom(self) # (note: pre-050322 code used an int here)
         disp = mapping.dispname(self.display) # note: affected by mapping.sim flag
         posn = self.posn() # might be revised below
         eltnum = self.element.eltnum # might be revised below
-        
+
         if policy == BONDPOINT_REPLACED_WITH_HYDROGEN: # condition revised, bruce 080603
             # special case for singlets in mmp files meant only for simulator:
             # pretend we're a Hydrogen, and revise posn and eltnum accordingly
             # (for writing only, not stored in our attrs)
             # [bruce 050404 to help fix bug 254]
             eltnum = Hydrogen.eltnum
-            posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), pretend_I_am = Hydrogen ) 
+            posn = self.ideal_posn_re_neighbor( self.singlet_neighbor(), pretend_I_am = Hydrogen )
                 # see also self.sim_posn()
             disp = "openbond" # kluge, meant as a comment in the file
                 #bruce 051115 changed this from "singlet" to "openbond"
@@ -2877,7 +2877,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         xs, ys, zs = mapping.encode_atom_coordinates( posn )
         print_fields = (num_str, eltnum, xs, ys, zs, disp)
         mapping.write("atom %s (%d) (%s, %s, %s) %s\n" % print_fields)
-        
+
         if self.key not in dont_write_bonds_for_these_atoms:
             # write dnaBaseName info record [mark 2007-08-16]
             # but not for atoms whose bonds will be written compactly,
@@ -2890,7 +2890,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         if self.ghost:
             mapping.write( "info atom ghost = True\n" ) #bruce 080529
-        
+
         # Write dnaStrandName info record (only for Pe atoms). Mark 2007-09-04
         # Note: maybe we should disable this *except* for Pe atoms
         # (hoping Mark's comment was right), so it stops happening for files
@@ -2898,12 +2898,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Review soon. [bruce 080311 comment]
         #See self.getDnaStrandId_for_generators() for comments about this
         #attr. Basically, its used only while creating a new duplex from scratch
-        #(while reading in the reference base mmp files in the plugins dir) 
+        #(while reading in the reference base mmp files in the plugins dir)
         dnaStrandId_for_generators = self.getDnaStrandId_for_generators()
         if dnaStrandId_for_generators:
             mapping.write( "info atom dnaStrandId_for_generators = %s\n" %
                            dnaStrandId_for_generators )
-        
+
         #bruce 050511: also write atomtype if it's not the default
         atype = self.atomtype_iff_set()
         if atype is not None and atype is not self.element.atomtypes[0]:
@@ -2913,7 +2913,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if self._PAM3plus5_Pl_Gv_data is not None:
             self._writemmp_PAM3plus5_Pl_Gv_data( mapping)
                 # this writes "info atom +5data = ..."
-        
+
         # write only the bonds which have now had both atoms written
         # (including internal and external bonds, not treated differently)
         #bruce 050502: write higher-valence bonds using their new mmp records,
@@ -2954,14 +2954,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             mapping.write( bonds_mmprecord( valence, atomcodes ) + "\n")
         for bond in bonds_with_direction:
             #bruce 070415
-            mapping.write( bond.mmprecord_bond_direction(self, mapping) + "\n") 
-        
+            mapping.write( bond.mmprecord_bond_direction(self, mapping) + "\n")
+
         return # from writemmp
 
     def readmmp_info_atom_setitem( self, key, val, interp ):
         """
         Reads an atom info record from the MMP file.
-        
+
         @see: The docstring of an analogous method, such as
               L{Node.readmmp_info_leaf_setitem()}.
         """
@@ -2984,7 +2984,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                     # don't add bondpoints (aka singlets), since this
                     # mmp record comes before the bonds, including bonds
                     # to bondpoints
-        
+
         elif key == ['dnaBaseName']: # Mark 2007-08-16
             try:
                 self.setDnaBaseName(val)
@@ -2997,11 +2997,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 summary_format = redmsg( msg )
                 env.history.deferred_summary_message(summary_format)
                 pass
-        
+
         elif key == ['ghost']: #bruce 080529
             if val == "True":
                 self.ghost = True
-        
+
         elif key == ['dnaStrandId_for_generators']: # Mark 2007-09-04
             try:
                 #@see: self.getDnaStrandId_for_generators() for comments
@@ -3033,7 +3033,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 print "atom_debug: fyi: info atom (in class Atom) with "\
                       "unrecognized key %r (not an error)" % (key,)
         return
-    
+
     def writepov(self, file, dispdef, col):
         """
         write to a povray file:  draw a single atom
@@ -3059,19 +3059,19 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # [bruce 080122 comment]
         """
         Write a PDB ATOM record for this atom into I{file}.
-        
+
         @param file: The PDB file to write the ATOM record to.
         @type  file: file
-        
+
         @param atomSerialNumber: A unique number for this atom.
         @type  atomSerialNumber: int
-        
+
         @param chainId: The chain id. It is a single character. See the PDB
                         documentation for the ATOM record more information.
         @type  chainId: str
-        
+
         @note: If you edit the ATOM record, be sure to to test QuteMolX.
-                    
+
         @see: U{B{ATOM Record Format}<http://www.wwpdb.org/documentation/format23/sect9.html#ATOM>}
         """
         space = " "
@@ -3093,7 +3093,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         atomRecord += "%3s" % space
         # Column 21: Whitespace (str)
         atomRecord += "%1s" % space
-        # Column 22: Chain identifier - single letter (str) 
+        # Column 22: Chain identifier - single letter (str)
         # This has been tested with 35 chunks and still works in QuteMolX.
         atomRecord += "%1s" % chainId.upper()
         # Column 23-26: Residue sequence number (int) *unused*.
@@ -3125,11 +3125,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Column 79-80: Charge on the atom (str) *unused*
         atomRecord += "%2s\n" % space
         # End ATOM record ----------------------------------
-        
+
         file.write(atomRecord)
 
         return
-    
+
     def writemdl(self, alist, f, dispdef, col):
         """
         write to a MDL file
@@ -3139,9 +3139,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         disp, radius = self.howdraw(dispdef)
         xyz = map(float, A(self.posn()))
         rgb = map(int,A(color)*255)
-        atnum = len(alist) # current atom number        
+        atnum = len(alist) # current atom number
         alist.append([xyz, radius, rgb])
-        
+
         # Write spline info for this atom
         atomOffset = 80*atnum
         (x,y,z) = xyz
@@ -3158,7 +3158,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 f.write("%s 0 %d\n%f %f %f\n%s%s"%
                            (flag, index+19+atomOffset, px, py, pz,
                             filler, filler))
-        
+
         for spline in range(8):
             f.write("CPs=5\n")
             for point in range(5):
@@ -3169,7 +3169,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
 
     # ==
-    
+
     def getinfo(self): # [mark 2004-10-14]
         """
         Return information about the selected atom for the msgbar
@@ -3178,10 +3178,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # (for the same atoms as self.bad(), but in case conditions are added to
         #  that, using independent code).
         # bruce 050218 changing XYZ format to %.3f (after earlier discussion with Josh).
-        
+
         if self is self.molecule.assy.ppa2:
             return
-            
+
         xyz = self.posn()
 
         atype_string = ""
@@ -3190,22 +3190,22 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         ainfo = ("Atom %s %s[%s] [X = %.3f] [Y = %.3f] [Z = %.3f]" % \
             ( self, atype_string, self.element.name, xyz[0], xyz[1], xyz[2] ))
-        
+
         # ppa2 is the previously picked atom.  ppa3 is the atom picked before ppa2.
         # They are both reset to None when entering SELATOMS mode.
         # Include the distance between self and ppa2 in the info string.
         if self.molecule.assy.ppa2:
             try:
                 ainfo += (". Distance between %s-%s is %.3f Angstroms." % \
-                    (self, 
-                     self.molecule.assy.ppa2, 
-                     vlen(self.posn() - self.molecule.assy.ppa2.posn()))) 
+                    (self,
+                     self.molecule.assy.ppa2,
+                     vlen(self.posn() - self.molecule.assy.ppa2.posn())))
                         # fix bug 366-2 ninad060721
             except:
                 print_compact_traceback("bug, fyi: ignoring exception " \
                                         "in atom distance computation: ") #bruce 050218
                 pass
-            
+
             # Include the angle between self, ppa2 and ppa3 in the info string.
             if self.molecule.assy.ppa3:
                 try:
@@ -3219,13 +3219,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 except:
                     print_compact_traceback("bug, fyi: ignoring exception in atom angle computation: ") #bruce 050218
                     pass
-            
+
             # ppa3 is ppa2 for next atom picked.
-            self.molecule.assy.ppa3 = self.molecule.assy.ppa2 
-        
+            self.molecule.assy.ppa3 = self.molecule.assy.ppa2
+
         # ppa2 is self for next atom picked.
         self.molecule.assy.ppa2 = self
-            
+
         if len(self.bonds) != self.atomtype.numbonds:
             # I hope this can't be called for singlets! [bruce 041217]
             ainfo += fix_plurals(" (has %d bond(s), should have %d)" % \
@@ -3233,16 +3233,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         elif self.bad_valence(): #bruce 050806
             msg = self.bad_valence_explanation()
             ainfo += " (%s)" % msg
-        
+
         return ainfo
-    
+
     def getInformationString(self, mention_ghost = True):
         """
         If a standard atom, return a string like C26(sp2) with atom name and
-        atom hybridization type, but only include the type if more than one is 
-        possible for the atom's element and the atom's type is not the default 
+        atom hybridization type, but only include the type if more than one is
+        possible for the atom's element and the atom's type is not the default
         type for that element.
-        
+
         If a PAM Ss (strand sugar) atom, returns a string like Ss28(A) with atom name
         and dna base letter.
         """
@@ -3256,9 +3256,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         return res
 
     def getToolTipInfo(self,
-                       isAtomPosition, 
+                       isAtomPosition,
                        isAtomChunkInfo,
-                       isAtomMass, 
+                       isAtomMass,
                        atomDistPrecision):
         """
         Returns this atom's basic info string for the dynamic tooltip
@@ -3267,12 +3267,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         atomStr        = atom.getInformationString( mention_ghost = False)
         elementNameStr = " [" + atom.element.name + "]"
-        
-        
+
+
         atomInfoStr = atomStr + elementNameStr
-        
+
         #Display tooltip info if its a PAM atom. (implemented for Ss atoms only)
-        
+
         strand = atom.getDnaStrand()
         segment = atom.getDnaSegment()
         if strand:
@@ -3282,11 +3282,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         if atom.display:
             # show display style of atoms that have one [bruce 080206]
-            atomInfoStr += "<br>" + "display style: %s" % atom.atom_dispLabel() 
+            atomInfoStr += "<br>" + "display style: %s" % atom.atom_dispLabel()
 
         if atom.is_ghost():
             atomInfoStr += "<br>" + "(placeholder base)"
-        
+
         # report dna updater errors in atom or its DnaLadder
         msg = atom.dna_updater_error_string(newline = '<br>')
         if msg:
@@ -3320,7 +3320,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                     pass
                 pass
             pass
-        
+
         if isAtomPosition:
             xyz = atom.posn()
             xPosn = str(round(xyz[0], atomDistPrecision))
@@ -3329,7 +3329,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             atomposn = ("<font color=\"#0000FF\">X:</font> %s<br><font color=\"#0000FF\">Y:</font> %s<br>"\
             "<font color=\"#0000FF\">Z:</font> %s" %(xPosn, yPosn, zPosn))
             atomInfoStr += "<br>" + atomposn
-            
+
         if isAtomChunkInfo:
             if atom is not None:
                 atomChunkInfo = "<font color=\"#0000FF\">Parent Chunk:</font> [" + atom.molecule.name + "]"
@@ -3338,10 +3338,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         if isAtomMass:
             atomMass = "<font color=\"#0000FF\">Mass: </font>" + str(atom.element.mass) + "  x 10-27 Kg"
             atomInfoStr += "<br>" + atomMass
-                
+
         #if isRVdw:
            # rVdw = "<font color=\"#0000FF\">Vdw:Radius:  </font>" + str(atom.element.rvdw) + "A"
-                
+
         return atomInfoStr
 
     def atom_dispLabel(self): #bruce 080206
@@ -3349,7 +3349,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         Return the full name of self's individual (single-atom) display style,
         corresponding to self.display (a small int which encodes it).
         (If self.display is not recognized, just return str(self.display).)
-        
+
         Normally self.display is 0 (diDEFAULT) and this method returns "Default"
         (which means a display style from self's context will be used when
          self is drawn).
@@ -3363,7 +3363,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         pass
 
     # ==
-    
+
     def checkpick(self, p1, v1, disp, r = None, iPic = None):
         """
         Selection function for atoms: [Deprecated! bruce 041214]
@@ -3382,14 +3382,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             disp, r = self.howdraw(disp)
         # bruce 041214:
         # following is surely bad in only remaining use (depositMode.getCoords):
-        ## if self.picked and not iPic: return None 
+        ## if self.picked and not iPic: return None
         dist, wid = orthodist(p1, v1, self.posn())
         if wid > r: return None
         if dist<0: return None
         return dist
 
     # ==
-    
+
     def pick(self):
         """
         make this atom selected
@@ -3401,14 +3401,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             return # mark 060303.
                 # [note: bruce 060321 has always thought it was nonmodular to
                 #  check this here]
-        
+
             #bruce 060331 comment: we can't move this inside the conditional
             #to optimize it, since we want it to affect whether we set
             #picked_time, but we want to set that even for already-picked
             #atoms. (Which are reasons of dubious value if this missed optim
             #is important (don't know if it is), but are real ones.)
-            
-        self._picked_time = self.molecule.assy._select_cmd_counter 
+
+        self._picked_time = self.molecule.assy._select_cmd_counter
             #bruce 051031, for ordering selected atoms; two related attrs
         if not self.picked:
             self.picked = True
@@ -3435,7 +3435,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
 
     _picked_time = _picked_time_2 = -1
-    
+
     def pick_order(self): #bruce 051031
         """
         Return something which can be sorted to determine the order in which
@@ -3444,23 +3444,23 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         will not be very useful then.
         """
         return (self._picked_time, self._picked_time_2, self.key)
-    
-    def unpick(self, filtered = True): 
+
+    def unpick(self, filtered = True):
         """
         Make this atom (self) unselected, if the selection filter
         permits this or if filtered = False.
         """
         #bruce 060331 adding filtered = False option, as part of fixing bug 1796
-        
-        # note: this is inlined (perhaps with filtered = False, not sure) 
+
+        # note: this is inlined (perhaps with filtered = False, not sure)
         # into assembly.unpickatoms (in ops_select.py)
         # bruce 041214: singlets should never be picked, so Singlet test is not needed,
         # and besides if a singlet ever *does* get picked (due to a bug) you should let
         # the user unpick it!
-        
-        ## if self.element is Singlet: return 
-        
-        if self.picked:        
+
+        ## if self.element is Singlet: return
+
+        if self.picked:
             if filtered and self.filtered():
                 return  # mark 060303.
                 # [note: bruce 060321 has always thought it was nonmodular to check this here]
@@ -3482,7 +3482,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             self.molecule.changeapp(1) #bruce 060321 comment: this needs its arg of 1; see comment in self.pick().
             self.molecule.changed_selection() #bruce 060227
         return
-    
+
     def copy(self): #bruce 041116, revised bruce 080319 to not copy default-valued attrs
         """
         Public method: copy the atom self, with no special assumptions,
@@ -3492,13 +3492,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         nuat = Atom(self, self.posn(), None)
             #bruce 050524: pass self so its atomtype is copied
-        
+
         # optimization: assume the class defaults for the following copied
         # attrs are all boolean false [verified by test], and the legal
         # nondefault values are all boolean true (believed) -- this optimizes
         # the following tests for whether they need to be set in nuat
         # [bruce 080319]
-        
+
         if self.display:
             nuat.display = self.display
         if self.info:
@@ -3526,21 +3526,21 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # no need in new atoms for anything like
         # _changed_otherwise_Atoms[nuat.key] = nuat
         # [bruce 060322 guess ###@@@ #k]
-        
+
         return nuat
 
     def set_info(self, newinfo): #bruce 060322
         self.info = newinfo
         _changed_structure_Atoms[self.key] = self
         return
-    
+
     def break_unmade_bond(self, origbond, origatom): #bruce 050524
         """
         Add singlets (or do equivalent invals) as if origbond was copied from
         origatom onto self (a copy of origatom), then broken; uses origatom so
         it can find the other atom and know bond direction in space (it
-        assumes self might be translated but not rotated, wrt origatom). 
-        
+        assumes self might be translated but not rotated, wrt origatom).
+
         For now this works like mol.copy used to, but later it might "inval
         singlets" instead.
         """
@@ -3549,14 +3549,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         a = origatom
         b = origbond
         numol = self.molecule
-        x = Atom('X', b.ubp(a), numol) 
+        x = Atom('X', b.ubp(a), numol)
             ###k verify Atom.__init__ makes copy of posn, not stores original
             ###(tho orig ok if never mods it)
         na = self ## na = ndix[a.key]
         bond_copied_atoms(na, x, origbond, origatom)
             # same properties as origbond... sensible in all cases?? ##k
         return
-        
+
     def unbond(self, b, make_bondpoint = True):
         """
         Private method (for use mainly by bonds); remove bond b from self and
@@ -3584,7 +3584,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         - of b.
 
         If self is a singlet, kill it (singlets must always have one bond).
-        
+
         @note: As of 041109 (still true 080701), this is called only from
                Atom.kill of the other atom, and from bond.bust, and from
                bond.rebond.
@@ -3593,9 +3593,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                removed bond.
         """
         self._changed_structure()
-        
+
         b.invalidate_bonded_mols() #e would be more efficient if callers did this
-        
+
         try:
             self.bonds.remove(b)
             # note: _changed_structure is done just above
@@ -3644,7 +3644,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 self.molecule.changeapp(0)
             return None
         if 1:
-            #bruce 060327 optim of Chunk.kill: 
+            #bruce 060327 optim of Chunk.kill:
             # if we're being killed right now, don't make a new bondpoint
             if self._f_will_kill == Utility._will_kill_count:
                 if DEBUG_1779:
@@ -3672,7 +3672,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if b.atom1 is neighbor or b.atom2 is neighbor:
                 return b
         return None
-            
+
     def hopmol(self, numol): #bruce 041105-041109 extensively revised this
         """
         If this atom is not already in molecule numol, move it
@@ -3703,26 +3703,26 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # (since hopmol would infrecur if two singlets were bonded)
             atom.hopmol(numol)
         return
-    
+
     def neighbors(self):
         """
         return a list of all atoms (including singlets) bonded to this one
         """
         return map((lambda b: b.other(self)), self.bonds)
-    
+
     def realNeighbors(self):
         """
         return a list of the real atoms (not singlets) bonded to this atom
         """
         return filter(lambda atom: atom.element is not Singlet, self.neighbors())
-    
-    def singNeighbors(self): 
+
+    def singNeighbors(self):
         # todo: rename to singletNeighbors or bondpointNeighbors
         """
         return a list of the singlets bonded to this atom
         """
         return filter(lambda atom: atom.element is Singlet, self.neighbors())
-    
+
     def baggage_and_other_neighbors(self): #bruce 051209
         """
         Return a list of the baggage bonded to this atom (monovalent neighbors
@@ -3770,10 +3770,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             candidates.sort() # closest one is last, farthest is first
             return candidates[0][1]
         return None
-    
+
     def deleteBaggage(self): #mark 060129.
         """
-        Deletes any monovalent atoms connected to self.  
+        Deletes any monovalent atoms connected to self.
         """
         for a in self.baggageNeighbors():
             a.kill()
@@ -3810,7 +3810,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if debug_flags.atom_debug: #bruce 050509
                 msg = "atom_debug: fyi, bug?: mvElement changing %r to its existing element and atomtype" % self
                 print_compact_stack( msg + ": " )
-            return #bruce 050509, not 100% sure it's correct, but if not, 
+            return #bruce 050509, not 100% sure it's correct, but if not,
                 # caller probably has a bug (eg relies on our invals)
         # now we're committed to doing the change
         if (self.element is Singlet) != (elt is Singlet):
@@ -3850,7 +3850,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Note: (theory about an Undo bug in dna updater, bruce 080227):
         # Undo can be too lazy to set __killed, but then it clears .molecule.
         # And, break_interpart_bonds can then dislike .molecule being None
-        # and set it back to _nullMol. So test for these values too. 
+        # and set it back to _nullMol. So test for these values too.
         chunk = self.molecule
         res = self.__killed or chunk is None or chunk.isNullChunk()
         if debug_flags.atom_debug: # this cond is for speed
@@ -3862,7 +3862,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 print "debug: better_alive_answer is %r but (not self.__killed) is %r" % \
                       (better_alive_answer , not self.__killed)
         return res
-    
+
     def killed_with_debug_checks(self): # renamed by bruce 050702; was called killed(); by bruce 041029
         """
         (Public method)
@@ -3905,16 +3905,16 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
     def _f_prekill(self, val): #bruce 060328; usually inlined (but was tested when first written)
         self._f_will_kill = val
         return
-        
+
     def kill(self):
         """
         [public method]
         kill self: unpick it, remove it from its jigs, remove its bonds,
         then remove it from its chunk. Do all necessary invalidations.
-        
+
         (Note that molecules left with no atoms, by this or any other op,
          will immediately kill themselves.)
-        """        
+        """
         if DEBUG_1779:
             print "DEBUG_1779: Atom.kill on %r" % self
         if self.__killed:
@@ -3943,7 +3943,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # they temporarily make or read, we can have this bug.
             # The above is partly guessed; we'll see if this really fixes
             # those bugs.
-        
+
         self.__killed = 1 # do this now, to reduce repeated exceptions (works??)
         _changed_parent_Atoms[self.key] = self
         # unpick self
@@ -3956,7 +3956,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # bruce 041115 reordered everything that follows, so it's safe to use
         # delatom (now at the end, after things which depend on self.molecule),
         # since delatom resets self.molecule to None.
-        
+
         # remove from jigs
         for j in self.jigs[:]:
             try:
@@ -3969,9 +3969,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # does this ever still happen? TODO: if so, document when & why.
                 print_compact_traceback("fyi: Atom.kill: ignoring error in remove_atom %r from jig %r: " % (self, j) )
         self.jigs = [] # mitigate repeated kills
-        _changed_structure_Atoms[self.key] = self 
+        _changed_structure_Atoms[self.key] = self
             #k not sure if needed; if it is, also covers .bonds below #bruce 060322
-        
+
         # remove bonds
         selfmol = self.molecule
         for b in self.bonds[:]:
@@ -3999,7 +3999,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             print "fyi: Atom.kill: atom %r not in its molecule (killed twice?)" % self
             pass
         return # from Atom.kill
-        
+
     def filtered(self): # mark 060303
         """
         Returns True if self is not the element type/name currently listed in
@@ -4007,13 +4007,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         if self.is_singlet():
             return False # Fixes bug 1608 [mark 060303]
-        
+
         if self.molecule.assy.w.selection_filter_enabled:
             for e in self.molecule.assy.w.filtered_elements:
                 if e is self.element:
                     return False
             return True
-            
+
         return False
 
     def Hydrogenate(self):
@@ -4036,7 +4036,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         newpos = self.ideal_posn_re_neighbor( other)
         self.setposn(newpos)
         return 1
-        
+
     def ideal_posn_re_neighbor(self, neighbor, pretend_I_am = None): # see also snuggle
         #bruce 050404 to help with bug 254 and maybe Hydrogenate
         """
@@ -4079,10 +4079,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         its_atype = neighbor.atomtype
             # presently we ignore the bond-valence between us and that neighbor atom,
             # even if this can vary for different bonds to it (for the atomtype it has)
-        newlen = my_atype.rcovalent + its_atype.rcovalent 
+        newlen = my_atype.rcovalent + its_atype.rcovalent
             #k Singlet.atomtypes[0].rcovalent better be 0, check this
         return it + newlen * it_to_me_direction
-    
+
     def Dehydrogenate(self):
         """
         [Public method; does all needed invalidations:]
@@ -4179,7 +4179,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                        must be a mutable sequence if we do)
 
         @param min_bond_length: minimum allowed distance from self to moved atom
-        
+
         @return: the atom we moved, or None if we found no atom to move.
         """
         #bruce 080404
@@ -4200,7 +4200,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             sortme.append( (dist, atom) )
         sortme.sort()
         moveme = sortme[0][1]
-        
+
         # maybe: don't move if already at newpos? only matters if that case
         # often happens (on atoms which didn't already inval their chunks
         # due to whatever caused this to be called), which I doubt (at least
@@ -4221,15 +4221,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             want_length = min_bond_length
             pass
         fixed_newpos = selfpos + newpos_direction * want_length
-        
+
         moveme.setposn(fixed_newpos)
-        
+
         if remove:
             baggage.remove(moveme)
-        
+
         return moveme
 
-    def Passivate(self): 
+    def Passivate(self):
         """
         [Public method, does all needed invalidations:]
         Change the element type of this atom to match the number of
@@ -4260,10 +4260,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         # singlets anyway -- which is fine
 
     def is_singlet(self):
-        return self.element is Singlet 
+        return self.element is Singlet
             # [bruce 050502 comment: it's possible self is killed and
             # len(self.bonds) is 0]
-    
+
     def singlet_neighbor(self):
         """
         Assume self is a bondpoint (aka singlet).
@@ -4278,9 +4278,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         assert atom.element is not Singlet, "bug: a singlet %r is bonded to another singlet %r!!" % (self, atom)
         return atom
 
-    # higher-valence bonds methods [bruce 050502] 
+    # higher-valence bonds methods [bruce 050502]
     # [bruce 050627 comment: a lot of this might be obsolete. ###@@@]
-    
+
     def singlet_v6(self):
         assert self.element is Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
         assert len(self.bonds) == 1, "%r should have exactly 1 bond but has %d" % (self, len(self.bonds))
@@ -4324,14 +4324,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         from model.bond_constants import V_ZERO_VALENCE, BOND_VALENCES
         _debug = False ## debug_flags.atom_debug is sometimes useful here
         if self._modified_valence:
-            self._modified_valence = False 
+            self._modified_valence = False
                 # do this first, so exceptions in the following only happen once
             if _debug:
                 print "atom_debug: update_valence starting to updating it for", self
             # the only easy part is to kill bondpoints with illegal valences,
             # and warn if those were not 0.
             zerokilled = badkilled = 0
-            for sing in self.singNeighbors(): 
+            for sing in self.singNeighbors():
                 ###@@@ check out the other calls of this for code that might help us here...
                 sv = sing.singlet_v6()
                 if sv == V_ZERO_VALENCE:
@@ -4405,7 +4405,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             # that it increased bond order, so i'm likely to decide not to
             # print it
         if (not dont_revise_bondpoints) and best_atype.numbonds == len(self.bonds):
-            # right number of open bonds for new atype -- 
+            # right number of open bonds for new atype --
             # let's move them to better positions when we set it
             self.set_atomtype( best_atype)
         else:
@@ -4414,7 +4414,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             self.set_atomtype_but_dont_revise_singlets( best_atype)
         return
 
-    def best_atomtype_for_numbonds(self, atype_now = None, elt = None): 
+    def best_atomtype_for_numbonds(self, atype_now = None, elt = None):
         """
         [Public method]
 
@@ -4438,7 +4438,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         (This method is used in Build mode, and might later be used when
         reading mmp files or pdb files, or in other ways. As of 050707 it's
         also used in Transmute.)
-        
+
         [###k Should we also take into account positions of bonds, or their
         estimated orders, or neighbor elements??]
         """
@@ -4450,15 +4450,15 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         atomtypes = elt.atomtypes
         if len(atomtypes) == 1:
             return atomtypes[0] # optimization
-        nbonds = len(self.bonds) 
+        nbonds = len(self.bonds)
             # the best atomtype has numbonds == nbonds. Next best, nbonds+1,
             # +2, etc. Next best, -1,-2, etc.
-        items = [] 
+        items = []
         for i, atype in zip(range(len(atomtypes)), atomtypes):
-            if atype is atype_now: 
+            if atype is atype_now:
                 # (if atype_now is None or is not for elt, this is a legal
                 # comparison and is always False)
-                i = -1 
+                i = -1
                     # best to stay the same (as atype_now), or to be earlier
                     # in the list of atomtypes, other things being equal
             numbonds = atype.numbonds
@@ -4476,7 +4476,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         Say whether this atom's element has any atomtype which would
         better match this atom if it had one fewer bond.
         Note that this can be true even if that element has only one atomtype
-        (when the number of bonds is currently incorrect). 
+        (when the number of bonds is currently incorrect).
         """
         nbonds = len(self.bonds)
         # if nbonds < 1 (which will never happen based on how we're presently called),
@@ -4485,7 +4485,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if atype.numbonds < nbonds:
                 return True
         return False
-    
+
     # ==
 
     def _changed_structure(self):
@@ -4509,10 +4509,10 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         All user events which can call this (indirectly) should also call
         env.do_post_event_updates() when they're done.
         """
-        ####@@@@ I suspect it is better to also call this for all 
+        ####@@@@ I suspect it is better to also call this for all
         # killed atoms or bondpoints, but didn't do this yet. [bruce 050725]
         ## before 051011 this used id(self) for key
-        #e could probably optim by importing this dict at toplevel, 
+        #e could probably optim by importing this dict at toplevel,
         # or perhaps even assigning a lambda in place of this method
         global_model_changedicts.changed_structure_atoms[ self.key ] = self
         _changed_structure_Atoms[ self.key ] = self #bruce 060322
@@ -4535,7 +4535,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if otherchunk is not mychunk:
                 mychunk.invalidate_ExternalBondSet_display_for( otherchunk)
         return
-    
+
     def _f_changed_some_bond_direction(self): #bruce 080210
         """
         [friend method]
@@ -4545,9 +4545,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         _changed_structure_Atoms[ self.key ] = self
         return
-    
+
     # debugging methods (not yet fully tested; use at your own risk)
-    
+
     def invalidate_everything(self): # in class Atom
         """
         debugging method -- remove self from its chunk, then add it back
@@ -4573,12 +4573,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
 
     #bruce 050511 added atomtype arg  ###@@@ callers should pass atomtype
-    def Transmute(self, elt, force = False, atomtype = None): 
+    def Transmute(self, elt, force = False, atomtype = None):
         """
         (TODO: clean up this docstring.)
-        
+
         Transmute self into a different element, unless it is a singlet.
-        
+
         If this is a real atom, change its element type to I{elt} (which
         should not be Singlet unless precautions listed below are taken)
         and its atomtype to the I{atomtype} object passed, or if None is
@@ -4587,34 +4587,34 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         real bonds, or real and open bonds [maybe? 050707] -- and replace
         its bondpoints (if any) with new ones (if any are needed) to match
         the desired number of bonds for the new element/atomtype.
-        
+
         If self is a singlet, don't transmute it. (But this is not an error.)
-        
+
         [As of 050511 before atomtype arg added, new atom type is old one if
-        elt is same and old one already correct, else is default atom type. 
+        elt is same and old one already correct, else is default atom type.
         This needs improvement. ###@@@]
-        
+
         Never remove real bonds, even if there are too many. Don't change
         bond lengths (except in new open bonds created when replacing
         bondpoints) or atom positions.
-        
+
         If there are too many real bonds for the new element type, refuse
         to transmute unless force is True.
-        
+
         @param elt: The new element to transmute this atom (self) into, if
                     self is not a bondpoint. elt must not be Singlet unless
                     the caller has checked certain conditions documented below.
         @type  elt: L{Elem}
-        
-        @param force: If there are too many real bonds for the new element 
+
+        @param force: If there are too many real bonds for the new element
                       type, refuse to transmute unless force is True.
         @type  force: bool
-        
+
         @param atomtype: The atomic hybrid of the element to transmute to.
                          If None (the default), the default atomtype is
                          assumed for I{elt}.
         @type  atomtype: L{AtomType}
-        
+
         @note: Does all needed invalidations.
 
         @note: If elt is Singlet (bondpoint), the caller must be sure that self
@@ -4628,8 +4628,8 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                mind creating an open bond with a nonstandard length, since
                Transmute does not normalize open bond length as is done when
                they are created normally.
-        
-        @attention: This method begins with a capital letter. So that it 
+
+        @attention: This method begins with a capital letter. So that it
                     conforms to our coding standards, I will rename it
                     in the near future (and fix callers). - Mark 2007-10-21
                     (But the new name can't be "transmute", since that
@@ -4644,12 +4644,12 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             if self.element is elt and \
                len(self.bonds) == self.atomtype.numbonds:
                 # this code might be used if we don't always return due to bond valence: ###@@@
-                ## atomtype = self.atomtype 
+                ## atomtype = self.atomtype
                 ##     # use current atomtype if we're correct for it now,
                 ##     # even if it's not default atomtype
                 # return since elt and desired atomtype are same as now and
                 # we're correct
-                return 
+                return
             else:
                 ## atomtype = elt.atomtypes[0] # use default atomtype of elt
                 ##print "transmute picking this dflt atomtype", atomtype
@@ -4658,22 +4658,22 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 atomtype = self.reguess_atomtype(elt)
         assert atomtype.element is elt
         # in case a specific atomtype was passed or the default one was chosen,
-        # do another check to return early if requested change is a noop and 
+        # do another check to return early if requested change is a noop and
         # our bond count is correct
         if self.element is elt and \
            self.atomtype is atomtype and \
            len(self.bonds) == atomtype.numbonds:
-            # leave existing bondpoint positions alone in this case 
+            # leave existing bondpoint positions alone in this case
             # -- not sure this is best! ###@@@ #e review
             ##print "transmute returning since noop to change to these: %r %r" % (elt, atomtype)
             return
         # now we're committed to changing things
         nbonds = len(self.realNeighbors()) ###@@@ should also consider the bond-valence to them...
         if nbonds > atomtype.numbonds:
-            # transmuting would break valence rules 
+            # transmuting would break valence rules
             # [###@@@ should instead use a different atomtype, if possible!]
             ###@@@ but a more normal case for using different one is if existing bond *valence* is too high...
-            # note: this msg (or msg-class, exact text can vary) can get 
+            # note: this msg (or msg-class, exact text can vary) can get
             # emitted too many times in a row.
             name = atomtype.fullname_for_msg()
             if force:
@@ -4691,7 +4691,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         self.direct_Transmute( elt, atomtype)
         return
 
-    def Transmute_selection(self, elt): 
+    def Transmute_selection(self, elt):
         """
         [this may be a private method for use when making our cmenu;
         if not, it needs more options and a better docstring.]
@@ -4735,11 +4735,11 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         for atype in self.element.atomtypes:
             if nbonds > atype.numbonds:
                 continue # atype doesn't permit enough bonds
-            # if we changed self to that atomtype, how high could bond's valence be? 
+            # if we changed self to that atomtype, how high could bond's valence be?
             # (expressed as its permitted valences)
             # Do we take into account min_other_valence, or not? Yes, I think.
             ##k review once this is tried. Maybe debug print whether this matters. #e
-            
+
             # There are two limits: atype.permitted_v6_list, and atype.valence
             # minus min_other_valence. But the min_other_valence is the max of
             # two things: other real bonds, or required numbonds (for this
@@ -4780,7 +4780,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         (rather than already having moved) -- if so,
 
           planned_atom_nupos = (that neighbor, its planned posn),
-        
+
         and use that posn instead of its actual posn to decide what to do.
 
         @warning: we assume baggage is a subset of self.baggageNeighbors(),
@@ -4798,7 +4798,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             print_compact_traceback("bug in reposition_baggage; skipping it: ")
             pass
         return
-    
+
     def remake_bondpoints(self):
         """
         [Public method, does all needed invalidations]
@@ -4811,14 +4811,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             atom.kill() # (since atom is a bondpoint, this kill doesn't replace it with a bondpoint)
         self.make_enough_bondpoints()
         return
-    
+
     def remake_baggage_UNFINISHED(self):
         #bruce 051209 -- pseudocode; has sample calls, desirable but commented out, since it's unfinished ###@@@
         bn = self.baggageNeighbors()
         for atom in bn:
             if not atom.is_singlet():
                 pass ###e record element and position
-                atom.mvElement(Singlet) ####k ??? ####@@@@ kluge to kill it w/o 
+                atom.mvElement(Singlet) ####k ??? ####@@@@ kluge to kill it w/o
                     # replacing w/ singlet; better to just tell kill that
             atom.kill() # (since atom is a singlet, this kill doesn't replace it with a singlet)
         self.make_enough_bondpoints() ###e might pass old posns to ask this to imitate them if it can
@@ -4835,7 +4835,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
         good positions relative to existing bonds (if any) (which are not
         changed, whether they are real or open bonds).
         """
-        #bruce 050510 extending this to use atomtypes; 
+        #bruce 050510 extending this to use atomtypes;
         # all subrs still need to set singlet valence ####@@@@
         if len(self.bonds) >= self.atomtype.numbonds:
             return # don't want any more bonds
@@ -4873,7 +4873,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 x = Atom('X', pos + r * dp, chunk)
                 bond_atoms(self, x) ###@@@ set valence? or update it later?
         return
-    
+
     def make_bondpoints_when_1_bond(self): # by josh, with some comments and mods by bruce
         """
         [public method, but trusts caller about len(self.bonds)]
@@ -4908,9 +4908,9 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                         a2 = a1.bonds[0].other(a1)
                     a2pos = a2.posn()
                 else:
-                    #bruce 050728 new feature: for new pi bonds to sp atoms, 
+                    #bruce 050728 new feature: for new pi bonds to sp atoms,
                     # use pi_info to decide where to pretend a2 lies.
-                    # If we give up, it's safe to just say a2pos = a1.posn() -- 
+                    # If we give up, it's safe to just say a2pos = a1.posn() --
                     # twistor() apparently tolerates that ambiguity.
                     try:
                         # catch exceptions in case for some reason it's too
@@ -4928,7 +4928,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                         # [050729: this is no longer needed, now that we
                         # destroy old pi_bond_obj (see below), but is still
                         # done.]
-                        b = self.bonds[0] 
+                        b = self.bonds[0]
                             # if there was not just one bond on self, we'd say find_bond(self,a1)
                         #bruce 050729: it turns out there can be incorrect
                         # (out of date) pi_info here, from when some prior
@@ -4938,7 +4938,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                         # bug 841 is Not A Bug.
                         if b.pi_bond_obj is not None:
                             b.pi_bond_obj.destroy()
-                        pi_info = b.get_pi_info(abs_coords = True) 
+                        pi_info = b.get_pi_info(abs_coords = True)
                             # without the option, vectors would be in bond's coordsys
                         ((a1py, a1pz), (a2py, a2pz), ord_pi_y, ord_pi_z) = pi_info
                         del ord_pi_y, ord_pi_z
@@ -4953,7 +4953,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                     except:
                         print_compact_traceback("exception ignored: ")
                         a2pos = a1.posn()
-                    pass 
+                    pass
                 s1pos = pos+(rq + atype.quats[0] - rq).rot(r) # un-spun posn of one of our new singlets
                 spin = twistor(r,s1pos-pos, a2pos-a1.posn())
                     # [bruce 050614 comments]
@@ -4984,14 +4984,14 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # this would be the correct code:
                 ##  q = rq + q - rq + spin
                 # but as an example of how to use debug_pref, I'll put in
-                # code that can do it either way, with the default pref value 
+                # code that can do it either way, with the default pref value
                 # giving the correct behavior (moved just above, outside of this loop).
                 q = rq + q - rq + spin * spinsign
                 xpos = pos + q.rot(r)
                 x = Atom('X', xpos, chunk)
                 bond_atoms(self, x)
         return
-        
+
     def make_bondpoints_when_2_bonds(self):
         """
         [public method, but trusts caller about len(self.bonds)]
@@ -5052,13 +5052,13 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
             except:
                 # [bruce 041215:]
                 # fix unreported unverified bug (self at center of its neighbors):
-                # [bruce 050716 comment: one time this can happen is when we 
+                # [bruce 050716 comment: one time this can happen is when we
                 #  change atomtype of some C in graphite to sp3]
                 if debug_flags.atom_debug:
                     print "atom_debug: fyi: self at center of its neighbors " \
                           "(more or less) while making singlet", self, self.bonds
                 dir = norm(cross(s1pos - pos, s2pos - pos))
-                    # that assumes s1 and s2 are not opposite each other; 
+                    # that assumes s1 and s2 are not opposite each other;
                     #e it would be safer to pick best of all 3 pairs
             opos = pos + atype.rcovalent * dir
             chunk = self.molecule
@@ -5071,7 +5071,7 @@ class Atom( PAM_Atom_methods, AtomBase, InvalMixin, StateMixin, Selobj_API):
 # ==
 
 register_class_changedicts( Atom, _Atom_global_dicts )
-    # error if one class has two same-named changedicts 
+    # error if one class has two same-named changedicts
     # (so be careful re module reload)
 
 # ==

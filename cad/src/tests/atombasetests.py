@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Python atoms, atom sets, diff factories, diff objects (tests)
 
@@ -11,7 +11,7 @@ cad/src directory is cleaned out.
 
 @author: Will
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import unittest

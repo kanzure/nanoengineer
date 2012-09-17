@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 DnaStrandOrSegment.py - abstract superclass for DnaStrand and DnaSegment
 
@@ -37,7 +37,7 @@ class DnaStrandOrSegment(LeafLikeGroup):
         related objects like DnaLadders and connected DnaSegments/DnaStrands
         can be found. This is used to help the dna updater reconstruct
         the PAM atom chunks after a change by old code which didn't do that itself.
-    
+
       - whatever other properties the user needs to assign, which are not
         covered by the member nodes or superclass attributes. However,
         some of these might be stored on the controlling DnaMarker,
@@ -45,7 +45,7 @@ class DnaStrandOrSegment(LeafLikeGroup):
         again, that marker can again control the properties of a new strand
         or segment (as it will in any case control its base indexing).
     """
-    
+
     def permit_as_member(self, node, pre_updaters = True, **opts): # in DnaStrandOrSegment
         """
         [friend method for enforce_permitted_members_in_groups and subroutines]
@@ -68,12 +68,12 @@ class DnaStrandOrSegment(LeafLikeGroup):
               isinstance( node, assy.DnaLadderRailChunk) or \
               pre_updaters and isinstance( node, assy.Chunk)
         return res
-    
+
     def getDnaGroup(self):
         """
         Return the DnaGroup we are contained in, or None if we're not
         inside one.
-        
+
         @note: Returning None should never happen
                if we have survived a run of the dna updater.
         """
@@ -84,7 +84,7 @@ class DnaStrandOrSegment(LeafLikeGroup):
         Move node into self's members, and if node was not
         already there but left some other existing Group,
         return that Group.
-        
+
         @param node: a node of a suitable type for being our direct child
         @type node: a DnaLadderRailChunk or DnaMarker (see: permit_as_member)
 
@@ -103,7 +103,7 @@ class DnaStrandOrSegment(LeafLikeGroup):
             if oldgroup.part is newgroup.part: #k guess
                 return oldgroup
         return None
-        
+
     pass # end of class DnaStrandOrSegment
 
 # end

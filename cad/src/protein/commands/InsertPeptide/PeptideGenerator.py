@@ -14,7 +14,7 @@ for notes about what's going on here.
 
 History:
 
-Ninad 2008-07-24: Refactoring / cleanup to port PeptideGenerator to the 
+Ninad 2008-07-24: Refactoring / cleanup to port PeptideGenerator to the
                  EditCommand API. (see InsertPeptide_EditCommand)
 """
 
@@ -27,7 +27,7 @@ from model.chunk import Chunk
 from model.bond_constants import V_DOUBLE, V_AROMATIC
 from operations.bonds_from_atoms import inferBonds
 
-from protein.model.Protein import Protein 
+from protein.model.Protein import Protein
 from protein.model.Residue import Residue
 from protein.model.Residue import SS_HELIX, SS_STRAND, SS_COIL, AA_3_TO_1
 
@@ -553,7 +553,7 @@ def enablePeptideGenerator(enable):
 
 def get_unit_length(phi, psi):
     """
-    Calculate a length of single amino acid in particular 
+    Calculate a length of single amino acid in particular
     secondary conformation.
     """
     # All unit length values obtained via measurements by me.
@@ -571,7 +571,7 @@ def get_unit_length(phi, psi):
     elif phi == -180.0 and psi == 180.0:
         unit_length = 3.6 # Fully extended
     else:
-        # User chose "Custom" conformation option in the Insert Peptide PM 
+        # User chose "Custom" conformation option in the Insert Peptide PM
         # which lets the user set any phi-psi angle values.
         # We need a formula to estimate the proper unit_length given the
         # conformational angles phi and psi. It would also be a good idea
@@ -583,33 +583,33 @@ def get_unit_length(phi, psi):
             "phi=%.2f, psi=%.2f.\nSetting unit_length=%.2f\n" % \
             (phi, psi, unit_length)
         print_compact_stack(msg)
-        
+
     return unit_length
-    
+
 class PeptideGenerator:
     prev_coords = zeros([3,3], Float)
 
     peptide_mol = None
     length = 0
     prev_psi = 0
-    
+
     # Based on analogous Nanotube Builder method.
     def _orient(self, chunk, pt1, pt2):
         """
         Orients the Peptide I{chunk} based on two points. I{pt1} is
         the first endpoint (origin) of the Peptide. The vector I{pt1}, I{pt2}
         defines the direction and central axis of the Peptide.
-        
+
         piotr 080801: I copied this method from Nanotube Builder.
-        
+
         @param pt1: The starting endpoint (origin) of the Peptide.
         @type  pt1: L{V}
-        
+
         @param pt2: The second point of a vector defining the direction
                     and central axis of the Peptide.
         @type  pt2: L{V}
         """
-        
+
         a = V(0.0, 0.0, -1.0)
         # <a> is the unit vector pointing down the center axis of the default
         # structure which is aligned along the Z axis.
@@ -625,76 +625,76 @@ class PeptideGenerator:
         # <theta> is the angle (in degress) to rotate about <axis>.
         scalar = bLength * 0.5
         rawOffset = b * scalar
-        
+
         if theta == 0.0 or theta == 180.0:
             axis = V(0, 1, 0)
             # print "Now cross(a,b) =", axis
-            
+
         rot =  (pi / 180.0) * theta  # Convert to radians
         qrot = Q(axis, rot) # Quat for rotation delta.
-        
+
         # Move and rotate the Peptide into final orientation.
-        
+
         chunk.move(-chunk.center)
 
         chunk.rot(qrot)
-        
-        # Bruce suggested I add this. It works here, but not if its 
+
+        # Bruce suggested I add this. It works here, but not if its
         # before move() and rot() above. Mark 2008-04-11
         chunk.full_inval_and_update()
         return
-        
+
     def get_number_of_res(self, pos1, pos2, phi, psi):
         """
-        Calculate a number of residues necessary to fill 
+        Calculate a number of residues necessary to fill
         the pos1-pos2 vector.
-        
+
         @param pos1, pos2: vector points
         @type pos1, pos2: V
-        
+
         @param phi, psi: peptide chain angles
         @type phi, psi: float
         """
         return 1 + int(vlen(pos2 - pos1) / get_unit_length(phi, psi))
-    
-    def make_aligned(self, 
-                     assy, 
-                     name, 
-                     aa_idx, 
-                     phi, psi, 
-                     pos1, pos2, 
-                     secondary = SS_COIL, 
-                     fake_chain = False, 
+
+    def make_aligned(self,
+                     assy,
+                     name,
+                     aa_idx,
+                     phi, psi,
+                     pos1, pos2,
+                     secondary = SS_COIL,
+                     fake_chain = False,
                      length = None):
         """
-        Build and return a chunk that is a homo-peptide aligned to 
+        Build and return a chunk that is a homo-peptide aligned to
         a pos2-pos1 vector.
-        
+
         @param aa_idx: amino acid type (index in AMINO_ACIDS list)
         @type aa_idx: int
-        
+
         @param name: chunk name
         @type name: string
-        
-        @param phi, psi: peptide bond angles 
+
+        @param phi, psi: peptide bond angles
         @type phi, psi: float
-        
+
         @param pos1, pos2: desired peptide positions (beginning and end)
         @type pos1, pos2: V
-        
+
         @param secondary: secondary structure class, used for visual representation
         The actual peptide chain conformation is based on phi / psi angles.
         @type secondary: int
-        
+
         @param fake_chain: if True, create only C-alpha atoms. used for drawing
         peptide trace image during interactive peptide placement (used by
         PeptideLine_GraphicsMode.py)
         @type fake_chain: boolean
-        
-        @param length: optional peptide length (number of amino acids), if 
+
+        @param length: optional peptide length (number of amino acids), if
         not specified, pos1 and pos2 are used to figure out the length
         @type length: int
-        
+
         @return: A homo-polypeptide chain.
         @rtype:  L{Chunk}
         """
@@ -705,35 +705,35 @@ class PeptideGenerator:
                 return None
         else:
             self.length = length
-            
+
         # Create a molecule
         mol = Chunk(assy, name)
-            
+
         if not fake_chain:
             mol.protein = Protein()
             mol.protein.set_chain_id('A')
-            
+
         # Generate dummy atoms positions
         self.prev_coords[0][0] = pos1[0] - 1.0
         self.prev_coords[0][1] = pos1[1] - 1.0
-        self.prev_coords[0][2] = pos1[2] 
+        self.prev_coords[0][2] = pos1[2]
 
         self.prev_coords[1][0] = pos1[0] - 1.0
-        self.prev_coords[1][1] = pos1[1] 
-        self.prev_coords[1][2] = pos1[2] 
+        self.prev_coords[1][1] = pos1[1]
+        self.prev_coords[1][2] = pos1[2]
 
         self.prev_coords[2][0] = pos1[0]
         self.prev_coords[2][1] = pos1[1]
         self.prev_coords[2][2] = pos1[2]
 
         name, short_name, symbol, zmatrix, size = AMINO_ACIDS[aa_idx]
-        
+
         # Add a N-terminal hydrogen
         self.nterm_hydrogen = None
 
         # Initially, the Peptide Builder was creating peptide structures
         # saturated at both ends, i.e. with N-terminal hydrogen and C-terminal
-        # OH group present. Currently, this code is commented out to allow 
+        # OH group present. Currently, this code is commented out to allow
         # connecting multiple peptide structure be creating bonds between
         # the C- and N- terminal ends of two individual structures.
         """
@@ -749,9 +749,9 @@ class PeptideGenerator:
             atom.pdb_info['residue_id'] = "  1 "
             atom.pdb_info['standard_atom'] = True
         """
-    
+
         self.init_ca = None
-        
+
         # Generate the peptide chain.
         for idx in range(int(self.length)):
             self._buildResidue(mol, zmatrix, size, idx+1, phi, psi, secondary, None, short_name, fake_chain=fake_chain)
@@ -759,12 +759,12 @@ class PeptideGenerator:
         # See the comment above.
         """
         # Add a C-terminal OH group
-        self._buildResidue(mol, CTERM_ZMATRIX, 5, int(self.length), 0.0, 0.0, secondary, None, short_name, fake_chain=fake_chain)        
+        self._buildResidue(mol, CTERM_ZMATRIX, 5, int(self.length), 0.0, 0.0, secondary, None, short_name, fake_chain=fake_chain)
         """
-        
+
         # Compute bonds (slow!)
         # This should be replaced by a proper bond assignment.
-        
+
         if not fake_chain:
             inferBonds(mol)
 
@@ -784,24 +784,24 @@ class PeptideGenerator:
                                     bond.atom2._is_single)):
                             bond.set_v6(V_DOUBLE)
             i += 1
-                            
+
         # Remove temporary attributes.
         for atom in mol.atoms.itervalues():
             del atom._is_aromatic
             del atom._is_single
 
         # Axis of first selected chunk
-        ax = V(0.,0.,1.) 
+        ax = V(0.,0.,1.)
         mol.rot(Q(mol.getaxis(),ax))
-        
+
         self._orient(mol, pos2, pos1)
-        
+
         if self.init_ca:
             mol.move(pos1 - self.init_ca.posn())
-        
+
         mol_dummy = None
-        
-        return mol          
+
+        return mol
 
     def _buildResidue(self, mol, zmatrix, n_atoms, idx, phi, psi, secondary, init_pos, residue_name, fake_chain=False):
         """
@@ -810,34 +810,34 @@ class PeptideGenerator:
 
         @param mol: a chunk to which the amino acid will be added.
         @type mol: Chunk
-        
-        @param zmatrix: is an internal coordinates array corresponding to a 
+
+        @param zmatrix: is an internal coordinates array corresponding to a
         given amino acid.
         @type zmatrix: list
-        
-        @param n_atoms: size of z-matrix (a number of atoms to be build + 3 
+
+        @param n_atoms: size of z-matrix (a number of atoms to be build + 3
         dummy atoms)
         @type n_atoms: int
 
         @param idx: is a residue index (1..length).
         @type idx: integer
-        
+
         @param phi, psi: peptide bond phi and psi angles
         @type phi, psi: float
-        
+
         @param init_pos: optional postions of previous CA, C and O atoms.
         @type init_pos: V
-        
+
         @param symbol: current amino acid symbol (used to derermine proline case)
         @type symbol: string
-        
+
         """
 
-        # note: currently, it doesn't rebuild bonds, so inferBonds has to be 
-        # called after this method. Unfortunately, the proper bond order can 
-        # not be correctly recognized this way. Therefore, temporary atom flags 
+        # note: currently, it doesn't rebuild bonds, so inferBonds has to be
+        # called after this method. Unfortunately, the proper bond order can
+        # not be correctly recognized this way. Therefore, temporary atom flags
         # _is_aromatic and _is_single are used.
-        
+
         #this code was re-factored by EricM and internal-to-cartesian
         # conversion method was moved to geometry.InternalCoordinatesToCartesian
 
@@ -846,7 +846,7 @@ class PeptideGenerator:
 
         if not init_pos: # assign three previous atom positions
             coords = self.prev_coords
-        else: 
+        else:
             # if no prev_coords are given, compute the first three atom positions
             coords = zeros([3,3], Float)
             num, name, atom_name, atom_type, \
@@ -927,7 +927,7 @@ class PeptideGenerator:
                     self.prev_coords[2][0] = xyz[0]
                     self.prev_coords[2][1] = xyz[1]
                     self.prev_coords[2][2] = xyz[2]
-                    
+
             # Add a new atom to the molecule
             if not fake_chain or \
                name == "CA ":
@@ -941,9 +941,9 @@ class PeptideGenerator:
                     self.init_ca = atom
 
                 if mol.protein:
-                    aa = mol.protein.add_pdb_atom(atom, 
-                                             name.replace(' ',''), 
-                                             idx, 
+                    aa = mol.protein.add_pdb_atom(atom,
+                                             name.replace(' ',''),
+                                             idx,
                                              AA_3_TO_1[residue_name])
                     atom.pdb_info = {}
                     atom.pdb_info['atom_name'] = name.replace(' ','')
@@ -968,12 +968,12 @@ class PeptideGenerator:
                     atom._is_single = True
 
                 atom.set_atomtype_but_dont_revise_singlets(atom_type)
-                
+
                 ### debug - output in PDB format	
                 ### print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, xyz[0], xyz[1], xyz[2])	
 
         self.prev_psi = psi # Remember previous psi angle.
 
         return
-    
+
 # end

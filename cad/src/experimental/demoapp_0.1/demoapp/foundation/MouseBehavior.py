@@ -115,7 +115,7 @@ def parse_state( state_desc):
         print "following exception was in parse_state(%r):" % (state_desc,)
         raise
     pass
-    
+
 def replace_symbols_in(desc, **replacements): # maybe: grab code from exprs for Symbols, to generalize
     res = desc
     if type(desc) is type(()):
@@ -161,12 +161,12 @@ class Tool(object):
     # per-subclass constants
     _default_state = None
     HighlightGraphics_class = None
-    
+
     # instance variables
     _current_handlers = None
     _f_HighlightGraphics_instance = None # (could probably be per-class)
     _f_HighlightGraphics_descriptions = None # (could probably be per-class)
-    
+
     def __init__(self, pane):
         """
         @note: doesn't do self.activate()
@@ -223,4 +223,4 @@ class Tool(object):
         pass
     pass
 
-        
+

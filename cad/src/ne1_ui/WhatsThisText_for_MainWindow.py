@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 WhatsThisText_for_MainWindow.py
 
@@ -12,7 +12,7 @@ text for widgets in the NE1 Property Managers.
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: bruce 080210 split whatsthis_utilities.py out of this file
-into their own new file. 
+into their own new file.
 
 To do:
 - Change the heading for all Display Style actions from "Display <ds>" to
@@ -22,25 +22,25 @@ pages as well.
 """
 
 from PyQt4.Qt import QWhatsThis
-    
+
 def createWhatsThisTextForMainWindowWidgets(win):
     """
     Adds the "What's This" help text to items found in the NE1 mainwindow
     toolbars and menus .
-    
+
     @param win: NE1's mainwindow object.
     @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
-    
-    @note: Property Managers specify "What's This" text for their own widgets, 
-           usually in a method called add_whats_this_text(), not in this file. 
+
+    @note: Property Managers specify "What's This" text for their own widgets,
+           usually in a method called add_whats_this_text(), not in this file.
     """
-    
+
     #
     # File Toolbar
     #
 
     # Open File
-    
+
     _text = \
         "<u><b>Open File</b></u> (Ctrl + O)"\
         "<p><img source=\"ui/actions/File/Open.png\"><br> "\
@@ -58,8 +58,8 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileImportOpenBabelAction.setWhatsThis(fileImportText)
-    
-    
+
+
     # Close File
     fileCloseAction = \
         "<b>Close and begin a new model</b>"\
@@ -68,9 +68,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileCloseAction.setWhatsThis(fileCloseAction)
-    
-    
-    #Export File 
+
+
+    #Export File
     fileExportText = \
         "<u><b>Open Babel</b></u>"\
         "<p>"\
@@ -91,7 +91,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileSaveAction.setWhatsThis( fileSaveText )
-    
+
     # Save File As
 
     fileSaveAsText = \
@@ -102,7 +102,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileSaveAsAction.setWhatsThis( fileSaveAsText )
-    
+
     # Import Molecular Machine Part
 
     fileInsertMmpActionText = \
@@ -113,7 +113,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileInsertMmpAction.setWhatsThis( fileInsertMmpActionText )
-    
+
     # Import Protein Data Bank File
 
     fileInsertPdbActionText = \
@@ -123,7 +123,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileInsertPdbAction.setWhatsThis( fileInsertPdbActionText )
-    
+
     # Import AMBER .in file
 
     fileInsertInActionText = \
@@ -135,7 +135,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileInsertInAction.setWhatsThis( fileInsertInActionText )
-    
+
     # Export Protein Data Bank File
 
     fileExportPdbActionText = \
@@ -175,7 +175,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileExportPovAction.setWhatsThis( fileExportPovActionText )
-    
+
     # Export POV-ray File
 
     fileExportAmdlActionText = \
@@ -185,7 +185,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.fileExportAmdlAction.setWhatsThis( fileExportAmdlActionText )
-    
+
     # Exit
 
     fileExitActionText = \
@@ -255,22 +255,22 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<img source=\"ui/actions/Edit/Undo.png\"><br> "\
         "Reverses the last edit or command which changed structure "\
         "or selection. "\
-        "</p>" 
-    #bruce 060317 revised this text to reflect 
+        "</p>"
+    #bruce 060317 revised this text to reflect
     #what it does in A7; 060320 added 1421-not-fixed warning
 
     win.editUndoAction.setWhatsThis( editUndoText )
 
-    win.editUndoText = editUndoText #bruce 060317 to help fix bug 1421 in 
+    win.editUndoText = editUndoText #bruce 060317 to help fix bug 1421 in
                                     #Undo whatsthis wiki help link
 
     # Redo
 
     from platform_dependent.PlatformDependent import is_macintosh
     if is_macintosh():
-        redo_accel = "(Ctrl + Shift + Z)" # note: this is further 
+        redo_accel = "(Ctrl + Shift + Z)" # note: this is further
                                           #modified (Ctrl -> Cmd) by other code
-        # changing this is partly redundant with code in undo*.py, 
+        # changing this is partly redundant with code in undo*.py,
         #but as of 060317 it's desirable in editRedoText too
     else:
         redo_accel = "(Ctrl + Y)"
@@ -282,21 +282,21 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<br><font color=\"#808080\">"\
         "</p>" \
         % redo_accel
-    
+
     # This "known bug" (below) is no longer a bug, at least it works on Windows.
     # I'll ask someone with a MacOSX machine to test. --Mark 2008-05-05.
-    
+
         #"Known bug: the link to wiki help for Redo "\
         #"only works if you got this popup from the Edit menu item "\
         #"for Redo, not from the Redo toolbutton. </font>"\
         #"</p>" \
         #% redo_accel
-        #bruce 060317 revised this text to be more accurate, and split 
+        #bruce 060317 revised this text to be more accurate, and split
         #out redo_accel; 060320 added 1421-not-fixed warning
 
     win.editRedoAction.setWhatsThis( editRedoText )
 
-    win.editRedoText = editRedoText #bruce 060317 to help fix bug 1421 
+    win.editRedoText = editRedoText #bruce 060317 to help fix bug 1421
                                     #in Redo whatsthis wiki help link
 
     # Cut
@@ -346,7 +346,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.editPasteAction.setWhatsThis( editPasteText )
 
     # Paste From Clipboard
-    
+
     pasteFromClipboardText = \
         "<u><b>Paste From Clipboard</b></u> "\
         "<p>"\
@@ -357,9 +357,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "The preview window also allows the user to set "\
         "hot spots on chunks."\
         "</p>"
-     
+
     win.pasteFromClipboardAction.setWhatsThis( pasteFromClipboardText )
-    
+
     win.editDnaDisplayStyleAction.setWhatsThis(
         """<b>Edit DNA Display Style</b>
         <p>
@@ -370,7 +370,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         to DNA strands and segments that have had their display style set
         to <i>DNA Cylinder</i>.
         </p>""")
-    
+
     win.editProteinDisplayStyleAction.setWhatsThis(
         """<b>Edit Protein Display Style</b>
         <p>
@@ -378,8 +378,8 @@ def createWhatsThisTextForMainWindowWidgets(win):
         <br>
         Edit the Protein Display Style settings used whenever the <b>Global Display
         Style</b> is set to <i>Protein</i>.
-        </p>""") 
-   
+        </p>""")
+
     #Rename (deprecated by Rename Selection)
     EditrenameActionText = \
         "<u><b>Rename</b></u> "\
@@ -388,9 +388,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<br> "\
         "Allows the user to rename the selected chunk "\
         "</p>"
-     
+
     win.editRenameAction.setWhatsThis( EditrenameActionText )
-    
+
     #Rename selection
     _text = \
         "<u><b>Rename Selection</b></u> "\
@@ -404,9 +404,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "To uniquely name multiple objects, include the <b>#</b> character "\
         "at the end of the name. This (re)numbers the selected objects."\
         "</p>"
-     
+
     win.editRenameSelectionAction.setWhatsThis( _text )
-    
+
     #editAddSuffixAction
     EditeditAddSuffixActionActionText = \
         "<u><b>Add Suffix</b></u> "\
@@ -415,9 +415,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<br> "\
         "Add suffix to the name of the selected object(s)."\
         "</p>"
-     
+
     win.editAddSuffixAction.setWhatsThis( EditeditAddSuffixActionActionText )
-    
+
     # Delete
 
     editDeleteText =  \
@@ -429,14 +429,14 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "be permanently lost, or they might be recoverable "\
         "using Undo."\
         "</p>"
-        #bruce 060212 revised above text (and fixed spelling error); 
+        #bruce 060212 revised above text (and fixed spelling error);
         #should be revised again before A7 release
 
     win.editDeleteAction.setWhatsThis( editDeleteText )
 
-    
+
     # Color Scheme
-    
+
     _text = \
         "<u><b>Color Scheme</b></u>"\
         "<p>"\
@@ -445,9 +445,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "including background color, selection/highlight color, etc."\
         "</p>"
     win.colorSchemeAction.setWhatsThis( _text )
-    
+
     # Lighting Scheme
-    
+
     _text = \
         "<u><b>Lighting Scheme</b></u>"\
         "<p>"\
@@ -455,7 +455,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Edit and save/restore favorite NanoEngineer-1 lighting schemes."\
         "</p>"
     win.lightingSchemeAction.setWhatsThis( _text )
-    
+
     #Preferences Dialog
 
     editPrefsText = \
@@ -466,7 +466,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "lighting, background color, window position and"\
         "size, plugins etc. </p>"
     win.editPrefsAction.setWhatsThis( editPrefsText )
-    
+
     #
     # View Toolbar
     #
@@ -496,7 +496,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "view the entire model."\
         "</p>"
 
-    win.setViewFitToWindowAction.setWhatsThis( setViewFitToWindowActionText )   
+    win.setViewFitToWindowAction.setWhatsThis( setViewFitToWindowActionText )
 
     # Recenter
 
@@ -509,7 +509,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "and you can view the entire model."\
         "</p>"
 
-    win.setViewRecenterAction.setWhatsThis( setViewRecenterActionText )       
+    win.setViewRecenterAction.setWhatsThis( setViewRecenterActionText )
 
     # Zoom to Area (used to be Zoom Tool). Mark 2008-01-29.
 
@@ -534,7 +534,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.zoomToAreaAction.setWhatsThis( setzoomToAreaActionText )
-    
+
     # Zoom (In/Out)
 
     setzoomInOutActionText = \
@@ -559,16 +559,16 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.zoomInOutAction.setWhatsThis( setzoomInOutActionText )
-    
+
     #Zoom To Selection
-    
+
     setViewZoomtoSelectionActionText = \
         "<u><b>Zoom to Selection</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Modify/Zoom_To_Selection.png\"><br> "\
         " Zooms view to selected atoms or chunks. "\
         "</p>"
-    
+
     win.setViewZoomtoSelectionAction.setWhatsThis\
        ( setViewZoomtoSelectionActionText )
 
@@ -610,9 +610,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.rotateToolAction.setWhatsThis( setrotateToolActionText )
-    
+
     #Standard Views
-    
+
     standardViews_btnText = \
         "<u><b>Standard Views</b></u>"\
         "<p>"\
@@ -621,9 +621,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.standardViews_btn.setWhatsThis( standardViews_btnText )
-    
+
     # Orthographic Projection
-    
+
     setViewOrthoActionText = \
         "<u><b>Orthographic Projection</b></u>"\
         "<p>"\
@@ -667,7 +667,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "2 selected atoms."\
         "</p>"
 
-    win.viewParallelToAction.setWhatsThis( _text ) 
+    win.viewParallelToAction.setWhatsThis( _text )
 
     # Save Named View
 
@@ -684,7 +684,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "menu in the Model Tree."\
         "</p>"
 
-    win.saveNamedViewAction.setWhatsThis( _text ) 
+    win.saveNamedViewAction.setWhatsThis( _text )
 
     # Front View
 
@@ -695,7 +695,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Orients the view to the Front View."\
         "</p>"
 
-    win.viewFrontAction.setWhatsThis( _text )  
+    win.viewFrontAction.setWhatsThis( _text )
 
     # Back View
 
@@ -706,7 +706,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Orients the view to the Back View."\
         "</p>"
 
-    win.viewBackAction.setWhatsThis( _text )     
+    win.viewBackAction.setWhatsThis( _text )
 
     # Top View
 
@@ -717,7 +717,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Orients the view to the Top View."\
         "</p>"
 
-    win.viewTopAction.setWhatsThis( _text )      
+    win.viewTopAction.setWhatsThis( _text )
 
     # Bottom View
 
@@ -728,7 +728,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Orients the view to the Bottom View."\
         "</p>"
 
-    win.viewBottomAction.setWhatsThis( _text )  
+    win.viewBottomAction.setWhatsThis( _text )
 
     # Left View
 
@@ -752,7 +752,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.viewRightAction.setWhatsThis( _text )
 
-    #Isometric View 
+    #Isometric View
 
     _text = \
         "<u><b>IsometricView</b></u>"\
@@ -773,7 +773,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.viewFlipViewVertAction.setWhatsThis( _text )
-    
+
     # Flip View Horizontally
 
     _text = \
@@ -790,8 +790,8 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         """<u><b>Rotate View +90</b></u>
         <p>
-        <img source=\"ui/actions/View/Rotate_View_+90.png\"><br> 
-        Increment the current view by 90 degrees 
+        <img source=\"ui/actions/View/Rotate_View_+90.png\"><br>
+        Increment the current view by 90 degrees
         around the vertical axis.
         </p>"""
 
@@ -802,53 +802,53 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         """<u><b>Rotate View -90</b></u>
         <p>
-        <img source=\"ui/actions/View/Rotate_View_-90.png\"><br> 
-        Decrement the current view by 90 degrees 
+        <img source=\"ui/actions/View/Rotate_View_-90.png\"><br>
+        Decrement the current view by 90 degrees
         around the vertical axis.
         </p>"""
 
     win.viewRotateMinus90Action.setWhatsThis( _text )
-    
+
     # Standard Views Menu (on View toolbar)
-    
+
     _text = \
         """<u><b>Standard Views</b></u>
         <p>
-        <img source=\"ui/actions/View/Standard_Views.png\"><br> 
+        <img source=\"ui/actions/View/Standard_Views.png\"><br>
         Menu of standard views.
         </p>"""
-    
+
     win.standardViewsAction.setWhatsThis( _text)
 
     # View Manager (was Orientation Window)
-    
+
     _text = \
         """<u><b>Orientation View Manager</b></u> (Space)
         <p>
-        <img source=\"ui/actions/View/Modify/Orientation.png\"><br> 
-        Opens the Orientation view manager window which provides a convenient way to 
-        quickly access standard and custom views. It is also used to manage 
+        <img source=\"ui/actions/View/Modify/Orientation.png\"><br>
+        Opens the Orientation view manager window which provides a convenient way to
+        quickly access standard and custom views. It is also used to manage
         <a href=Feature:Save_Named_View>Named Views</a>.
         </p>"""
 
-    win.viewOrientationAction.setWhatsThis( _text ) 
-    
+    win.viewOrientationAction.setWhatsThis( _text )
+
     # Set Current View to Home View
-    
+
     _text = \
         """<b>Replace Home View with current view</b>
         <p>
         Replaces the Home View with the current view.</p>
         <p>
         <img source=\"ui/whatsthis/HotTip.png\"><br>
-        <b>Hot Tip:</b> 
+        <b>Hot Tip:</b>
         Press the <b>Home key</b> to switch to the Home View at any time.
         </p>"""
 
     win.setViewHomeToCurrentAction.setWhatsThis( _text )
-    
-    # Semi-Full Screen view 
-    
+
+    # Semi-Full Screen view
+
     viewSemiFullScreenActionText = \
         "<b>Semi-Full Screen</b>"\
         "<p>"\
@@ -856,9 +856,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.viewSemiFullScreenAction.setWhatsThis( viewSemiFullScreenActionText )
-    
+
     # Display Rulers
-    
+
     viewRulersActionText = \
         "<b>Display Rulers</b>"\
         "<p>"\
@@ -866,9 +866,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.viewRulersAction.setWhatsThis( viewRulersActionText )
-    
+
     # Display Reports
-    
+
     viewReportsActionText = \
         "<b>Display Reports</b>"\
         "<p>"\
@@ -876,9 +876,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.viewReportsAction.setWhatsThis( viewReportsActionText )
-    
-    # Full Screen view 
-    
+
+    # Full Screen view
+
     viewFullScreenActionText = \
         "<b>Full Screen</b>"\
         "<p>"\
@@ -886,7 +886,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.viewFullScreenAction.setWhatsThis( viewFullScreenActionText )
-    
+
 
     # QuteMolX
 
@@ -918,18 +918,18 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.viewRaytraceSceneAction.setWhatsThis( viewRaytraceSceneActionText )
-   
+
     # Stereo View
-    
+
     viewStereoViewActionText = \
         "<u><b>Stereo View</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Stereo_View.png\"><br> "\
         "Displays the Stereo View Property Manager "\
         "</p>"
-    
+
     win.setStereoViewAction.setWhatsThis(viewStereoViewActionText)
-   
+
     #
     # Insert toolbar
     #
@@ -939,23 +939,23 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         """<u><b>Build Graphene</b></u>
         <p>
-        <img source=\"ui/actions/Tools/Build Structures/Graphene.png\"><br> 
-        Inserts a 2D sheet of graphene (centered at 0, 0, 0) based on the 
-        current parameters in the <a href=Property_Manager>property manager</a>. 
+        <img source=\"ui/actions/Tools/Build Structures/Graphene.png\"><br>
+        Inserts a 2D sheet of graphene (centered at 0, 0, 0) based on the
+        current parameters in the <a href=Property_Manager>property manager</a>.
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
         <b>Remember:</b> Since this command <i>is not interactive</i>
-        like most other modeling commands, the user must press the 
-        <b>Preview</b> button to insert the graphene structure into the model.  
-        The <b>Preview</b> button is located at the top of the 
+        like most other modeling commands, the user must press the
+        <b>Preview</b> button to insert the graphene structure into the model.
+        The <b>Preview</b> button is located at the top of the
         <a href=Property_Manager>property manager</a> and looks like this: <br>
-        <img source=\"ui/whatsthis/PreviewButton.png\"> 
+        <img source=\"ui/whatsthis/PreviewButton.png\">
         </p>"""
 
     win.insertGrapheneAction.setWhatsThis( _text )
 
-        
-    # Build Nanotube 
+
+    # Build Nanotube
 
     _text = \
         "<u><b>Build Nanotube</b></u>"\
@@ -983,7 +983,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
 
    # Build Protein
-   
+
     _text = \
         "<u><b>Build Protein</b></u>"\
         "<p>"\
@@ -994,7 +994,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.buildProteinAction.setWhatsThis( _text )
-    
+
     # POV-Ray Scene
 
     insertPovraySceneActionText = \
@@ -1008,7 +1008,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.insertPovraySceneAction.setWhatsThis(insertPovraySceneActionText )
 
     # Part Library
-    
+
     _text = \
         "<u><b>Part Library</b></u>"\
         "<p>"\
@@ -1017,35 +1017,35 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Part Library to be inserted into the current part. "\
         "</p>"
     win.partLibAction.setWhatsThis( _text )
-    
+
     # Comment
 
     _text = \
         """<u><b>Comment</b></u>
         <p>
-        <img source=\"ui/actions/Insert/Comment.png\"><br> 
+        <img source=\"ui/actions/Insert/Comment.png\"><br>
         Inserts a comment in the current part.
         </p>"""
 
     win.insertCommentAction.setWhatsThis( _text )
-    
+
     # Plane
-    
+
     _text = \
         """<u><b>Plane</b></u>
         <p>
-        <img source=\"ui/actions/Insert/Reference Geometry/Plane.png\"><br> 
-        Inserts a plane into the <a href=Graphics_Area>graphics area</a>. 
+        <img source=\"ui/actions/Insert/Reference Geometry/Plane.png\"><br>
+        Inserts a plane into the <a href=Graphics_Area>graphics area</a>.
         </p>"""
 
     win.referencePlaneAction.setWhatsThis( _text )
-    
+
 
     #
     # Display toolbar
     #
 
-    # Display Default 
+    # Display Default
 
     dispDefaultActionText = \
         "<u><b>Display Default</b></u>"\
@@ -1079,7 +1079,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         " inherit this display property."\
         "</p>"
 
-    win.dispInvisAction.setWhatsThis(dispInvisActionText )       
+    win.dispInvisAction.setWhatsThis(dispInvisActionText )
 
     # Display Lines
     dispLinesActionText = \
@@ -1094,7 +1094,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "page of the <b>Preferences</b> dialog."\
         "</p>"
 
-    win.dispLinesAction.setWhatsThis(dispLinesActionText )  
+    win.dispLinesAction.setWhatsThis(dispLinesActionText )
 
     # Display Tubes
 
@@ -1106,8 +1106,8 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "atoms, chunks, DNA, etc.) to <b>Tubes</b> display style. "\
         "Atoms and bonds are rendered as colored tubes."\
         "</p>"
-    
-    win.dispTubesAction.setWhatsThis(dispTubesActionText )  
+
+    win.dispTubesAction.setWhatsThis(dispTubesActionText )
 
     # Display Ball and Stick
 
@@ -1125,7 +1125,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "of the <b>Preferences</b> dialog."\
         "</p>"
 
-    win.dispBallAction.setWhatsThis(dispBallActionText ) 
+    win.dispBallAction.setWhatsThis(dispBallActionText )
 
     # Display CPK # [bruce extended and slightly corrected text, 060307]
 
@@ -1144,9 +1144,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.dispCPKAction.setWhatsThis( _text )
-    
+
     # DNA Cylinder
-    
+
     _text = \
         "<u><b>Display DNA Cylinder</b></u>"\
         "<p>"\
@@ -1161,7 +1161,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.dispDnaCylinderAction.setWhatsThis( _text )
-    
+
     # Hide (Selection)
 
     _text = \
@@ -1173,7 +1173,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.dispHideAction.setWhatsThis( _text )
-    
+
     # Unhide (Selection)
 
     unhideActionText = \
@@ -1230,7 +1230,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.dispSurfaceAction.setWhatsThis(dispSurfaceActionText )
 
     # Reset Chunk Color
-    
+
     dispResetChunkColorText = \
         "<u><b>Reset Chunk Color</b></u>"\
         "<p>"\
@@ -1259,7 +1259,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Renders the  selected atoms (or the atoms in the "\
         "selected chunks)  with the same display style as "\
         " their parent chunk. However, if the parent chunk "\
-        "is set as invisible, this feature will not work." 
+        "is set as invisible, this feature will not work."
 
     win.dispShowInvisAtomsAction.setWhatsThis(dispShowInvisAtomsText)
 
@@ -1368,29 +1368,29 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.selectContractAction.setWhatsThis(selectContractActionText )
-    
+
     # Selection Lock
 
     _text = \
         """<u><b>Selection Lock</b></u> (Ctrl + L)
         <p>
-        <img source=\"ui/actions/Tools/Select/Selection_Unlocked.png\"> 
-        (off) 
-        <img source=\"ui/actions/Tools/Select/Selection_Locked.png\"> 
+        <img source=\"ui/actions/Tools/Select/Selection_Unlocked.png\">
+        (off)
+        <img source=\"ui/actions/Tools/Select/Selection_Locked.png\">
         (on)<br>
         Toggles the mouse <i>Selection Lock</i> on and off. </p>
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
-        <b>Remember:</b> 
-        When enabled, selection operations using the mouse (i.e. clicks and 
-        region selections) are disabled in the <a href=Graphics_Area>graphics area</a>. 
-        All other selection commands available via toolbars, menus, 
-        the model tree and keyboard shortcuts are not affected when the 
+        <b>Remember:</b>
+        When enabled, selection operations using the mouse (i.e. clicks and
+        region selections) are disabled in the <a href=Graphics_Area>graphics area</a>.
+        All other selection commands available via toolbars, menus,
+        the model tree and keyboard shortcuts are not affected when the
         Selection Lock is turned on.
         </p>"""
 
     win.selectLockAction.setWhatsThis( _text )
-    
+
     #
     # Modify Toolbar
     #
@@ -1445,7 +1445,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Removes all hydrogen atoms from the "\
         "selection.</p>"
 
-    win.modifyDehydrogenateAction.setWhatsThis(modifyDehydrogenateActionText )     
+    win.modifyDehydrogenateAction.setWhatsThis(modifyDehydrogenateActionText )
 
     # Passivate
 
@@ -1478,7 +1478,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<img source=\"ui/actions/Tools/Build Tools/Delete_Bonds.png\"><br> "\
         "Delete all bonds between selected and unselected atoms or chunks.</p>"
 
-    win.modifyDeleteBondsAction.setWhatsThis(modifyDeleteBondsActionText )  
+    win.modifyDeleteBondsAction.setWhatsThis(modifyDeleteBondsActionText )
 
     # Separate/New Chunk
 
@@ -1490,7 +1490,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "selected atoms. If the selected atoms belong to different "\
         "chunks, multiple new chunks are created.</p>"
 
-    win.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
+    win.modifySeparateAction.setWhatsThis(modifySeparateActionText )
 
     # New Chunk
 
@@ -1502,7 +1502,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "All atoms end up in a single chunk.</p>"
 
     win.makeChunkFromSelectedAtomsAction.setWhatsThis\
-       (makeChunkFromSelectedAtomsActionText ) 
+       (makeChunkFromSelectedAtomsActionText )
 
     # Combine Chunks
 
@@ -1512,7 +1512,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<img source=\"ui/actions/Tools/Build Tools/Combine_Chunks.png\"><br> "\
         "Combines two or more chunks into a single chunk.</p>"
 
-    win.modifyMergeAction.setWhatsThis(modifyMergeActionText )  
+    win.modifyMergeAction.setWhatsThis(modifyMergeActionText )
 
     # Invert Chunks
 
@@ -1522,12 +1522,12 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<img source=\"ui/actions/Tools/Build Tools/Invert.png\"><br> "\
         "Inverts the atoms of the selected chunks.</p>"
 
-    win.modifyInvertAction.setWhatsThis(modifyInvertActionText )  
+    win.modifyInvertAction.setWhatsThis(modifyInvertActionText )
 
     # Mirror Selected Chunks
 
-    #Note that the the feature name is intentionally kept "Mirror" instead of 
-    #"Mirror Chunks" because 
+    #Note that the the feature name is intentionally kept "Mirror" instead of
+    #"Mirror Chunks" because
     # in future we will support mirrroing atoms as well. -- ninad060814
     modifyMirrorActionText = \
         "<u><b>Mirror</b></u>"\
@@ -1536,13 +1536,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Mirrors the selected <b> chunks </b> about a "\
         "reference Grid or Plane.<br>"
 
-    win.modifyMirrorAction.setWhatsThis(modifyMirrorActionText )  
-    
+    win.modifyMirrorAction.setWhatsThis(modifyMirrorActionText )
+
     win.toolsMoveMoleculeAction.setWhatsThis(
         """<u><b>Translate</b></u>
         <p>
         <img source=\"ui/actions/Command Toolbar/MoveCommands/Translate.png\"><br>
-        Translate the selection interactively. Special translation options 
+        Translate the selection interactively. Special translation options
         are provided in the <a href=Property_Manager>property manager</a>.</p>
         """)
 
@@ -1550,7 +1550,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         """<u><b>Rotate</b></u>
         <p>
         <img source=\"ui/actions/Command Toolbar/MoveCommands/Rotate.png\"><br>
-        Rotate the selection interactively. Special rotation options 
+        Rotate the selection interactively. Special rotation options
         are provided in the <a href=Property_Manager>property manager</a>.</p>
         """)
 
@@ -1568,7 +1568,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.modifyAlignCommonAxisAction.setWhatsThis\
        ( modifyAlignCommonAxisActionText )
 
-    #Center on Common Axis 
+    #Center on Common Axis
     modifyCenterCommonAxisActionText = \
         "<u><b>Center On Common Axis</b></u>"\
         "<p>"\
@@ -1577,7 +1577,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "selected chunk and also <b>aligns</b> "\
         "them to the axis of the first one . You "\
         "must select two or more chunks before "\
-        "using this feature. </p>" 
+        "using this feature. </p>"
 
     win.modifyCenterCommonAxisAction.setWhatsThis\
        (modifyCenterCommonAxisActionText)
@@ -1619,7 +1619,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText )
 
-    # Build Crystal 
+    # Build Crystal
 
     toolsCookieCutActionText = \
         "<u><b>Build Crystal</b></u><!-- [[Feature:Build Crystal Mode]] -->"\
@@ -1639,14 +1639,14 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         """<u><b>Extrude</b></u><!-- [[Feature:Extrude Mode]] --><br>
         <p>
-        <img source=\"ui/actions/Insert/Features/Extrude.png\"><br> 
-        Creates rod or ring structures from one or more (selected) molecular 
-        fragments as a <i>repeating unit</i>. Extrude can also be used to 
-        create linear (rod) or circular (ring) patterns from the current 
+        <img source=\"ui/actions/Insert/Features/Extrude.png\"><br>
+        Creates rod or ring structures from one or more (selected) molecular
+        fragments as a <i>repeating unit</i>. Extrude can also be used to
+        create linear (rod) or circular (ring) patterns from the current
         selection.</p>
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
-        <b>Remember:</b> Something must be selected (i.e. the repeating unit) 
+        <b>Remember:</b> Something must be selected (i.e. the repeating unit)
         before entering this command.
         </p>"""
 
@@ -1657,29 +1657,29 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         """<u><b>Fuse Chunks Mode</b></u> <!-- [[Feature:Fuse Chunks Mode]] -->
         <p>
-        <img source=\"ui/actions/Tools/Build Tools/Fuse_Chunks.png\"><br> 
+        <img source=\"ui/actions/Tools/Build Tools/Fuse_Chunks.png\"><br>
         Fuses two or more chunks. Two fusing options are supported:</[>
         <p>
         <b>Make Bonds</b>:<br>
         creates bonds between <a href=Bondpoints>bondpoints</a>
-        of the selected chunk and any other chunks within bonding distance.  
-        Bondpoints are highlighted and lines are drawn (and undrawn) as chunks 
-        are moved interactively to indicate bonding relationships between bondpoints. 
-        Bondpoints with too many bonding relationships are highlighted in 
+        of the selected chunk and any other chunks within bonding distance.
+        Bondpoints are highlighted and lines are drawn (and undrawn) as chunks
+        are moved interactively to indicate bonding relationships between bondpoints.
+        Bondpoints with too many bonding relationships are highlighted in
         magenta and will not make bonds.</p>
         <p>
         <b>Fuse Atoms</b>:<br>
-        fuses pairs of overlapping atoms between chunks. 
-        The overlapping atoms in the selected chunk(s) are highlighted in 
-        green while the atoms that will be deleted in non-selected chunks 
+        fuses pairs of overlapping atoms between chunks.
+        The overlapping atoms in the selected chunk(s) are highlighted in
+        green while the atoms that will be deleted in non-selected chunks
         are highlighted in dark red. </p>
         <p>
         <img source=\"ui/whatsthis/HotTip.png\"><br>
         <b>Hot Tip:</b>
-        This command can be very slow for large models with lots of atoms. 
-        To improve preformance, use <b>Hide</b> to hide everything 
-        you don't need before entering this command. After you are done, 
-        select all nodes in the model tree (or click <b>Select All</b>) 
+        This command can be very slow for large models with lots of atoms.
+        To improve preformance, use <b>Hide</b> to hide everything
+        you don't need before entering this command. After you are done,
+        select all nodes in the model tree (or click <b>Select All</b>)
         and click <b>Unhide</b>.
         </p>"""
 
@@ -1735,7 +1735,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.checkAtomTypesAction.setWhatsThis( checkAtomTypesActionText )
 
     # Change Chunk Color
-    
+
     dispObjectColorActionText = \
         "<u><b>Edit Color</b></u>"\
         "<p>"\
@@ -1743,7 +1743,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Allows the user to change the color of all selected chunks and/or "\
         "jigs (i.e. rotary and linear motors)."\
         "</p>"
-    
+
     win.dispObjectColorAction.setWhatsThis(  dispObjectColorActionText )
 
     # Run Dynamics (was NanoDynamics-1). Mark 060807.
@@ -1751,17 +1751,17 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         """<u><b>Run Dynamics</b></u>
         <p>
-        <img source=\"ui/actions/Simulation/RunDynamics.png\"><br> 
+        <img source=\"ui/actions/Simulation/RunDynamics.png\"><br>
         Opens the dialog for running <b>NanoDynamics-1</b>, the native
         molecular dynamics simulator for NanoEngineer-1.
-        <b>NanoDynamics-1</b> creates a trajectory (movie) file by 
-        calculating the inter-atomic potentials and bonding 
+        <b>NanoDynamics-1</b> creates a trajectory (movie) file by
+        calculating the inter-atomic potentials and bonding
         of the entire model.</p>
         """
     win. simSetupAction.setWhatsThis( _text )
 
     # Simulation Jigs
-    
+
     simulationJigsActionText = \
         "<u><b>Simulation Jigs</b></u>"\
         "<p>"\
@@ -1770,15 +1770,15 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "other jigs used to simulate structures"\
         "</p>"
     win.simulationJigsAction.setWhatsThis( simulationJigsActionText )
-    
+
     # Play Movie (was Movie Player) Mark 060807.
 
     _text = \
         """<u><b>Play Movie</b></u>
         <p>
-        <img source=\"ui/actions/Simulation/PlayMovie.png\"><br> 
-        Plays the most recent trajectory (movie) file created by the 
-        NanoEngineer-1 molecular dynamics simulator. To create a movie file, 
+        <img source=\"ui/actions/Simulation/PlayMovie.png\"><br>
+        Plays the most recent trajectory (movie) file created by the
+        NanoEngineer-1 molecular dynamics simulator. To create a movie file,
         select <b>Run Dynamics</b>.</p>
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
@@ -1792,12 +1792,12 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         """<u><b>Plot Graphs</b></u>
         <p>
-        <img source=\"ui/actions/Simulation/PlotGraphs.png\"><br> 
+        <img source=\"ui/actions/Simulation/PlotGraphs.png\"><br>
         Plot a graph from a NanoDynamics-1 simulation trace file using GNUplot.</p>
         <p>
         The following list of jigs write data to the trace file:</p>
         <p>
-        <b>Rotary Motors:</b> speed (GHz) and torque (nn-nm)<br> 
+        <b>Rotary Motors:</b> speed (GHz) and torque (nn-nm)<br>
         <b>Linear Motors:</b> displacement (pm)<br>
         <b>Anchors:</b> torque (nn-nm)<br>
         <b>Thermostats:</b> energy added (zJ)<br>
@@ -1808,13 +1808,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
         </p>
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
-        <b>Remember:</b> A NanoDynamics-1 simulation must have been run to 
-        create and plot a trace file <i><b>and</b></i> the part must have at 
+        <b>Remember:</b> A NanoDynamics-1 simulation must have been run to
+        create and plot a trace file <i><b>and</b></i> the part must have at
         least one of the jigs listed above which writes data to the trace file.
         </p>"""
 
     win. simPlotToolAction.setWhatsThis( _text )
-    
+
     #
     # Jigs
     #
@@ -1824,89 +1824,89 @@ def createWhatsThisTextForMainWindowWidgets(win):
     _text = \
         """<u><b>Anchor</b></u>
         <p>
-        <img source=\"ui/actions/Simulation/Anchor.png\"><br> 
-        Attaches an <b>Anchor</b> to the selected atoms. Anchors, 
-        AKA <i>grounds</i> in other molecular dynamics programs, 
-        constrains an atom's motion during minimization 
+        <img source=\"ui/actions/Simulation/Anchor.png\"><br>
+        Attaches an <b>Anchor</b> to the selected atoms. Anchors,
+        AKA <i>grounds</i> in other molecular dynamics programs,
+        constrains an atom's motion during minimization
         or simulation runs.</p>
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
-        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
-        create anchors since this is the only command that allows the user 
-        to select individual atoms. Simply select the atom(s) you want to 
-        anchor and then select this command. Anchors are drawn as a black 
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to
+        create anchors since this is the only command that allows the user
+        to select individual atoms. Simply select the atom(s) you want to
+        anchor and then select this command. Anchors are drawn as a black
         wireframe box around each selected atom.</p>
         """
 
-    win.jigsAnchorAction.setWhatsThis( _text )  
+    win.jigsAnchorAction.setWhatsThis( _text )
 
     # Rotary Motor
 
     _text = \
         """<u><b>Rotary Motor</b></u>
         <p>
-        <img source=\"ui/actions/Simulation/RotaryMotor.png\"><br> 
-        Attaches a <b>Rotary Motor</b> to the selected atoms. 
-        The Rotary Motor is used by the simulator to 
-        apply rotary motion to a set of atoms during a 
-        simulation run.  You may specify the <b>torque 
+        <img source=\"ui/actions/Simulation/RotaryMotor.png\"><br>
+        Attaches a <b>Rotary Motor</b> to the selected atoms.
+        The Rotary Motor is used by the simulator to
+        apply rotary motion to a set of atoms during a
+        simulation run.  You may specify the <b>torque
         (in nN*nm)</b> and <b>speed (in Ghz)</b> of the motor.</p>
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
-        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
-        create motors since this is the only command that allows the user 
-        to select individual atoms. Simply select the atoms you want to 
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to
+        create motors since this is the only command that allows the user
+        to select individual atoms. Simply select the atoms you want to
         attach a motor to and then select this command.</p>
         """
 
-    win.jigsMotorAction.setWhatsThis( _text )  
+    win.jigsMotorAction.setWhatsThis( _text )
 
     # Linear Motor
 
     _text = \
         """<u><b>Linear Motor</b></u>
         <p>
-        <img source=\"ui/actions/Simulation/LinearMotor.png\"><br> 
-        Attaches a <b>Linear Motor</b> to the selected 
-        atoms.  The Linear Motor is used by the 
-        simulator to apply linear motion to a set of 
+        <img source=\"ui/actions/Simulation/LinearMotor.png\"><br>
+        Attaches a <b>Linear Motor</b> to the selected
+        atoms.  The Linear Motor is used by the
+        simulator to apply linear motion to a set of
         atoms during a simulation run.  You may specify
-        the <b>force (in nN*nm)</b> and <b>stiffness 
+        the <b>force (in nN*nm)</b> and <b>stiffness
         (in N/m)</b> of the motor.</p>
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
-        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
-        create motors since this is the only command that allows the user 
-        to select individual atoms. Simply select the atoms you want to 
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to
+        create motors since this is the only command that allows the user
+        to select individual atoms. Simply select the atoms you want to
         attach a motor to and then select this command.</p>
         """
 
-    win.jigsLinearMotorAction.setWhatsThis( _text )  
+    win.jigsLinearMotorAction.setWhatsThis( _text )
 
     # Thermostat
 
     _text = \
         """<u><b>Thermostat</b></u>
         <p>
-        <img source=\"ui/actions/Simulation/Thermostat.png\"><br> 
-        Attaches a <b>Langevin Thermostat</b> to a single 
-        selected atom, thereby associating the thermostat to 
-        the entire molecule of which the selected atom is a 
+        <img source=\"ui/actions/Simulation/Thermostat.png\"><br>
+        Attaches a <b>Langevin Thermostat</b> to a single
+        selected atom, thereby associating the thermostat to
+        the entire molecule of which the selected atom is a
         member. The user specifies the temperature (in Kelvin).</p>
         <p>
-        The Langevin Thermostat is used to set and hold the temperature of 
+        The Langevin Thermostat is used to set and hold the temperature of
         a molecule during a simulation run.</p>
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
-        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
-        create a Langevin Thermostat since this is the only command that allows the user 
-        to select individual atoms. Simply select a single atom you want to 
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to
+        create a Langevin Thermostat since this is the only command that allows the user
+        to select individual atoms. Simply select a single atom you want to
         attach the thermostat to and then select this command.
-        The thermostat is drawn as a blue wireframe box around the 
+        The thermostat is drawn as a blue wireframe box around the
         selected atom.</p>
         """
 
-    win.jigsStatAction.setWhatsThis( _text ) 
+    win.jigsStatAction.setWhatsThis( _text )
 
     # Thermometer
 
@@ -1915,18 +1915,18 @@ def createWhatsThisTextForMainWindowWidgets(win):
         <p>
         <img source=\"ui/actions/Simulation/Measurements/Thermometer.png\"><br> "\
         Attaches a <b>Thermometer</b> to a single selected atom,
-        thereby associating the themometer to the entire molecule 
+        thereby associating the themometer to the entire molecule
         of which the selected atom is a member.</p>
         <p>
-        The temperature of the molecule will be recorded and written to a 
+        The temperature of the molecule will be recorded and written to a
         trace file during a simulation run.</p>
         <p>
         <img source=\"ui/whatsthis/Remember.png\"><br>
-        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to 
-        create a Thermometer since this is the only command that allows the user 
-        to select individual atoms. Simply select a single atom you want to 
+        <b>Remember:</b> You must be in the <b>Build Atoms</b> command to
+        create a Thermometer since this is the only command that allows the user
+        to select individual atoms. Simply select a single atom you want to
         attach the thermometer to and then select this command.
-        The thermometer is drawn as a dark red wireframe 
+        The thermometer is drawn as a dark red wireframe
         box around the selected atom.</p>
         """
 
@@ -2116,26 +2116,26 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "functionality and usage of a particular command button or widget.</p>"
 
     win.helpWhatsThisAction.setWhatsThis( _text )
-    
+
     win.helpMouseControlsAction.setWhatsThis("Displays help for mouse controls")
-    
+
     win.helpKeyboardShortcutsAction.setWhatsThis("Displays help for keyboard"\
     "shortcuts")
-    
+
     win.helpSelectionShortcutsAction.setWhatsThis("Displays help for selection"\
     " controls")
-    
+
     win.helpGraphicsCardAction.setWhatsThis("Displays information for the"\
-    " computer's graphics card") 
-    
+    " computer's graphics card")
+
     win.helpAboutAction.setWhatsThis("Displays information about this version"\
-    " of NanoEngineer-1") 
-    
-    
+    " of NanoEngineer-1")
+
+
     #
     # Status bar
     #
-    
+
     # Global Display Style combobox
     _text = \
         "<u><b>Global Display Style</b></u>"\
@@ -2145,7 +2145,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "Objects with their display setting set to <b>Default</b> are "\
         "rendered in the <b>Global Display Style</b>."\
         "</p>"
-    
+
     win.statusBar().globalDisplayStylesComboBox.setWhatsThis( _text )
 
 def create_whats_this_descriptions_for_NanoHive_dialog(w):

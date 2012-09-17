@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 test_statearray_2.py
 
@@ -78,7 +78,7 @@ class xxx_drag_behavior(DragBehavior): # revised 070316; on 070318 removed comme
     constrain_to_line = Arg(Ray, Ray(ORIGIN, DY), doc = "the line/ray on which the height is interpreted as a position")
         ###e rename: constraint_line? line_to_constrain_to? constrain_to_this_line?
         # dflt_expr is just for testing #e remove it
-    
+
     def current_event_mouseray(self):
         p0 = self.highlightable.current_event_mousepoint(depth = 0.0) # nearest depth ###k
         p1 = self.highlightable.current_event_mousepoint(depth = 1.0) # farthest depth ###k
@@ -138,7 +138,7 @@ class test_StateArrayRefs_2(DelegatingInstanceOrExpr): # testexpr_35a
     def _height_dragger_for_index(self, index):
         stateref = StateArrayRefs_getitem_as_stateref( self.heights, index )
             #e change to self.heights.getitem_as_stateref(index)? self.heights._staterefs[index]?? self.heights[index]???
-        newindex = ('_height_dragger_for_index', index) 
+        newindex = ('_height_dragger_for_index', index)
         return self.Instance( _height_dragger( stateref), newindex )
     delegate = SimpleRow(
         MapListToExpr( _self._height_dragger_for_index, ###k _self needed??

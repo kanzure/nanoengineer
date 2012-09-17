@@ -1,11 +1,11 @@
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Encapsulates all the particulars of a simulation.
 The L{SimSpecification} class is essentially a hierarchical parameter set that
 describes a cross-package compatible simulation specification.
 All reusable configuration is captured here including motion paths
-and jigs. 
+and jigs.
 
 The object model makes use of
 L{Parameter} objects to store most of the data. Parameter objects encapsulate

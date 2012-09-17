@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 PartProp.py
 
@@ -16,9 +16,9 @@ class PartProp(QDialog, Ui_PartPropDialog):
         self.connect(self.cancelPushButton,SIGNAL("clicked()"),self.reject)
 
         self.nameLineEdit.setText(assy.name)
-        
+
         self.mmpformatLabel.setText("MMP File Format: " + assy.mmpformat)
-        
+
         # Get statistics of part and display them in the statView widget.
         from commands.GroupProperties.GroupProp import Statistics
         stats = Statistics(assy.tree)

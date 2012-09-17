@@ -1,4 +1,4 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 displaymodes.py -- support for new modular display modes.
 
@@ -42,14 +42,14 @@ class DisplayMode:
     abstract class for any sort of display mode
     (except the 6 original built-in ones defined in constants.py)
     """
-    
+
     # Note: some subclasses assign a class constant featurename,
     # but as far as I know, this is not yet used. TODO: add a
     # get_featurename method like in class Command (or basicCommand)
     # and add code to use it (not sure where in the UI).
     # [bruce 071227 comment]
     featurename = ""
-    
+
     chunk_only = False # default value of class constant; some subclasses override this (in fact, not doing so is not yet supported)
 
     def __init__(self, ind):
@@ -70,7 +70,7 @@ class DisplayMode:
         private method called when setting up mmp reading code:
         register this class as a readmmp-helper,
         in whatever way differs for different classes of helpers
-        
+
         [update, bruce 071017: this docstring is misleading,
         since so far this has nothing to do with mmp reading;
         see code comments for details]
@@ -86,17 +86,17 @@ class DisplayMode:
         _display_mode_handlers[ind] = inst #k are both of these needed??
         return
     _register_for_readmmp = staticmethod( _register_for_readmmp)
-    
+
     #e some of ChunkDisplayMode's code probably belongs in this class
-    
+
     pass # end of class DisplayMode
 
-class ChunkDisplayMode(DisplayMode): 
+class ChunkDisplayMode(DisplayMode):
     """
     abstract class for display modes which only work for entire chunks
     """
     chunk_only = True
-    
+
     def register_display_mode_class(clas): # staticmethod
         """
         Register the given subclass of ChunkDisplayMode as a new display mode for whole chunks,
@@ -125,7 +125,7 @@ class ChunkDisplayMode(DisplayMode):
         ## files_mmp.register_for_readmmp( clas)
         smethod = clas._register_for_readmmp
         smethod(clas)
-        
+
         # The above also made it possible to draw chunks in this display mode, via _display_mode_handlers
         # and special cases in Chunk draw-related methods.
         ###e highlighting not yet done
@@ -194,19 +194,19 @@ class ChunkDisplayMode(DisplayMode):
         """
         # piotr 080313
         # added the highlighted = False argument - piotr 080521
-        # assume we don't need memo here       
-        ### memo = self.getmemo(chunk) 
+        # assume we don't need memo here
+        ### memo = self.getmemo(chunk)
         self.drawchunk_realtime(glpane, chunk, highlighted)
         return
 
     def _writepov(self, chunk, file):
-        """ 
+        """
         piotr 080314
         Render the chunk to a POV-Ray file
         """
-        memo = self.getmemo(chunk)        
+        memo = self.getmemo(chunk)
         self.writepov(chunk, memo, file)
-        
+
     def getmemo(self, chunk): # refactored, bruce 090213
         """
         [needs doc]
@@ -216,7 +216,7 @@ class ChunkDisplayMode(DisplayMode):
         # less often than we're called for drawing the selection frame,
         # since that is drawn outside the display list and the chunk might get
         # drawn selected many times without having to remake the display list.
-        
+
         our_key_in_chunk = id(self)
             # safer than using mmp_code, in case a developer reloads the class
             # at runtime and the memo algorithm changed
@@ -231,5 +231,5 @@ class ChunkDisplayMode(DisplayMode):
         return memo
 
     pass # end of class ChunkDisplayMode
-    
+
 # end

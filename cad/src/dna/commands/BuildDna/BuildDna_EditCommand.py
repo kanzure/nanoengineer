@@ -44,28 +44,28 @@ class BuildDna_EditCommand(EditCommand):
     BuildDna_EditCommand provides a convenient way to edit or create
     a DnaGroup object
     """
-        
+
     #GraphicsMode
     GraphicsMode_class = BuildDna_GraphicsMode
-    
+
     #Property Manager
     PM_class = BuildDna_PropertyManager
-    
+
     #Flyout Toolbar
     FlyoutToolbar_class = DnaFlyout
-    
+
     cmd              =  greenmsg("Build DNA: ")
     prefix           =  'DnaGroup'   # used for gensym
     cmdname          = "Build Dna"
-    
+
     commandName       = 'BUILD_DNA'
     featurename       = "Build Dna"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
-    command_level = CL_ENVIRONMENT_PROVIDING   
+    command_level = CL_ENVIRONMENT_PROVIDING
 
     command_should_resume_prevMode = False
     command_has_its_own_PM = True
-    
+
     # Generators for DNA, nanotubes and graphene have their MT name
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True
@@ -76,16 +76,16 @@ class BuildDna_EditCommand(EditCommand):
     #See also other examples of its use in older Commands such as
     #BuildAtoms_Command (earlier depositmode)
     call_makeMenus_for_each_event = True
-    
+
     __previous_command_stack_change_indicator = None
-    
-    
+
+
     def command_update_UI(self):
         """
         Extends superclass method.
         """
         _superclass.command_update_UI(self)
-        
+
         #Ths following code fixes a bug reported by Mark on 2008-11-10
         #the bug is:
             #1. Insert DNA
@@ -93,28 +93,28 @@ class BuildDna_EditCommand(EditCommand):
             #3. Do a region selection to select the middle of the DNA duplex.
             #Notice that atoms are selected, not the strands/segment chunks.
         #The problem is the selection state is not changed back to the Select Chunks
-        #the code that does this is in Enter_GraphicsMode. 
+        #the code that does this is in Enter_GraphicsMode.
         #(See SelectChunks_GraphicsMode) but when a command is 'resumed', that
         #method is not called. The fix for this is to check if the command stack
         #indicator changed in the command_update_state method, if it is changed
-        #and if currentCommand is BuildDna_EditCommand, call the code that 
+        #and if currentCommand is BuildDna_EditCommand, call the code that
         #ensures that chunks will be selected when you draw a selection lasso.
         #-- Ninad 2008-11-10
         indicator = self.assy.command_stack_change_indicator()
         if same_vals(self.__previous_command_stack_change_indicator,
                      indicator):
-            return 
-        
+            return
+
         self.__previous_command_stack_change_indicator = indicator
         self.assy.selectChunksWithSelAtoms_noupdate()
-                   
+
     def runCommand(self):
         """
         Overrides EditCommand.runCommand
         """
         self.struct = None
         self.existingStructForEditing = False
-       
+
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted.
@@ -135,7 +135,7 @@ class BuildDna_EditCommand(EditCommand):
 
         return bool_keep
 
-    
+
     def createStructure(self):
         """
         Overrides superclass method. It doesn't do anything for this type
@@ -183,7 +183,7 @@ class BuildDna_EditCommand(EditCommand):
         """
         return self.win.assy.DnaGroup
 
-    
+
     def _createStructure(self):
         """
         creates and returns the structure (in this case a L{Group} object that
@@ -297,7 +297,7 @@ class BuildDna_EditCommand(EditCommand):
         empty it deletes it.
         @see: dna_model.DnaGroup.isEmpty
         @see: EditCommand.preview_or_finalize_structure
-        """        
+        """
         if self.struct is not None:
             if self.struct.isEmpty():
                 #Don't keep empty DnaGroup Fixes bug 2603.
@@ -358,7 +358,7 @@ class BuildDna_EditCommand(EditCommand):
             #segments directly to it.
             #See: InsertDna_EditCommand._createSegment(),
             #    InsertDna_EditCommand.createStructure(), and
-            
+
             #following condition (hasValidStructure) fixes bug 2815.Earlier
             #ondition was just checking if self.struct is None.
             #self.hasValidStructure checks if the structure is killed etc
@@ -370,7 +370,7 @@ class BuildDna_EditCommand(EditCommand):
 
         return params
 
-    
+
 
     def makeMenus(self):
         """
@@ -403,4 +403,4 @@ class BuildDna_EditCommand(EditCommand):
         if highlightedChunk is not None:
             highlightedChunk.make_glpane_cmenu_items(self.Menu_spec, self)
             return
-        
+

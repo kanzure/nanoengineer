@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 
@@ -12,16 +12,16 @@ from basic import _self
 
 class ImageChunk(InstanceOrExpr, DelegatingMixin):
     """
-    ImageChunk(widget2d) draws widget2d normally, but also captures an image to use 
+    ImageChunk(widget2d) draws widget2d normally, but also captures an image to use
     for faster redrawing. In some cases, it can significantly speed up drawing of certain
-    constant pictures or text, at least for now while our text drawing is inefficient 
+    constant pictures or text, at least for now while our text drawing is inefficient
     and we don't yet have the display-list equivalent of ImageChunk.
-       WARNING: See the caveats below about significant limitations in when and how 
+       WARNING: See the caveats below about significant limitations in when and how
     ImageChunk can be used. See also DisplayListChunk [more widely applicable].
        The default options redraw the image normally at least once per session,
     and never store it on disk (except perhaps in temporary files due to implementation kluges).
     They draw it normally again (and cache a new image) whenever some variable used to draw it
-    changes. 
+    changes.
        Options are provided to change the set of variables whose changes invalidate
     the cached image, to record a history of changed images for debugging and testing
     purposes, to keep a saved image on disk for rapid startup, to require developer
@@ -44,7 +44,7 @@ class ImageChunk(InstanceOrExpr, DelegatingMixin):
     #e state: need_redraw, usage tracking (via an lval, standing for the result of drawing?)
     ###e (we need a standard helper for that)
     # (maybe an object which can supply the wrapping method we need below)
-    
+
     need_redraw = State(bool, True)
         # note: as of 061204, this (for State here and Set below) works in other files
         # but is untested here (since other code here remains nim)
@@ -56,7 +56,7 @@ class ImageChunk(InstanceOrExpr, DelegatingMixin):
         return res
 
     # this is the delegate for drawing -- we'll delegate the lbox attrs separately, i think -- or cache them too (usage-tracked)??####e
-    
+
     delegate = If( need_redraw,
                    ##e we want this subinstance's draw call to be wrapped in our own code
                    # which does usage tracking around it
@@ -72,16 +72,16 @@ class ImageChunk(InstanceOrExpr, DelegatingMixin):
 
 # end of code
 
-""" 
+"""
 todo:
 
-default options: in-ram image, no files, thus not 
+default options: in-ram image, no files, thus not
 
 but assume the same instance can be multiply drawn
-(why not? if anything needs to save one or more locations for redraw, 
+(why not? if anything needs to save one or more locations for redraw,
  it's an outer thing like a Highlighting)
 
-(exception would be if appearence depended on 
+(exception would be if appearence depended on
 
 options to:
 
@@ -95,7 +95,7 @@ do it even when not needed
   if user asks
   if given other formula invals
   on session start, reporting changes
-  
+
 save it in a file, or not
 
 use that file in new sessions, or not

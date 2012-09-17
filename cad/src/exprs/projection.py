@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 projection.py - utilities loosely related to setting up the projection matrix
 
@@ -37,7 +37,7 @@ from exprs.ExprsConstants import PIXELS
 class DrawInCorner_projection(DelegatingInstanceOrExpr):
     """
     [DEPRECATED for general use -- use DrawInCorner instead.]
-    
+
     This is a variant of DrawInCorner which works by changing the projection matrix,
     and which has several bugs/niys. It only works for the default corner argument,
     and any Highlightables in its main argument (delegate) only work properly for
@@ -60,7 +60,7 @@ class DrawInCorner_projection(DelegatingInstanceOrExpr):
     #   which might need two variants depending on that flag),
     #   or a change of default value of that option,
     #   or a change of algorithm in Highlightable.
-    
+
     delegate = Arg(Widget2D)
     corner = Arg(int, LOWER_RIGHT)
     def draw(self):
@@ -69,7 +69,7 @@ class DrawInCorner_projection(DelegatingInstanceOrExpr):
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
-        
+
         glMatrixMode(GL_PROJECTION) # WARNING: we're now in nonstandard matrixmode (for sake of gluPickMatrix and glOrtho -- needed??##k)
         glPushMatrix()
         glLoadIdentity()
@@ -112,7 +112,7 @@ class DrawInCorner_projection(DelegatingInstanceOrExpr):
             offset = (-delegate.bright, delegate.bbottom) # only correct for LOWER_RIGHT
             glTranslatef(offset[0], offset[1], 0)
             self.drawkid( delegate) ## delegate.draw()
-            
+
         finally:
             glMatrixMode(GL_PROJECTION)
             glPopMatrix()
@@ -170,7 +170,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             # 070210 -- but I'm not sure if this is a complete ###KLUGE, or good but ought to be done more generally,
             # or if it would be better to do it totally differently by instantiating None into something like Spacer(). ##k
             return
-        
+
         glMatrixMode(GL_MODELVIEW) # not needed
         glPushMatrix()
         glLoadIdentity()
@@ -213,11 +213,11 @@ class DrawInCorner(DelegatingInstanceOrExpr):
                 # Note: I fixed the bug in another way, by changing
                 # Highlightable's projection option to default True.
                 # [bruce 081202]
-            
+
             if glpane.current_glselect or (0 and 'KLUGE' and hasattr(saveplace, '_saved_stuff')):
                             # kluge did make it faster; still slow, and confounded by the highlighting-delay bug;
                             # now I fixed that bug, and now it seems only normally slow for this module -- ok for now.
-                
+
                 # when that cond is false, we have a nonstandard projection matrix
                 # (see also the related comments in save_coords_if_safe in Highlightable.py)
                 # [bruce 081204 comment]
@@ -253,7 +253,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             # for error in PIXELS, and for want_depth != cov_depth
             x1wish = glpane.width / 2.0 * PIXELS # / 2.0 because in these coords, screen center indeed has x == y == 0
             r = x1 / x1wish
-            glScale(r, r, r) 
+            glScale(r, r, r)
 ##            x1 /= r
 ##            y1 /= r
             z1 /= r
@@ -262,13 +262,13 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             del x1, y1 # not presently used
             if _DEBUG_SAVED_STUFF:
                 print "_DEBUG_SAVED_STUFF:     r = %r, translated z by z1 == %r" % (r, z1)
-            
+
             # I don't think we need to usage-track glpane height & width (or scale or zoomFactor etc)
             # since we'll redraw when those change, and redo this calc every time we draw.
             # The only exception would be if we're rendering into a display list.
             # I don't know if this code (gluUnProject) would even work in that case.
             # [I think I wrote a similar comment in some other file earlier today. #k]
-            
+
             # move to desired corner, and align it with same corner of lbox
             # (#e could use an alignment prim for the corner if we had one)
 
@@ -289,7 +289,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             else:
                 print "invalid corner",corner###
                 raise ValueError, "invalid corner %r" % (corner,)
-                
+
             if y == -1: # bottom
                 y_offset = - glpane.height / 2.0 * PIXELS + delegate.bbottom
             elif y == +1: # top
@@ -306,9 +306,9 @@ class DrawInCorner(DelegatingInstanceOrExpr):
 
             if _DEBUG_SAVED_STUFF:
                 print "_DEBUG_SAVED_STUFF:     offset =", offset
-            
+
             self.drawkid( delegate) ## delegate.draw()
-            
+
         finally:
             glMatrixMode(GL_MODELVIEW) # not needed
             glPopMatrix()

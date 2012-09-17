@@ -3,14 +3,14 @@
 # pyglet
 # Copyright (c) 2006-2008 Alex Holkner
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions 
+# modification, are permitted provided that the following conditions
 # are met:
 #
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above copyright 
+#  * Redistributions in binary form must reproduce the above copyright
 #    notice, this list of conditions and the following disclaimer in
 #    the documentation and/or other materials provided with the
 #    distribution.
@@ -56,13 +56,13 @@ class Control(pyglet.event.EventDispatcher):
     relative = False ### bruce change
 
     event_types = list(pyglet.window.Window.event_types) # kluge? [bruce addition]
-    
+
     def __init__(self, parent):
         super(Control, self).__init__()
         self.parent = parent
 
     def hit_test(self, x, y):
-        return (self.x < x < self.x + self.width and  
+        return (self.x < x < self.x + self.width and
                 self.y < y < self.y + self.height)
 
     def capture_events(self):
@@ -102,7 +102,7 @@ class Button(Control):
         return EVENT_HANDLED #bruce
 
 Button.register_event_type('on_press')
-    
+
 class TextButton(Button):
     def __init__(self, *args, **kwargs):
         super(TextButton, self).__init__(*args, **kwargs)
@@ -133,10 +133,10 @@ class Slider(Control): # not yet ported to this context
 
     def draw(self):
         center_y = self.y + self.height / 2
-        draw_rect(self.x, center_y - self.GROOVE_HEIGHT / 2, 
+        draw_rect(self.x, center_y - self.GROOVE_HEIGHT / 2,
                   self.width, self.GROOVE_HEIGHT)
         pos = self.x + self.value * self.width / (self.max - self.min)
-        draw_rect(pos - self.THUMB_WIDTH / 2, center_y - self.THUMB_HEIGHT / 2, 
+        draw_rect(pos - self.THUMB_WIDTH / 2, center_y - self.THUMB_HEIGHT / 2,
                   self.THUMB_WIDTH, self.THUMB_HEIGHT)
 
     def coordinate_to_value(self, x):
@@ -153,7 +153,7 @@ class Slider(Control): # not yet ported to this context
         value = min(max(self.coordinate_to_value(x), self.min), self.max)
         self.dispatch_event('on_change', value)
         return EVENT_HANDLED #bruce
-    
+
     def on_mouse_release(self, x, y, button, modifiers):
         self.release_events()
         self.dispatch_event('on_end_scroll')
@@ -177,7 +177,7 @@ class PlayerWindow(pyglet.window.Window):
 
     def __init__(self, player):
         super(PlayerWindow, self).__init__(caption = 'test controls',
-                                           visible = False, 
+                                           visible = False,
                                            resizable = True)
         self.player = player
 
@@ -206,7 +206,7 @@ class PlayerWindow(pyglet.window.Window):
         self.window_button.on_press = lambda: win.set_fullscreen(False)
 
         self.controls = [
-            self.slider, 
+            self.slider,
             self.play_pause_button,
             self.window_button,
         ]
@@ -269,7 +269,7 @@ class PlayerWindow(pyglet.window.Window):
 
     def get_video_size(self):
         return 0, 0
-    
+
     def on_mouse_press(self, x, y, button, modifiers):
         for control in self.controls:
             if control.hit_test(x, y):
@@ -310,7 +310,7 @@ def _test():
     window.gui_update_state()
     window.set_default_video_size()
     window.set_visible(True)
-    
+
     window.gui_update_state()
 
     pyglet.app.run()

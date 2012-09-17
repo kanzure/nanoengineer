@@ -1,4 +1,4 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 Creates a schematic "trace" drawing for PeptideBuilder.
@@ -31,23 +31,23 @@ from protein.commands.InsertPeptide.PeptideGenerator import get_unit_length
 
 def drawPeptideTrace(alphaCarbonProteinChunk):
     """
-    Draws a protein backbone trace using atoms stored in 
+    Draws a protein backbone trace using atoms stored in
     I{alphaCarbonProteinChunk}.
-    
-    @param alphaCarbonProteinChunk: a special (temporary) chunk that contains 
-                                    only the alpha carbon atoms in the peptide 
+
+    @param alphaCarbonProteinChunk: a special (temporary) chunk that contains
+                                    only the alpha carbon atoms in the peptide
                                     backbone
     @param alphaCarbonProteinChunk: Chunk
-    
+
     @see PeptideLine_GraphicsMode.Draw_other(), PeptideGenerator.make_aligned()
     """
 
     if alphaCarbonProteinChunk and alphaCarbonProteinChunk.atoms:
         last_pos = None
         atomitems = alphaCarbonProteinChunk.atoms.items()
-        atomitems.sort() 
-        alphaCarbonAtomsList = [atom for (key, atom) in atomitems] 
-        
+        atomitems.sort()
+        alphaCarbonAtomsList = [atom for (key, atom) in atomitems]
+
         for atom in alphaCarbonAtomsList:
             drawsphere(blue, atom.posn(), 0.2, 1)
             if last_pos:
@@ -61,90 +61,90 @@ def drawPeptideTrace(alphaCarbonProteinChunk):
 # trace. This function is deprecated and marked for removal. I'm keeping it
 # here for reference for the time being.
 # --Mark 2008-12-23
-def drawPeptideTrace_orig(endCenter1,  
+def drawPeptideTrace_orig(endCenter1,
                           endCenter2,
-                          phi, 
+                          phi,
                           psi,
                           glpaneScale,
                           lineOfSightVector,
                           beamThickness = 2.0,
-                          beam1Color = None, 
+                          beam1Color = None,
                           beam2Color = None,
                           stepColor  = None
                           ):
     """
     Draws the Peptide in a schematic display.
-    
+
     @param endCenter1: Nanotube center at end 1
     @type endCenter1: B{V}
-    
+
     @param endCenter2: Nanotube center at end 2
     @type endCenter2: B{V}
-    
+
     @param phi: Peptide phi angle
     @type phi: float
-    
+
     @param psi: Peptide psi angle
     @type psi: float
-    
-    @param glpaneScale: GLPane scale used in scaling arrow head drawing 
+
+    @param glpaneScale: GLPane scale used in scaling arrow head drawing
     @type glpaneScale: float
-    
-    @param lineOfSightVector: Glpane lineOfSight vector, used to compute the 
-                              the vector along the ladder step. 
-    @type: B{V} 
-    
+
+    @param lineOfSightVector: Glpane lineOfSight vector, used to compute the
+                              the vector along the ladder step.
+    @type: B{V}
+
     @param beamThickness: Thickness of the two ladder beams
     @type beamThickness: float
-    
+
     @param beam1Color: Color of beam1
     @param beam2Color: Color of beam2
-    
-    @see: B{DnaLineMode.Draw } (where it is used) for comments on color 
+
+    @see: B{DnaLineMode.Draw } (where it is used) for comments on color
           convention
 
     @deprecated: Use drawPeptideTrace() instead.
-    """   
+    """
 
     ladderWidth = 3.0
-    
+
     ladderLength = vlen(endCenter1 - endCenter2)
-    
+
     cntRise = get_unit_length(phi, psi)
-    
-    # Don't draw the vertical line (step) passing through the startpoint unless 
-    # the ladderLength is atleast equal to the cntRise. 
-    # i.e. do the drawing only when there are atleast two ladder steps. 
-    # This prevents a 'revolving line' effect due to the single ladder step at 
-    # the first endpoint 
+
+    # Don't draw the vertical line (step) passing through the startpoint unless
+    # the ladderLength is atleast equal to the cntRise.
+    # i.e. do the drawing only when there are atleast two ladder steps.
+    # This prevents a 'revolving line' effect due to the single ladder step at
+    # the first endpoint
     if ladderLength < cntRise:
         return
-    
+
     unitVector = norm(endCenter2 - endCenter1)
-    
+
     if beam1Color is None:
-        beam1Color = env.prefs[DarkBackgroundContrastColor_prefs_key] 
-        
+        beam1Color = env.prefs[DarkBackgroundContrastColor_prefs_key]
+
     if beam2Color is None:
-        beam2Color = env.prefs[DarkBackgroundContrastColor_prefs_key] 
-    
+        beam2Color = env.prefs[DarkBackgroundContrastColor_prefs_key]
+
     if stepColor is None:
-        stepColor = env.prefs[DarkBackgroundContrastColor_prefs_key] 
-        
-    
-    glDisable(GL_LIGHTING) 
+        stepColor = env.prefs[DarkBackgroundContrastColor_prefs_key]
+
+
+    glDisable(GL_LIGHTING)
     glPushMatrix()
-    glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2]) 
+    glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2])
     pointOnAxis = V(0, 0, 0)
-        
+
     vectorAlongLadderStep =  cross(-lineOfSightVector, unitVector)
     unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
-       
+
     ladderBeam1Point = pointOnAxis + \
-                       unitVectorAlongLadderStep * 0.5 * ladderWidth    
+                       unitVectorAlongLadderStep * 0.5 * ladderWidth
     ladderBeam2Point = pointOnAxis - \
                        unitVectorAlongLadderStep * 0.5 * ladderWidth
-    
+
     # Following limits the arrowHead Size to the given value. When you zoom out,
     # the rest of ladder drawing becomes smaller (expected) and the following
     # check ensures that the arrowheads are drawn proportinately.  (Not using a
@@ -155,11 +155,11 @@ def drawPeptideTrace_orig(endCenter1,
         arrowDrawingScale = glpaneScale
 
     x = 0.0
-    while x < ladderLength:        
+    while x < ladderLength:
         drawPoint(stepColor, pointOnAxis)
         drawCircle(stepColor, pointOnAxis, ladderWidth * 0.5, unitVector)
-        
-        previousPoint = pointOnAxis        
+
+        previousPoint = pointOnAxis
         previousLadderBeam1Point = ladderBeam1Point
         previousLadderBeam2Point = ladderBeam2Point
 
@@ -170,22 +170,22 @@ def drawPeptideTrace_orig(endCenter1,
                            unitVectorAlongLadderStep * 0.5 * ladderWidth
         ladderBeam2Point = previousPoint - \
                            unitVectorAlongLadderStep * 0.5 * ladderWidth
-        
+
         if previousLadderBeam1Point:
-            drawline(beam1Color, 
-                     previousLadderBeam1Point, 
-                     ladderBeam1Point, 
+            drawline(beam1Color,
+                     previousLadderBeam1Point,
+                     ladderBeam1Point,
                      width = beamThickness,
                      isSmooth = True )
 
-            drawline(beam2Color, 
-                     previousLadderBeam2Point, 
-                     ladderBeam2Point, 
-                     width = beamThickness, 
+            drawline(beam2Color,
+                     previousLadderBeam2Point,
+                     ladderBeam2Point,
+                     width = beamThickness,
                      isSmooth = True )
-            
+
             #drawline(stepColor, ladderBeam1Point, ladderBeam2Point)
-                                
+
     glPopMatrix()
     glEnable(GL_LIGHTING)
     return

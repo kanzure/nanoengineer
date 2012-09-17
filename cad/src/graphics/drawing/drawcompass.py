@@ -63,12 +63,12 @@ _P4 = 3.8 # ??? may be used to specify the slant of the arrow head (conical port
 # ==
 
 class Compass(object):
-    
+
     def __init__(self, glpane):
         """
         @param glpane: typically a QGLWidget; used only for its methods
                        glpane.qglColor and glpane.renderText.
-        
+
         @warning: the right OpenGL display list context must be current
                   when this constructor is called.
         """
@@ -81,7 +81,7 @@ class Compass(object):
         self._font = QFont( QString("Helvetica"), 12)
 
         return
-    
+
     def draw(self,
              aspect,
              quat,
@@ -100,7 +100,7 @@ class Compass(object):
         is only 2).
         """
         glpane = self.glpane
-        
+
         #bruce 050608 improved behavior re GL state requirements and side effects;
         # 050707 revised docstring accordingly.
         #mark 0510230 switched Y and Z colors.
@@ -108,7 +108,7 @@ class Compass(object):
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
-        
+
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         glLoadIdentity() # needed!
@@ -157,9 +157,9 @@ class Compass(object):
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
-        
+
         return # from draw
-    
+
     pass # end of class Compass
 
 # ==
@@ -168,22 +168,22 @@ def _draw_compass_geometry():
     """
     Do GL state changes and draw constant geometry for compass.
     Doesn't depend on any outside state, so can be compiled
-    into an unchanging display list. 
+    into an unchanging display list.
     """
     glEnable(GL_COLOR_MATERIAL)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
     glDisable(GL_CULL_FACE)
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
 
-    #ninad 070122 - parametrized the compass drawing. (also added some doc). 
-    #Also reduced the overall size of the compass. 
+    #ninad 070122 - parametrized the compass drawing. (also added some doc).
+    #Also reduced the overall size of the compass.
 
-    p1 = -1 # ? start point of arrow cyl? 
+    p1 = -1 # ? start point of arrow cyl?
     p2 = 3.25 #end point of the arrow cylindrical portion
     p3 = 2.5 #arrow head start point
     p5 = 4.5 # cone tip
 
-    r1 = 0.2 #cylinder radius 
+    r1 = 0.2 #cylinder radius
     r2 =0.2
     r3 = 0.2
     r4 = 0.60 #cone base radius

@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 DnaMarker.py - marked positions on atom chains, moving to live atoms as needed
 
@@ -139,7 +139,7 @@ class DnaMarker( ChainAtomMarker):
     are updated to be sufficient when taken alone to specify our
     position and direction on a chain of atoms. This is so those attrs
     are the only ones needing declaration for undo/copy/save for that purpose.
-    
+
     We also maintain internal "cached" attrs like our index within a ladder,
     for efficiency and to help us move when those atoms become killed or
     get changed in other ways.
@@ -149,9 +149,9 @@ class DnaMarker( ChainAtomMarker):
     # and treat them as perhaps needing to be moved? YES. DOIT. #### @@@@
     # [same issue as in comment in docstring "we might not be homeless"]
 
-    
+
     # Jig or Node API class constants:
-    
+
     sym = "DnaMarker" # ?? maybe used only on subclasses for SegmentMarker & StrandMarker? maybe never visible?
         # TODO: not sure if this gets into mmp file, but i suppose it does... and it gets copied, and has undoable properties...
         # and in theory it could appear in MT, though in practice, probably only in some PM listwidget, but still,
@@ -162,7 +162,7 @@ class DnaMarker( ChainAtomMarker):
 
     # icon_names = ("missing", "missing-hidden")
     icon_names = ('modeltree/DnaMarker.png', 'modeltree/DnaMarker-hide.png') # stubs; not normally seen for now
-    
+
     copyable_attrs = _superclass.copyable_attrs + ()
         # todo: add some more -- namely the user settings about how it moves, whether it lives, etc
 
@@ -197,7 +197,7 @@ class DnaMarker( ChainAtomMarker):
 
 # not needed I think [080311]:
 ##    # guess: also needs a ladder, and indices into the ladder (which rail, rail/chain posn, rail/chain direction)@@@@
-    
+
     # == Jig or Node API methods (overridden or extended from ChainAtomMarker == _superclass):
 
     def __init__(self, assy, atomlist):
@@ -224,7 +224,7 @@ class DnaMarker( ChainAtomMarker):
         self._inside_its_own_strand_or_segment = False # guess
         _superclass.kill(self)
         return
-    
+
     def _draw_jig(self, glpane, color, highlighted = False):
         """
         [overrides superclass method]
@@ -268,9 +268,9 @@ class DnaMarker( ChainAtomMarker):
          for nodes drawn into display lists.]
         """
         self.assy.glpane.gl_update()
-    
+
     # ==
-    
+
     def get_oldness(self):
         """
         Older markers might compete better for controlling their wholechain;
@@ -278,14 +278,14 @@ class DnaMarker( ChainAtomMarker):
         ordering).
         """
         return (- self._newness)
-    
+
     def wants_to_be_controlling(self):
         return self._wants_to_be_controlling
-    
+
     def set_wholechain(self, wholechain, position_holder, controlling = _CONTROLLING_IS_UNKNOWN):
         """
         [to be called by dna updater]
-        
+
         @param wholechain: a new WholeChain which now owns us (not None)
         """
         # revised 080306/080307
@@ -299,11 +299,11 @@ class DnaMarker( ChainAtomMarker):
         self._position_holder = None
         self.controlling = _CONTROLLING_IS_UNKNOWN # 080306; never kills self [review: is that ok?]
         return
-    
+
     def forget_wholechain(self, wholechain):
         """
         Remove any references we have to wholechain.
-        
+
         @param wholechain: a WholeChain which refs us and is being destroyed
         """
         assert wholechain
@@ -324,7 +324,7 @@ class DnaMarker( ChainAtomMarker):
         self._info_for_step2 = None # precaution
         _superclass._undo_update(self)
         return
-    
+
     def remove_atom(self, atom, **opts):
         """
         [extends superclass method]
@@ -343,7 +343,7 @@ class DnaMarker( ChainAtomMarker):
         _homeless_dna_markers[id(self)] = self
         _superclass.changed_structure(self, atom)
         return
-        
+
     #e also add a method [nim in api] for influencing how we draw the atom?
     # guess: no -- might be sufficient (and is better, in case old markers lie around)
     # to just use the Jig.draw method, and draw the marker explicitly. Then it can draw
@@ -361,7 +361,7 @@ class DnaMarker( ChainAtomMarker):
         @note: if we are inside a DnaStrand or DnaSegment, then our
         DnaGroup will be the same as its DnaGroup. But we can be outside
         one (if this is permitted) and still have a DnaGroup.
-        
+
         @note: returning None should never happen
         if we have survived a run of the dna updater.
 
@@ -376,7 +376,7 @@ class DnaMarker( ChainAtomMarker):
         method out of get_DnaStrand or get_DnaSegment.
         """
         return self.parent_node_of_class( DnaStrandOrSegment)
-        
+
     def _f_get_owning_strand_or_segment(self, make = False):
         """
         [friend method for dna updater]
@@ -390,7 +390,7 @@ class DnaMarker( ChainAtomMarker):
         @param make: if True, never return None, but instead make a new
                      owning DnaStrandOrSegment and move self into it,
                      or decide that one we happen to be in can own us.
-        
+
         Note: non-friend callers (outside the dna updater, and not running
         just after creating this before the updater has a chance to run
         or gets called explicitly) should instead use the appropriate
@@ -480,9 +480,9 @@ class DnaMarker( ChainAtomMarker):
         assert self._get_DnaStrandOrSegment() is strand_or_segment
         self._inside_its_own_strand_or_segment = True
         return strand_or_segment
-        
+
     # ==
-    
+
     def set_whether_controlling(self, controlling):
         """
         our new chain tells us whether we control its atom indexing, etc, or not
@@ -496,13 +496,13 @@ class DnaMarker( ChainAtomMarker):
     # ==
 
     # marker move methods. These are called by dna updater and/or our new WholeChain
-    # in this order: [### REVIEW, is this correct? @@@@@@] 
+    # in this order: [### REVIEW, is this correct? @@@@@@]
     # - _f_move_to_live_atompair_step1, for markers that need to move; might kill self
     # - f_kill_during_move, if wholechain scan finds problem with a marker on one of its atoms; will kill self
     # - xxx_own_marker if a wholechain takes over self ### WRONG, called later
     # - _f_move_to_live_atompair_step2, for markers for which step1 returned true (even if they were killed by f_kill_during_move)
     #   - this prints a bug warning if neither of f_kill_during_move or xx_own_marker was called since _step1 (or if _step1 not called?)
-    
+
     def _f_move_to_live_atompair_step1(self): # rewritten 080311 ### RENAME, no step1 @@@
         """
         [friend method, called from dna_updater]
@@ -513,26 +513,26 @@ class DnaMarker( ChainAtomMarker):
         so use that info to move a new location on our old wholechain
         so that we are on two live atoms which are adjacent on it.
         Track base position change as we do this (partly nim, since not used).
-        
+
         If this works, return True; later updater steps must call one of XXX ###doc
         to verify our atoms are still adjacent on the same new wholechain,
         and record it and our position on it. (Also record any info they need
         to run, but for now, this is only used by assertions or debug prints,
         since just knowing our two atoms and total base index motion should
         be sufficient.)
-        
+
         If this fails, die and return False.
 
         @return: whether this marker is still alive after this method runs.
         @rtype: boolean
         """
         # REVIEW: should we not return anything and just make callers check marker.killed()?
-        
+
         if self._info_for_step2 is not None:
             print "bug? _info_for_step2 is not None as _f_move_to_live_atompair_step1 starts in %r" % self
-        
+
         self._info_for_step2 = None
-        
+
         # Algorithm -- just find the nearest live atom in the right direction.
         # Do this by scanning old atom lists in chain objects known to markers,
         # so no need for per-atom stored info.
@@ -627,8 +627,8 @@ class DnaMarker( ChainAtomMarker):
             unkilled_atoms_posns = [] # the adjacent unkilled atoms and their posns, at current loop point
 
             NEED_N_ATOMS = 2 # todo: could optimize, knowing that this is 2
-            
-            for pos in pos_generator: 
+
+            for pos in pos_generator:
                 rail, index, direction, counter = pos
                 atom = rail.baseatoms[index]
                 if _check_atoms:
@@ -660,12 +660,12 @@ class DnaMarker( ChainAtomMarker):
             print "kill %r since we can't find a place to move it to" % self
         self.kill()
         return False
-    
+
     def _move_to(self, atom1, atom2, atom1pos = None): # revised 080311
         """
         [private helper for _move_step1; does its side effects
          for an actual or possible move, and returns its return value]
-        
+
         Consider moving self to atom1 and atom2 at atom1pos.
         If all requirements for this being ok are met, do it
         (including telling wholechain and/or self where we moved to,
@@ -676,7 +676,7 @@ class DnaMarker( ChainAtomMarker):
         Return whether we're still alive after the step1 part of this.
         """
         assert not atom1.killed() and not atom2.killed()
-        
+
         if atom1pos is not None:
             # moving to a new position
             rail, index, direction, counter = atom1pos
@@ -685,11 +685,11 @@ class DnaMarker( ChainAtomMarker):
         else:
             # moving to same position we're at now (could optimize)
             rail, index, direction = self._position_holder.pos
-            atom1, atom2 = self.marked_atom, self.next_atom        
+            atom1, atom2 = self.marked_atom, self.next_atom
             assert atom1 is rail.baseatoms[index]
-        
+
         ok_for_step1 = True
-    
+
         # semi-obs comment:
         # The atom pair we might move to is (atom1, atom2), at the relative
         # index relindex(?) from the index of self.marked_atom (in the direction
@@ -698,7 +698,7 @@ class DnaMarker( ChainAtomMarker):
         # of internal wholechain indices, if those even exist. If we had passed
         # norepeat = False and old_wholechain was a ring, this might be
         # larger than its length as we wrapped around the ring indefinitely.) ## move some to docstring of method used in caller
-        
+
         # We'll move to this new atom pair if they are adjacent in a new chain
         # found later (and consistent in bond direction if applicable? not sure).
         #
@@ -772,14 +772,14 @@ class DnaMarker( ChainAtomMarker):
 
         if self.marked_atom is self.next_atom:
             return None
-        
+
         # Note: now we know our atoms differ, which rules out length 1
         # new_wholechain, which means it will yield at least two positions
         # below each time we scan its atoms, which simplifies following code.
 
         # Simplest way to work for different rails, either or both
         # of length 1, is to try scanning in both directions.
-        
+
         try_these = [
             (rail1, baseindex1, 1),
             (rail1, baseindex1, -1),
@@ -828,7 +828,7 @@ class DnaMarker( ChainAtomMarker):
             continue # try next direction in try_these
 
         return None
-        
+
     def _f_new_pos_ok_during_move(self, new_wholechain): # 080311
         """
         [friend method, called from WholeChain.__init__ during dna_updater run]
@@ -836,7 +836,7 @@ class DnaMarker( ChainAtomMarker):
         del new_wholechain
         self._info_for_step2 = None # for debug, record no need to do more to move self
         return
-    
+
     def _f_should_be_done_with_move(self): # 080311
         """
         [friend method, called from dna_updater]
@@ -856,7 +856,7 @@ class DnaMarker( ChainAtomMarker):
 
     def DnaStrandOrSegment_class(self):
         return self._DnaStrandOrSegment_class
-    
+
     pass # end of class DnaMarker
 
 # ==

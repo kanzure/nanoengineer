@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 """
@@ -66,7 +66,7 @@ class TextRect(Widget2D):
             ## line 2
             width = int(width)
             height = int(height)
-        
+
         from graphics.drawing.texture_fonts import drawfont2
         glPushMatrix() ####k guess, not sure needed
         #e translate by margin

@@ -1,11 +1,11 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 reposition_baggage.py -- help reposition baggage atoms after real neighbor
 atoms have moved
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import math
@@ -35,7 +35,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
     (rather than already having moved) -- if so,
 
       planned_atom_nupos = (that neighbor, its planned posn),
-    
+
     and use that posn instead of its actual posn to decide what to do.
 
     @warning: we assume baggage is a subset of self.baggageNeighbors(),
@@ -74,7 +74,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None):
             # don't know if this ever happens
             # (it does happen for ghost bases created within ordinary chunks)
             self._changed_structure() # make sure dna updater runs on self
-                # (probably NOT redundant with other changes by caller)            
+                # (probably NOT redundant with other changes by caller)
         pass
     return
 
@@ -85,7 +85,7 @@ def _reposition_baggage_1(self, baggage, other, planned_atom_nupos):
     len_baggage = len(baggage)
     if not len_baggage:
         return
-    
+
     # cases handled well enough by calling code (as of 060629),
     # needing no correction here
     len_other = len(self.bonds) - len_baggage
@@ -97,7 +97,7 @@ def _reposition_baggage_1(self, baggage, other, planned_atom_nupos):
         print "bug?: %r.reposition_baggage(%r) finds no other atoms -- " \
               "nim, not thought to ever happen" % (self, baggage)
         return
-    
+
     if len_other == 1:
         # the Q(old, new) code in the callers ought to handle it properly --
         # UNLESS other is a pi_bond, and its alignment ought to affect a pair
@@ -148,7 +148,7 @@ def _reposition_baggage_1(self, baggage, other, planned_atom_nupos):
 
     bag_posns = [atom.posn() for atom in baggage]
     bagvecs = [norm(pos - selfposn) for pos in bag_posns]
-    
+
     # The alg is specific to atomtype, and number and sometimes *type* of all
     # bonds involved. We'll code the most important and/or easiest cases first.
     # Someday we might move them into methods of the atomtypes themselves.

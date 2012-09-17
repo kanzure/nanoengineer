@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 whatsthis_utilities.py
 
@@ -14,7 +14,7 @@ from PyQt4.Qt import QMenuBar
 
 import os
 
-from utilities.icon_utilities import image_directory 
+from utilities.icon_utilities import image_directory
 
 import foundation.env as env
 
@@ -23,7 +23,7 @@ from platform_dependent.PlatformDependent import is_macintosh
 _IS_MACINTOSH = is_macintosh()
 
 #bruce 051227-29 code for putting hyperlinks into most WhatsThis texts
-# (now finished enough for release, though needs testing and perhaps cleanup 
+# (now finished enough for release, though needs testing and perhaps cleanup
 # and documentation)
 
 ENABLE_WHATSTHIS_LINKS = True # also used in an external file
@@ -52,20 +52,20 @@ def fix_whatsthis_text_and_links(parent):
     as this function once did).
 
     This function does two things:
-    
+
     1. If the system is a Mac, this replaces all occurrences of 'Ctrl'
     with 'Cmd' in all the tooltip and whatsthis text for all QAction or
     QWidget objects that are children of parent.
-    
+
     2. For all systems, it replaces certain whatsthis text patterns with
     hyperlinks, and [obsolete comment] adds MyWhatsThis objects to widgets
     with text modified that way (or that might contain hyperlinks) or that
     are QPopupMenus.
 
-    This should be called after all widgets (and their whatsthis text) 
+    This should be called after all widgets (and their whatsthis text)
     in the UI have been created. It's ok, but slow (up to 0.2 seconds per call
     or more), to call it more than once on the main window. If you call it again
-    on something else, as of 060319 this would have caused bugs by clearing 
+    on something else, as of 060319 this would have caused bugs by clearing
     _objects_and_text_that_need_fixing_later, but that can be easily fixed when
     we need to support repeated calls on smaller widgets. (As of the next day,
     that global list was no longer used, and on 080509 the code to maintain it
@@ -94,7 +94,7 @@ def fix_whatsthis_text_and_links(parent):
         # Main Window, but not the main menu bar. --Mark and Tom 2007-12-19
         objList = filter(lambda x: isinstance(x, QAction), parent.children())
         for obj in objList:
-            fix_QAction_whatsthis(obj)            
+            fix_QAction_whatsthis(obj)
             continue
         pass
     if ENABLE_WHATSTHIS_LINKS:
@@ -106,11 +106,11 @@ def fix_whatsthis_text_and_links(parent):
         #  happens as of 060120)
         objList = filter(lambda x: isinstance(x, QWidget), parent.children())
             # this includes QMenuBar, QPopupMenu for each main menu and cmenu
-            # (I guess), but not menuitems themselves. (No hope of including 
+            # (I guess), but not menuitems themselves. (No hope of including
             # dynamic cmenu items, but since we make those, we could set their
-            # whatsthis text and process it the same way using separate code 
-            # (nim ###@@@).) [bruce 060120] In fact there is no menu item 
-            # class in Qt that I can find! You add items as QActions or as 
+            # whatsthis text and process it the same way using separate code
+            # (nim ###@@@).) [bruce 060120] In fact there is no menu item
+            # class in Qt that I can find! You add items as QActions or as
             # sets of attrs. QActions also don't show up in this list...
         if isinstance(parent, QWidget):
             objList.append(parent) #bruce 081209
@@ -120,15 +120,15 @@ def fix_whatsthis_text_and_links(parent):
             # but differs in several ways
             text = whatsthis_text_for_widget(obj) # could be either "" or None
             if text:
-                # in case text doesn't come from a QAction, modify it in the 
+                # in case text doesn't come from a QAction, modify it in the
                 # same ways as above, and store it again or pass it to the
-                # MyWhatsThis object; both our mods are ok if they happen 
+                # MyWhatsThis object; both our mods are ok if they happen
                 # twice -- if some hyperlink contains 'ctrl', so did the text
                 # before it got command names converted to links.
                 if _IS_MACINTOSH:
                     text = replace_ctrl_with_cmd(text)
                 text = turn_featurenames_into_links(text)
-                assert text # we'll just feed it to a MyWhatsThis object so we 
+                assert text # we'll just feed it to a MyWhatsThis object so we
                     # don't have to store it here
                 # BUG: since that was written, the code has been revised;
                 # there is no longer a class MyWhatsThis, and it's unclear
@@ -147,9 +147,9 @@ def fix_whatsthis_text_and_links(parent):
                 # usual for non-Macs, I presume
                 ismenubar = False
             if text is not None and (ismenu or ismenubar):
-                # assume any text (even if not changed here) might contain 
-                # hyperlinks, so any widget with text might need a MyWhatsThis 
-                # object; the above code (which doesn't bother storing 
+                # assume any text (even if not changed here) might contain
+                # hyperlinks, so any widget with text might need a MyWhatsThis
+                # object; the above code (which doesn't bother storing
                 # mac-modified text) also assumes we're doing this
                 # [REVIEW: what code creates such an object? Is the above
                 #  old comment still accurate? bruce 080509 questions]
@@ -162,7 +162,7 @@ def fix_whatsthis_text_and_links(parent):
 def fix_QAction_whatsthis(obj):
     """
     [public, though external calls are rare]
-    
+
     Modify the Qt whatsthis and tooltip text assigned to obj
     (which should be a QAction; not sure if that's required)
     based on whether we're running on a Macintosh (determines
@@ -208,13 +208,13 @@ def replace_ctrl_with_cmd(text):
 
 def whatsthis_text_for_widget(widget): #bruce 060120 split this out of other code
     """
-    Return a Python string containing the WhatsThis text for 
+    Return a Python string containing the WhatsThis text for
     widget (perhaps ""), or None if we can't find that.
     """
     try:
-        ## original_text = widget.whatsThis() # never works for 
+        ## original_text = widget.whatsThis() # never works for
         ##     # widgets (though it would work for QActions)
-        text = str(widget.whatsThis()) 
+        text = str(widget.whatsThis())
         #exception; don't know if it can be a QString
     except:
         # this happens for a lot of QObjects (don't know what they are), e.g.
@@ -222,40 +222,40 @@ def whatsthis_text_for_widget(widget): #bruce 060120 split this out of other cod
         return None
     else:
         return str( text or "" )
-            # note: the 'or ""' above is in case we got None (probably never 
+            # note: the 'or ""' above is in case we got None (probably never
             #  needed, but might as well be safe)
-            # note: the str() (in case of QString) might not be needed; 
+            # note: the str() (in case of QString) might not be needed;
             # during debug it seemed this was already a Python string
     pass
 
 def debracket(text, left, right): #bruce 051229 ##e refile this?
     """
     If text contains (literal substrings) left followed eventually by
-    right (without another occurrence of left),return the triple 
+    right (without another occurrence of left),return the triple
     (before, between, after)
     where before + left + between + right + after == text.
     Otherwise return None.
     """
     splitleft = text.split(left, 1)
-    if len(splitleft) < 2: 
+    if len(splitleft) < 2:
         return None # len should never be more than 2
     before, t2 = splitleft
     splitright = t2.split(right, 1)
-    if len(splitright) < 2: 
+    if len(splitright) < 2:
         return None
     between, after = splitright
     assert before + left + between + right + after == text
-    if left in between: 
+    if left in between:
         return None # not sure we found the correct 'right' in this case
     return (before, between, after)
 
-def turn_featurenames_into_links(text, savekey = None, saveplace = None): 
+def turn_featurenames_into_links(text, savekey = None, saveplace = None):
     #bruce 051229; revised/renamed 060120; save args 060121; img tags 081205
     """
     [public]
-    Given some nonempty whatsthis text, return identical or modified text 
+    Given some nonempty whatsthis text, return identical or modified text
     (e.g. containing a web help URL).
-    If savekey and saveplace are passed, and if the text contains a 
+    If savekey and saveplace are passed, and if the text contains a
     featurename, set saveplace[savekey] to that featurename.
     """
     # make all img source pathnames absolute, if they are not already.
@@ -287,7 +287,7 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None):
         PAT2 = PAT1.replace("ui/", ui_dir + '/')
         text = text.replace(PAT1, PAT2)
         pass
-        
+
     # look for words between <u><b> and </b></u> to replace with a web help link
     if text.startswith("<u><b>"): # require this at start, not just somewhere
                                   # like debracket would
@@ -295,11 +295,11 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None):
         if split1:
             junk, name, rest = split1
             featurename = name # might be changed below
-            if "[[Feature:" in rest: # it's an optim to test this first, 
-                #since usually false 
-                #Extract feature name to use in the link, when this differs 
-                #from name shown in WhatsThis text; this name is usually given 
-                #in an HTML comment but we use it w/o modifying the text 
+            if "[[Feature:" in rest: # it's an optim to test this first,
+                #since usually false
+                #Extract feature name to use in the link, when this differs
+                #from name shown in WhatsThis text; this name is usually given
+                #in an HTML comment but we use it w/o modifying the text
                 #whether or not it's in one.
                 # We use it in the link but not in the displayed WhatsThis text.
                 split2 = debracket(rest, "[[Feature:", "]]")
@@ -308,7 +308,7 @@ def turn_featurenames_into_links(text, savekey = None, saveplace = None):
                     for %r" % name
                     return text
                 junk, featurename, junk2 = split2
-            #e should verify featurename is one or more capitalized words 
+            #e should verify featurename is one or more capitalized words
             # separated by ' '; could use split, isalpha (or so) ###@@@
             if _DEBUG_WHATSTHIS_LINKS:
                 if featurename != name:

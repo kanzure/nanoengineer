@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 PixelTester.py
 
@@ -36,13 +36,13 @@ class PixelTester(InstanceOrExpr, DelegatingMixin): # ought to be InstanceMacro 
     # value
     filename = format_Expr("/tmp/%s.jpg", testname)
     delegate = SimpleColumn(
-        
+
         TextRect("saved image from PRIOR session, in blue box"), # kluge: execute this first, so we read file before writing it
         Boxed(bordercolor = blue)(
             Image(filename)
         ),
         Spacer(0.3),
-        
+
         TextRect("live widget, in purple box"),
         Boxed(bordercolor = purple)(
             PixelGrabber(testexpr, filename)

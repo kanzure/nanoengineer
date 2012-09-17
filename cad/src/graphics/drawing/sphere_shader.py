@@ -1,4 +1,4 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 sphere_shader.py - Sphere shader GLSL source code.
 
@@ -16,48 +16,48 @@ Russ 090106: Chopped the GLSL source string blocks out of gl_shaders.py .
 # ================================================================
 # == Description: GLSL shader program for sphere primitives,
 # == including optional halos.
-# 
+#
 # This raster-converts analytic spheres, defined by a center point and radius.
 # The rendered spheres are smooth, with no polygon facets.  Exact shading, Z
 # depth, and normals are calculated in parallel in the GPU for each pixel.
-# 
+#
 # It sends an eye-space ray from the view point to the sphere at each pixel.
 # Some people call that a ray-tracer, but unlike a real ray-tracer it cannot
 # send more rays through the scene to intersect other geometry for
 # reflection/refraction calculations, nor toward the lights for shadows.
-# 
-# 
+#
+#
 # == How it works:
-# 
+#
 # A bounding volume of faces may be drawn around the sphere in OpenGL, or
 # alternately a 'billboard' face may be drawn in front of the the sphere.  A
 # center point and radius are also provided as vertex attributes.  The face(s)
 # must cover at least the pixels where the sphere is to be rendered.  Clipping
 # and lighting settings are also provided to the fragment (pixel) shader.
-# 
+#
 # The view point, transformed sphere center point and radius, and a ray vector
 # pointing from the view point to the transformed vertex, are output from the
 # vertex shader to the fragment shader.  This is handled differently for
 # orthographic and perspective projections, but it is all in pre-projection
 # gl_ModelViewMatrix 'eye space', with the origin at the eye (camera) location
 # and XY coordinates parallel to the screen (window) XY.
-# 
+#
 # When perspective is on, a rotation is done as well, to keep a billboard
 # drawing pattern oriented directly toward the viewpoint.
-# 
+#
 # A 'halo' radius is also passed to the fragment shader, for highlighting
 # selected spheres with a flat disk when the halo drawing-style is selected.
-# 
+#
 # In between the vertex shader and the fragment shader, the transformed vertex
 # ray vector coords get interpolated, so it winds up being a transformed ray
 # from the view point, through the pixel on the bounding volume surface.
-# 
+#
 # The fragment (pixel) shader is called after raster conversion of primitives,
 # driven by the fixed-function OpenGL pipeline.  The sphere center and radius
 # are passed from the vertex shader as "varying" quantities.  It computes a
 # normal-sample of an analytic sphere for shading, or discards the pixel if it
 # is outside the sphere.
-# 
+#
 # In the fragment shader, the sphere radius-hit comparison is done using the
 # interpolated points and vectors.  That is, if the ray from the eye through the
 # pixel center passes within the sphere radius of the sphere center point, a
@@ -81,7 +81,7 @@ Russ 090106: Chopped the GLSL source string blocks out of gl_shaders.py .
 
 sphereVertSrc = """
 // Vertex shader program for sphere primitives.
-// 
+//
 // See the description at the beginning of this file.
 
 // Uniform variables, which are constant inputs for the whole shader execution.
@@ -100,7 +100,7 @@ uniform int n_transforms;       // number of transforms supplied (must be 0 if
                                 // conserve code and uniforms, we could put this
                                 // inside a new ifdef, SUPPORT_TRANSFORMS)
 #ifdef UNIFORM_XFORMS
-  // Transforms are in uniform (constant) memory. 
+  // Transforms are in uniform (constant) memory.
   uniform mat4 transforms[N_CONST_XFORMS]; // Must dimension at compile time.
 #endif
 #ifdef TEXTURE_XFORMS
@@ -135,7 +135,7 @@ void main(void) { // Vertex shader procedure.
     var_basecolor = override_color;
   else
     var_basecolor = color;
-  
+
   // The center point and radius are combined in one attribute: center_rad.
   vec4 center = vec4(center_rad.xyz, 1.0);
   float radius = center_rad.w;         // Per-vertex sphere radius.
@@ -161,8 +161,8 @@ void main(void) { // Vertex shader procedure.
     float mat = transform_id / float(n_transforms - 1);  // (0...N-1)=>(0...1) .
     // The second tex coord goes down the height of four vec4s for the matrix.
     xform = mat4(texture2D(transforms, vec2(0.0/3.0, mat)),
-                 texture2D(transforms, vec2(1.0/3.0, mat)), 
-                 texture2D(transforms, vec2(2.0/3.0, mat)), 
+                 texture2D(transforms, vec2(1.0/3.0, mat)),
+                 texture2D(transforms, vec2(2.0/3.0, mat)),
                  texture2D(transforms, vec2(3.0/3.0, mat)));
 # endif
     center = xform * center;
@@ -259,7 +259,7 @@ void main(void) { // Vertex shader procedure.
     eye_vert_pt = var_center_pt + drawing_radius * gl_Vertex.xyz;
 
     // Without perspective, look from the 2D pixel position, in the -Z dir.
-    var_view_pt = vec3(eye_vert_pt.xy, 0.0);  
+    var_view_pt = vec3(eye_vert_pt.xy, 0.0);
     var_ray_vec = vec3(0.0, 0.0, -1.0);
   }
 
@@ -362,13 +362,13 @@ void main(void) {  // Fragment (pixel) shader procedure.
   } else {
     // The ray hit the sphere.  Use the Pythagorian Theorem to find the
     // intersection point between the ray and the sphere, closest to us.
-    // 
+    //
     // The closest_pt and the center_pt on the sphere center plane, and the
     // intersection point between the ray and the sphere, make a right triangle.
     // The length of the hypotenuse is the distance between the center point and
     // the intersection point, and is equal to the radius of the sphere.
     intersection_height = sqrt(var_radius_sq - plane_closest_dist_sq);
-      
+
     // Nothing more to do if the intersection point is *behind* the view point
     // so we are *inside the sphere.*
     if (intersection_height > center_plane_dist)

@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 TreeModel.py - tree of nodes and rules for its appearance and behavior,
 for use in NE1 model tree
@@ -66,7 +66,7 @@ class TreeModel(TreeModel_api):
         return self._modeltree.mt_update()
 
     # == callbacks from self._modeltree.modelTreeGui to help it update the display
-    
+
     def get_topnodes(self):
         self.assy = self.win.assy #k need to save it like this?
         self.assy.tree.name = self.assy.name
@@ -100,14 +100,14 @@ class TreeModel(TreeModel_api):
             if not node in topnodes:
                 res[node] = True
         return res
-    
+
     def get_current_part_topnode(self): #bruce 070509 added this to the API
         return self.win.assy.part.topnode
-    
+
     # ===
-    
+
     # methods related to context menu -- menu maker, and handlers for each op
-    
+
     def make_cmenuspec_for_set(self, nodeset, nodeset_whole, optflag):
         """
         #doc... see superclass docstring, and the term "menu_spec"
@@ -121,7 +121,7 @@ class TreeModel(TreeModel_api):
         # All cm_duplicate methods (on individual nodes) also may need to do
         # this if they care about the selection.
         # [bruce 081218]
-        
+
         #e some advice [bruce]: put "display changes" (eg Hide) before "structural changes" (such as Group/Ungroup)...
         #e a context-menu command "duplicate" which produces
         ##a copy of them, with related names and a "sibling" position.
@@ -172,7 +172,7 @@ class TreeModel(TreeModel_api):
             res.append(( text, self.cm_deselect_partly_selected_items ))
             res.append(None)
             pass
-        
+
         # old comment, not recently reviewed/updated as of 081217:
         # first put in a Hide item, checked or unchecked. But what if the hidden-state is mixed?
         # then there is a need for two menu commands! Or, use the command twice, fully hide then fully unhide -- not so good.
@@ -185,16 +185,16 @@ class TreeModel(TreeModel_api):
         #  MT_kids, but we might also want to cover "shared members", like DnaStrandChunks,
         #  which *might* be included in both strands and segments for this purpose (in the future;
         #  shared members are NIM now).]
-        
+
         allstats = all_attrs_act_as_counters()
-        
+
         for node in nodeset:
             node_stats = all_attrs_act_as_counters()
             node.apply2all( lambda node1: mt_accumulate_stats( node1, node_stats) )
             allstats += node_stats # totals to allstats
 
         # Hide command (and sometimes Unhide)
-        
+
         # now can we figure out how much is/could be hidden, etc
         #e (later, modularize this, make assertfails only affect certain menu commands, etc)
         nleafs = allstats.n - allstats.ngroups
@@ -278,7 +278,7 @@ class TreeModel(TreeModel_api):
             #  enough already -- it's more "self-contained" than the Group command can be.)
 
             offered_ungroup = False # modified below; used by other menu items farther below
-            
+
             if len(nodeset_whole) == 1 and nodeset_whole[0].permits_ungrouping():
                 # (this implies it's a group, or enough like one)
                 node = nodeset_whole[0]
@@ -324,7 +324,7 @@ class TreeModel(TreeModel_api):
                 pass
 
             pass
-        
+
         # Edit Properties command -- only provide this when there's exactly one thing to apply it to,
         # and it says it can handle it.
         ###e Command name should depend on what the thing is, e.g. "Part Properties", "Chunk Properties".
@@ -336,12 +336,12 @@ class TreeModel(TreeModel_api):
                 res.append(( "debug._node =", self.cm_set_node ))
             else:
                 res.append(( "debug._nodeset =", self.cm_set_node ))
-        
+
         if len(nodeset) == 1 and nodeset[0].editProperties_enabled():
             res.append(( 'Edit Properties...', self.cm_properties ))
         else:
             res.append(( 'Edit Properties...', noop, 'disabled' )) # nim for multiple items
-        
+
         #ninad 070320 - context menu option to edit color of multiple chunks
         if allstats.nchunks:
             res.append(("Edit Chunk Color...", self.cmEditChunkColor))
@@ -401,7 +401,7 @@ class TreeModel(TreeModel_api):
             if submenu:
                 ## res.append(( 'other', submenu )) #e improve submenu name, ordering, location
                 res.extend(submenu) # changed append to extend -- Mark and Bruce at Retreat 050621
-            
+
             # new system, used in addition to __CM above (preferred in new code):
             # [bruce 080225]
             try:
@@ -415,7 +415,7 @@ class TreeModel(TreeModel_api):
                 submenu = []
             if submenu:
                 res.extend(submenu)
-            pass            
+            pass
 
         if nodeset_whole:
             # copy, cut, delete, maybe duplicate...
@@ -430,7 +430,7 @@ class TreeModel(TreeModel_api):
             #   when the copy command was run.
             # - I'll add Duplicate for single selected jigs which provide an appropriate method,
             #   and show it dimmed for those that don't.
-            
+
             res.append(None) # separator
 
             # figure out whether Copy would actually copy anything.
@@ -443,7 +443,7 @@ class TreeModel(TreeModel_api):
                     #bruce 060329 points out about realCopy being False vs True that at this point in the code we don't
                     # yet know whether the real copy will be made, and when we do, will_copy_if_selected
                     # might like to be re-called with True, but that's presently nim. ###@@@
-                    # 
+                    #
                     # if this test is too slow, could inline it by knowing about Jigs here; but better to speed it up instead!
                     doit = True
                     break
@@ -474,16 +474,16 @@ class TreeModel(TreeModel_api):
             # Cut (unlike Copy), and Delete, should always be ok.
             res.append(( 'Cut', self.cm_cut ))
             res.append(( 'Delete', self.cm_delete ))
-        
-        #ninad060816 added option to select all atoms of the selected chunks. 
+
+        #ninad060816 added option to select all atoms of the selected chunks.
         #I don't know how to handle a case when a whole group is selected.
         #So putting a condition allstats.nchunks == allstats.n.
         #Perhaps, I should unpick the groups while picking atoms?
-        if allstats.nchunks == allstats.n and allstats.nchunks : 
+        if allstats.nchunks == allstats.n and allstats.nchunks :
             res.append((fix_plurals("Select all atoms of %d chunk(s)" %
                                     allstats.nchunks),
                         self.cmSelectAllAtomsInChunk))
-        
+
         # add basic info on what's selected at the end
         # (later might turn into commands related to subclasses of nodes)
 
@@ -493,13 +493,13 @@ class TreeModel(TreeModel_api):
             res.append(None) # separator
 
             res.append(( "selection:", noop, 'disabled' ))
-                        
+
             if allstats.nchunks:
                 res.append(( fix_plurals("%d chunk(s)" % allstats.nchunks), noop, 'disabled' ))
-            
+
             if allstats.njigs:
                 res.append(( fix_plurals("%d jig(s)" % allstats.njigs), noop, 'disabled' ))
-            
+
             if allstats.nhidden:
                 res.append(( "(%d of these are hidden)" % allstats.nhidden, noop, 'disabled' ))
 
@@ -525,7 +525,7 @@ class TreeModel(TreeModel_api):
 ##        # need to replace it with a better breakdown of what's selected,
 ##        # incl how much under selected groups is selected. Maybe we'll add a list of major types
 ##        # of selected things, as submenus, lower down (with commands like "select only these", "deselect these").
-##        
+##
 ##        res.append(( fix_plurals("(%d selected item(s))" % len(nodeset)), noop, 'disabled' ))
 
         # for single items that have a featurename, add wiki-help command [bruce 051201]
@@ -547,14 +547,14 @@ class TreeModel(TreeModel_api):
         # todo: call statusbar_message in modeltreegui
         self.deselect_partly_picked_whole_nodes()
         self.win.win_update()
-        
+
     def cm_hide(self):
         env.history.message("Hide: %d selected items or groups" % \
                             len(self.topmost_selected_nodes()))
         #bruce 050517/081216 comment: doing self.assy.permit_pick_parts() here
         # (by me, unknown when or why) caused bug 500; removing it seems ok.
         self.assy.Hide() # includes win_update
-        
+
     def cm_unhide(self):
         env.history.message("Unhide: %d selected items or groups" % \
                             len(self.topmost_selected_nodes()))
@@ -571,7 +571,7 @@ class TreeModel(TreeModel_api):
             debug._nodeset = nodeset
             print "set debug._nodeset to list of %d items" % len(debug._nodeset)
         return
-    
+
     def cm_properties(self):
         nodeset = self.topmost_selected_nodes()
         if len(nodeset) != 1:
@@ -602,7 +602,7 @@ class TreeModel(TreeModel_api):
         # TEST if assy.part updated in time ####@@@@ -- no, change to selgroup!
         self.deselect_partly_picked_whole_nodes()
         sg = self.assy.current_selgroup()
-        node = sg.hindmost() # smallest nodetree containing all picked nodes 
+        node = sg.hindmost() # smallest nodetree containing all picked nodes
         if not node:
             env.history.message("nothing selected to Group") # should never happen
             return
@@ -675,7 +675,7 @@ class TreeModel(TreeModel_api):
         self.win.glpane.gl_update() #k needed? (e.g. for selection change? not sure.)
         self.mt_update()
         return
-    
+
     def cm_ungroup(self):
         self.deselect_partly_picked_whole_nodes()
         nodeset = self.topmost_selected_nodes()
@@ -735,26 +735,26 @@ class TreeModel(TreeModel_api):
         env.history.message( msg)
         self.mt_update()
         return
-    
+
     # copy and cut and delete are doable by tool buttons
     # so they might as well be available from here as well;
     # anyway I tried to fix or mitigate their bugs [bruce 050131]:
-    
+
     def cm_copy(self):
         self.deselect_partly_picked_whole_nodes()
         self.assy.copy_sel(use_selatoms = False) # does win_update
-    
+
     def cm_cut(self):
         self.deselect_partly_picked_whole_nodes()
         self.assy.cut_sel(use_selatoms = False) # does win_update
-    
+
     def cm_delete(self): # renamed from cm_kill which was renamed from kill
         self.deselect_partly_picked_whole_nodes()
         # note: after this point, this is now the same code as MWsemantics.killDo. [bruce 050131]
         self.assy.delete_sel(use_selatoms = False) #bruce 050505 don't touch atoms, to fix bug (reported yesterday in checkin mail)
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win.win_update()
-        
+
     def cmSelectAllAtomsInChunk(self): #Ninad060816
         """
         Selects all the atoms preseent in the selected chunk(s)
@@ -765,29 +765,29 @@ class TreeModel(TreeModel_api):
             for a in m.atoms.itervalues():
                 a.pick()
         self.win.win_update()
-    
+
     def cmEditChunkColor(self): #Ninad 070321
         """
         Edit the color of the selected chunks using the Model Tree context menu
-        """        
+        """
         nodeset = self.topmost_selected_nodes()
         chunkList = []
         #Find the chunks in the selection and store them temporarily
         for m in nodeset:
             if isinstance(m, Chunk):
                 chunkList.append(m)
-        #Following selects the current color of the chunk 
-        #in the QColor dialog. If multiple chunks are selected, 
+        #Following selects the current color of the chunk
+        #in the QColor dialog. If multiple chunks are selected,
         #it simply sets the selected color in the dialog as 'white'
         if len(chunkList) == 1:
-            m = chunkList[0]            
+            m = chunkList[0]
             if m.color:
                 m_QColor =  RGBf_to_QColor(m.color)
             else:
                 m_QColor = None
-               
+
             self.win.dispObjectColor(initialColor = m_QColor)
-        else:         
+        else:
             self.win.dispObjectColor()
 
     def cmShowOverlayText(self):
@@ -809,7 +809,7 @@ class TreeModel(TreeModel_api):
         for m in nodeset:
             if isinstance(m, Chunk):
                 m.showOverlayText = False
-        
+
 
     def cmRenameNode(self): #bruce 070531
         """
@@ -820,7 +820,7 @@ class TreeModel(TreeModel_api):
         node = nodeset[0]
         self._modeltree.modelTreeGui.rename_node_using_dialog( node) # note: this checks node.rename_enabled() first
         return
-    
+
     def cm_disable(self): #bruce 050421
         nodeset = self.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
@@ -891,7 +891,7 @@ class TreeModel(TreeModel_api):
         for node in self.assy.shelf.MT_kids()[:]: #bruce 081217 use MT_kids
             node.kill() # will this be safe even if one of these is presently displayed? ###k
         self.mt_update()
-    
+
     pass # end of class TreeModel
 
 # end

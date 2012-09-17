@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 HistoryWidget.py -- provides a Qt "megawidget" supporting our history/status area.
 
@@ -80,7 +80,7 @@ class message:
         return self.serial_number_text() + self.timestamp_text()
     def widget_text(self):
         return self.widget_text_header() + self.text
-    def widget_html(self): ###@@@ experimental. This sort of works... 
+    def widget_html(self): ###@@@ experimental. This sort of works...
         ###e also escape < > and & ? not appropriate when self.text contains html, as it sometimes does!
         # maybe it's best in the long run to just require the source messages to escape these if they need to.
         # if not, we'll need some sort of hueristic to escape them except when part of well-formatted tags.
@@ -181,21 +181,21 @@ class HistoryWidget:
             env.last_history_serno = self.last_serno
 
         self._deferred_summary_messages = {}
-        
+
         ###### User Preference initialization ##############################
-        
+
         # Get history related settings from prefs db.
         # If they are not found, set default values here.
         # The keys are located in constants.py
         # Mark 050716
         # [revised by bruce 050810; comment above is now no longer up to date]
-        
+
         #ninad 060904 modified this Still a partial implementation of NFR 843
         self.history_height = env.prefs[historyHeight_prefs_key]
 
-        
-        ###### End of User Preference initialization ########################## 
-        
+
+        ###### End of User Preference initialization ##########################
+
         if header_line == None:
             ## header_line_1 = "(running from [%s])" % os.path.dirname(os.path.abspath(sys.argv[0])) #bruce 050516
             ## header_line_2 = "session history, started at: %s" % time.asctime() #stub
@@ -212,7 +212,7 @@ class HistoryWidget:
             self._debug_init()
         self._print_msg(file_msg)
         return
-    
+
     def _init_widget(self, parent):
         """
         [private]
@@ -224,14 +224,14 @@ class HistoryWidget:
             # to support copy/paste command sequences, etc
 
         # Partial implem for NFR 843.  Need a method for updating the height of the widget. Mark 050729
-        
+
         # The minimum height of the history widget. This attr is useful
         # if self's widget-owner needs to compute its own minimum height.
         self.minimumHeight = \
             self.widget.fontMetrics().lineSpacing() * \
             self.history_height + 2 # Plus 2 pixels
         self.widget.setMinimumHeight(int(self.minimumHeight))
-        # Initialize the variable used in expanding / collapsing 
+        # Initialize the variable used in expanding / collapsing
         # the history widget.
         self._previousWidgetHeight = self.minimumHeight
 
@@ -239,23 +239,23 @@ class HistoryWidget:
         self.widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.widget.ensureCursorVisible()
         return
-    
+
     def collapseWidget(self):
         """
         Collapse the history widget.
         """
-        #Store the earlier history widget height (to be used in 
+        #Store the earlier history widget height (to be used in
         # self.expandWidget)
         self._previousWidgetHeight = self.widget.height()
         self.widget.setMaximumHeight(0)
-    
+
     def expandWidget(self):
         """
         Expand the history widget
-        """        
+        """
         self.widget.setMaximumHeight(self._previousWidgetHeight)
-        
-    
+
+
     file = None
     filename = ""
     def _init_file(self, filename, mkdirs = 0):
@@ -293,7 +293,7 @@ class HistoryWidget:
             file_msg = "(history is not being saved in any file)"
         print file_msg #e remove this soon
         return file_msg
-    
+
     def _debug_init(self):
         """
         record initial info useful for debugging
@@ -329,7 +329,7 @@ class HistoryWidget:
             # while new status messages keep pouring in.
 
     # main print method for one message
-    
+
     def _print_msg(self, msg):
         """
         Format and print one message (a string, usually not starting or
@@ -362,10 +362,10 @@ class HistoryWidget:
 
     saved_msg = saved_options = saved_transient_id = None
     saved_norepeat_id = None
-    
+
     # the main public method, typically accessed in new code as env.history.message(),
     # or in older code via the MainWindow object (e.g. win.history or w.history or self.history):
-    
+
     def message(self, msg, transient_id = None, repaint = 0, norepeat_id = None, **options):
         """
         Compatibility method -- pretend we're a statusbar and this is its "set text" call.
@@ -406,7 +406,7 @@ class HistoryWidget:
             # if we have any way to do that (e.g. related to the code that
             # automatically calls undo checkpoints then, or actually inside
             # the calling of some undo checkpoints).
-        
+
         # (quote_html and color are implemented as one of the **options, not directly in this method. [bruce 060126])
         # first emit a saved_up message, if necessary
         if self.saved_transient_id and self.saved_transient_id != transient_id:
@@ -415,7 +415,7 @@ class HistoryWidget:
             self.statusbar_msg("") # no longer show it in true statusbar
                 # (this might clear someone else's message from there; no way to avoid this
                 #  that I know of; not too bad, since lots of events beyond our control do it too)
-        
+
         # "call env.in_op() from code that runs soon after missing env.begin_op() calls" [bruce 050908]
         # (##fix: we do this after the saved-up message, but that's cheating,
         #  since non-missing begin_ops need some other way to handle that,
@@ -424,7 +424,7 @@ class HistoryWidget:
         env.in_op('(history message)') # note, this is also called for transient_id messages which get initially put into sbar...
             # is it ok if env.in_op recursively calls this method, self.message??
             # I think so, at least if subcall doesn't use transient_id option. ##k [bruce 050909]
-            
+
         # never save or emit a null msg (whether or not it came with a transient_id)
         if not msg:
             return
@@ -487,9 +487,9 @@ class HistoryWidget:
         """
         self.message(graymsg(msg), **kws)
         return
-    
+
     # ==
-    
+
     def flush_saved_transients(self):
         """
         make sure a saved-up transient message, if there is one,
@@ -511,7 +511,7 @@ class HistoryWidget:
         @param format: message format string, containing optional '[N]'.
         @type format:  string (possibly containing HTML if that is compatible
                        with fix_plurals()).
-        
+
         @param count: if provided, pretend we were called that many times,
                       i.e. count up that many occurrences. Default 1.
                       Passing 0 causes this summary message to be printed
@@ -522,7 +522,7 @@ class HistoryWidget:
         # and fix_plurals (done elsewhere), as well as metainfo like whether
         # they are errors or warnings or neither, should be done by methods
         # and attrs of those classes. (True for both regular and deferred messages.)
-        
+
         assert count >= 0 # 0 is permitted, but does have an effect
         # other code may also assume count is an int (not e.g. a float)
         self._deferred_summary_messages.setdefault( format, 0)
@@ -552,7 +552,7 @@ class HistoryWidget:
         items = self._deferred_summary_messages.items() # (format, count) pairs
         self._deferred_summary_messages = {}
         items.sort() # use format string as sorting key.
-            # TODO: use order in which messages first arrived (since last emitted). 
+            # TODO: use order in which messages first arrived (since last emitted).
             # possible todo: let message provider specify a different sorting key.
         for format, count in items:
             self._emit_one_summary_message(format, count)
@@ -571,34 +571,34 @@ class HistoryWidget:
             # rather than containing html
         self.message( msg)
         return
-    
+
     # ==
-    
+
     def statusbar_msg(self, msg_text, repaint = False):
         """
-        Show the message I{msg_text} (which must be plain text and short) in 
+        Show the message I{msg_text} (which must be plain text and short) in
         the main window's status bar. (This method is the main public way of
         doing that.)
-        
+
         This only works for plain text messages, not html. If the message is
         too long, it might make the window become too wide, perhaps off the
         screen! Thus use this with care.
-        
-        Also, the message might be erased right away by events beyond our 
+
+        Also, the message might be erased right away by events beyond our
         control. Thus this is best used only indirectly by self.message with
         transient_id option, and only for messages coming out almost
         continuously for some period, e.g. during a drag.
-        
+
         @param msg_text: The message for the status bar.
         @type  msg_text: string
-        
+
         @param repaint: Forces a repaint of the status bar with the new message.
                         This doesn't work (see comments in code).
         @param repaint: boolean
         """
         win = env.mainwindow()
         sbar = win.statusBar()
-        
+
         if msg_text:
             sbar.showMessage(msg_text)
         else:
@@ -610,11 +610,11 @@ class HistoryWidget:
             # so do this instead:
             print msg_text
         return
-    
+
     def progress_msg(self, msg_text): # Bug 1343, wware 060310
         """
         Display and/or record a progress message in an appropriate place.
-        
+
         @note: for now, the place is always a dedicated label in the statusbar,
                and these messages are never recorded. In the future this might
                be revised based on user prefs.
@@ -622,7 +622,7 @@ class HistoryWidget:
         win = env.mainwindow()
         statusBar = win.statusBar()
         statusBar._f_progress_msg(msg_text) #bruce 081229 refactoring
-    
+
     def widget_msg(self, msg, options):
         #e improved timestamp?
         #e use html for color etc? [some callers put this directly in the msg, for now]
@@ -647,7 +647,7 @@ class HistoryWidget:
                 # could indicate that not enough info is being saved there
             self._print_msg(msg2)
         return
-    
+
     def debug_print(self, fmt, *args):
         """
         Any code that wants to print debug-only notes, properly timestamped
@@ -660,7 +660,7 @@ class HistoryWidget:
         self._print_msg(msg)
 
     # inval/update methods
-    
+
     def h_update(self): # bruce 050107 renamed this from 'update'
         """
         (should be called at the end of most user events)
@@ -679,7 +679,7 @@ class HistoryWidget:
         # using a separate update event coming after other Qt events are processed,
         # but maybe something will be needed later. [bruce 041228]
         return
-    
+
     def h_update_experimental_dont_call_me(self):
         self.widget.update()
             # http://doc.trolltech.com/3.3/qwidget.html#update
@@ -689,7 +689,7 @@ class HistoryWidget:
         self.widget.repaint()
         # also not enough. what's up with it?? did it not yet get passed correct geometry info? does repaint need a rect?
         # ###@@@
-    
+
     pass # end of class HistoryWidget
 
 # end

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2005 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005 Nanorex, Inc.  See LICENSE file for details.
 # Refer to http://tinyurl.com/8zl86, the 22 Dec discussion about
 # rotary motors.
 
@@ -98,7 +98,7 @@ class RotaryController:
             T = r.cross(springForce).scale(units.radian)
             atomDragTorque += self.axis.dot(T)
         return atomDragTorque
-        
+
 
 class BoschMotor(RotaryController):
 

@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 TreeView.py -- NO LONGER USED IN Qt4 NE1
 
@@ -241,7 +241,7 @@ class TreeView(QTreeView):
 
         #self.columns = columns
         self.setItemsExpandable(True)
-        
+
         self.model = model = ModelTreeModel()
         model.rootItem.view = self
         self.setModel(model)
@@ -253,7 +253,7 @@ class TreeView(QTreeView):
         ## self.addColumn("col2") # experiment - worked, but resulted in unwanted
         ## # sort indicator in col2 (with redraw bugs) [see QHeader in Qt docs?]
         ## ... might work better if done after we've turned off sorting.
-        
+
         qt4todo('self.header().setClickEnabled(0, self.header().count() - 1) #k what\'s this?')
           # Qt doc says it's turning off the clicked signal for clicks in a certain
           # section header (which one? I don't know if count() is 1 or 2 for our one column.)
@@ -261,13 +261,13 @@ class TreeView(QTreeView):
         # [some of the following might belong in a subclass or need to be influenced by one:]
         qt4skipit('self.setGeometry(QRect(0, 0, size[0], size[1]))')
         self.setMaximumWidth(200)
-        
+
         # make a change needed by Geoff Leach [see his mail to cad 050304],
         # needed (at least back then) on his Linux system and/or Qt/PyQt installation
         # (this relates to some reported bug whose bug number I forget)
         # [bruce 050408]
         self.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Expanding))
-        
+
         qt4skipit('self.setShowToolTips(True)')
             # bruce 050109 added this; but it doesn't seem to work
 
@@ -282,7 +282,7 @@ class TreeView(QTreeView):
 
     # invalidation function for use by external code
     # (and by some internal code in subclasses)
-    
+
     def expandAll(self):
         #
         # With Qt 4.2, QTreeView will have its own expandAll method.
@@ -336,7 +336,7 @@ class TreeView(QTreeView):
         self.expandAll()
 
     # debugging functions [might as well keep the commented-out ones around for awhile]
-    
+
     _last_dprinttime_stamp = None
     def dprinttime(self):
         "call this to print a timestamp before every debug line for which the same time was never before printed"
@@ -360,7 +360,7 @@ class TreeView(QTreeView):
     # update-related functions, and related event-processing
     # (not user input events -- those should be defined in subclasses)
     # (###@@@ #e though we might want to override them here to mask QTreeView from seeing them -- but maybe no need)
-    
+
     def updateContents(self):
         if debug_prints:
             self.dprinttime()
@@ -385,7 +385,7 @@ class TreeView(QTreeView):
         p.drawEllipse(x,y,h,h)
         fudge_up = 1 # 1 for h = 9, 2 for h = 10
         p.drawLine(x+h, y+h/2 - fudge_up, x+w, y+h/2 - fudge_up)
-        
+
     def paintEvent(self, event):
         """[This (viewportPaintEvent) turns out to be the main redrawing event for a QTreeView (in Qt3) --
         not that you can tell that from the Qt docs for it.
@@ -457,7 +457,7 @@ class TreeView(QTreeView):
         for now we do.)
         """
         del paintevent
-        
+
         # heavily revised by bruce circa 050109 [from the version called mt_update]
         # and split into this method and one or more subclass methods, bruce 050120
 
@@ -476,13 +476,13 @@ class TreeView(QTreeView):
             # This can be fixed when node.tritem is replaced with a
             # per-treewidget dict from nodes to their tree items...
             # as has now been done [050119], with self.nodeItem().
-        
+
         listview = self # (would be self.widget if we were a megawidget)
 
         # subclass supplies one or more root nodes for the tree
         # [should be ok if this list is non-constant, but that's untested as of 050120]
         self.topnodes = self.get_topnodes()
-        
+
         self.topitems = [] # rebuilt below, to correspond with topnodes
 
         self.model = model = ModelTreeModel()
@@ -497,7 +497,7 @@ class TreeView(QTreeView):
             self.topitems.append(item)
 
         self.expandAll()
-        
+
         # Update open/highlighted state of all tree items [text, icon already done above]
         ###@@@ code copied below - merge?
 
@@ -505,7 +505,7 @@ class TreeView(QTreeView):
             self.update_open_selected_in_itemtree( item)
 
         self.post_update_topitems() # let subclass know about new self.topitems
-        
+
         # set the scroll position to what it ought to be
         # [bruce circa 050113. Fixes bug 177.]
         qt4todo('x, y = self.scrollpos')
@@ -514,8 +514,8 @@ class TreeView(QTreeView):
             # to be larger than needed for all items, when collapsing a group
             # which went below the visible area, so the group doesn't move on
             # screen due to QTreeView not liking empty space below the items.
-        
-        ## a note about why ensureItemVisible is not useful [bruce circa 050109]: 
+
+        ## a note about why ensureItemVisible is not useful [bruce circa 050109]:
         ##self.ensureItemVisible(self.last_selected_node.tritem)
         ## this "works", but it looks pretty bad:
         ## - there's a lot of flickering, incl of the scrollbar (disabling updates might fix that)
@@ -527,7 +527,7 @@ class TreeView(QTreeView):
     def get_topnodes(self):
         "[subclasses must override this to tell us what nodes to actually show]"
         return [] #e a better stub/testing value might be a comment node, if there is such a node class
-    
+
     def post_update_topitems(self):
         "#doc"
         pass
@@ -541,7 +541,7 @@ class TreeView(QTreeView):
         # and so far only some subclass's own event methods do incremental updates.
         # But someday we'll let ourselves be given incremental inval info (by subclass event methods, or outside code)
         # and call this from our own update function when only certain kinds of incremental invals occurred.]
-        
+
         ###@@@ this is way more work than needed -- just do it for single items in old xor new members of selitems lists!
         # we'll need to fix this to make the selection behavior look fast enough, else it'll look bad.
         for item in self.topitems:
@@ -582,7 +582,7 @@ class TreeView(QTreeView):
         return {}
 
     # basic data structure -- move this to some earlier position in the class #e
-    
+
     def set_nodeItem(self, node, item): #050119
         self._node_items[node] = item # does not destroy old item, if any!
 
@@ -659,7 +659,7 @@ class TreeView(QTreeView):
                     del _node_items[node]
 
     # update helpers; will want some revision but this is not urgent I think #e
-    
+
     def make_new_subtree_for_node(self, node, parent, nodeParent, display_prefs = {}, after = None):
         """Make one or more new treeitems (ModelTreeItems) in this treewidget (a QTreeView),
         as needed to display the given node under the given parent
@@ -709,7 +709,7 @@ class TreeView(QTreeView):
         rename - whether to enable in-place editing of the name
         some of these args might be replaced by computations we do here or in sole caller ###@@@ do it all
         ####@@@redoc below
-        after - None, or another listview item we come after 
+        after - None, or another listview item we come after
         .. .must add to nodes: options to specify dnd, rename, icon(openness).
         NOTE: it does not add in the kids! that must be done by upMT. and only if the item should be open.
         """
@@ -731,16 +731,16 @@ class TreeView(QTreeView):
 
 # everything after this: new methods by bruce 050108-050110, many temporary,
 # as I tease apart mtree and Utility to have a clean boundary ###@@@
-    
+
     ###@@@@ the following should be rewritten to scan item tree, not node tree...
         # then maybe it would not matter if item.parent ~= node.dad.
         # so it'd work for viewdata nodes even if we don't make that correspondence strict.
-        
+
     def update_open_selected_in_itemtree(self, item, do_setOpen = True, do_invisible_nodes = True):
         ###@@@ change to also update text, icon? anything but structure... rename??
         ###@@@ this implem is temporary and wrong:
         self.update_items_from_nodes_open_selected(item.object, do_setOpen = do_setOpen, do_invisible_nodes = do_invisible_nodes)
-        
+
     def update_items_from_nodes_open_selected(self, node, _guard_ = None, do_setOpen = True, do_invisible_nodes = True):
         # bruce 050110 temporary; deprecated, only call from above method and not for long! ###@@@
         """set the properties in the model tree widget to match
@@ -793,7 +793,7 @@ class TreeView(QTreeView):
             for kid in node.members: ###@@@ for viewdata guys, use kids_if_open
                 self.update_items_from_nodes_open_selected(kid, do_setOpen = do_setOpen)
         return
-    
+
     pass # end of class TreeView
 
 # end

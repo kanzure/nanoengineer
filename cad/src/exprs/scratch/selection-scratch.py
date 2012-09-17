@@ -1,11 +1,11 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 
 code file on selection or region selection?
 
 idea: a simple semantics for region selection,
-if "touches all of the drawn stuff" or "any part of it" is too hard 
+if "touches all of the drawn stuff" or "any part of it" is too hard
 (which it is, for most things except simple shapes),
 is "touches all of (or any of) the object's control points".
 

@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 DraggableHandle.py - some convenience exprs for draggable handles
 
@@ -42,7 +42,7 @@ class DraggableHandle_AlongLine(DelegatingInstanceOrExpr): ### TODO: all options
     Maybe we need to synthesize those (from the doc options below) into a fake __init__ method for its sake??
     """
     # == args and options
-    
+
     # options for appearance of handle
     appearance = Option( Drawable,
                          Center(Rect(0.2, 0.2, white)),
@@ -67,14 +67,14 @@ class DraggableHandle_AlongLine(DelegatingInstanceOrExpr): ### TODO: all options
     on_release_in = Option(Action, on_release)
     on_release_out = Option(Action, on_release)
     on_doubleclick = Option(Action)
-        
+
     # line along which to drag it, and how to interpret the state as a position along that line (origin and scale)
     origin = Option( Point, ORIGIN)
     direction = Option( Vector, DX, doc = "vector giving direction and scale")
         # providing a default value is mainly just for testing
-        
-    #If this is false, the 'highlightable' object i.e. this handle 
-    #won't be drawn. The delegate (that defines a Highlightable) 
+
+    #If this is false, the 'highlightable' object i.e. this handle
+    #won't be drawn. The delegate (that defines a Highlightable)
     #We define an If_expr to check whether to draw the highlightable object.
     #[by Ninad]
     # [this should probably be revised, with hasValidParamsForDrawing replaced
@@ -82,10 +82,10 @@ class DraggableHandle_AlongLine(DelegatingInstanceOrExpr): ### TODO: all options
     #  is suspected of causing tracebacks from insufficient update of this
     #  state. Need to review whether methodname needs to be hasValidParamsForDrawing
     #  to conform with any API. -- bruce 080409 comment]
-    should_draw = State(bool, True) 
+    should_draw = State(bool, True)
 
     # == internal instances and formulae (modified from test_statearray_3.py)
-    
+
     _drag_handler = Instance( DragBehavior_AlongLine(
         _self._delegate,
         height_ref,
@@ -116,10 +116,10 @@ class DraggableHandle_AlongLine(DelegatingInstanceOrExpr): ### TODO: all options
                 # (note: no need to pass on_release)
                 on_release_in = _self.on_release_in,
                 on_release_out = _self.on_release_out,
-                on_doubleclick = _self.on_doubleclick            
+                on_doubleclick = _self.on_doubleclick
             ) #end of Highlightable
         ) #end of If_expr
-    
+
     def hasValidParamsForDrawing(self):
         """
         Overridden in subclasses. Default implementation returns True
@@ -129,5 +129,5 @@ class DraggableHandle_AlongLine(DelegatingInstanceOrExpr): ### TODO: all options
         """
         self.should_draw = True
         return self.should_draw
- 
+
     pass # end of class

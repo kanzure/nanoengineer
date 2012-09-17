@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 controls.py - some simple controls, like ChoiceButton, ChoiceColumn/Row, checkbox_v3
 
@@ -90,7 +90,7 @@ class ChoiceButton(InstanceMacro):
         # Maybe, but not by saying _self! _this(ChoiceButton) == _my? [yes -- _my is now implemented, 061205]
 
     background = ArgOrOption(stubtype, Rect(_self.width, _self.height, lightblue) ) # Widget2D, or color (used in Rect a bit larger than content)
-    
+
     background_off = ArgOrOption(stubtype, Spacer(_self.width, _self.height)) # ditto, defaults to transparent
         ##k problem: what we want is to compute an lbox and then use this here in the spacer... or align the content... or ....
         ##e note that a lot of people find it more convenient to pass around a size, or even pass around a rect,
@@ -148,7 +148,7 @@ class _Apply_helper(InstanceOrExpr, DelegatingMixin):
     def _i_grabarg_0( self, attr, argpos, dflt_expr):
         external_flag, res0 = super(_Apply_helper, self)._i_grabarg_0( attr, argpos, dflt_expr)
         if argpos == 0:
-            ## print "using False for extflag in %r from _i_grabarg_0%r" % ( (external_flag, res0), (self, attr, argpos, dflt_expr) ) 
+            ## print "using False for extflag in %r from _i_grabarg_0%r" % ( (external_flag, res0), (self, attr, argpos, dflt_expr) )
             external_flag = False # special case for arg[0]: treat _self as internal, so it refers to our instance, not caller's
         return external_flag, res0
     pass
@@ -230,7 +230,7 @@ class ChoiceRow_class(InstanceMacro): # stub, nim
 
 checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 * PIXELS, 21 * PIXELS)) # a pure expr
     # WARNING: dup code & comment with tests.py, WHICH PROBABLY IMPORTS * from here
-    
+
     # note, IconImage ought to use orig size in pixels but uses 22x22,
     # and ought to display with orig size but doesn't -- all those image options need reform, as its comments already know ###e
 
@@ -387,7 +387,7 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
     # what it looks like while we're redrawing (after finishing its internal effects):
     incr_drawable_done = Instance( SimpleRow( highlighted_button( bordercolor = yellow), pixelgap = 0.5)) # label not needed here
         # yellow means done -- not sure makes sense -- note green means "can do" in some controls
-    
+
     def doit(self):
         """This runs when the user clicks on the button.
         WARNING: it's NOT just self.do_action() (the public method self's clients, like scripts, can call to do the same action) --
@@ -479,7 +479,7 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
     pass # end of class ActionButton
 
 PrintAction = print_Expr ###e refile (both names if kept) into an actions file
-    
+
 """
 1. Subject: where i am g5 504p; highlight/text debug ideas
 

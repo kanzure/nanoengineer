@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 files_mmp.py -- reading MMP files
 
@@ -125,7 +125,7 @@ KNOWN_INFO_KINDS = (
 # values depend on the assy being read into (a good thing to do in principle)
 # and ask the assy to map these names to classes). [bruce 080115/080310]
 
-_GROUP_CLASSIFICATIONS = { 
+_GROUP_CLASSIFICATIONS = {
     'DnaGroup'         : DnaGroup,
     'DnaSegment'       : DnaSegment,
     'DnaStrand'        : DnaStrand,
@@ -142,7 +142,7 @@ _GROUP_CLASSIFICATIONS = {
 
 _name_pattern = re.compile(r"\(([^)]*)\)")
     # this has a single pattern group which matches a parenthesized string
-    
+
 old_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 new_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 namedviewpat = re.compile("namedview \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
@@ -154,24 +154,24 @@ atom1pat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 ##atom2pat = re.compile("atom \d+ \(\d+\) \(.*\) (\S\S\S)")
 atom2pat = re.compile("atom \d+ \(\d+\) \(.*\) (\w+)") # \w == [a-zA-Z0-9_]
 
-# Old Rotary Motor record format: 
+# Old Rotary Motor record format:
 # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
 old_rmotpat = re.compile("rmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 
-# New Rotary Motor record format: 
+# New Rotary Motor record format:
 # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az) length radius spoke_radius
 new_rmotpat = re.compile("rmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 
-# Old Linear Motor record format: 
+# Old Linear Motor record format:
 # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
 old_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 
-# New Linear Motor record format: 
+# New Linear Motor record format:
 # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az) length width spoke_radius
 new_lmotpat = re.compile("lmotor \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+), (-?\d+), (-?\d+)\) \((-?\d+), (-?\d+), (-?\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 
 #Grid Plane record format:
-#gridplane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb) 
+#gridplane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb)
 gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (\d+) (\d+) (-?\d+\.\d+) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\)")
 
 #Plane record format:
@@ -179,7 +179,7 @@ gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\
 plane_pat = re.compile("plane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)")
 
 # ESP Image record format:
-# espimage (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
+# espimage (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset
 ## esppat = re.compile("espimage \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 #bruce 060207 generalize pattern so espwindow is also accepted (to help fix bug 1357); safe forever, but can be removed after A7
 esppat = re.compile("[a-z]* \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
@@ -236,7 +236,7 @@ _MMP_FORMAT_VERSION_WE_CAN_READ__MOST_CONSERVATIVE = '050920 required; 080321 pr
 def _mmp_format_version_we_can_read(): # bruce 080328, revised 080410 (should it be a method?)
     from utilities.GlobalPreferences import debug_pref_read_bonds_compactly
     from utilities.GlobalPreferences import debug_pref_read_new_display_names
-    
+
     if debug_pref_read_bonds_compactly() and debug_pref_read_new_display_names():
         # this is the default, as of 080328, still true 080410 and for upcoming
         # release of NE1 1.0.0; revised to a newer one, 080523, 080529
@@ -294,7 +294,7 @@ class _readmmp_state:
     prevcard = None # used in reading atoms and bonds [TODO: doc, make private]
     prevchunk = None # the current Chunk being built, if any [renamed from self.mol, bruce 071023]
     prevmotor = None # the last motor jig read, if any (used by shaft record)
-    
+
     def __init__(self, assy, isInsert):
         self.assy = assy
             #bruce 060117 comment: self.assy is only used to pass to Node constructors (including _MarkerNode),
@@ -359,7 +359,7 @@ class _readmmp_state:
     def bug_error(self, msg):
         msg = quote_html(msg)
         env.history.message( redmsg( "Bug: " + msg))
-    
+
     def readmmp_line(self, card):
         """
         returns None, or error msg(#k), or raises exception
@@ -384,10 +384,10 @@ class _readmmp_state:
     def _find_linemethod(self, recordname):
         """
         [private]
-        
+
         Look for a method for parsing one mmp file line
         which starts with recordname.
-        
+
         @return: the tuple (linemethod, errmsg), where linemethod is a callable
                  which takes one argument (the entire line ### with \n or not??)
                  and returns None or an error message string, and errmsg is
@@ -396,9 +396,9 @@ class _readmmp_state:
         """
         errmsg = None # will be changed below if an error message is needed
         linemethod = None # will be changed below when an mmp-line parser method is found
-        
+
         # first look for a registered parser for this recordname
-        
+
         parser = self._find_registered_parser_object(recordname)
         if parser:
             linemethod = parser.read_record
@@ -472,7 +472,7 @@ class _readmmp_state:
             # Note: I'm not sure it's safe/good to pass an assy argument
             # to this gensym, and I also think this probably never happens,
             # so it's best to be safe and not pass one. [bruce 080407 comment]
-    
+
     def get_decoded_name_and_rest(self, card, default = None): #bruce 080115
         """
         Get the object name from an mmp record line
@@ -480,16 +480,16 @@ class _readmmp_state:
         (as an encoded parenthesized string immediately after the recordname).
         Return the tuple ( decoded name, stripped rest of record),
         or ( default, "" ) if the record line has the wrong format.
-        
+
         @param card: the entire mmp record
         @type card: string
-        
+
         @param default: what to return for the name (or pass to gensym
                         if a string) if the record line
                         has the wrong format; default value is None
                         (typically an error in later stages of the caller)
         @type default: anything, usually string or None
-        
+
         @return: ( decoded name, stripped rest of record )
         @rtype: tuple of (string, string)
 
@@ -513,7 +513,7 @@ class _readmmp_state:
                 name = default
             rest = ""
         return ( name, rest)
-    
+
     def decode_name(self, name): #bruce 050618 part of fixing part of bug 474
         """
         Invert the transformation done by the writer's encode_name method.
@@ -525,7 +525,7 @@ class _readmmp_state:
 
     # the remaining methods are parsers for specific records (soon to be split out
     # and registered -- bruce 071017), mixed with helper functions for their use
-    
+
     def _read_group(self, card): # group: begins any kind of Group
         """
         Read the mmp record which indicates the beginning of a Group object
@@ -534,7 +534,7 @@ class _readmmp_state:
         Subsequent mmp records (including nested groups)
         will be read as members of this group,
         until a matching egroup record is read.
-        
+
         @see: self._read_egroup
         """
         #bruce 080115 generalized this to use or save group classifications
@@ -565,9 +565,9 @@ class _readmmp_state:
         """
         Read the mmp record which indicates the end of a Group object
         (for Group or any of its specialized subclasses).
-        
+
         @see: self._read_group
-        """        
+        """
         name = self.get_name(card, "Grp")
         assert name is not None
         name = self.decode_name(name)
@@ -579,7 +579,7 @@ class _readmmp_state:
             # note, unlike old code we've already popped a group; shouldn't matter [bruce 050405]
             return "mismatched group records: egroup %r tried to match group %r" % (name, curname)
         return None # success
-    
+
     def _read_mol(self, card): # mol: start a Chunk
         name = self.get_name(card, "Mole")
         name = self.decode_name(name)
@@ -630,19 +630,19 @@ class _readmmp_state:
 
     def _read_bond1(self, card):
         return self.read_bond_record(card, V_SINGLE)
-        
+
     def _read_bond2(self, card):
         return self.read_bond_record(card, V_DOUBLE)
-        
+
     def _read_bond3(self, card):
         return self.read_bond_record(card, V_TRIPLE)
-        
+
     def _read_bonda(self, card):
         return self.read_bond_record(card, V_AROMATIC)
-        
+
     def _read_bondg(self, card):
         return self.read_bond_record(card, V_GRAPHITE)
-        
+
     def _read_bondc(self, card): #bruce 050920 added this
         return self.read_bond_record(card, V_CARBOMERIC)
 
@@ -722,7 +722,7 @@ class _readmmp_state:
             if pointer < len(sequence):
                 assert 0, "extra sequence info: only %d of %d chars were assigned from %r" % \
                        (pointer, len(sequence), card)
-            pass    
+            pass
         return
 
     def _read_dna_rung_bonds(self, card): #bruce 080328
@@ -760,7 +760,7 @@ class _readmmp_state:
         res = [self.ndix[code] for code in range(start, end+1)]
             # that will fail if any atom in that range wasn't yet read
         return res
-    
+
     # == jig reading methods.
 
     # Note that there are at least three different ways various jigs handle
@@ -771,7 +771,7 @@ class _readmmp_state:
     # This ought to be cleaned up sometime.
     # See also self.read_new_jig, which is the beginning of a partial cleanup.
     # [bruce 080227 comment]
-    
+
     # Read the MMP record for a Rotary Motor as either:
     # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az) length, radius, spoke_radius
     # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
@@ -810,7 +810,7 @@ class _readmmp_state:
         list1 = map(int, re.findall("\d+", card[6:]))
         list1 = map((lambda n: self.ndix[n]), list1)
         self.prevmotor.setShaft(list1)
-          
+
     # Read the MMP record for a Linear Motor as:
     # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az) length, width, spoke_radius
     # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
@@ -844,69 +844,69 @@ class _readmmp_state:
     def _read_gridplane(self, card):
         """
         Read the MMP record for a Grid Plane jig as:
-        
-        gridplane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb) 
+
+        gridplane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb)
         """
         m = gridplane_pat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
         border_color = map(lambda (x): int(x) / 255.0, [m.group(2), m.group(3), m.group(4)])
-        width = float(m.group(5)); height = float(m.group(6)); 
+        width = float(m.group(5)); height = float(m.group(6));
         center = A(map(float, [m.group(7), m.group(8), m.group(9)]))
         quat = A(map(float, [m.group(10), m.group(11), m.group(12), m.group(13)]))
         grid_type = int(m.group(14)); line_type = int(m.group(15)); x_space = float(m.group(16)); y_space = float(m.group(17))
         grid_color = map(lambda (x): int(x) / 255.0, [m.group(18), m.group(19), m.group(20)])
-        
+
         gridPlane = GridPlane(self.assy, [], READ_FROM_MMP = True)
         gridPlane.setProps(name, border_color, width, height, center, quat, grid_type, \
                            line_type, x_space, y_space, grid_color)
         self.addmember(gridPlane)
-    
+
     #Read mmp record for a Reference Plane
     def _read_plane(self, card):
         """
         Read the MMP record for a Reference Plane as:
 
-        plane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z) 
+        plane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z)
         """
         m = plane_pat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
-        #border_color = color of the border for front side of the reference plane. 
+        #border_color = color of the border for front side of the reference plane.
         #user can't set it for now. -- ninad 20070104
         border_color = map(lambda (x): int(x) / 255.0, [m.group(2), m.group(3), m.group(4)])
-        width = float(m.group(5)); height = float(m.group(6)); 
+        width = float(m.group(5)); height = float(m.group(6));
         center = A(map(float, [m.group(7), m.group(8), m.group(9)]))
         quat = A(map(float, [m.group(10), m.group(11), m.group(12), m.group(13)]))
-        
-        #@@HACK: Plane.setProps() accepts a tuple that must also contain values 
-        #for the grid related attrs such as gridColor, gridLineType etc. 
-        #But as of 2008-06-25 those (new) attrs are set using self.set_info_object 
-        #(see Plane.readmmp_info_plane_setitem)  because they are a part of 
+
+        #@@HACK: Plane.setProps() accepts a tuple that must also contain values
+        #for the grid related attrs such as gridColor, gridLineType etc.
+        #But as of 2008-06-25 those (new) attrs are set using self.set_info_object
+        #(see Plane.readmmp_info_plane_setitem)  because they are a part of
         #'info' record (which allows upward and backword compatibility for reading
-        #mmp files of different versions.) There is a spacial (old) code 
-        # to handle those info records. To satisfy that code as well as the 
-        #Plane.setProps() API method, we do the following -- 1. We pass 'None' 
-        #for the items, in the  'props' tuple that are a part of info record 
+        #mmp files of different versions.) There is a spacial (old) code
+        # to handle those info records. To satisfy that code as well as the
+        #Plane.setProps() API method, we do the following -- 1. We pass 'None'
+        #for the items, in the  'props' tuple that are a part of info record
         #2. Note that the info record will be read afterwords in this method
-        #3. Plane.setProps takes extra precaution to check if the passed 
+        #3. Plane.setProps takes extra precaution to check if the passed
         #parameter is None (and set its attrs only when that param is not None)
         # --  Ninad 2008-06-25
-        gridColor = None        
+        gridColor = None
         gridLineType = None
         gridXSpacing = None
         gridYSpacing = None
         originLocation = None
         displayLabelStyle = None
-        
+
         plane = Plane(self.assy.w, READ_FROM_MMP = True)
-        props = (name, border_color, width, height, center, quat,  
-                 gridColor, gridLineType, gridXSpacing, gridYSpacing, 
+        props = (name, border_color, width, height, center, quat,
+                 gridColor, gridLineType, gridXSpacing, gridYSpacing,
                  originLocation, displayLabelStyle)
         plane.setProps(props)
         self.addmember(plane)
-        
-        #This sets the Plane attrs such as gridColor, gridLineType etc. 
+
+        #This sets the Plane attrs such as gridColor, gridLineType etc.
         self.set_info_object('plane', plane)
 
     # Read the MMP record for a Atom Set as:
@@ -923,17 +923,17 @@ class _readmmp_state:
         card = card[card.index(")") + 1:] # skip past the color field
         list1 = map(int, re.findall("\d+", card[card.index(")") + 1:]))
         list1 = map((lambda n: self.ndix[n]), list1)
-        
+
         atomset = AtomSet(self.assy, list1) # create atom set and set props
         atomset.name = name
         atomset.color = col
         self.addmember(atomset)
-        
+
     def _read_espimage(self, card):
         """
         Read the MMP record for an ESP Image jig as:
 
-        espimage (name) (r, g, b) width height resolution (cx, cy, cz) 
+        espimage (name) (r, g, b) width height resolution (cx, cy, cz)
         (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset.
         """
         m = esppat.match(card)
@@ -947,7 +947,7 @@ class _readmmp_state:
         fill_color = map(lambda (x): int(x) / 255.0, [m.group(16), m.group(17), m.group(18)])
         show_bbox = int(m.group(19))
         win_offset = float(m.group(20)); edge_offset = float(m.group(21))
-        
+
         espImage = ESPImage(self.assy, [], READ_FROM_MMP = True)
         espImage.setProps(name, border_color, width, height, resolution, center, quat, trans, fill_color, show_bbox, win_offset, edge_offset)
         self.addmember(espImage)
@@ -960,7 +960,7 @@ class _readmmp_state:
         #bruce 060207 help fix bug 1357 (read older mmprecord for ESP Image, for compatibility with older bug report attachments)
         # (the fix also required a change to esppat)
         # (this can be removed after A7 is released, but for now it's convenient to have it so old bug reports remain useful)
-    
+
     # Read the MMP record for a Ground (Anchor) as:
     # ground (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 
@@ -975,7 +975,7 @@ class _readmmp_state:
         card = card[card.index(")") + 1 :] # skip past the color field
         list1 = map(int, re.findall("\d+", card[card.index(")") + 1 :]))
         list1 = map((lambda n: self.ndix[n]), list1)
-        
+
         gr = Anchor(self.assy, list1) # create ground and set props
         gr.name = name
         gr.color = col
@@ -1042,7 +1042,7 @@ class _readmmp_state:
         """
         Helper method to read any sort of sufficiently new jig from an mmp file
         and add it to self.assy using self.addmember.
-        
+
         Args are:
         card - the mmp file line.
         constructor - function that takes assy and atomlist and makes a new jig, without putting up any dialog.
@@ -1052,7 +1052,7 @@ class _readmmp_state:
         recordname, rest = card.split(None, 1)
         del recordname
         card = rest
-        
+
         m = jigpat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
@@ -1067,17 +1067,17 @@ class _readmmp_state:
         card = card[card.index(")") + 1:] # skip past the color field
         list1 = map(int, re.findall("\d+", card[card.index(")") + 1:]))
         list1 = map((lambda n: self.ndix[n]), list1)
-        
+
         jig = constructor(self.assy, list1) # create jig and set some properties -- constructor must not put up a dialog
         jig.name = name
         jig.color = col
             # (other properties, if any, should be specified later in the file by some kind of "info" records)
         self.addmember(jig)
         return jig
-        
+
     # Read the MMP record for a Thermostat as:
     # stat (name) (r, g, b) (temp) first_atom last_atom box_atom
-    
+
     def _read_stat(self, card):
         m = statpat.match(card)
         name = m.group(1)
@@ -1090,21 +1090,21 @@ class _readmmp_state:
         card = card[card.index(")") + 1:] # skip past the color field
         card = card[card.index(")") + 1:] # skip past the temp field
         list1 = map(int, re.findall("\d+", card[card.index(")") + 1:]))
-        
-        # We want "list1" to contain only the 3rd item, so let's remove 
+
+        # We want "list1" to contain only the 3rd item, so let's remove
         # first_atom (1st item) and last_atom (2nd item) in list1.
-        # They will get regenerated in the Thermo constructor.  
+        # They will get regenerated in the Thermo constructor.
         # Mark 050129
         if len(list1) > 2:
             del list1[0:2]
-        
+
         # Now remove everything else from list1 except for the boxed_atom.
         # This would happen if we loaded an old part with more than 3 atoms listed.
         if len(list1) > 1:
             del list1[1:]
             msg = "a thermostat record was found (" + name + ") in the part which contained extra atoms.  They will be ignored."
             self.warning(msg)
-            
+
         list1 = map((lambda n: self.ndix[n]), list1)
 
         sr = Stat(self.assy, list1) # create stat and set props
@@ -1115,7 +1115,7 @@ class _readmmp_state:
 
     # Read the MMP record for a Thermometer as:
     # thermo (name) (r, g, b) first_atom last_atom box_atom
-            
+
     def _read_thermo(self, card):
         m = thermopat.match(card)
         name = m.group(1)
@@ -1126,34 +1126,34 @@ class _readmmp_state:
         # Read in the list of atoms
         card = card[card.index(")") + 1:] # skip past the color field
         list1 = map(int, re.findall("\d+", card[card.index(")") + 1:]))
-        
-        # We want "list1" to contain only the 3rd item, so let's remove 
+
+        # We want "list1" to contain only the 3rd item, so let's remove
         # first_atom (1st item) and last_atom (2nd item) in list1.
-        # They will get regenerated in the Thermo constructor.  
+        # They will get regenerated in the Thermo constructor.
         # Mark 050129
         if len(list1) > 2:
             del list1[0:2]
-        
+
         # Now remove everything else from list1 except for the boxed_atom.
         # This would happen if we loaded an old part with more than 3 atoms listed.
         if len(list1) > 1:
             del list1[1:]
             msg = "a thermometer record was found in the part which contained extra atoms.  They will be ignored."
             self.warning(msg)
-            
+
         list1 = map((lambda n: self.ndix[n]), list1)
 
         sr = Thermo(self.assy, list1) # create stat and set props
         sr.name = name
         sr.color = col
         self.addmember(sr)
-    
+
     def _read_namedview(self, card):
         """
         Read the MMP record for a I{namedview} as:
 
         namedview (name) (quat.w, quat.x, quat.y, quat.z) (scale) (pov.x, pov.y, pov.z) (zoom factor)
-        
+
         @note: Currently, "namedview" records are treated as an alias for the
         "csys" record. The writer NamedView.writemmp() will switch to writing
         "namedview" records (instead of "csys") soon.
@@ -1164,9 +1164,9 @@ class _readmmp_state:
         # This means we can now ignore the isInsert flag and always return
         # these records. Finally, I'll return them all, not just the ones with
         # special names we recognize (the prior code only called self.addmember
-        # if the namedview name was HomeView or LastView); caller can detect 
-        # those special names when it needs to.       
-        m = namedviewpat.match(card)      
+        # if the namedview name was HomeView or LastView); caller can detect
+        # those special names when it needs to.
+        m = namedviewpat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
         wxyz = A(map(float, [m.group(2), m.group(3), m.group(4), m.group(5)]))
@@ -1174,18 +1174,18 @@ class _readmmp_state:
         pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
         zoomFactor = float(m.group(10))
         namedView = NamedView(self.assy, name, scale, pov, zoomFactor, wxyz)
-        self.addmember(namedView) 
+        self.addmember(namedView)
             # regardless of name; no side effects on assy (yet) for any name,
             # though later code will recognize the names HomeView and LastView
             # and treat them specially.
             # (050421 extension: also some related names, for Part views)
-                
+
     def _read_csys(self, card): # csys -- really a named view.
         """
         Read the MMP record for a I{csys} as:
-        
+
         csys (name) (quat.w, quat.x, quat.y, quat.z) (scale) (pov.x, pov.y, pov.z) (zoom factor)
-        
+
         @note: Currently, "namedview" records are treated as an alias for the
         "csys" record. The writer NamedView.writemmp() will switch to writing
         "namedview" records (instead of "csys") soon.
@@ -1199,10 +1199,10 @@ class _readmmp_state:
         # if the csys name was HomeView or LastView); caller can detect those
         # special names when it needs to.
         ## if not self.isInsert: #Skip this record if inserting
-        ###Huaicai 1/27/05, new file format with home view 
-        ### and last view information        
+        ###Huaicai 1/27/05, new file format with home view
+        ### and last view information
         m = new_csyspat.match(card)
-        if m:        
+        if m:
             name = m.group(1)
             name = self.decode_name(name)
             wxyz = A(map(float, [m.group(2), m.group(3),
@@ -1211,9 +1211,9 @@ class _readmmp_state:
             pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
             zoomFactor = float(m.group(10))
             namedView = NamedView(self.assy, name, scale, pov, zoomFactor, wxyz)
-            self.addmember(namedView) 
+            self.addmember(namedView)
                 # regardless of name; no side effects on assy (yet) for any
-                # name, though later code will recognize the names HomeView and 
+                # name, though later code will recognize the names HomeView and
                 # LastView and treat them specially
                 # (050421 extension: also some related names, for Part views)
         else:
@@ -1243,16 +1243,16 @@ class _readmmp_state:
 
     def addmember(self, thing): #bruce 050405 split this out
         self.groupstack[-1].addchild(thing)
-        
+
     def _read_waals(self, card): # waals -- van der Waals Interactions
         pass # code was wrong -- to be implemented later
-        
+
     def _read_kelvin(self, card): # kelvin -- Temperature in Kelvin (simulation parameter)
         if not self.isInsert: # Skip this record if inserting
             m = re.match("kelvin (\d+)", card)
             n = int(m.group(1))
             self.assy.temperature = n
-            
+
     def _read_mmpformat(self, card): # mmpformat -- MMP File Format. Mark 050130
         # revised by bruce 080328
         m = re.match("mmpformat (.*)", card)
@@ -1297,14 +1297,14 @@ class _readmmp_state:
 
     def _read_end(self, card): # end -- end of file
         pass
-    
+
     def _read_info(self, card):
         #bruce 050217 new mmp record, for optional info about
         # various types of objects which occur earlier in the file
         # (what I mean by "optional" is that it's never an error for the
         #  specified type of thing or type of info to not be recognized,
         #  as can happen when a new file is read by older code)
-        
+
         # Find current chunk -- how we do this depends on details of
         # the other mmp-record readers in this big if/elif statement,
         # and is likely to need changing sometime. It's self.prevchunk.
@@ -1315,7 +1315,7 @@ class _readmmp_state:
             leaf = ([None] + self.groupstack[-1].members)[-1], #bruce 050421
             atom = self.prevatom, #bruce 050511
         )
-        currents.update( self._info_objects) #bruce 071017 
+        currents.update( self._info_objects) #bruce 071017
         interp = mmp_interp(self.ndix, self.markers) #e could optim by using the same object each time [like 'self']
         readmmp_info(card, currents, interp) # has side effect on object referred to by card
         return
@@ -1327,7 +1327,7 @@ class _readmmp_state:
             print_compact_stack( "warning: unrecognized info kind, %r: " % (kind,) )
         self._info_objects[kind] = model_component
         return
-    
+
     def _read_forward_ref(self, card):
         """
         forward_ref (%s) ...
@@ -1377,7 +1377,7 @@ class _readmmp_state:
             if len(self.sim_input_badnesses_so_far) > 1:
                 self.format_error("the prior warnings should not appear together for the same file")
         return
-    
+
     pass # end of class _readmmp_state
 
 # helper for forward_ref
@@ -1403,7 +1403,7 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
     # which would occur if they imported them directly from this file
     decode_atom_coordinate = staticmethod( decode_atom_coordinate)
     decode_atom_coordinates = staticmethod( decode_atom_coordinates)
-    
+
     def __init__(self, ndix, markers):
         self.ndix = ndix # maps atom numbers to atoms (??)
         self.markers = markers
@@ -1511,7 +1511,7 @@ _readmmp_aborted = False
 
 _reference_to_readmmp_abort_function = None #bruce 080606 precaution
 
-def _readmmp(assy, filename, isInsert = False, showProgressDialog = False): 
+def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     """
     Read an mmp file, print errors and warnings to history,
     modify assy in various ways (a bad design, see comment in insertmmp)
@@ -1522,23 +1522,23 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     "viewdata", "tree", "shelf", regardless of how many toplevel items were
     in the file, or of whether they were groups.
     (We handle normal mmp files with exactly those 3 groups, old sim-input
-    files with only the first two, and newer sim-input files for Parts 
-    (one group) or for minimize selection (maybe no groups at all). And most 
+    files with only the first two, and newer sim-input files for Parts
+    (one group) or for minimize selection (maybe no groups at all). And most
     other weird kinds of mmp files someone might create.)
 
     @warning: the optional arguments are sometimes passed positionally.
-    
+
     @param assy: the assembly the file contents are being added into
     @type  assy: assembly.assembly
-    
+
     @param filename: where the data will be read from
     @type  filename: string
-    
+
     @param isInsert: if True, the file contents are being added to an
                      existing assembly, otherwise the file contents are being
                      used to initialize a new assembly.
     @type  isInsert: boolean
-    
+
     @param showProgressDialog: if True, display a progress dialog while reading
                                a file. Default is False.
     @type  showProgressDialog: boolean
@@ -1553,19 +1553,19 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     #bruce 050405 revised code & docstring
     #ericm 080409 revised return value to contain listOfAtomsInFileOrder
     #bruce 080502 documented return value; fixed it when file is empty
-    
+
     state = _readmmp_state( assy, isInsert)
-    
+
     # The following code is experimental. It reads an mmp file that is contained
     # within a ZIP file. To test, create a zipfile (i.e. "part.zip") which
-    # contains an MMP file named "main.mmp", then rename "part.zip" to 
+    # contains an MMP file named "main.mmp", then rename "part.zip" to
     # "part.mmp". Set the constant READ_MAINMMP_FROM_ZIPFILE = True,
-    # then run NE1 and open "part.mmp" using "File > Open...". 
+    # then run NE1 and open "part.mmp" using "File > Open...".
     # Mark 2008-02-03
     READ_MAINMMP_FROM_ZIPFILE = False # Don't commit with True.
-    
+
     if READ_MAINMMP_FROM_ZIPFILE:
-        # Experimental. Read "main.mmp", a standard mmp file contained within 
+        # Experimental. Read "main.mmp", a standard mmp file contained within
         # a zipfile opened via "File > Open...".
         from zipfile import ZipFile
         _zipfile = ZipFile(filename, 'r')
@@ -1578,8 +1578,8 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
             # 'U' in filemode is for universal newline support
         except:
             return READ_ERROR, None, []
-    
-    # Commented this out since the assy.filename should be (and is) set by 
+
+    # Commented this out since the assy.filename should be (and is) set by
     # another caller based on success.
     #if not isInsert:
     #    assy.filename = filename ###e would it be better to do this at the end, and not at all if we fail?
@@ -1588,9 +1588,9 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     global _reference_to_readmmp_abort_function
 
     _readmmp_aborted = False #bruce 080606 bugfix or precaution
-    
-    # Create and display a Progress dialog while reading the MMP file. 
-    # One issue with this implem is that QProgressDialog always displays 
+
+    # Create and display a Progress dialog while reading the MMP file.
+    # One issue with this implem is that QProgressDialog always displays
     # a "Cancel" button, which is not hooked up. I think this is OK for now,
     # but later we should either hook it up or create our own progress
     # dialog that doesn't include a "Cancel" button. --mark 2007-12-06
@@ -1606,7 +1606,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
         win.progressDialog.setRange(0, _progressFinishValue)
         _progressDialogDisplayed = False
         _timerStart = time.time()
-        
+
         def abort_readmmp():
             """
             This slot is called when the user aborts opening a large
@@ -1627,7 +1627,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
             except:
                 print_compact_traceback("exception in abort_readmmp ignored: ")
             return
-        
+
         from PyQt4.Qt import SIGNAL
         win.connect(win.progressDialog, SIGNAL("canceled()"), abort_readmmp)
 
@@ -1636,7 +1636,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
             # [bruce 080606 precaution]
 
         pass
-    
+
     for card in lines:
         if _readmmp_aborted: # User aborted while reading the MMP file.
             _readmmp_aborted = False # (precaution, not really needed, since not
@@ -1653,7 +1653,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
             ###e general history msg for stopping early on error
             ###e special return value then??
             break
-        
+
         if showProgressDialog: # Update the progress dialog.
             _progressValue += 1
             if _progressValue >= _progressFinishValue:
@@ -1667,24 +1667,24 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
                     # checkpoints?) before drawing them, the GLPane now checks
                     # kluge_main_assy.assy_valid to prevent redrawing when this happens.
                     # (Does ThumbView also need this fix?? ### REVIEW)
-                    # [bruce 080117 comment / bugfix]                    
+                    # [bruce 080117 comment / bugfix]
             else:
                 _timerDuration = time.time() - _timerStart
-                if _timerDuration > 0.25: 
+                if _timerDuration > 0.25:
                     # Display progress dialog after 0.25 seconds
                     win.progressDialog.setValue(_progressValue)
                     _progressDialogDisplayed = True
-        
+
     grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
 
     # now fix up sim input files and other nonstandardly-structured files;
     # use these extra groups if necessary, else discard them:
     viewdata = Group("Fake View Data", assy, None) # name is never used or stored
     shelf = Group("Clipboard", assy, None) # name might not matter since caller resets it
-    
+
     for g in grouplist:
         if not g.is_group(): # might happen for files that ought to be 'one_part', too, I think, if clipboard item was not grouped
-            state.guess_sim_input('missing_group_or_chunk') # normally same warning already went out for the missing chunk 
+            state.guess_sim_input('missing_group_or_chunk') # normally same warning already went out for the missing chunk
             tree = Group("tree", assy, None, grouplist)
             grouplist = [ viewdata, tree, shelf ]
             break
@@ -1713,14 +1713,14 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     assert len(grouplist) == 3
 
     listOfAtomsInFileOrder = state.listOfAtomsInFileOrder
-    
+
     state.destroy() # not before now, since it keeps track of which warnings we already emitted
-    
+
     if showProgressDialog: # Make the progress dialog go away.
         win.progressDialog.setValue(_progressFinishValue)
 
     _reference_to_readmmp_abort_function = None
-    
+
     return SUCCESS, grouplist, listOfAtomsInFileOrder # from _readmmp
 
 def readmmp(assy,
@@ -1741,10 +1741,10 @@ def readmmp(assy,
 
     @param assy: the assembly object which the file contents are being added to
     @type  assy: instance of assembly.Assembly
-    
+
     @param filename: where the data will be read from
     @type  filename: string
-    
+
     @param isInsert: if True, the file contents are being added to an
                      existing assembly, otherwise the file contents are being
                      used to initialize a new assembly. When this is true,
@@ -1752,7 +1752,7 @@ def readmmp(assy,
                      and all the updaters it normally calls. Doing that
                      (or tolerating not doing it) is up to the caller.
     @type  isInsert: boolean
-    
+
     @param showProgressDialog: if True, display a progress dialog while reading
                                a file. Default is False.
     @type  showProgressDialog: boolean
@@ -1763,7 +1763,7 @@ def readmmp(assy,
                               return value contains the group list.
                               See return value doc for details.
     @type  returnListOfAtoms: boolean
-    
+
     @return: the tuple (ok, grouplist) or (ok, listOfAtoms)
              (depending on the returnListOfAtoms option)
              where ok is one of the following named string constants
@@ -1817,7 +1817,7 @@ def readmmp(assy,
     if (returnListOfAtoms):
         return ok, listOfAtomsInFileOrder
     return ok, grouplist
-    
+
 def _reset_grouplist(assy, grouplist):
     """
     [private]
@@ -1866,7 +1866,7 @@ def _reset_grouplist(assy, grouplist):
         assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
     assy.kluge_patch_toplevel_groups()
-    
+
     assy.update_parts( do_special_updates_after_readmmp = True)
         #bruce 080319 added do_special_updates_after_readmmp = True
         # (note: we don't test will_special_updates_after_readmmp_do_anything()
@@ -1894,7 +1894,7 @@ def _reset_grouplist(assy, grouplist):
         # (presently determined by code in our callers). Neither is trivial,
         # both are doable -- not yet clear if it's worth the trouble.
         # [bruce comment 080124]
-    
+
     # Now the parts exist, so it's safe to store the viewdata into the mainpart;
     # this imitates what the pre-050418 code did when the csys records were parsed;
     # note that not all mmp files have anything at all in viewdata
@@ -1946,7 +1946,7 @@ def insertmmp(assy, filename):
     #bruce 050405 revised to fix one or more assembly/part bugs, I hope
     #bruce 080606 revised to return success code (but didn't yet fix
     # callers to make use of it)
-    
+
     # Note: this is a normal user operation, so there is no need
     # to refrain from setting assy's modified flag.
     kluge_main_assy = env.mainwindow().assy
@@ -1958,12 +1958,12 @@ def insertmmp(assy, filename):
     kluge_main_assy.assy_valid = False # disable updaters during insert [bruce 080117]
     ok = READ_ERROR
     try:
-        ok, grouplist, listOfAtomsInFileOrder = _readmmp(assy, 
-                                                         filename, 
+        ok, grouplist, listOfAtomsInFileOrder = _readmmp(assy,
+                                                         filename,
                                                          isInsert = True,
                                                          showProgressDialog = True)
-        del listOfAtomsInFileOrder        
-        
+        del listOfAtomsInFileOrder
+
             # isInsert = True prevents most side effects on assy;
             # a better design would be to let the caller do them (or not)
         if ok == SUCCESS and grouplist:
@@ -1990,9 +1990,9 @@ def insertmmp(assy, filename):
             #   I presume it's ok to kill these atoms without first inserting them into any Part...
             # at least, it seems unlikely to mess up any specific Part, since they're not now in one.
             #e in future -- set up special history-message behavior for jigs killed by this:
-            
+
             shelf.kill()
-        
+
 
             #e in future -- end of that special history-message behavior
 
@@ -2020,7 +2020,7 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
     #bruce 050418 moved this code (written by Huaicai) out of MWsemantics.fileOpen
     # (my guess is it should mostly be done by readmmp itself);
     # here is Huaicai's comment about it:
-    # Huaicai 12/14/04, set the initial orientation to the file's home view orientation 
+    # Huaicai 12/14/04, set the initial orientation to the file's home view orientation
     # when open a file; set the home view scale = current fit-in-view scale
     #bruce 050418 change this for assembly/part split (per-part Csys attributes)
     mainpart = assy.tree.part
@@ -2030,7 +2030,7 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
         glpane.set_part(mainpart) # also sets view, but maybe not fully correctly in this case ###k
         glpane.quat = Q( mainpart.homeView.quat) # might be redundant with above
         glpane.setViewFitToWindow()
-    else:    
+    else:
         glpane.set_part(mainpart)
         ## done by that: glpane._setInitialViewFromPart( mainpart)
     return

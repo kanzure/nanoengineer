@@ -134,24 +134,24 @@ class InsertDna_PropertyManager( DnaOrCnt_PropertyManager ):
         change_connect(self.showCursorTextCheckBox,
                        SIGNAL('stateChanged(int)'),
                        self._update_state_of_cursorTextGroupBox)
-        
+
         self.duplexRiseDoubleSpinBox.connectWithState(
-            Preferences_StateRef_double( bdnaRise_prefs_key, 
+            Preferences_StateRef_double( bdnaRise_prefs_key,
                                          env.prefs[bdnaRise_prefs_key] )
             )
-        
+
         self.basesPerTurnDoubleSpinBox.connectWithState(
-            Preferences_StateRef_double( bdnaBasesPerTurn_prefs_key, 
+            Preferences_StateRef_double( bdnaBasesPerTurn_prefs_key,
                                          env.prefs[bdnaBasesPerTurn_prefs_key] )
             )
-        
+
     def show(self):
         _superclass.show(self)
         self.updateMessage("Specify the DNA parameters below, then click "\
                            "two endpoints in the graphics area to insert a DNA duplex.")
 
-    
-    
+
+
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
@@ -235,8 +235,8 @@ class InsertDna_PropertyManager( DnaOrCnt_PropertyManager ):
                               maximum       =  20.0,
                               decimals      =  2,
                               singleStep    =  0.1 )
-        
-        
+
+
         self.duplexRiseDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Rise:",
@@ -246,9 +246,9 @@ class InsertDna_PropertyManager( DnaOrCnt_PropertyManager ):
                               maximum       =  4.0,
                               decimals      =  3,
                               singleStep    =  0.01 )
-        
-        
-        
+
+
+
 
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \

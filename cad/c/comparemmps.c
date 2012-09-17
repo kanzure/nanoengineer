@@ -1,18 +1,18 @@
-// Copyright 2004, 2007 Nanorex, Inc.  See LICENSE file for details. 
+// Copyright 2004, 2007 Nanorex, Inc.  See LICENSE file for details.
 //====================================================================//
-/*	Program to compare two mmp files. 
+/*	Program to compare two mmp files.
 	
-	Program Arguments: two mmp files. 
+	Program Arguments: two mmp files.
 
-	Details: 
+	Details:
 	
 	Small differences in the atom positions in the mmp file are neglected
 	The Tolerence value for the atom positions in |5|
 
 	main() is in this file itself. This is an independent program
 
-	 -Ninad Sathaye,  
-	  Nanorex Inc. 
+	 -Ninad Sathaye,
+	  Nanorex Inc.
 	  Date: August 12, 2004
  */
 //===================================================================//
@@ -41,10 +41,10 @@ FILE *pOutFile;
 
 
 
-int gSpaceAtom[]= { 2,3,2,2,0}; // This array is defining the 'empty spaces' between the two 
+int gSpaceAtom[]= { 2,3,2,2,0}; // This array is defining the 'empty spaces' between the two
 								 // entries , in a line starting with 'atom' :-)
 
-char * gStringArray[]= {"def", "nil", "lin", "cpk", "tub", "mix", "vdw"};//These are the valid codes 
+char * gStringArray[]= {"def", "nil", "lin", "cpk", "tub", "mix", "vdw"};//These are the valid codes
 																	//after 'show' word in mmp file
 
 int parse(char * psCnt)
@@ -60,7 +60,7 @@ int parse(char * psCnt)
 	 else if (0==strncmp(psCnt,"motor",5))
 		 return MOTOR;
 	 else if (0==strncmp(psCnt,"linmotor",8))
-		 return LINMOT; 
+		 return LINMOT;
 	 else if (0==strncmp(psCnt,"shaft",5))
 		 return SHAFT;
 	 else if (0==strncmp(psCnt,"bearing",7))
@@ -70,7 +70,7 @@ int parse(char * psCnt)
 	 else if (0==strncmp(psCnt,"end",3))
 		 return END;
 	  else  return OTHERS;
-	 
+	
 }
 
 
@@ -157,7 +157,7 @@ printf("BEFORE the while loop /n");
 					{
 						l1= strtol(pBuf1,&pBuf1,10);
 						l2 = strtol(pBuf2,&pBuf2,10);
-						if (l1 !=l2 && i<2) 
+						if (l1 !=l2 && i<2)
 						{
 							fprintf(pOutFile,"==\n");
 							fprintf(pOutFile,"file 1 : %sfile 2 : %s",buf1,buf2);
@@ -288,7 +288,7 @@ printf("BEFORE the while loop /n");
 	/*	case BOND :
 				{
 					nExit=0; //To get out of while loop in case a mismatch is found
-							//so that no further checking is required. (nExit =1) 
+							//so that no further checking is required. (nExit =1)
 
 					pBuf1+=4;
 					pBuf2+=4;
@@ -316,7 +316,7 @@ printf("BEFORE the while loop /n");
 			/*	case BOND :
 				{
 					nExit=0; //To get out of while loop in case a mismatch is found
-							//so that no further checking is required. (nExit =1) 
+							//so that no further checking is required. (nExit =1)
 
 					pBuf1+=4;
 					pBuf2+=4;

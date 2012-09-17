@@ -1,4 +1,4 @@
-# Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2009 Nanorex, Inc.  See LICENSE file for details.
 """
 DrawingSetCache.py -- cache of DrawingSets with associated drawing intents
 
@@ -35,12 +35,12 @@ class DrawingSetCache(object,
 
     Some attributes and methods are public.
     """
-    
+
     # default values of instance variables
-    
+
     saved_change_indicator = None #bruce 090309
         # public for set and compare (by '==')
-    
+
     def __init__(self, cachename, temporary):
         self.cachename = cachename # (public, but not used externally [as of 090313])
         self.temporary = temporary # (public, not used *internally* [as of 090313])
@@ -48,7 +48,7 @@ class DrawingSetCache(object,
             # presently private re access/modification,
             # and so are the dsets it contains
         return
-    
+
     def destroy(self):
         for dset in self._dsets.values():
             dset.destroy()
@@ -68,7 +68,7 @@ class DrawingSetCache(object,
 
         @param intent_to_csdls: a dict from drawing intents
             (about how a csdl's drawingset should be drawn -- we need to put
-             each csdl into a dset which will be drawn in the way it intends) 
+             each csdl into a dset which will be drawn in the way it intends)
             to dicts of CSDLs (which maps csdl.csdl_id to csdl).
             We are allowed to arbitrarily modify this dict, so caller
             should not use it after passing it to us.
@@ -77,15 +77,15 @@ class DrawingSetCache(object,
 ##            save this as the value of self.saved_change_indicator.
         """
         #bruce 090313 factored this method out of our client code
-        
+
 ##        if dset_change_indicator:
 ##            self.saved_change_indicator = dset_change_indicator
 ##            ##### REVIEW: if not, save None?
-        
+
         dsets = self._dsets
             # review: consider refactoring to turn code around all uses of this
             # into methods in DrawingSetCache
-        
+
         # 1. handle existing dsets/intents in self
         #    (note: if client uses us non-incrementally, we are initially empty,
         #     so this step efficiently does nothing)
@@ -98,7 +98,7 @@ class DrawingSetCache(object,
         # - for the other prior DrawingSets, figure out csdls to remove and
         #   add; try to optimize for no change; try to do removals first,
         #   to save RAM in case cache updates during add are immediate
-        
+
         for intent, dset in dsets.items(): # not iteritems!
             if intent not in intent_to_csdls:
                 # this intent is not needed at all for this frame
@@ -116,7 +116,7 @@ class DrawingSetCache(object,
         # 2. handle new intents (if we were initially non-empty, i.e. being used
         #    incrementally) or all intents (when used non-incrementally):
         #    make new DrawingSets for whatever intents remain in intent_to_csdls
-        
+
         for intent, csdls in intent_to_csdls.items():
             del intent_to_csdls[intent]
                 # (this might save temporary ram, depending on python optims)
@@ -141,7 +141,7 @@ class DrawingSetCache(object,
 
         @param debug: if true, print debugging info.
         """
-        
+
         if debug:
             print
             print env.redraw_counter ,
@@ -149,7 +149,7 @@ class DrawingSetCache(object,
                                      self.temporary and " (temporary)" or "") ,
             print "  (for phase %r)" % glpane.drawing_phase
             pass
-        
+
         for intent, dset in self._dsets.items():
             if debug:
                 print "drawing dset, intent %r, %d items" % \
@@ -166,7 +166,7 @@ class DrawingSetCache(object,
                 del self._dsets[intent]
             continue
         return
-    
+
     pass # end of class DrawingSetCache
 
 # end

@@ -24,7 +24,7 @@ def close_files(): # maybe not needed, if normal exit does this??
     for key, val in files.items():
         val.close()
     return
-    
+
 def writeit(line, current_message_type):
     if current_message_type:
         file1 = open_file_for_message_type(current_message_type)

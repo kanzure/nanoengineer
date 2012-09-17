@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 StatusBar.py - status bar widgets, AbortHandler, ProgressReporters
 
@@ -45,17 +45,17 @@ class StatusBar(QStatusBar):
     def __init__(self, win):
         QStatusBar.__init__(self, win)
         self._progressLabel = QLabel()
-    
+
         self._progressLabel.setMinimumWidth(200)
         self._progressLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
         self.addPermanentWidget(self._progressLabel)
-    
+
         self.progressBar = QProgressBar(win)
         self.progressBar.setMaximumWidth(250)
         qt4todo('StatusBar.progressBar.setCenterIndicator(True)')
         self.addPermanentWidget(self.progressBar)
         self.progressBar.hide()
-    
+
         self.simAbortButton = QToolButton(win)
         self.simAbortButton.setIcon(
             geticon("ui/actions/Simulation/Stopsign.png"))
@@ -68,11 +68,11 @@ class StatusBar(QStatusBar):
         #self.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
         self.dispbarLabel.setText( "Global display style:" )
         self.addPermanentWidget(self.dispbarLabel)
-        
+
         # Global display styles combobox
         self.globalDisplayStylesComboBox = GlobalDisplayStylesComboBox(win)
         self.addPermanentWidget(self.globalDisplayStylesComboBox)
-        
+
         # Selection lock button. It always displays the selection lock state
         # and it is available to click.
         self.selectionLockButton = QToolButton(win)
@@ -80,14 +80,14 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.selectionLockButton)
 
         self.abortableCommands = {}
-        
+
         #bruce 081230 debug code:
         ## self.connect(self, SIGNAL('messageChanged ( const QString &)'),
         ##              self.slotMessageChanged )
 
 ##     def slotMessageChanged(self, message): # bruce 081230 debug code
 ##         print "messageChanged: %r" % str(message)
-    
+
     def showMessage(self, text): #bruce 081230
         """
         [extends superclass method]
@@ -96,7 +96,7 @@ class StatusBar(QStatusBar):
         QStatusBar.showMessage(self, text)
         ## print "message was set to %r" % str(self.currentMessage())
         return
-    
+
     def _f_progress_msg(self, text): #bruce 081229 refactoring
         """
         Friend method for use only by present implementation
@@ -105,7 +105,7 @@ class StatusBar(QStatusBar):
         """
         self._progressLabel.setText(text)
         return
-    
+
     def makeCommandNameUnique(self, commandName):
         index = 1
         trial = commandName
@@ -121,7 +121,7 @@ class StatusBar(QStatusBar):
 
     def removeAbortableCommand(self, commandName):
         del self.abortableCommands[commandName]
-        
+
     def simAbort(self):
         """
         Slot for Abort button.
@@ -132,13 +132,13 @@ class StatusBar(QStatusBar):
         # Added confirmation before aborting as part of fix to bug 915. Mark 050824.
         # Bug 915 had to do with a problem if the user accidently hit the space bar or espace key,
         # which would call this slot and abort the simulation.  This should no longer be an issue here
-        # since we aren't using a dialog.  I still like having this confirmation anyway.  
-        # IMHO, it should be kept. Mark 060106. 
+        # since we aren't using a dialog.  I still like having this confirmation anyway.
+        # IMHO, it should be kept. Mark 060106.
         ret = QMessageBox.warning( self, "Confirm",
                                    "Please confirm you want to abort.\n",
                                    "Confirm",
-                                   "Cancel", 
-                                   "", 
+                                   "Cancel",
+                                   "",
                                    1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
                                    1)  # Escape (1= Cancel)
 
@@ -155,7 +155,7 @@ class StatusBar(QStatusBar):
             self.progressBar.reset()
             self.progressBar.hide()
             self.simAbortButton.hide()
-            
+
 
     def show_progressbar_and_stop_button(self,
                                          progressReporter,
@@ -188,7 +188,7 @@ class StatusBar(QStatusBar):
         self.progressBar.reset()
         self.progressBar.setMaximum(progressReporter.getMaxProgress())
         self.progressBar.setValue(0)
-        self.progressBar.show() 
+        self.progressBar.show()
 
         abortHandler = AbortHandler(self, cmdname)
 
@@ -246,7 +246,7 @@ class FileSizeProgressReporter(object):
 
     def getMaxProgress(self):
         return self.expectedSize
-        
+
     def notDoneYet(self):
         return self.currentSize < self.expectedSize
 

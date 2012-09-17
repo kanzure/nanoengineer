@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 draw_utils.py
 
@@ -42,7 +42,7 @@ def mymousepoints(glpane, x, y): #bruce 071017 moved this here from testdraw.py
     los = self.lineOfSight # isn't this just norm(p2 - p1)?? Probably not, if we're in perspective mode! [bruce Q 061206]
         # note: this might be in abs coords (not sure!) even though p1 and p2 would be in local coords.
         # I need to review that in GLPane.__getattr__. ###k
-    
+
     k = dot(los, -self.pov - p1) / dot(los, p2 - p1)
 
     p2 = p1 + k*(p2-p1)
@@ -56,7 +56,7 @@ def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):
     with the 2d-texture subrect defined by the 2d points (tex_origin, tex_dx, tex_dy)
     in the currently bound texture object.
     """
-    glEnable(GL_TEXTURE_2D) 
+    glEnable(GL_TEXTURE_2D)
     glBegin(GL_QUADS)
     glTexCoord2fv(tex_origin) # tex coords have to come before vertices, I think! ###k
     glVertex3fv(origin)
@@ -80,19 +80,19 @@ def draw_textured_rect_subtriangle(origin, dx, dy, tex_origin, tex_dx, tex_dy, p
     #e could easily generalize API to polygon, and this implem to convex polygon, if desired
     ##e WARNING: this function's name and api are likely to be revised;
     # or we might just replace the whole scheme, using things like Textured(Triangle(...),...) instead,
-    # perhaps implemented by telling OpenGL how to compute the texture coords in a wrapper, then just drawing the triangle. 
+    # perhaps implemented by telling OpenGL how to compute the texture coords in a wrapper, then just drawing the triangle.
     assert len(points) == 3
     # and each point should be a V of length 2, or a 2-tuple, with elements convertible to floats -- this is assumed below
-    glEnable(GL_TEXTURE_2D) 
+    glEnable(GL_TEXTURE_2D)
     glBegin(GL_TRIANGLES)
     for px, py in points:
         px = float(px)
-        py = float(py)        
+        py = float(py)
         glTexCoord2fv((tex_origin + px * tex_dx + py * tex_dy).tolist())
         # glVertex3fv(origin + px * dx + py * dy)
     glEnd()
     glDisable(GL_TEXTURE_2D)
- 
+
 # Ideally we'd modularize the following to separate the fill/color info from the shape-info. (And optimize them.)
 # For now they're just demos that might be useful.
 

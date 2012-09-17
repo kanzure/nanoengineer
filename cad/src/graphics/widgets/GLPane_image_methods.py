@@ -77,7 +77,7 @@ class GLPane_image_methods(object):
     Private mixin superclass to provide image capture/redraw support
     (and to use it in specific ways) for class GLPane_rendering_methods.
     """
-    
+
     _conf_corner_bg_image_data = None
 
     def _draw_cc_test_images(self):
@@ -90,7 +90,7 @@ class GLPane_image_methods(object):
         ccdp2 = debug_pref("Conf corner test: redraw in-place",
                            Choice_boolean_False,
                            prefs_key = True)
-        
+
         if ccdp1 or ccdp2:
             self.grab_conf_corner_bg_image() #bruce 070626 (needs to be done before draw_overlay in caller)
 
@@ -199,7 +199,7 @@ class GLPane_image_methods(object):
                 # seems to be in window coord space, but with float values,
                 # roughly [0.1, 0.1, 0.1, 1.0] but depends on viewpoint, error about 10**-5
             pass
-        
+
         return
     _set_raster_pos = staticmethod(_set_raster_pos)
 
@@ -212,7 +212,7 @@ class GLPane_image_methods(object):
     # - Build Atoms region sel rubberband is not visible
     # - preventing crashes or visual image format errors required various kluges, incl _trim
     # - highlight is not working
-    
+
     def _get_bg_image_comparison_data(self):
         """
         """
@@ -233,7 +233,7 @@ class GLPane_image_methods(object):
             + self.quat, # this hit a bug in same_vals (C version), fixed by Eric M 080922 in samevalshelp.c rev 14311
             ## + self.quat.vec, # workaround for that bug (works)
             + self.pov, self.scale, self.zoomFactor,
-            
+
             self.width,
             self.height,
             QGLWidget.width(self), # in case it disagrees with self.width
@@ -264,21 +264,21 @@ class GLPane_image_methods(object):
         #   (which can do color -- I don't know about depth),
         # - or by more platform-specific ways, e.g. pbuffer.
         # [bruce 081002]
-        
+
         print "_capture_saved_bg_image", self._print_data()
         sys.stdout.flush()
-        
+
         if 1:
             from OpenGL.GL import glFlush, glFinish
             glFlush() # might well be needed, based on other code in NE1; not enough by itself
             glFinish() # try this too if needed
         w = _trim(self.width)
         h = _trim(self.height)
-        
+
         # grab the color image part
         image = glReadPixels( 0, 0, w, h, _GL_FORMAT_FOR_COLOR, GL_UNSIGNED_BYTE )
         self._cached_bg_color_image = image
-        
+
         # grab the depth part
         ## image = glReadPixels( 0, 0, w, h, GL_DEPTH_COMPONENT, _GL_TYPE_FOR_DEPTH )
         image = glReadPixelsf(0, 0, w, h, GL_DEPTH_COMPONENT) #####
@@ -292,7 +292,7 @@ class GLPane_image_methods(object):
         """
         print "_draw_saved_bg_image", self._print_data()
         sys.stdout.flush()
-        
+
         assert self._cached_bg_color_image is not None
 
         w = _trim(self.width)
@@ -300,20 +300,20 @@ class GLPane_image_methods(object):
 
         glDisable(GL_DEPTH_TEST) # probably a speedup
         glDisable(GL_LIGHTING)
-        glDisable(GL_TEXTURE_2D) # probably already the NE1 default (if so, doesn't matter here)        
+        glDisable(GL_TEXTURE_2D) # probably already the NE1 default (if so, doesn't matter here)
             # Note: doing more disables might well speed up glDrawPixels;
             # don't know whether that matters.
 
         color_image = self._cached_bg_color_image
         depth_image = self._cached_bg_depth_image
-        
+
         # draw the color image part (review: does this also modify the depth buffer?)
         self._set_raster_pos(0, 0)
         if 0 and 'kluge - draw depth as color':
             glDrawPixels(w, h, GL_RED, _GL_TYPE_FOR_DEPTH, depth_image)
         else:
             glDrawPixels(w, h, _GL_FORMAT_FOR_COLOR, GL_UNSIGNED_BYTE, color_image)
-        
+
         # draw the depth image part; ###BUG: this seems to replace all colors with blue... fixed below
         self._set_raster_pos(0, 0) # adding this makes the all-gray bug slightly less bad
 
@@ -331,7 +331,7 @@ class GLPane_image_methods(object):
         # types listed at http://pyopengl.sourceforge.net/documentation/ref/gl/drawpixels.html
         ## print glDrawPixels.__class__ ####
         glDrawPixelsf(GL_DEPTH_COMPONENT, depth_image) ## if it was PIL, could say .tostring("raw","R",0,-1))######
-        
+
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
         if 1:####
             from OpenGL.GL import glFlush
@@ -345,7 +345,7 @@ class GLPane_image_methods(object):
 ##            print "min depth:" , Numeric.minimum( glReadPixels( 0, 0, w, h, GL_DEPTH_COMPONENT, _GL_TYPE_FOR_DEPTH ) ) #### 6 args required
 ##            ## ValueError: invalid number of arguments
             print
-        
+
         glEnable(GL_LIGHTING)
         glEnable(GL_DEPTH_TEST)
         # (but leave GL_TEXTURE_2D disabled)

@@ -1,10 +1,10 @@
-# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 changes.py - utilities for tracking changes, usage, nested events, etc.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -49,7 +49,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
     even though this docstring is only about its application to usage-tracking and inval-subscription.
     [###e what to do about that? Is it really reusable??]
     [###k Does it permit resubs while fulfilling them (as in changed_members)??]
-    [Does SelfUsageTrackingMixin make a new one each time it fulfills old one? Yes [verified 061119].] 
+    [Does SelfUsageTrackingMixin make a new one each time it fulfills old one? Yes [verified 061119].]
     """
     def __init__(self, debug_name = None):
         self.debug_name = debug_name #061118
@@ -134,7 +134,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
                 #bruce 070816 included True in that condition, to avoid silently discarding exceptions indicating real bugs.
                 print_compact_traceback("bug: exception in subs %r ignored by %r: " % (sub1, self) )
                 print_compact_stack(" note: here is where that exception occurred: ", skip_innermost_n = 1) #bruce 080917 revised
-        return        
+        return
     def remove_subs(self, func): # note: this has never been used as of long before 061022, and looks potentially unsafe (see below)
         """
         Make sure (one subscribed instance of) func will never be fulfilled.
@@ -190,7 +190,7 @@ class SelfUsageTrackingMixin: #bruce 050804; docstring revised 090212
     to return a related quantity such as a change indicator), which can be
     considered to be a kind of "get method" even though it doesn't actually
     return the tracked value.
-    
+
     If a client class needs to permit tracking of more than one value or aspect,
     it should use more than one instance of this class or a client class,
     one for each tracked value. (Our subclass UsageTracker can be used as a
@@ -215,7 +215,7 @@ class SelfUsageTrackingMixin: #bruce 050804; docstring revised 090212
     # (via UsageTracker) in preferences.py; more uses were added later.
 
     ### REVIEW the status of these old comments, and clarify them:
-    
+
     # WARNING: The way Formula uses track_change only works when the call of
     # track_change comes after the new value is available,
     # but when using track_change to report an invalidation, that's not
@@ -246,7 +246,7 @@ class SelfUsageTrackingMixin: #bruce 050804; docstring revised 090212
         This works by telling cooperating users (clients of SubUsageTrackingMixin ###VERIFY)
         what they used, so they can subscribe to invalidations or changes of all
         values they used.
-        
+
         [some callers might inline this method]
         """
         if getattr(self, '_changes__debug_print', False):
@@ -305,7 +305,7 @@ class SelfUsageTrackingMixin: #bruce 050804; docstring revised 090212
         * something used to compute the tracked value has changed (or been
           invalidated), so the tracked value needs to be invalidated
           (to ensure it will be recomputed when next needed).
-          
+
           (This differs from the tracked value changing by being set,
           since we don't yet know the new value, or even (in general) whether
           it's definitely different than the old value. But this class doesn't
@@ -354,7 +354,7 @@ class SelfUsageTrackingMixin: #bruce 050804; docstring revised 090212
         #bruce 061022 added track_inval to API, though I don't know if it ever
         # needs to have a different implem. ### REVIEW: does each client use the
         # appropriate one of track_inval vs. track_change?
-    
+
     pass # end of class SelfUsageTrackingMixin
 
 # ==
@@ -622,7 +622,7 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         return "<%s%s at %#x>" % (self.__class__.__name__, self.debug_name and ("(%s)" % self.debug_name) or '', id(self))
     def begin(self):
         self.data = {}
-    def track(self, subslist): 
+    def track(self, subslist):
         """
         This gets called (via env.track) by everything that wants to record one use of its value.
         The argument subslist is a subscription-list object which permits subscribing to future changes
@@ -759,7 +759,7 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
                 # error message was already printed -- but, I don't think this can ever happen, so print *that*
                 print "(should never happen in make_invals_illegal)"
         else:
-            # if an inval comes (to self.standard_inval), we'll find out, since it'll complain (I think) 
+            # if an inval comes (to self.standard_inval), we'll find out, since it'll complain (I think)
             pass
         return
     pass # end of class usage_tracker_obj
@@ -774,7 +774,7 @@ _debug_standard_inval_nottwice_stack = False # whether to print_compact_stack in
 class begin_disallowing_usage_tracking(SubUsageTrackingMixin):
     """
     Publicly, this class is just a helper function, used like this:
-    
+
         mc = begin_disallowing_usage_tracking(whosays) # arg is for use in debug prints and exception text
         try:
             ... do stuff in which usage tracking would be an error or indicate a bug
@@ -1076,7 +1076,7 @@ def register_postinit_item( typename, item):
     to receive the method call object.postinit_item(item) for this item.
     """
     pairmatcher = postinit_pairmatchers[ typename]
-    pairmatcher.another_dim2( item)    
+    pairmatcher.another_dim2( item)
 
 # ==
 
@@ -1122,7 +1122,7 @@ class op_run:
         """
         called for begin_op with no matching end_op, just before our .end() and the next outer end_op is called
         """
-        if debug_begin_ops: # 
+        if debug_begin_ops: #
             self.printmsg( "%serror op_id %r, op_type %r, errmsg %r" % (self.indent(), self.op_id, self.op_type, errmsg_text) )
         pass
     def printmsg(self, text):

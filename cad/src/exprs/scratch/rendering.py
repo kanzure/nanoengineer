@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 rendering.py -- rendering loop control, etc
 
@@ -7,7 +7,7 @@ $Id$
 """
 
     IorE drawkid def should be sort of like:
-        
+
     def drawkid(self, kid):
         warpfuncs = getattr(self.env.glpane, '_exprs__drawkid_funcs', None) #070218 or so new feature
         while warpfuncs:
@@ -129,7 +129,7 @@ class SelectiveRedrawer(InstanceOrExpr): #070217 to make highlighting work in di
           (If they also do direct drawing, this should not hurt; they can also check a flag and not do it, someday. #e)
         - for other objs, do nothing.
         """
-        for func in self._later.get(obj, ()): 
+        for func in self._later.get(obj, ()):
             try:
                 func()
             except:

@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 undo_archive.py - Collect and organize a set
 of checkpoints of model state and diffs between them,
@@ -117,7 +117,7 @@ def mmp_state_by_scan(archive, assy, exclude_layers = ()):
     if 0 and env.debug():
         print "debug: didn't bother scanning %d view-related objects:" % \
               len(viewdict), viewdict.values() # works [060227]; LastView
-    
+
     #e figure out which ones are new or gone? not needed until we're
     # differential, unless this is a good place to be sure the gone ones
     # are properly killed (and don't use up much RAM). if that change anything
@@ -137,7 +137,7 @@ def mmp_state_by_scan(archive, assy, exclude_layers = ()):
         # and discarded from the state we're returning when its StatePlace
         # is asked to give it up by steal_lastsnap, which means it's
         # becoming mutable (so _childobj_dict would also become invalid).
-    
+
     return state # a StateSnapshot
 
 # ==
@@ -159,7 +159,7 @@ def assy_become_state(self, stateplace, archive):
     # should be redesigned to be more sensible
     assert isinstance(stateplace, StatePlace), \
            "should be a StatePlace: %r" % (stateplace,)
-    
+
     if debug_change_indicators:
         print "assy_become_state begin, chg ctrs =", \
               archive.assy.all_change_indicators()
@@ -177,7 +177,7 @@ def assy_become_state(self, stateplace, archive):
         # most of our debug prints
         msg = "bug: exception while restoring state after Undo or Redo: "
         print_compact_traceback( msg)
-    
+
     self.changed() #k needed? #e not always correct! (if we undo or redo to
         # where we saved the file)
         #####@@@@@ review after scan_whole 060213
@@ -241,11 +241,11 @@ def assy_become_scanned_state(archive, assy, stateplace):
     # TODO: guess as of 060407: this should someday be an archive method,
     # or more specifically a method of AssyUndoArchive,
     # with some of the helpers being stateplace or state methods.
-    
+
     assert assy is archive.assy
         # in future, maybe an archive can support more than one assy
         # at a time (so this will need to be more general); who knows
-    
+
     # note [060407] (obs now): the following mashes *all* attrs, changed or not.
     # If we want to make Undo itself faster (as opposed to making checkpoints
     # faster), we have to only mash the changed ones (and maybe do only the
@@ -260,7 +260,7 @@ def assy_become_scanned_state(archive, assy, stateplace):
         # (it might have problems if the atom.mol = None in differential
         #  case is bad in this case which needs _nullMol for some reason)
         attrdicts = stateplace.get_attrdicts_for_immediate_use_only()
-        
+
         modified = {} # key->obj for objects we modified
 
         # these steps are in separate functions for clarity,
@@ -335,7 +335,7 @@ def mash_attrs( archive, attrdicts, modified, invalmols, differential = False ):
                       .atoms dict we add atom. We assume mol.atoms maps atom.key
                       to atom. By "atom" we mean an instance of a class whose
                       _s_undo_specialcase == UNDO_SPECIALCASE_ATOM.
-                      
+
     @type invalmols: a mutable dictionary which maps id(mol) -> mol, where
                      mol can be any object found or stored as atom.molecule,
                      which has an .atoms dict (i.e. a Chunk).
@@ -476,13 +476,13 @@ def _mash_attrs_Atom_chunk(key, obj, attrname, val, modified, invalmols):
 
     @param obj: an atom (i.e. an instance of a class whose _s_undo_specialcase
                 attribute equals UNDO_SPECIALCASE_ATOM).
-                
+
     @param attrname: 'molecule', or whatever attribute name we change it to.
-    
+
     @param val: the new value we should store into obj.molecule.
-    
+
     @param modified: same as in mash_attrs.
-    
+
     @param invalmols: same as in mash_attrs.
     """
     #bruce 071114 split this out of mash_attrs,
@@ -494,7 +494,7 @@ def _mash_attrs_Atom_chunk(key, obj, attrname, val, modified, invalmols):
     assert attrname == 'molecule', "oops, you better revise " \
            "obj.molecule gets/sets in this function"
     assert attrname == ATOM_CHUNK_ATTRIBUTE_NAME # that should match too
-    
+
     # obj is an Atom and we're changing its .molecule.
     # This is a kluge to help update mol.atoms for its old and
     # new mol.
@@ -508,7 +508,7 @@ def _mash_attrs_Atom_chunk(key, obj, attrname, val, modified, invalmols):
     # and the other one below, findable by searching for the
     # ' "add to new mol.atoms" part of the kluge '.
     # [comment revised, bruce 071114]
-    
+
     mol = obj.molecule
     # mol might be _UNSET_, None, or _nullMol, in which case,
     # we should do nothing, or perhaps it might be a real mol
@@ -647,7 +647,7 @@ def fix_all_chunk_atomsets( attrdicts, modified):
     assert 0, "this code is no longer valid, since Atom might have subclasses soon (with different names)"
         # not worth the effort to port it re those changes,
         # since it never runs anymore [bruce 071114]
-        
+
     moldict = attrdicts.get(molcode, {})
         # Note: the value {} can happen, when no Chunks (i.e. no live atoms)
         # were in the state!
@@ -710,7 +710,7 @@ def _fix_all_chunk_atomsets_differential(invalmols):
     Fix or properly invalidate the passed chunks, whose .atoms dicts
     the caller has directly modified (by adding or removing atoms which entered
     or left those chunks) without doing any invalidations or other changes.
-    
+
     @param invalmols: a dict mapping id(mol) -> mol
                       where mol can be anything found or stored in atom.molecule
                       which has an .atoms dict of the same kind as Chunk.
@@ -949,7 +949,7 @@ class Checkpoint:
         else:
             return mi.next_history_serno
         pass
-        
+
     pass # end of class Checkpoint
 
 class SimpleDiff:
@@ -1082,7 +1082,7 @@ class SimpleDiff:
             if not self.command_info['n_merged_changes'] and env.debug():
                 print "debug: that's weird, command_info['n_merged_changes'] ought to be set in this case"
             return "(%d.-now)" % (s1,)
-        
+
         n = s2 - s1
         if n < 0:
             print "bug in history serno order", s1, s2, self.direction, self
@@ -1110,11 +1110,11 @@ class SimpleDiff:
         return hist
     def cmdname(self):
         return self.command_info['cmdname']
-    def changes_desc(self):#060312  
+    def changes_desc(self):#060312
         return "changes" #e (maybe later it'll be e.g. "selection changes")
     def varid_vers(self):#####@@@@@ need to merge self with more diffs, to do this??
         "list of varid_ver pairs for indexing"
-        return [self.cps[0].varid_ver()] 
+        return [self.cps[0].varid_ver()]
     def apply_to(self, archive):###@@@ do we need to merge self with more diffs, too? [see class MergingDiff]
         "apply this diff-operation to the given model objects"
         cp = self.cps[1]
@@ -1271,7 +1271,7 @@ def register_undo_updater( func, updates = (), after_update_of = () ):
     return
 
 """ example:
-register_undo_updater( _undo_update_Atom_jigs, 
+register_undo_updater( _undo_update_Atom_jigs,
                        updates = ('Atom.jigs', 'Bond.pi_bond_obj'),
                        after_update_of = ('Assembly', Node, 'Atom.bonds') # Node also covers its subclasses Chunk and Jig.
                            # We don't care if Atom is updated except for .bonds, nor whether Bond is updated at all,
@@ -1367,7 +1367,7 @@ class checkpoint_metainfo:
         try:
             glpane = assy.o # can fail even at end of assy.__init__, but when it does, assy.w.glpane does too
         except:
-            self.view = "initial view not yet set - stub, will fail if you undo to this point" 
+            self.view = "initial view not yet set - stub, will fail if you undo to this point"
             if env.debug():#060301 - does this ever happen (i doubt it) ###@@@ never happens; someday analyze why not [060407]
                 print "debug:", self.view
         else:
@@ -1377,7 +1377,7 @@ class checkpoint_metainfo:
         #e cpu time?
         #e glpane.redraw_counter? (sp?)
         self.assy_change_indicators = assy.all_change_indicators()
-        # history serno that will be used next 
+        # history serno that will be used next
         self.next_history_serno = env.last_history_serno + 1 # [060301]
             ###e (also worry about transient_msgs queued up, re this)
         #e current cmd on whatever stack of those we have? re recursive events if this matters? are ongoing tasks relevant??
@@ -1444,7 +1444,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     create an AssyUndoManager.  So, there is essentially one
     AssyUndoArchive per assembly, if it chooses to have one.
     """
-    
+
     next_cp = None
     current_diff = None
     format_options = dict(use_060213_format = True)
@@ -1455,7 +1455,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     copy_val = state_utils.copy_val #060216, might turn out to be a temporary kluge ###@@@
 
     _undo_archive_initialized = False
-    
+
     def __init__(self, assy):
         """
         @type assy: assembly.assembly
@@ -1463,11 +1463,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.assy = assy # represents all undoable state we cover (this will need review once we support multiple open files)
 
         self.obj_classifier = obj_classifier()
-        
+
         self.objkey_allocator = oka = objkey_allocator()
         self.obj4key = oka.obj4key # public attr, maps keys -> objects
             ####@@@@ does this need to be the same as atom keys? not for now, but maybe yes someday... [060216]
-        
+
         self.stored_ops = {} # map from (varid, ver) pairs to lists of diff-ops that implement undo or redo from them;
             # when we support out of order undo in future, this will list each diff in multiple places
             # so all applicable diffs will be found when you look for varid_ver pairs representing current state.
@@ -1521,7 +1521,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         else:
             cdp.unsubscribe(subkey)
         return
-    
+
     def _clear(self):
         """
         [private helper method for self.clear_undo_stack()]
@@ -1563,7 +1563,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # one of them. See the clear_undo_stack docstring for advice about
         # not wasting runtime due to this, which is now followed in our
         # callers. [bruce 080229 comment]
-        
+
         assert not self._undo_archive_initialized
         assy = self.assy
         cp = make_empty_checkpoint(assy, 'initial') # initial checkpoint
@@ -1577,7 +1577,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             self.debug_histmessage("(initial checkpoint: %r)" % cp)
         self.last_cp = self.initial_cp = cp
 ##        self.last_cp_arrival_reason = 'initial' # why we got to the situation of model state agreeing with this, when last we did
-            #e note, self.last_cp will be augmented by a desc of varid_vers pairs about cur state; 
+            #e note, self.last_cp will be augmented by a desc of varid_vers pairs about cur state;
             # but for out of order redo, we get to old varid_vers pairs but new cp's; maybe there's a map from one to the other...
             ###k was this part of UndoManager in old code scheme? i think it was grabbed out of actual model objects in UndoManager.
         self.sub_or_unsub_changedicts(False) # in case we've been called before (kluge)
@@ -1596,7 +1596,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # this means we are ready to receive callbacks (now and later) on self._archive_meet_class,
             # telling us about new classes whose instances we might want to changetrack
         return
-    
+
     def _archive_meet_class(self, class1):
         """
         [private]
@@ -1618,7 +1618,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         ourdicts = {UNDO_SPECIALCASE_ATOM: self.all_changed_Atoms,
                     UNDO_SPECIALCASE_BOND: self.all_changed_Bonds}
             # note: this is a dict, but self.ourdicts is a list
-        
+
 ##        specialcase_type = class1.__name__
 ##        assert specialcase_type in ('Atom', 'Bond')
 ##            # only those two classes are supported, for now
@@ -1635,7 +1635,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         specialcase_type = class1._s_undo_specialcase
         assert specialcase_type in (UNDO_SPECIALCASE_ATOM,
                                     UNDO_SPECIALCASE_BOND)
-        
+
         ourdict = ourdicts[specialcase_type]
         for cd in changedicts_list:
             self._changedicts.append( (cd, ourdict) )
@@ -1651,7 +1651,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     # ourdict already was chosen using the name, if name needs
                     # to be used at all.
                 continue
-        
+
         # optimization: ask these classes for their state_attrs decls now,
         # so later inner loops can assume the attrdicts exist.
         ###e WARNING: this won't be enough to handle new classes created at
@@ -1660,9 +1660,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # need to add the new attrs to existing attrdicts in state or diff
         # objects (perhaps lazily as we encounter them, by testing
         # len(attrdicts) (?) or some version counter).
-        
+
         self.obj_classifier.classify_class( class1)
-        
+
         return
 
     def childobj_oursQ(self, obj):
@@ -1674,7 +1674,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
          this needs review if this distinction ever matters,
          i.e. if objs once ours can later become not ours,
          without being destroyed.)
-        
+
         WARNING: this is intended only for use on child-scanned
         (non-change-tracked) objects
         (i.e. all but Atoms or Bonds, as of 060406);
@@ -1686,7 +1686,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         #e possible optim: store self.objkey_allocator._key4obj.has_key
         # as a private attr of self
         return self.objkey_allocator._key4obj.has_key(id(obj))
-    
+
     def new_Atom_oursQ(self, atom): #060405; rewritten 060406
         """
         Is a newly seen Atom object one of ours?
@@ -1738,14 +1738,14 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         assert res == (attrcode == (ATOM_CHUNK_ATTRIBUTE_NAME, 'Atom'))
             # remove when works -- will become wrong when we add Atom subclasses
         return res
-    
+
     def childobj_liveQ(self, obj):
         """
         Is the given object (allowed to be an arbitrary Python object,
          including None, a list, etc) (?? or assumed ourQ??)
         a live child-scanned object in the last-scanned state
         (still being scanned, in fact), assuming it's a child-scanned object?
-        
+
         WARNING: it's legal to call this for any object, but for a
         non-child-scanned but undoable-state-holding object
         which is one of ours (i.e. an Atom or Bond as of 060406),
@@ -1806,7 +1806,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                   safe_repr(obj)
             print_compact_traceback( msg)
             return False
-        
+
     def get_and_clear_changed_objs(self, want_retval = True):
         """
         Clear, and (unless want_retval is false) return copies of,
@@ -1822,7 +1822,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.all_changed_Atoms.clear()
         self.all_changed_Bonds.clear()
         return res
-    
+
     def destroy(self): #060126 precaution
         """
         free storage, make doing of our ops illegal
@@ -1843,7 +1843,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.objkey_allocator.destroy()
         self.objkey_allocator = None
         return
-    
+
     def __repr__(self):
         return "<AssyUndoArchive at %#x for %r>" % (id(self), self.assy) # if destroyed, assy will be None
 
@@ -1885,7 +1885,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # the next checkpoint, but nothing needs to be in them since we're assuming the model state and archived state are identical
         # (caller has just stored archived state into model). (This should remove a big slowdown of the first operation after Undo or Redo.) [bruce 060407]
         self.clear_changed_object_sets()
-        
+
         # not sure this is right, but it's simplest that could work, plus some attempts to clean up unused objects:
         self.current_diff.destroy() # just to save memory; might not be needed (probably refdecr would take care of it) since no ops stored from it yet
         self.last_cp.end_of_undo_chain_for_awhile = True # not used by anything, but might help with debugging someday; "for awhile" because we might Redo to it
@@ -1900,7 +1900,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
     def clear_changed_object_sets(self): #060407
         self.get_and_clear_changed_objs(want_retval = False)
-        
+
     def clear_undo_stack(self): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack) [060304 removed *args, **kws]
         # note: see also: comments in self.initial_checkpoint,
         # and in undo_manager.clear_undo_stack
@@ -1929,7 +1929,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 ##                self.initial_cp = self.last_cp # (as of 060126 this only affects debug_undo2 prints)
             pass
         return
-    
+
     def pref_report_checkpoints(self): #bruce 060127 revised meaning and menutext, same prefs key
         """
         whether to report all checkpoints which see any changes from the prior one
@@ -1946,7 +1946,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         ##e these need splitting out (and made registerable) as "pre-checkpoint updaters"... note, they can change things,
         # ie update change_counters, but that ought to be ok, as long as they can't ask for a recursive checkpoint,
         # which they won't since only UI event processors ever ask for those. [060301]
-        
+
         self.assy.update_parts() # make sure assy has already processed changes (and assy.changed has been called if it will be)
             #bruce 060127, to fix bug 1406 [definitely needed for 'end...' cptype; not sure about begin, clear]
             # note: this has been revised from initial fix committed for bug 1406, which was in assembly.py and
@@ -1964,9 +1964,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 ##                # never need to be part of the undoable state.
 ##                # (Needless to say, this should be made more modular by being somehow declared in class Chunk,
 ##                #  perhaps giving it a special _undo_getattr__hotspot or so (though support for that is nim, i think). ###e)
-        
+
         return
-    
+
     def checkpoint(self, cptype = None, cmdname_for_debug = "", merge_with_future = False ): # called from undo_manager
         """
         When this is called, self.last_cp should be complete, and self.next_cp should be incomplete,
@@ -1988,7 +1988,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
 ##        if 0: # bug 1440 debug code 060320, and 1747 060323
 ##            print_compact_stack("undo cp, merge=%r: " % merge_with_future)
-        
+
         if not merge_with_future:
             #060312 added 'not merge_with_future' cond as an optim; seems ok even if this would set change_counters,
             # since if it needs to run, we presume the user ops will run it on their own soon enough and do another
@@ -1999,7 +1999,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         assert self.last_cp is not None
         assert self.next_cp is not None
         assert self.current_diff is not None
-        
+
         # Finalize self.next_cp -- details of this code probably belong at a lower level related to fill_checkpoint #e
         ###e specifically, this needs moving into the new method (to be called from here)
         ## self.current_diff.finalize(...)
@@ -2011,7 +2011,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # (It was supposed to traceback when undoing to initial_state, but it didn't,
             #  so I'm "not looking that gift horse in the mouth" right now. ###@@@)
             #k see also comments mentioning 'differential'
-            
+
         # maybe i should clean up the following code sometime...
         debug3 = 0 and env.debug() # for now [060301] if 0 060302; this is here (not at top of file) so runtime env.debug() affects it
         if debug3:
@@ -2040,7 +2040,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 pass # nothing new; Undo being enabled can be as normal, based on last_cp #####@@@@@
             else:
                 # a change -- Undo should from now on always be enabled, and should say "to last manual cp" or
-                # "to when we disabled autocp" 
+                # "to when we disabled autocp"
                 ####k Note: we need to only pay attention to changes that should be undoable, not e.g. view changes,
                 # in the counters used above for these tests! Otherwise we'd enable Undo action
                 # and destroy redo stack when we shouldn't. I think we're ok on this for now, but only because
@@ -2089,7 +2089,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     print msg
                     from utilities.Log import redmsg # not sure this is ok to do when this module is imported, tho probably it is
                     env.history.message(redmsg(msg))
-                
+
                 if debug_undo2:
                     print "checkpoint %r at change %r, last cp was at %r" % (cptype, \
                                     self.assy.all_change_indicators(), self.last_cp.assy_change_indicators)
@@ -2175,7 +2175,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     desc = "(%s)" % cptype
                 self.debug_histmessage( "(undo checkpoint %s: %r)" % (desc, self.next_cp) )
                 del cmdname, desc
-            
+
             if not self.current_diff.suppress_storing_undo_redo_ops:
                 redo_diff = self.current_diff
                 undo_diff = redo_diff.reverse_order()
@@ -2185,8 +2185,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 # figuring out which ones to offer, merging them, etc, might take care of that, or we might change this policy
                 # and only store them in certain cases, probably if this diff is begin-to-end or the like;
                 # and any empty diff always gets merged with followon ones, or not offered if there are none. ######@@@@@@
-            
-            # Shift checkpoint variables        
+
+            # Shift checkpoint variables
             self.last_cp = self.next_cp
             self.next_cp = None # in case of exceptions in rest of this method
             self.last_cp.cptype = cptype #k is this the only place that knows cptype, except for 'initial'?
@@ -2203,7 +2203,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # use that transclose utility... on the nodes, i guess, but collect the edges as i go
         # (nodes are state_versions, edges are diffs)
         # (transclose needs dict keys for these nodes... the nodes are data-like so they'll be their own keys)
-        
+
         assert from_cp is not None # and is a checkpoint?
         # but it's ok if except_diff is None
         state_version_start = self.state_version_of_cp(from_cp)
@@ -2249,7 +2249,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             if 0 and env.debug():
                 print "debug: clear_redo_stack found nothing to destroy"
         return
-    
+
     def current_command_info(self, *args, **kws): ##e should rename add_... to make clear it's not finding and returning it
         assert not args
         if not self._undo_archive_initialized:
@@ -2262,7 +2262,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # someday even a graph if different layers have different internal cps. maybe just bag of diffs
             # and overall effect on varidvers, per segment. and yes it's more general than just for undo; eg affects history.
         return
-    
+
     def do_op(self, op): ###@@@ 345pm some day bfr 060123 - figure out what this does if op.prior is not current, etc;
                 # how it relates to whether assy changed since last_cp set; etc.
         """
@@ -2274,14 +2274,14 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
            If this is exactly what moves model state between preexisting checkpoints (i.e. not out-of-order),
         change overall varid_ver (i.e. our analog of an "undo stack pointer") to reflect that;
         otherwise [nim as of 060118] make a new checkpoint, ver, and diff to stand for the new state, though some state-subset
-        varid_vers (from inside the diff) will usually be reused. (Always, in all cases I know how to code yet; maybe not for list ops.)        
+        varid_vers (from inside the diff) will usually be reused. (Always, in all cases I know how to code yet; maybe not for list ops.)
         """
         assert self._undo_archive_initialized
         # self.current_diff is accumulating changes that occur now,
         # including the ones we're about to do by applying self to assy.
         # Make sure it is not itself later stored (redundantly) as a diff that can be undone or redone.
         # (If it was stored, then whenever we undid a change, we'd have two copies of the same change stored as potential Undos.)
-        
+
         self.current_diff.suppress_storing_undo_redo_ops = True  # [should this also discard self.last_cp as irrelevant??? then apply_to can set it? 060301 Q ###@@@]
 
         # Some code (find_undoredos) might depend on self.assy.all_change_indicators() being a valid
@@ -2290,7 +2290,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # by restoring self.assy.all_change_indicators() to the correct old value from the end of the diff.
 
         # The remaining comments might be current, but they need clarification. [060126 comment]
-        
+
         # in present implem [060118], we assume without checking that this op is not being applied out-of-order,
         # and therefore that it always changes the model state between the same checkpoints that the diff was made between
         # (or that it can ignore and/or discard any way in which the current state disagrees with the diff's start-checkpoint-state).
@@ -2298,7 +2298,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 #bruce 060314 not useful now, but leave the code as example (see longer comment elsewhere):
 ##        self.mols_with_invalid_atomsets = {} ##@@ KLUGE to put this here -- belongs in become_state or so, but that's
 ##            # not yet a method of self! BTW, this might be wrong once we merge -- need to review it then. [bruce 060313]
-        
+
         op.apply_to( self) # also restores view to what it was when that change was made [as of 060123]
             # note: actually affects more than just assy, perhaps (ie glpane view state...)
             #e when diffs are tracked, worry about this one being tracked
@@ -2306,7 +2306,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
 #ditto:
 ##        del self.mols_with_invalid_atomsets # this will have been used by updaters sometime inside op.apply_to
-        
+
         #060123 202p following [later removed] is wrong since this very command (eg inside some menu item)
         # is going to do its own end-checkpoint.
         # the diffs done by the above apply_to are going to end up in the current diff...
@@ -2321,7 +2321,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # - when it makes those while applying a diff, then at least the direct ones inside the diff can have them set to old vals
         #   (tho if updates to restore consistency also run, not sure they fit in -- but in single-varid system that's moot)
         return
-    
+
     def state_version(self):
         ## assy_varid = make_assy_varid(self.assy._debug_name)
         # kluge: optim of above:
@@ -2332,7 +2332,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
     def state_version_of_cp(self, cp): #060309 ###k maybe this should be (or is already) a cp method...
         return {ASSY_VARID_STUB: cp.assy_change_indicators}
-        
+
     def find_undoredos(self, warn_when_change_indicators_seem_wrong = True):
         """
         Return a list of undo and/or redo operations
@@ -2364,7 +2364,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # So there's no way and no point, and the reason there's no need is that non-current diffs get indexed
             # so they can be found in stored_ops by _raw_find_undoredos.
             return [self.current_diff.reverse_order()] ####k ####@@@@ ??? [added this 060312; something like it seems right]
-        
+
         state_version = self.state_version()
         ## state_version = dict([self.last_cp.varid_ver()]) ###@@@ extend to more pairs
         # that's a dict from varid to ver for current state;
@@ -2403,7 +2403,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     res[op.key] = op
         # this includes anything that *might* apply... filter it... not needed for now with only one varid in the system. ###@@@
         return res.values()
-    
+
     def store_op(self, op):
         assert self._undo_archive_initialized
         for varver in op.varid_vers():
@@ -2417,11 +2417,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             for op in oplist:
                 res += op._n_stored_vals() ###IMPLEM
         return res
-    
+
     def wrap_op_with_merging_flags(self, op, flags = None):
         "[see docstring in undo_manager]"
         return MergingDiff(op, flags = flags, archive = self) # stub
-    
+
     pass # end of class AssyUndoArchive
 
 ASSY_VARID_STUB = 'assy' # kluge [060309]: permit optims from this being constant, as long as this doesn't depend on assy, etc;

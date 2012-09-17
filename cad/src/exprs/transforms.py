@@ -1,10 +1,10 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 transforms.py - provide Translate [and more later]
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 
 Translate was developed in Center.py, split out of that 061115
 
@@ -91,7 +91,7 @@ class Translate(InstanceOrExpr, DelegatingMixin):
 
     ###e the following move method will probably need to go (not hard since not in any non-obs api),
     # to make room for a move method which alters the posn of a model object. [070209 comment about old code]
-    
+
     # methods needed by all layout primitives: move & draw (see Column) & maybe kid (needed for highlighting, maybe not yet called)
     def move(self, i, j): # note: this separate move/draw API is obsolete, but still used, tho only locally (see paper notes circa 091113)
         "move from i to j, where both indices are encoded as None = self and 0 = self.thing"

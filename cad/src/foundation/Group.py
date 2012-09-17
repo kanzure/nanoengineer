@@ -84,7 +84,7 @@ class Group(NodeWithAtomContents):
     _s_attr_members = S_CHILDREN # this declares group.members for Undo
         # note: group.members are informally called its "kids",
         # but need not be identical to the output of group.MT_kids(),
-        # which gives the list of nodes to show as its children in 
+        # which gives the list of nodes to show as its children in
         # the Model Tree.
 
     temporarily_prevent_autodelete_when_empty = False
@@ -96,10 +96,10 @@ class Group(NodeWithAtomContents):
 
     # ==
 
-    def __init__(self, name, assy, dad, members = (), editCommand = None): 
+    def __init__(self, name, assy, dad, members = (), editCommand = None):
             ###@@@ review inconsistent arg order
         self.members = [] # must come before _superclass.__init__
-        self.__cmfuncs = [] 
+        self.__cmfuncs = []
             # __cmfuncs lists funcs to call right after the next time
             # self.members is changed
         _superclass.__init__(self, assy, name, dad)
@@ -115,19 +115,19 @@ class Group(NodeWithAtomContents):
         return
 
     def _um_initargs(self): #bruce 051013 [in class Group]
-        
+
         """
         [Overrides Node._um_initargs; see its docstring.]
         """
         # [note: as of 060209 this is probably well-defined and correct (for
         #  most subclasses), but not presently used]
-        return (self.name, self.assy), {} 
+        return (self.name, self.assy), {}
             # note reversed arg order from Node version
-            # dad and members (like most inter-object links) are 
+            # dad and members (like most inter-object links) are
             # best handled separately
 
     def _undo_update(self): # in class Group [bruce 060306]
-        self.changed_members() 
+        self.changed_members()
             # This is part of the fix for bug 1617; fixing it will also
             # require separate changes in MMKit by Mark. Review: is this safe
             # to do in arbitrary order vs. other Undo-related updates, or do
@@ -145,30 +145,30 @@ class Group(NodeWithAtomContents):
         return True
 
     _extra_classifications = ()
-    
+
     def set_extra_classifications( self, extra_classifications): #bruce 080115
         self._extra_classifications = list(extra_classifications)
 
     open_specified_by_mmp_file = False
-    
-    def readmmp_info_opengroup_setitem( self, key, val, interp ): 
+
+    def readmmp_info_opengroup_setitem( self, key, val, interp ):
         """
         This is called when reading an mmp file, for each "info opengroup"
         record which occurs right after this node's "group" record is read and
         no other node (or "group" record) has been read.
-        
+
         Key is a list of words, val a string; the entire record format
         is presently [050421] "info opengroup <key> = <val>".
         Interp is an object to help us translate references in <val>
         into other objects read from the same mmp file or referred to by it.
-        See the calls of this method from files_mmp for the doc of interp 
+        See the calls of this method from files_mmp for the doc of interp
         methods.
-        
+
         If key is recognized, set the attribute or property it refers to to
         val; otherwise do nothing (or for subclasses of Group which handle
         certain keys specially, call the same method in the superclass for
         other keys).
-        
+
         (An unrecognized key, even if longer than any recognized key, is not
         an error. Someday it would be ok to warn about an mmp file containing
         unrecognized info records or keys, but not too verbosely (at most once
@@ -179,7 +179,7 @@ class Group(NodeWithAtomContents):
             # val should be "True" or "False" (unrecognized vals are ignored)
             if val == 'True':
                 self.open = True
-                self.open_specified_by_mmp_file = True 
+                self.open_specified_by_mmp_file = True
                     # so code to close the clipboard won't override it
             elif val == 'False':
                 self.open = False
@@ -197,7 +197,7 @@ class Group(NodeWithAtomContents):
         return True # same as for Node
 
     def drag_copy_ok(self):
-        return True 
+        return True
             # for my testing... REVIEW: maybe make it False for Alpha though 050201
 
     def MT_DND_can_drop_inside(self): #bruce 080317
@@ -235,10 +235,10 @@ class Group(NodeWithAtomContents):
         Whenever something changes self.members in any way (insert, delete,
         reorder), it MUST call this method to inform us (but only *after* it
         makes the change); we'll inform other interested parties, if any.
-        
+
         (To tell us you're an interested party, use
         call_after_next_changed_members.)
-        
+
         Notes: This need not be called after changes in membership *within*
         our members, only after direct changes to our members list. Our
         members list is public, but whether it's incrementally changed (the
@@ -262,7 +262,7 @@ class Group(NodeWithAtomContents):
             # parents, and then those assy.changed() would not happen and bug
             # 413 might be fixable differently.]
             self.assy.changed()
-            # note: it is ok for something in part.changed() or assy.changed() 
+            # note: it is ok for something in part.changed() or assy.changed()
             # to modify self.__cmfuncs
         cm = self.__cmfuncs
         if cm:
@@ -296,11 +296,11 @@ class Group(NodeWithAtomContents):
         self.members. At that time, pass it one argument, self; ignore its
         retval; print error message (in debug version only) if it has
         exceptions.
-        
+
         If our members are taken over by another Group instance (see
         kluge_change_class), then it, not us, will call func and be the
         argument passed to func.
-        
+
         Typically, func should be an "invalidation function", recording the
         need to update something; when that update later occurs, it uses
         self.members and again supplies a func to this method. (If every call
@@ -317,7 +317,7 @@ class Group(NodeWithAtomContents):
         self.__cmfuncs.append( func) # might occur during use of same func!
 
 
-    # methods before this are by bruce 050108 and should be 
+    # methods before this are by bruce 050108 and should be
     # reviewed when my rewrite is done ###@@@
 
     def get_topmost_subnodes_of_class(self, clas): #bruce 080115, revised 080807
@@ -325,7 +325,7 @@ class Group(NodeWithAtomContents):
         Return a list of the topmost (direct or indirect)
         children of self (Nodes or Groups), but never self itself,
         which are instances of the given class (or of a subclass).
-        
+
         That is, scanning depth-first into self's child nodes,
         for each child we include in our return value, we won't
         include any of its children.
@@ -340,7 +340,7 @@ class Group(NodeWithAtomContents):
 
         @see: same-named method on class Part.
         """
-        #NOTE: this method is duplicated in class Part (see Part.py) 
+        #NOTE: this method is duplicated in class Part (see Part.py)
         #-- Ninad 2008-08-06 [bruce 090121 comment: TODO/FIX/REVIEW that]
         res = []
         for child in self.members:
@@ -370,7 +370,7 @@ class Group(NodeWithAtomContents):
             env.history.message( redmsg(quote_html(msg)) )
             pass # but continue anyway
         new = subclass(self.name, self.assy, self.dad) # no members yet
-        assert isinstance(new, Group) 
+        assert isinstance(new, Group)
             # (but usually it's also some subclass of Group, unlike self)
         if self.dad:
             # don't use addmember, it tells the assy it changed
@@ -381,14 +381,14 @@ class Group(NodeWithAtomContents):
                 # don't tell dad its members changed, until new is finished (below)
             self.dad = None # still available in new.dad if we need it
         new.members = self.members # let new steal our members directly
-        new.__cmfuncs = self.__cmfuncs 
+        new.__cmfuncs = self.__cmfuncs
             # and take responsibility for our members changing...
         self.__cmfuncs = []
         # self should no longer be used; enforce this
         self.members = 333 # not a sequence
-        self.temporarily_prevent_autodelete_when_empty = False 
+        self.temporarily_prevent_autodelete_when_empty = False
             #bruce 080326 precaution, probably not needed
-        self.node_icon = "<bug if this is called>" 
+        self.node_icon = "<bug if this is called>"
             # REVIEW: setting self.node_icon here causes a pylint error
             # message on a different line, "def node_icon". I don't know why,
             # and I think pylint is wrong (or if not, wrong to not refer to
@@ -396,8 +396,8 @@ class Group(NodeWithAtomContents):
             # confusing -- should clean up. [bruce 090121 comment]
         for mem in new.members:
             mem.dad = new
-            # bruce 050205 design discussion: 
-            # should we now call mem.changed_dad()? 
+            # bruce 050205 design discussion:
+            # should we now call mem.changed_dad()?
             #
             # * reasons yes: new's new class might differ in rules for
             # selgroup or space (e.g. be the top of a selgroup) and change_dad
@@ -406,7 +406,7 @@ class Group(NodeWithAtomContents):
             # already.
             #
             # * reasons no: ... some vague uneasiness. Oh, it might falsely
-            # tell assy it changed, but I think our caller handles that. 
+            # tell assy it changed, but I think our caller handles that.
             #
             # So yes wins, unless bugs show up!
             # BUT: don't do this until we're all done (so new is entirely valid).
@@ -424,12 +424,12 @@ class Group(NodeWithAtomContents):
                 setattr(new, attr, val)
         for mem in new.members:
             mem.changed_dad() # reason is explained above [bruce 050205]
-        new.dad.changed_members() 
+        new.dad.changed_members()
             # since new class is different from self.class, this might be
             # needed ###@@@ is it ok?
         return new
 
-    #bruce 050113 deprecated addmember and confined it to Node; see its 
+    #bruce 050113 deprecated addmember and confined it to Node; see its
     # docstring.
     #bruce 071110 split def addmember between Node and Group,
     # so Node needn't import Group now that they're in different modules.
@@ -450,23 +450,23 @@ class Group(NodeWithAtomContents):
         self.addchild( node, top = before_or_top)
         return
 
-    def addchild(self, 
-                 newchild, 
-                 _guard_ = 050201, 
-                 top = False, 
-                 after = None, 
+    def addchild(self,
+                 newchild,
+                 _guard_ = 050201,
+                 top = False,
+                 after = None,
                  before = None ):
         """
         Add the given node, newchild, to the end (aka. bottom) of this Group's
         members list, or to the specified place (top aka. beginning, or after
         some child or index, or before some child or index) if one of the
         named arguments is given.
-        
+
         Ok even if newchild is already a member of self, in same or different
         location than requested (it will be moved), or a member of some other
         Group (it will be removed). (Behavior with more than one named
         argument is undefined.)
-        
+
         Note: the existence of this method (as an attribute) might be used as
         a check for whether a Node can be treated like a Group [as of 050201].
 
@@ -477,7 +477,7 @@ class Group(NodeWithAtomContents):
         [Warning (from when this was called addmember): semantics (place of
         insertion, and optional arg name/meaning) are not consistent with
         Node.addmember; see my comments in its docstring. -- bruce 050110]
-        
+
         [note, 050315: during low-level node-tree methods like addchild and
         delmember, and also during pick and unpick methods, there is no
         guarantee that the Part structure of our assy's node tree is correct,
@@ -489,7 +489,7 @@ class Group(NodeWithAtomContents):
         """
         #bruce 050113 renamed from addmember
         #bruce 050110/050206 updated docstring based on current code
-        # Note: Lots of changes implemented at home 050201-050202 but 
+        # Note: Lots of changes implemented at home 050201-050202 but
         # not committed until 050206 (after Alpha out); most dates
         # 050201-050202 below are date of change at home.
         #bruce 050201 added _guard_, after, before
@@ -560,7 +560,7 @@ class Group(NodeWithAtomContents):
                 # node used as a marker is newchild itself) or as indices
                 # (since removal of newchild will change indices of subsequent
                 # nodes). So instead, if those options were used, we fix them
-                # to work.                
+                # to work.
                 if type(before) is type(1):
                         # indices will change, use real nodes instead (ok even
                         # if real node is 'newchild'! we detect that below)
@@ -577,18 +577,18 @@ class Group(NodeWithAtomContents):
                 # otherwise (after our fixes above) the general-case code
                 # should be ok. Fall thru to removing newchild from prior home
                 # (in this case, self), before re-adding it in a new place.
-                
+
             # remove newchild from its prior home (which may or may not be
             # self):
             newchild.dad.delmember(newchild, unpick = False)
-            
+
                 # this sets newchild.dad to None, but doesn't mess with its
                 # .part, .assy, etc
-                
+
                 #bruce 080502 bugfix (of undo/redo losing selectedness of PAM
                 # DNA chunks when this is called by dna updater to put them in
                 # possibly different groups): passing unpick = False
-                
+
         # Only now will we actually insert newchild into self.
         # [end of this part of bruce 050205 changes]
 
@@ -600,34 +600,34 @@ class Group(NodeWithAtomContents):
             self.members.insert(0, newchild) # Insert newchild at the very top
         elif after is not None: # 0 has different meaning than None!
             if type(after) is not type(0):
-                after = self.members.index(after) 
+                after = self.members.index(after)
                     # raises ValueError if not found, that's fine
             if after == -1:
                 self.members += [newchild]
                     # Add newchild to the bottom (.insert at -1+1 doesn't do
                     # what we want for this case)
             else:
-                self.members.insert(after+1, newchild) 
-                    # Insert newchild after the given position 
+                self.members.insert(after+1, newchild)
+                    # Insert newchild after the given position
                     # (check: does this work for negative indices?)
         elif before is not None:
             if type(before) is not type(0):
-                before = self.members.index(before) 
+                before = self.members.index(before)
                     # raises ValueError if not found, that's fine
-            self.members.insert(before, newchild) 
-                # Insert newchild before the given position 
+            self.members.insert(before, newchild)
+                # Insert newchild before the given position
                 # (check: does this work for negative indices?)
         else:
-            self.members.append(newchild) 
+            self.members.append(newchild)
                 # Add newchild to the bottom, i.e. end (default case)
         newchild.dad = self
-        newchild.changed_dad() 
+        newchild.changed_dad()
             # note: this picks newchild if newchild.dad is picked, and
             # sometimes calls inherit_part
         newchild.dad.changed_members()
             # must be done *after* they change and *after* changed_dad has
             # made them acceptable for new dad
-        
+
         # Note: if we moved newchild from one place to another in self,
         # changed_members is called twice, once after deletion and once after
         # re-insertion. That's probably ok, but I should #doc this in the
@@ -635,30 +635,30 @@ class Group(NodeWithAtomContents):
         return
 
     def delmember(self, obj, unpick = True):
-        if obj.dad is not self: 
+        if obj.dad is not self:
             # bruce 050205 new feature -- check for this (but do nothing about
             # it)
             if debug_flags.atom_debug:
                 msg = "atom_debug: fyi: delmember finds obj.dad is not self"
                 print_compact_stack( msg + ": ") #k does this ever happen?
-        if unpick: 
+        if unpick:
             #bruce 080502 new feature: let this unpick be optional (before
             #now, it was always done)
-            obj.unpick() 
+            obj.unpick()
                 #bruce 041029 fix bug 145 [but callers should not depend on
                 #this happening! see below]
-                
+
             #k [bruce 050202 comment, added 050205]: review this unpick again
             #sometime, esp re DND drag_move (it might be more relevant for
             #addchild than for here; more likely it should be made not needed
             #by callers)
-            
+
             # [bruce 050203 review: this unpick is still needed, to keep
             # killed obj out of selmols, unless we revise things enough to let
             # us invalidate selmols here, or the like; and [050206] we should,
             # since this side effect is sometimes bad (though I forget which
             # recent case of it bugged me a lot).]
-            
+
         ## self.assy.changed() # now done by changed_members below
         try:
             self.members.remove(obj)
@@ -689,7 +689,7 @@ class Group(NodeWithAtomContents):
         res = self.members
         self.members = []
         for obj in res:
-            self.temporarily_prevent_autodelete_when_empty = False 
+            self.temporarily_prevent_autodelete_when_empty = False
                 #bruce 080326 precaution
             if obj.dad is not self: # error, debug-reported but ignored
                 if debug_flags.atom_debug:
@@ -849,9 +849,9 @@ class Group(NodeWithAtomContents):
                 if not self.permit_as_member(m, **opts):
                     # eject m
                     if move_after_this is self:
-                        self.part.ensure_toplevel_group() 
+                        self.part.ensure_toplevel_group()
                             # must do this before first use of self.dad
-                    self.dad.addchild(m, after = move_after_this) 
+                    self.dad.addchild(m, after = move_after_this)
                         #k verify it removes m from old home == self
                     move_after_this = m
                     # emit a summary message
@@ -875,7 +875,7 @@ class Group(NodeWithAtomContents):
                             summary_format = \
                                 "Warning: killed [N] invalid object(s) of class %s" % \
                                 (m.short_classname(), )
-                            env.history.deferred_summary_message( 
+                            env.history.deferred_summary_message(
                                 redmsg(summary_format) )
                         have_unscanned_members = True
                         # we might (or might not) improve the ordering of
@@ -916,7 +916,7 @@ class Group(NodeWithAtomContents):
         return False
 
     # ==
-    
+
     def permit_addnode_inside(self): #bruce 080626 added this to Group API
         """
         Can UI operations wanting to add new nodes to some convenient place
@@ -926,7 +926,7 @@ class Group(NodeWithAtomContents):
          to the user when seen in the model tree]
         """
         return True # for most Groups
-    
+
     # ==
 
     def inherit_part(self, part): # Group method; bruce 050308
@@ -984,7 +984,7 @@ class Group(NodeWithAtomContents):
         @note: this *does* apply fn to leaf-like Groups such as DnaStrand,
                and to any groups inside them (even though they are not
                user-visible in the model tree).
-        
+
         [overrides Node implem]
         """
         fn(self)
@@ -1001,7 +1001,7 @@ class Group(NodeWithAtomContents):
         modifying a members list, see comments in apply2all docstring. [An
         example of (i hope) a safe way of modifying it, as of 050121, is in
         Group.ungroup.]
-        
+
         [overrides Node implem]
         """
         if self.picked:
@@ -1013,7 +1013,7 @@ class Group(NodeWithAtomContents):
     def hindmost(self): ###@@@ should rename
         """
         [docstring is meant for both Node and Group methods taken together:]
-        
+
         Thinking of nodes as subtrees of the model tree, return the smallest
         subtree of self which contains all picked nodes in this subtree, or None
         if there are no picked nodes in this subtree. Note that the result does
@@ -1053,7 +1053,7 @@ class Group(NodeWithAtomContents):
             ## if self.name == self.assy.name: return
             ## (that's now covered by permits_ungrouping)
             for x in self.members[:]:
-                ## x.moveto(self.dad) 
+                ## x.moveto(self.dad)
                 ##     # todo: should probably put them before self in there
                 self.delmember(x)
                 self.addsibling(x, before = True)
@@ -1086,9 +1086,9 @@ class Group(NodeWithAtomContents):
         """
         #doc; overrides Node method
         """
-        # todo: merge with copy_with_provided_copied_partial_contents 
+        # todo: merge with copy_with_provided_copied_partial_contents
         # (similar but not identical code and comments)
-        
+
         #bruce 050526, revised 080314, 081212
         # Note: the subclasses of Group include
         # DnaGroup, DnaStrand and DnaSegment (which are effectively new kinds
@@ -1098,7 +1098,7 @@ class Group(NodeWithAtomContents):
         # as ordinary Groups, whereas the Dna-related classes need to be
         # copied as instances of the same subclass. To support this distinction
         # (new feature and likely bugfix), I'll introduce a method to return
-        # the class to use for making copies. 
+        # the class to use for making copies.
         # [bruce 080314, comment revised 080331]
         class_for_copies = self._class_for_copies(mapping)
         new = class_for_copies(self.name, mapping.assy, None)
@@ -1106,12 +1106,12 @@ class Group(NodeWithAtomContents):
         ## self._copy_editCommand_to_copy_of_self_if_desirable(new)
         self.copy_copyable_attrs_to(new)
             # redundantly copies .name; also copies .open.
-            # (This might be wrong for some Group subclasses! 
-            #  Not an issue for now, but someday it might be better to use 
+            # (This might be wrong for some Group subclasses!
+            #  Not an issue for now, but someday it might be better to use
             #  attrlist from target, or intersection of their attrlists...)
         mapping.record_copy(self, new) # asserts it was not already copied
         for mem in self.members:
-            memcopy = mem.copy_full_in_mapping(mapping) 
+            memcopy = mem.copy_full_in_mapping(mapping)
                 # can be None, if mem refused to be copied
             if memcopy is not None:
                 new.addchild(memcopy)
@@ -1135,16 +1135,16 @@ class Group(NodeWithAtomContents):
         @param dad: None, or a node we should make our new parent node.
 
         @note: in current calls, members will be a partial copy of self.members,
-               possibly modified with wrapping groups, merged or dissolved 
+               possibly modified with wrapping groups, merged or dissolved
                internal groups, partialness of copy at any level, etc.
 
         @note: assy might not be self.assy, but will be the assy of all passed
                members and dad.
         """
         #bruce 080414
-        # todo: merge with copy_full_in_mapping 
+        # todo: merge with copy_full_in_mapping
         # (similar but not identical code and comments)
-        
+
         mapping = "KLUGE: we know all implems of _class_for_copies ignore this argument"
             # this KLUGE needs cleanup after the release
         class_for_copies = self._class_for_copies(mapping)
@@ -1154,8 +1154,8 @@ class Group(NodeWithAtomContents):
         self.copy_copyable_attrs_to(new)
             # redundantly copies .name [messing up the one we just passed];
             # also copies .open.
-            # (This might be wrong for some Group subclasses! 
-            #  Not an issue for now, but someday it might be better to use 
+            # (This might be wrong for some Group subclasses!
+            #  Not an issue for now, but someday it might be better to use
             #  attrlist from target, or intersection of their attrlists...)
         new.name = name # fix what copy_copyable_attrs_to might have messed up
         return new
@@ -1168,7 +1168,7 @@ class Group(NodeWithAtomContents):
         """
         #bruce 050214: called Node.kill instead of inlining it; enhanced
         # Node.kill; and fixed bug 381 by killing all members first.
-        self._f_prekill() 
+        self._f_prekill()
             # note: this has to be done before killing the members,
             # even though _superclass.kill might do it too [bruce 060327]
         for m in self.members[:]:
@@ -1199,7 +1199,7 @@ class Group(NodeWithAtomContents):
         """
         [overrides Node.is_ascendant, which is a very special case of the same
         semantics]
-        
+
         Returns True iff self is an ascendant of node,
         i.e. if the subtree of nodes headed by self contains node.
         (node must be a Node or None (for None we return False);
@@ -1235,7 +1235,7 @@ class Group(NodeWithAtomContents):
         else:
             return imagename_to_pixmap("modeltree/group-collapsed.png")
 
-    def MT_kids(self, display_prefs = {}): 
+    def MT_kids(self, display_prefs = {}):
         #bruce 050109; 080108 renamed from kids to MT_kids, revised semantics
         """
         [Overrides Node.MT_kids(); is overridden in some subclasses]
@@ -1267,9 +1267,9 @@ class Group(NodeWithAtomContents):
         #  widgets) never assume node.dad corresponds to the parent relation in
         #  their own tree of display items. I don't know how well the existing
         #  caller (modelTree.py) follows this so far. -- bruce 050113.
-        #  Update, bruce 080306 -- maybe as of a change today, it does -- 
+        #  Update, bruce 080306 -- maybe as of a change today, it does --
         #  we'll see.]
-        
+
         return self.members #bruce 081217 removed list() wrapper
 
     def openable(self):
@@ -1283,7 +1283,7 @@ class Group(NodeWithAtomContents):
         # it, we'll have to pass in some args... don't do that unless/until we
         # need to.
         return True
-    
+
     def edit(self):
         """
         [this is overridden in some subclasses of Group]
@@ -1322,14 +1322,14 @@ class Group(NodeWithAtomContents):
 
     def draw(self, glpane, dispdef): #bruce 050615, 071026 revised this
         if self.hidden:
-            #k does this ever happen? This state might only be stored 
+            #k does this ever happen? This state might only be stored
             # on the kids... [bruce 050615 question]
             return
 ##        self._draw_begin(glpane, dispdef)
         try:
             for ob in self.members: ## [:]:
                 ob.draw(glpane, dispdef) #see also self.draw_after_highlighting
-            # Check: Do they actually use dispdef? I know some of them 
+            # Check: Do they actually use dispdef? I know some of them
             # sometimes circumvent it (i.e. look directly at outermost one).
             # Todo: I might like to get them to honor it, and generalize
             # dispdef into "drawing preferences". Or it might be easier for
@@ -1402,7 +1402,7 @@ class Group(NodeWithAtomContents):
         # for the various special cases. It's not yet known if it will be
         # meaningful for all subclasses, so we write it for all of them for
         # now. [bruce 080115 comment, revised 080331]
-        mapping.write("info opengroup open = %s\n" % 
+        mapping.write("info opengroup open = %s\n" %
                       (self.open and "True" or "False"))
             # All "info opengroup" records should be written before we write
             # any of our members. If Group subclasses override this method
@@ -1410,7 +1410,7 @@ class Group(NodeWithAtomContents):
 
         self.writemmp_other_info_opengroup(mapping) #bruce 080507 refactoring
 
-        # [bruce 050422: this is where we'd write out "jigs moved forward" if 
+        # [bruce 050422: this is where we'd write out "jigs moved forward" if
         #  they should come at start of this group...]
         for xx in mapping.pop_forwarded_nodes_after_opengroup(self):
             mapping.write_forwarded_node_for_real(xx)

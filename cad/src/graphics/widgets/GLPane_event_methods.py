@@ -56,7 +56,7 @@ from ne1_ui.cursors import createCompositeCursor
 
 # ==
 
-## button_names = {0:None, 1:'LMB', 2:'RMB', 4:'MMB'} 
+## button_names = {0:None, 1:'LMB', 2:'RMB', 4:'MMB'}
 button_names = {Qt.NoButton:None, Qt.LeftButton:'LMB', Qt.RightButton:'RMB', Qt.MidButton:'MMB'}
     #bruce 070328 renamed this from 'button' (only in Qt4 branch), and changed the dict keys from ints to symbolic constants,
     # and changed the usage from dict lookup to iteration over items, to fix some cursor icon bugs.
@@ -114,7 +114,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
 
         self.jigSelectionEnabled = True # mark 060312
 
-        self.triggerBareMotionEvent = True 
+        self.triggerBareMotionEvent = True
             # Supports timerEvent() to minimize calls to bareMotion(). Mark 060814.
         self.wheelHighlight = False
             # russ 080527: Fix Bug 2606 (highlighting not turned on after wheel event.)
@@ -137,7 +137,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         return
 
     # == related to DebugMenuMixin
-    
+
     def makemenu(self, menu_spec, menu = None):
         # this overrides the one from DebugMenuMixin (with the same code), but that's ok,
         # since we want to be self-contained in case someone later removes that mixin class;
@@ -212,21 +212,21 @@ class GLPane_event_methods(object, DebugMenuMixin):
             pw = self.partWindow
             pw.parent._activepw = pw
         return
-    
+
     # ==
 
     _cursorWithoutSelectionLock = None #bruce 080918 added def, made private
-    
+
     def setCursor(self, inCursor = None):
         """
         Sets the cursor for the glpane.
 
-        This method is also responsible for adding special symbols to the 
+        This method is also responsible for adding special symbols to the
         cursor that should be persistent as cursors change (i.e. the selection
         lock symbol). That's controlled by attrs of self, not by arguments.
 
         @param inCursor: Either a cursor or a list of 2 cursors (one for a dark
-                         background, one for a light background). 
+                         background, one for a light background).
                          If cursor is None, reset the cursor to the
                          most recent version without the selection lock symbol.
         @type  inCursor: U{B{QCursor}<http://doc.trolltech.com/4/qcursor.html>} or
@@ -251,9 +251,9 @@ class GLPane_event_methods(object, DebugMenuMixin):
         self._cursorWithoutSelectionLock = cursor
 
         if not cursor: #bruce 080918
-            print "BUG: can't set cursor from %r -- no cached cursor so far" % (inCursor,) 
+            print "BUG: can't set cursor from %r -- no cached cursor so far" % (inCursor,)
             return None
-        
+
         # Apply modifications before setting cursor.
         # (review: also cache modified cursors as optim? Or does the subr do that? [bruce 080918 Q])
         if self.mouse_selection_lock_enabled:
@@ -396,7 +396,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
             highlighting_enabled = self.graphicsMode.command.isHighlightingEnabled()
             if self.selobj and highlighting_enabled:
                 if self.modkeys == 'Shift+Control' or oldmodkeys == 'Shift+Control':
-                    # If something is highlighted under the cursor and we just pressed or released 
+                    # If something is highlighted under the cursor and we just pressed or released
                     # "Shift+Control", repaint to update its correct highlight color.
                     self.gl_update_highlight()
         return
@@ -433,14 +433,14 @@ class GLPane_event_methods(object, DebugMenuMixin):
         @see: L{ops_connected_Mixin.getConnectedAtoms()} for an example of use.
         """
         # Implementation: We start a <tripleClickTimer> (a single shot timer)
-        # whenever we get a double-click mouse event, but only if there is no 
+        # whenever we get a double-click mouse event, but only if there is no
         # other active tripleClickTimer.
         # If we get another mousePressEvent() before <tripleClickTimer> expires,
         # then we consider that event a triple-click event and mousePressEvent()
         # sends the event here.
         #
-        # We then set instance variable <tripleClick> to True and send the 
-        # event to mouseDoubleClickEvent(). After mouseDoubleClickEvent() 
+        # We then set instance variable <tripleClick> to True and send the
+        # event to mouseDoubleClickEvent(). After mouseDoubleClickEvent()
         # processes the event and returns, we reset <tripleClick> to False.
         # Code can check <tripleClick> to determine if an event is a
         # triple click.
@@ -451,8 +451,8 @@ class GLPane_event_methods(object, DebugMenuMixin):
         # (i.e. include mode.left/middle/rightTriple() methods),
         # but it does provides the guts for one. I intend to discuss this with
         # Bruce to see if it would be worth adding these mode methods.
-        # Since we only need this to implement NFR 2516 (i.e. select all 
-        # connected PAM5 atoms when the user triple-clicks a PAM5 atom), 
+        # Since we only need this to implement NFR 2516 (i.e. select all
+        # connected PAM5 atoms when the user triple-clicks a PAM5 atom),
         # it isn't necessary.
         #
         # See: mouseDoubleClickEvent(), mousePressEvent(), _tripleClickTimeout()
@@ -472,7 +472,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         @param event: A Qt mouse event.
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
-        if not self.tripleClickTimer.isActive(): # See mouseTripleClickEvent(). 
+        if not self.tripleClickTimer.isActive(): # See mouseTripleClickEvent().
             self.tripleClickTimer.start( 200 )   # 200-millisecond singleshot timer.
 
         # (note: mouseDoubleClickEvent and mousePressEvent share a lot of code)
@@ -618,7 +618,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
             elif mod & Qt.ControlModifier:
                 self.graphicsMode.rightCntlDown(event)
             else:
-                self.graphicsMode.rightDown(event)         
+                self.graphicsMode.rightDown(event)
 
         return
 
@@ -688,10 +688,10 @@ class GLPane_event_methods(object, DebugMenuMixin):
 
     def checkpoint_after_drag(self, event): #bruce 060124; split out of caller, 060126 (and called it later, to fix bug 1384)
         """
-        Do undo_checkpoint_after_command(), if a prior press event did an 
+        Do undo_checkpoint_after_command(), if a prior press event did an
         undo_checkpoint_before_command() to match.
 
-        @note: This should only be called *after* calling the mode-specific 
+        @note: This should only be called *after* calling the mode-specific
                event handler for this event!
         """
         del event
@@ -730,7 +730,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         @param event: A Qt mouse event.
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
-        ## Huaicai 8/4/05. 
+        ## Huaicai 8/4/05.
         self.makeCurrent()
 
         ##self.debug_event(event, 'mouseMoveEvent')
@@ -897,19 +897,19 @@ class GLPane_event_methods(object, DebugMenuMixin):
     def timerEvent(self, event): # Mark 060806.
         """
         When the GLpane's timer expires, a signal is generated calling this
-        slot method. The timer is started in L{enterEvent()} and killed in 
-        L{leaveEvent()}, so the timer is only active when the cursor is in 
+        slot method. The timer is started in L{enterEvent()} and killed in
+        L{leaveEvent()}, so the timer is only active when the cursor is in
         the GLpane.
 
         This method is part of a hover highlighting optimization and works in
         concert with mouse_exceeded_distance(), which is called from
         L{selectMode.bareMotion()}. It works by creating a 'MouseMove' event
-        using the current cursor position and sending it to 
+        using the current cursor position and sending it to
         L{mode.bareMotion()} whenever the mouse hasn't moved since the previous
         timer event.
 
-        @see: L{enterEvent()}, L{leaveEvent()}, 
-              L{selectMode.mouse_exceeded_distance()}, and 
+        @see: L{enterEvent()}, L{leaveEvent()},
+              L{selectMode.mouse_exceeded_distance()}, and
               L{selectMode.bareMotion()}
         """
         del event
@@ -931,7 +931,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         # This event is intended only for eventual use in selectMode.mouse_exceeded_distance
         # by certain graphicsModes, but is sent to all graphicsModes.
         if (xy_now == xy_last and self.button == None) or self.wheelHighlight:
-            # Only pass a 'MouseMove" mouse event once to bareMotion() when the mouse stops 
+            # Only pass a 'MouseMove" mouse event once to bareMotion() when the mouse stops
             # and hasn't moved since the last timer event.
 
             if self.triggerBareMotionEvent or self.wheelHighlight:
@@ -997,7 +997,7 @@ class GLPane_event_methods(object, DebugMenuMixin):
         """
         x = event.pos().x()
         y = self.height - event.pos().y()
-        
+
         # modify modelview matrix in side-by-side stereo view modes [piotr 080529]
         # REVIEW: does no_clipping disable enough? especially in anaglyph mode,
         # we might want to disable even more side effects, for efficiency.
@@ -1026,8 +1026,8 @@ class GLPane_event_methods(object, DebugMenuMixin):
         """
         self.MousePos = V(event.pos().x(), event.pos().y())
 
-    def dragstart_using_GL_DEPTH(self, 
-                                 event, 
+    def dragstart_using_GL_DEPTH(self,
+                                 event,
                                  more_info = False,
                                  always_use_center_of_view = False): #bruce 061206 added more_info option
         """
@@ -1050,15 +1050,15 @@ class GLPane_event_methods(object, DebugMenuMixin):
         GLPane and/or vary with differently drawn frames.)
         @param always_use_center_of_view: If True it always uses the depth of the
              center of view (returned by self.mousepoints) . This is used by
-             Line_GraphicsMode.leftDown(). 
+             Line_GraphicsMode.leftDown().
 
         """
-        #@NOTE: Argument  always_use_center_of_view added on April 20, 2008 to 
+        #@NOTE: Argument  always_use_center_of_view added on April 20, 2008 to
         #fix a bug for Mark's Demo.
-        #at FNANO08 -- This was the bug: In CPK display style,, start drawing 
-        #a duplex,. When the rubberbandline draws 20 basepairs, move the cursor 
+        #at FNANO08 -- This was the bug: In CPK display style,, start drawing
+        #a duplex,. When the rubberbandline draws 20 basepairs, move the cursor
         #just over the last sphere drawn and click to finish duplex creation
-        #Switch the view to left view -- the duplex axis is not vertical 
+        #Switch the view to left view -- the duplex axis is not vertical
 
         wX = event.pos().x()
         wY = self.height - event.pos().y()
@@ -1077,44 +1077,44 @@ class GLPane_event_methods(object, DebugMenuMixin):
             return farQ, point, wX, wY, depth, farZ
         return farQ, point
 
-    def dragstart_using_plane_depth(self, 
-                                    event, 
+    def dragstart_using_plane_depth(self,
+                                    event,
                                     plane = None,
                                     planeAxis = None,
                                     planePoint = None ):
         """
         Returns the 3D point on a specified plane, at the coordinates of event
-              
-        @param plane: The point is computed such that it lies on this Plane 
-                      at the given event coordinates. 
-                     
+
+        @param plane: The point is computed such that it lies on this Plane
+                      at the given event coordinates.
+
         @see: Line_GraphicsMode.leftDown()
         @see: InsertDna_GraphicsMode.
-        
-        @TODO: There will be some cases where the intersection of the mouseray 
+
+        @TODO: There will be some cases where the intersection of the mouseray
         and the given plane is not possible or returns a very large number.
-        Need to discuss this. 
+        Need to discuss this.
         """
-                
+
         # TODO: refactor this so the caller extracts Plane attributes,
         # and this method only receives geometric parameters (more general).
         # [bruce 080912 comment]
-        
-        #First compute the intersection point of the mouseray with the plane        
+
+        #First compute the intersection point of the mouseray with the plane
         p1, p2     = self.mousepoints(event)
         linePoint  = p2
         lineVector = norm(p2 - p1)
-        
+
         if plane is not None:
             planeAxis  = plane.getaxis()
-            planeNorm  = norm(planeAxis)        
-            planePoint = plane.center        
+            planeNorm  = norm(planeAxis)
+            planePoint = plane.center
         else:
             assert not (planeAxis is None or planePoint is None)
-            planeNorm = norm(planeAxis)              
-            
-        
-        #Find out intersection of the mouseray with the plane. 
+            planeNorm = norm(planeAxis)
+
+
+        #Find out intersection of the mouseray with the plane.
         intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
         if intersection is None:
             intersection =  ptonline(planePoint, linePoint, lineVector)

@@ -1,5 +1,5 @@
 #! /usr/bin/python
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 from string import *
 import re
@@ -35,7 +35,7 @@ elmnts=[("H",   1,   1.6737),
         ("S",  16,  53.233),
         ("Cl", 17,  58.867),
         ("Ar", 18,  66.33),
-        
+
         ("K",  19,  64.9256),
         ("Ca", 20,  66.5495),
         ("Sc", 21,  74.646),
@@ -92,7 +92,7 @@ def printBond(a1, bond, a2, parameters):
         e2 = a2
     print '  addInitialBondStretch(%7.2f,%7.2f,%7.4f,%7.4f,%7.2f,'%(ks,r0,de,bt,r),
     print '%5d, %3d, "%s-%s-%s");'%(quality, quadratic, e1, bontyp[bond], e2)
-    
+
 
 if __name__ == "__main__":
     f=open(sys.argv[1])

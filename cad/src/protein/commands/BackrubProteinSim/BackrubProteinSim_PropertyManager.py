@@ -2,12 +2,12 @@
 """
 BackrubProteinSim_PropertyManager.py
 
-The BackrubProteinSim_PropertyManager class provides a Property Manager 
-for the B{Backrub protein sequence design} command on the flyout toolbar in the 
-Build > Protein > Simulate mode. 
+The BackrubProteinSim_PropertyManager class provides a Property Manager
+for the B{Backrub protein sequence design} command on the flyout toolbar in the
+Build > Protein > Simulate mode.
 
 @author: Urmi
-@version: $Id$ 
+@version: $Id$
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 """
@@ -32,9 +32,9 @@ from PM.PM_ComboBox import PM_ComboBox
 _superclass = Command_PropertyManager
 class BackrubProteinSim_PropertyManager(Command_PropertyManager):
     """
-    The BackrubProteinSim_PropertyManager class provides a Property Manager 
-    for the B{Fixed backbone Protein Sequence Design} command on the flyout toolbar in the 
-    Build > Protein > Simulate mode. 
+    The BackrubProteinSim_PropertyManager class provides a Property Manager
+    for the B{Fixed backbone Protein Sequence Design} command on the flyout toolbar in the
+    Build > Protein > Simulate mode.
 
     @ivar title: The title that appears in the property manager header.
     @type title: str
@@ -52,32 +52,32 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
     pmName        =  title
     iconPath      = "ui/actions/Command Toolbar/BuildProtein/Backrub.png"
 
-    
+
     def __init__( self, command ):
         """
         Constructor for the property manager.
-        """                  
+        """
         _superclass.__init__(self, command)
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         msg = "Choose various parameters from below to design an optimized" \
             " protein sequence with Rosetta with backrub motion allowed."
         self.updateMessage(msg)
-        
+
     def connect_or_disconnect_signals(self, isConnect = True):
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
-        
+
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
-        
+            change_connect = self.win.disconnect
+
         change_connect(self.ex1Checkbox, SIGNAL("stateChanged(int)"), self.update_ex1)
         change_connect(self.ex1aroCheckbox, SIGNAL("stateChanged(int)"), self.update_ex1aro)
         change_connect(self.ex2Checkbox, SIGNAL("stateChanged(int)"), self.update_ex2)
@@ -92,12 +92,12 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         #signal slot connections for the push buttons
         change_connect(self.okButton, SIGNAL("clicked()"), self.runRosettaBackrubSim)
         return
-    
-    #Protein Display methods         
+
+    #Protein Display methods
 
     def show(self):
         """
-        Shows the Property Manager. Exends superclass method. 
+        Shows the Property Manager. Exends superclass method.
         """
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
         self.sequenceEditor.hide()
@@ -107,12 +107,12 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         if numResidues == 0:
             self.minresSpinBox.setMaximum(numResidues + 2)
             self.maxresSpinBox.setMaximum(numResidues + 2)
-        else:    
+        else:
             self.minresSpinBox.setMaximum(numResidues)
             self.maxresSpinBox.setMaximum(numResidues)
-        
-        _superclass.show(self)       
-       
+
+        _superclass.show(self)
+
         return
 
     def _addGroupBoxes( self ):
@@ -122,13 +122,13 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         self._pmGroupBox2 = PM_GroupBox( self,
                                          title = "Backrub Specific Parameters")
         self._loadGroupBox2( self._pmGroupBox2 )
-        
+
         self._pmGroupBox1 = PM_GroupBox( self,
                                          title = "Rosetta Sequence Design Parameters")
         self._loadGroupBox1( self._pmGroupBox1 )
-        
+
         return
-    
+
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in group box.
@@ -137,53 +137,53 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
                                          labelColumn  = 0,
                                          label = "Bond angle weight:",
                                          minimum = 0.01,
-                                         decimals     = 2, 
+                                         decimals     = 2,
                                          maximum = 1.0,
                                          singleStep = 0.01,
                                          value = 1.0,
                                          setAsDefault  =  False,
                                          spanWidth = False)
-        
+
         bond_angle_param_list = ['Amber', 'Charmm']
-        
+
         self.bondAngleParamComboBox = PM_ComboBox( pmGroupBox,
                                                    label         =  "Bond angle parameters:",
                                                    choices       =  bond_angle_param_list,
                                                    setAsDefault  =  False)
-        
+
         self.onlybbSpinBox = PM_DoubleSpinBox( pmGroupBox,
                                          labelColumn  = 0,
                                          label = "Only backbone rotation:",
                                          minimum  = 0.01,
                                          maximum  = 1.0,
-                                         value    = 0.75, 
-                                         decimals = 2, 
+                                         value    = 0.75,
+                                         decimals = 2,
                                          singleStep = 0.01,
                                          setAsDefault  =  False,
                                          spanWidth = False)
-        
+
         self.onlyrotSpinBox = PM_DoubleSpinBox( pmGroupBox,
                                          labelColumn  = 0,
                                          label = "Only rotamer rotation:",
                                          minimum  = 0.01,
                                          maximum  = 1.0,
-                                         decimals = 2, 
-                                         value    = 0.25, 
+                                         decimals = 2,
+                                         value    = 0.25,
                                          singleStep = 0.01,
                                          setAsDefault  =  False,
                                          spanWidth = False)
-        
+
         self.mctempSpinBox = PM_DoubleSpinBox( pmGroupBox,
                                          labelColumn  = 0,
                                          label = "MC simulation temperature:",
                                          minimum  = 0.1,
-                                         value    = 0.6, 
+                                         value    = 0.6,
                                          maximum  = 1.0,
-                                         decimals = 2, 
+                                         decimals = 2,
                                          singleStep = 0.1,
                                          setAsDefault  =  False,
                                          spanWidth = False)
-        
+
         numResidues = self._getNumResiduesForCurrentProtein()
         self.minresSpinBox = PM_SpinBox( pmGroupBox,
                                          labelColumn  = 0,
@@ -193,7 +193,7 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
                                          singleStep = 1,
                                          setAsDefault  =  False,
                                          spanWidth = False)
-        
+
         self.maxresSpinBox = PM_SpinBox( pmGroupBox,
                                          labelColumn  = 0,
                                          label = "Maximum number of residues:",
@@ -206,20 +206,20 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             self.minresSpinBox.setMaximum(numResidues + 2)
             self.maxresSpinBox.setMaximum(numResidues + 2)
         return
-    
-    
+
+
     def _addWhatsThisText( self ):
         """
-        What's This text for widgets in this Property Manager.  
+        What's This text for widgets in this Property Manager.
         """
         pass
-                
+
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in this Property Manager.  
+        Tool Tip text for widgets in this Property Manager.
         """
         pass
-    
+
     def _getNumResiduesForCurrentProtein(self):
         """
         Get number of residues for the current protein
@@ -228,12 +228,12 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         if _current_protein:
             return len(_current_protein.protein.get_sequence_string())
         return 0
-    
+
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box.
         """
-        
+
         self.numSimSpinBox = PM_SpinBox( pmGroupBox,
                                          labelColumn  = 0,
                                          label = "Number of trials:",
@@ -242,97 +242,97 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
                                          singleStep = 1000,
                                          setAsDefault  =  False,
                                          spanWidth = False)
-        
+
         self.ex1Checkbox = PM_CheckBox(pmGroupBox,
                                        text = "Expand rotamer library for chi1 angle",
                                        state = Qt.Unchecked,
                                        setAsDefault  =  False,
                                        widgetColumn  = 0,
                                        spanWidth = True)
-        
+
         self.ex1aroCheckbox = PM_CheckBox(pmGroupBox,
                                           text = "Use large chi1 library for aromatic residues",
                                           state = Qt.Unchecked,
                                           setAsDefault  =  False,
                                           widgetColumn  = 0,
                                           spanWidth = True)
-        
+
         self.ex2Checkbox = PM_CheckBox(pmGroupBox,
                                        text = "Expand rotamer library for chi2 angle",
                                        state = Qt.Unchecked,
                                        setAsDefault  =  False,
                                        widgetColumn  = 0,
                                        spanWidth = True)
-        
+
         self.ex2aroOnlyCheckbox = PM_CheckBox(pmGroupBox,
                                               text = "Use large chi2 library only for aromatic residues",
                                               state = Qt.Unchecked,
                                               setAsDefault  =  False,
                                               widgetColumn  = 0,
                                               spanWidth = True)
-                                              
+
         self.ex3Checkbox = PM_CheckBox(pmGroupBox,
                                      text = "Expand rotamer library for chi3 angle",
                                      state = Qt.Unchecked,
                                      setAsDefault  =  False,
                                      widgetColumn  = 0,
                                      spanWidth = True)
-        
+
         self.ex4Checkbox = PM_CheckBox(pmGroupBox,
                                        text ="Expand rotamer library for chi4 angle",
                                        state = Qt.Unchecked,
                                        setAsDefault  =  False,
                                        widgetColumn  = 0,
                                        spanWidth = True)
-        
+
         self.rotOptCheckbox = PM_CheckBox(pmGroupBox,
                                           text ="Optimize one-body energy",
                                           state = Qt.Unchecked,
                                           setAsDefault  =  False,
                                           widgetColumn  = 0,
                                           spanWidth = True)
-        
+
         self.tryBothHisTautomersCheckbox = PM_CheckBox(pmGroupBox,
                                                        text ="Try both histidine tautomers",
                                                        state = Qt.Unchecked,
                                                        setAsDefault  =  False,
                                                        widgetColumn  = 0,
                                                        spanWidth = True)
-        
+
         self.softRepDesignCheckbox = PM_CheckBox(pmGroupBox,
                                                  text ="Use softer Lennard-Jones repulsive term",
                                                  state = Qt.Unchecked,
                                                  setAsDefault  =  False,
                                                  widgetColumn  = 0,
                                                  spanWidth = True)
-        
+
         self.useElecRepCheckbox = PM_CheckBox(pmGroupBox,
                                               text ="Use electrostatic repulsion",
                                               state = Qt.Unchecked,
                                               setAsDefault  =  False,
                                               widgetColumn  = 0,
                                               spanWidth = True)
-        
+
         self.norepackDisulfCheckbox = PM_CheckBox(pmGroupBox,
                                                   text ="Don't re-pack disulphide bonds",
                                                   state = Qt.Unchecked,
                                                   setAsDefault  =  False,
                                                   widgetColumn  = 0,
                                                   spanWidth = True)
-        
-        
+
+
         self.otherCommandLineOptions = PM_TextEdit(pmGroupBox,
                                                    label = "Command line options:",
                                                    spanWidth = True)
         self.otherCommandLineOptions.setFixedHeight(80)
-        
+
         self.okButton = PM_PushButton( pmGroupBox,
                          text         =  "Run Rosetta",
                          setAsDefault  =  True,
                          spanWidth = True)
         return
-    
-    
+
+
     def update_ex1(self, state):
         """
         Update the command text edit depending on the state of the update_ex1
@@ -345,9 +345,9 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             otherOptionsText = otherOptionsText + ' -ex1 '
         else:
             otherOptionsText = otherOptionsText.replace(' -ex1 ', '')
-        self.otherCommandLineOptions.setText(otherOptionsText)    
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_ex1aro(self, state):
         """
         Update the command text edit depending on the state of the update_ex1aro
@@ -360,9 +360,9 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             otherOptionsText = otherOptionsText + ' -ex1aro '
         else:
             otherOptionsText = otherOptionsText.replace(' -ex1aro ', '')
-        self.otherCommandLineOptions.setText(otherOptionsText)    
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_ex2(self, state):
         """
         Update the command text edit depending on the state of the update_ex2
@@ -375,9 +375,9 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             otherOptionsText = otherOptionsText + ' -ex2 '
         else:
             otherOptionsText = otherOptionsText.replace(' -ex2 ', '')
-        self.otherCommandLineOptions.setText(otherOptionsText)    
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_ex2aro_only(self, state):
         """
         Update the command text edit depending on the state of the update_ex2aro_only
@@ -389,11 +389,11 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         if self.ex2aroOnlyCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -ex2aro_only '
         else:
-            otherOptionsText = otherOptionsText.replace(' -ex2aro_only ', '')    
-            
-        self.otherCommandLineOptions.setText(otherOptionsText)    
+            otherOptionsText = otherOptionsText.replace(' -ex2aro_only ', '')
+
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_ex3(self, state):
         """
         Update the command text edit depending on the state of the update_ex3
@@ -406,10 +406,10 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             otherOptionsText = otherOptionsText + ' -ex3 '
         else:
             otherOptionsText = otherOptionsText.replace(' -ex3 ', '')
-        
-        self.otherCommandLineOptions.setText(otherOptionsText)    
+
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_ex4(self, state):
         """
         Update the command text edit depending on the state of the update_ex4
@@ -422,9 +422,9 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             otherOptionsText = otherOptionsText + ' -ex4 '
         else:
             otherOptionsText = otherOptionsText.replace(' -ex4 ', '')
-        self.otherCommandLineOptions.setText(otherOptionsText)    
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_rot_opt(self, state):
         """
         Update the command text edit depending on the state of the update_rot_opt
@@ -437,9 +437,9 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             otherOptionsText = otherOptionsText + ' -rot_opt '
         else:
             otherOptionsText = otherOptionsText.replace(' -rot_opt ', '')
-        self.otherCommandLineOptions.setText(otherOptionsText)    
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_try_both_his_tautomers(self, state):
         """
         Update the command text edit depending on the state of the update_try_both_his_tautomers
@@ -452,9 +452,9 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             otherOptionsText = otherOptionsText + ' -try_both_his_tautomers '
         else:
             otherOptionsText = otherOptionsText.replace(' -try_both_his_tautomers ', '')
-        self.otherCommandLineOptions.setText(otherOptionsText)    
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_soft_rep_design(self, state):
         """
         Update the command text edit depending on the state of the update_soft_rep_design
@@ -467,9 +467,9 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
             otherOptionsText = otherOptionsText + ' -soft_rep_design '
         else:
             otherOptionsText = otherOptionsText.replace(' -soft_rep_design ', '')
-        self.otherCommandLineOptions.setText(otherOptionsText)    
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_use_elec_rep(self, state):
         """
         Update the command text edit depending on the state of the update_use_elec_rep
@@ -481,10 +481,10 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         if self.useElecRepCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -use_electrostatic_repulsion '
         else:
-            otherOptionsText = otherOptionsText.replace(' -use_electrostatic_repulsion ', '')    
-        self.otherCommandLineOptions.setText(otherOptionsText)        
+            otherOptionsText = otherOptionsText.replace(' -use_electrostatic_repulsion ', '')
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def update_norepack_disulf(self, state):
         """
         Update the command text edit depending on the state of the update_no_repack
@@ -496,10 +496,10 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         if self.norepackDisulfCheckbox.isChecked() == True:
             otherOptionsText = otherOptionsText + ' -norepack_disulf '
         else:
-            otherOptionsText = otherOptionsText.replace(' -norepack_disulf ', '')      
-        self.otherCommandLineOptions.setText(otherOptionsText)        
+            otherOptionsText = otherOptionsText.replace(' -norepack_disulf ', '')
+        self.otherCommandLineOptions.setText(otherOptionsText)
         return
-    
+
     def runRosettaBackrubSim(self):
         """
         Get all the parameters from the PM and run a rosetta simulation
@@ -517,51 +517,51 @@ class BackrubProteinSim_PropertyManager(Command_PropertyManager):
         if argList[0] > 0:
             env.prefs[rosetta_backrub_enabled_prefs_key] = True
             cmdrun = rosettaSetup_CommandRun(self.win, argList, "BACKRUB_PROTEIN_SEQUENCE_DESIGN", backrubSpecificArgList)
-            cmdrun.run() 
-        return    
-    
+            cmdrun.run()
+        return
+
     def getBackrubSpecificArgumentList(self):
         """
         get list of backrub specific parameters from PM
         """
         listOfArgs = []
-        
+
         bond_angle_weight = str(self.bondAngleWeightSimSpinBox.value())
         listOfArgs.append('-bond_angle_weight')
         listOfArgs.append( bond_angle_weight)
-        
+
         if self.bondAngleParamComboBox.currentIndex() == 0:
             bond_angle_params = 'bond_angle_amber_rosetta'
         else:
             bond_angle_params = 'bond_angle_charmm_rosetta'
-            
-        listOfArgs.append('-bond_angle_params')            
-        listOfArgs.append(bond_angle_params)    
-        
+
+        listOfArgs.append('-bond_angle_params')
+        listOfArgs.append(bond_angle_params)
+
         only_bb = str(self.onlybbSpinBox.value())
         listOfArgs.append('-only_bb')
         listOfArgs.append( only_bb)
-        
+
         only_rot = str(self.onlyrotSpinBox.value())
         listOfArgs.append('-only_rot')
         listOfArgs.append( only_rot)
-        
+
         mc_temp = str(self.mctempSpinBox.value())
         listOfArgs.append('-mc_temp')
         listOfArgs.append( mc_temp)
-        
+
         min_res = self.minresSpinBox.value()
         max_res = self.maxresSpinBox.value()
         if max_res < min_res:
             msg = redmsg("Maximum number of residues for rosetta simulation with backrub" \
                 " motion cannot be less than minimum number of residues."\
                 " Neglecting this parameter for this simulation.")
-            
+
             env.history.message("BACKRUB SIMULATION: " + msg)
         else:
             listOfArgs.append('-min_res')
             listOfArgs.append( str(min_res))
             listOfArgs.append('-max_res')
             listOfArgs.append( str(max_res))
-        
+
         return listOfArgs

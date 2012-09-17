@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Ui_ProteinSequenceEditor.py
 
@@ -7,7 +7,7 @@ Ui_ProteinSequenceEditor.py
 @version:$Id$
 
 History:
-Urmi copied this from Ui_DnaSequenceEditor.py and modified it to suit the 
+Urmi copied this from Ui_DnaSequenceEditor.py and modified it to suit the
 requirements of a protein sequence editor
 
 TODO:
@@ -47,11 +47,11 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
 
     def __init__(self, win):
         """
-        Constructor for the Ui_DnaSequenceEditor 
-        @param win: The parentWidget (MainWindow) for the sequence editor 
+        Constructor for the Ui_DnaSequenceEditor
+        @param win: The parentWidget (MainWindow) for the sequence editor
         """
         self.win = win
-        parentWidget = win 
+        parentWidget = win
         _superclass.__init__(self, parentWidget, title = self._title)
         self._reportsDockWidget_closed_in_show_method = False
         self.setFixedHeight(90)
@@ -61,7 +61,7 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         """
         Shows the sequence editor. While doing this, it also closes the reports
         dock widget (if visible) the state of the reports dockwidget will be
-        restored when the sequence editor is closed. 
+        restored when the sequence editor is closed.
         @see:self.closeEvent()
         """
         self._reportsDockWidget_closed_in_show_method = False
@@ -74,21 +74,21 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
                 self._reportsDockWidget_closed_in_show_method = True
         _superclass.show(self)
         return
-        
+
     def closeEvent(self, event):
         """
         Overrides close event. Makes sure that the visible state of the reports
-        widgetis restored when the sequence editor is closed. 
+        widgetis restored when the sequence editor is closed.
         @see: self.show()
         """
         _superclass.closeEvent(self, event)
-       
+
         if self.win.viewFullScreenAction.isChecked() or \
            self.win.viewSemiFullScreenAction.isChecked():
             pass
         else:
             if self._reportsDockWidget_closed_in_show_method:
-                self.win.viewReportsAction.setChecked(True) 
+                self.win.viewReportsAction.setChecked(True)
                 self._reportsDockWidget_closed_in_show_method = False
         return
 
@@ -100,37 +100,37 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self._loadMenuWidgets()
         self._loadTextEditWidget()
         return
-    
+
     def _loadMenuWidgets(self):
         """
-        Load the various menu widgets (e.g. Open, save sequence options, 
-        Find and replace widgets etc. 
+        Load the various menu widgets (e.g. Open, save sequence options,
+        Find and replace widgets etc.
         """
-        
+
         self.loadSequenceButton = PM_ToolButton(
             self,
-            iconPath = "ui/actions/Properties Manager/Open.png")  
+            iconPath = "ui/actions/Properties Manager/Open.png")
 
         self.saveSequenceButton = PM_ToolButton(
-            self, 
-            iconPath = "ui/actions/Properties Manager/Save_Strand_Sequence.png") 
+            self,
+            iconPath = "ui/actions/Properties Manager/Save_Strand_Sequence.png")
 
         self.loadSequenceButton.setAutoRaise(True)
         self.saveSequenceButton.setAutoRaise(True)
-        
+
         # Hide load and save buttons until they are implemented. -Mark 2008-12-20.
         self.loadSequenceButton.hide()
         self.saveSequenceButton.hide()
 
         #Find and replace widgets --
         self.findLineEdit = \
-            PM_LineEdit( self, 
+            PM_LineEdit( self,
                          label        = "",
                          spanWidth    = False)
         self.findLineEdit.setMaximumWidth(60)
 
         self.replaceLineEdit = \
-            PM_LineEdit( self, 
+            PM_LineEdit( self,
                          label        = "  Replace:",
                          spanWidth    = False)
         self.replaceLineEdit.setMaximumWidth(60)
@@ -152,15 +152,15 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
             self,
             iconPath = "ui/actions/Properties Manager/Find_Previous.png")
         self.findPreviousToolButton.setAutoRaise(True)
-        
+
         self.replacePushButton = PM_PushButton(self, text = "Replace")
-        
+
         # Hide Replace widgets until we add support for transmuting residues.
         # Mark 2008-12-19
         #self.replaceLabel.hide()
         self.replacePushButton.hide()
         self.replaceLineEdit.hide()
-        
+
         self.warningSign = QLabel(self)
         self.warningSign.setPixmap(
             getpixmap('ui/actions/Properties Manager/Warning.png'))
@@ -170,16 +170,16 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         self.phraseNotFoundLabel.setText("Sequence Not Found")
         self.phraseNotFoundLabel.hide()
 
-        #Widgets to include in the widget row. 
+        #Widgets to include in the widget row.
         widgetList = [('PM_ToolButton', self.loadSequenceButton, 0),
                       ('PM_ToolButton', self.saveSequenceButton, 1),
                       ('QLabel', "                                     Find:", 4),
                       ('PM_LineEdit',   self.findLineEdit, 5),
                       ('PM_ToolButton', self.findOptionsToolButton, 6),
                       ('PM_ToolButton', self.findPreviousToolButton, 7),
-                      ('PM_ToolButton', self.findNextToolButton, 8), 
+                      ('PM_ToolButton', self.findNextToolButton, 8),
                       #('PM_Label',      self.replaceLabel, 9),
-                      ('PM_TextEdit',   self.replaceLineEdit, 9), 
+                      ('PM_TextEdit',   self.replaceLineEdit, 9),
                       ('PM_PushButton', self.replacePushButton, 10),
                       ('PM_Label', self.warningSign, 11),
                       ('PM_Label', self.phraseNotFoundLabel, 12),
@@ -191,53 +191,53 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
                                  label = "",
                                  spanWidth = True )
         return
-    
+
     def _loadTextEditWidget(self):
         """
-        Load the SequenceTexteditWidgets.         
-        """        
+        Load the SequenceTexteditWidgets.
+        """
         self.aaRulerTextEdit = \
-            PM_TextEdit( self, 
-                         label = "", 
+            PM_TextEdit( self,
+                         label = "",
                          spanWidth = False,
-                         permit_enter_keystroke = False) 
-        
-        palette = getPalette(None, 
-                             QPalette.Base, 
+                         permit_enter_keystroke = False)
+
+        palette = getPalette(None,
+                             QPalette.Base,
                              pmGrpBoxColor)
-        self.aaRulerTextEdit.setPalette(palette)     
+        self.aaRulerTextEdit.setPalette(palette)
         self.aaRulerTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
         self.aaRulerTextEdit.setFixedHeight(20)
         self.aaRulerTextEdit.setReadOnly(True)
-        
+
         self.sequenceTextEdit = \
-            PM_TextEdit( self, 
-                         label = " Sequence: ", 
+            PM_TextEdit( self,
+                         label = " Sequence: ",
                          spanWidth = False,
-                         permit_enter_keystroke = False) 
+                         permit_enter_keystroke = False)
         #self.sequenceTextEdit.setReadOnly(True) #@@@
-        
+
         self.sequenceTextEdit.setCursorWidth(2)
         self.sequenceTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
         self.sequenceTextEdit.setFixedHeight(20)
-        
+
         self.secStrucTextEdit = \
-            PM_TextEdit( self, 
-                         label = " Secondary structure: ", 
+            PM_TextEdit( self,
+                         label = " Secondary structure: ",
                          spanWidth = False,
-                         permit_enter_keystroke = False) 
-        
-        palette = getPalette(None, 
-                             QPalette.Base, 
+                         permit_enter_keystroke = False)
+
+        palette = getPalette(None,
+                             QPalette.Base,
                              sequenceEditStrandMateBaseColor)
-        self.secStrucTextEdit.setPalette(palette)     
+        self.secStrucTextEdit.setPalette(palette)
         self.secStrucTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
         self.secStrucTextEdit.setFixedHeight(20)
         self.secStrucTextEdit.setReadOnly(True)
 
-        #Important to make sure that the horizontal and vertical scrollbars 
-        #for these text edits are never displayed. 
-        
+        #Important to make sure that the horizontal and vertical scrollbars
+        #for these text edits are never displayed.
+
         self.sequenceTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.sequenceTextEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.secStrucTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -248,12 +248,12 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
 
     def _getFindLineEditStyleSheet(self):
         """
-        Return the style sheet for the findLineEdit. This sets the following 
+        Return the style sheet for the findLineEdit. This sets the following
         properties only:
          - background-color
 
         This style is set whenever the searchStrig can't be found (sets
-        a light red color background to the lineedit when this happens)   
+        a light red color background to the lineedit when this happens)
 
         @return: The line edit style sheet.
         @rtype:  str
@@ -262,12 +262,12 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
         styleSheet = "QLineEdit {"\
                    "background-color: rgb(255, 102, 102)"\
                    "}"
-        
+
         return styleSheet
 
     def _setFindOptionsToolButtonMenu(self):
         """
-        Sets the menu for the findOptionstoolbutton that appears a small 
+        Sets the menu for the findOptionstoolbutton that appears a small
         menu button next to the findLineEdit.
         """
         self.findOptionsMenu = QMenu(self.findOptionsToolButton)
@@ -282,17 +282,16 @@ class Ui_ProteinSequenceEditor(PM_DockWidget):
 
     def _addToolTipText(self):
         """
-        What's Tool Tip text for widgets in this Property Manager.  
-        """ 
+        What's Tool Tip text for widgets in this Property Manager.
+        """
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_ProteinSequenceEditor
         ToolTip_ProteinSequenceEditor(self)
         return
 
     def _addWhatsThisText(self):
         """
-        What's This text for widgets in this Property Manager.  
+        What's This text for widgets in this Property Manager.
         """
         from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_ProteinSequenceEditor
         whatsThis_ProteinSequenceEditor(self)
         return
-    

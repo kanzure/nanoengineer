@@ -1,9 +1,9 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 gl_lighting.py - Lights, materials, and special effects (fog).
 
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -113,7 +113,7 @@ def setup_standard_lights( lights, glprefs):
     """
 
     assert glprefs is not None
-    
+
     # note: whatever glprefs data is used below must also be present
     # in the return value of glprefs_data_used_by_setup_standard_lights().
     # [bruce 051212]
@@ -256,7 +256,7 @@ def apply_material(color, glprefs = None):
     if glprefs is None:
         glprefs = drawing_globals.glprefs
         pass
-    
+
     #bruce 051215: make sure color is a tuple, and has length exactly 4, for all
     # uses inside this function, assuming callers pass sequences of length 3 or
     # 4. Needed because glMaterial requires four-component vector and PyOpenGL

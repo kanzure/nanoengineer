@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 NamedView.py -- a named view (including coordinate system for viewing)
 
@@ -34,7 +34,7 @@ class NamedView(SimpleCopyMixin, Node):
         2) internal use for storing the LastView and HomeView for every part
         3) internal use by Undo for saving the view that was current when a change was made
     """
-    
+
     sym = "View"
     featurename = "Named View"
 
@@ -87,7 +87,7 @@ class NamedView(SimpleCopyMixin, Node):
             # probably it should... but until it does, do it now, before copying it!
             self.assy.o.saveLastView()
         return (self.assy, self.name, self.scale, self.pov, self.zoomFactor, self.quat), {}
-    
+
     def show_in_model_tree(self):
         #bruce 050128; nothing's wrong with showing them, except that they are unselectable
         # and useless for anything except being renamed by dblclick (which can lead to bugs
@@ -124,7 +124,7 @@ class NamedView(SimpleCopyMixin, Node):
         #bruce 050420 comment: this is inadequate, but before revising it
         # I'd have to verify it's not used internally, like Jig.__repr__ used to be!!
         return "<namedView " + self.name + ">"
-    
+
     def ModelTree_plain_left_click(self):
         #bruce 080213 bugfix: override this new API method, not Node.pick.
         """
@@ -134,7 +134,7 @@ class NamedView(SimpleCopyMixin, Node):
         # Precaution. Don't change view if we're animating.
         if self.assy.o.is_animating:
             return
-        
+
         self.change_view()
         return
 
@@ -148,7 +148,7 @@ class NamedView(SimpleCopyMixin, Node):
         """
         # start with superclass version
         menu_spec = Node.ModelTree_context_menu_section(self)
-        
+
         # then add more items to it, in order:
 
         # Change to this view
@@ -157,9 +157,9 @@ class NamedView(SimpleCopyMixin, Node):
         command = self.ModelTree_plain_left_click
         disabled = self.sameAsCurrentView()
         menu_spec.append( (text, command, disabled and 'disabled' or None) )
-        
+
         # Replace saved view with current view
-        
+
         text = "Replace '%s' with the current view" % (self.name,)
             # (fyi, I don't know how to include bold text here, or whether it's possible)
         command = self._replace_saved_view_with_current_view
@@ -167,31 +167,31 @@ class NamedView(SimpleCopyMixin, Node):
         menu_spec.append( (text, command, disabled and 'disabled' or None) )
 
         # Return to previous view (NIM) [mark 060122]
-        
+
         # @note: This is very helpful when the user accidentally clicks
         # a Named View node and needs an easy way to restore the previous view.
-        
+
         if 0:
             text = "Return to previous View"
             command = self.restore_previous_view
             disabled = True # should be: disabled if no previous view is available
             menu_spec.append( (text, command, disabled and 'disabled' or None) )
-        
+
         # Note: we could also add other items here instead of defining them in __CM methods.
         # If they never need to be disabled, just use menu_spec.append( (text, command) ).
-        
+
         return menu_spec
-    
+
     def change_view(self): #mark 060122
         """
         Change the view to self.
         """
         self.assy.o.animateToView(self.quat, self.scale, self.pov, self.zoomFactor, animate=True)
-        
+
         cmd = greenmsg("Change View: ")
         msg = 'Current view is "%s".' % (self.name)
         env.history.message( cmd + msg )
-        
+
     def _replace_saved_view_with_current_view(self): #bruce 080225 split this out
         """
         Replace self's saved view with the current view, if they differ.
@@ -203,12 +203,12 @@ class NamedView(SimpleCopyMixin, Node):
     def restore_previous_view(self):
         """
         Restores the previous view.
-        
+
         @warning: Not implemented yet. Mark 2008-02-14
         """
         print "Not implemented yet."
         return
-    
+
     def _set_to_current_view(self): #mark 060122
         """
         Set self to current view, marks self.assy as changed,
@@ -224,7 +224,7 @@ class NamedView(SimpleCopyMixin, Node):
         self.setToCurrentView( self.assy.glpane)
         self.assy.changed()
             # maybe: make this check whether it really changed (or will Undo do that?)
-        
+
         cmd = greenmsg("Set View: ")
         msg = 'View "%s" now set to the current view.' % (self.name)
         env.history.message( cmd + msg )
@@ -244,61 +244,61 @@ class NamedView(SimpleCopyMixin, Node):
         view objects (e.g. glpane.HomeView), or as part of the implementation
         of replacing self with the current view for user-visible Named View
         objects in the model tree.
-        
+
         @param glpane: the 3D graphics area.
         @type  glpane: L{GLPane)
         """
         assert glpane
-        
+
         self.quat = Q(glpane.quat)
         self.scale = glpane.scale
         self.pov = V(glpane.pov[0], glpane.pov[1], glpane.pov[2])
         self.zoomFactor = glpane.zoomFactor
-        
+
     def sameAsCurrentView(self, view = None):
         """
         Tests if self is the same as I{view}, or the current view if I{view}
         is None (the default).
-        
+
         @param view: A named view to compare with self. If None (the default),
                      self is compared to the current view (i.e. the 3D graphics
                      area).
         @type  view: L{NamedView}
-        
+
         @return: True if they are the same. Otherwise, returns False.
         @rtype:  boolean
         """
-        # Note: I'm guessing this could be rewritten to be more 
-        # efficient/concise. For example, it seems possible to implement 
+        # Note: I'm guessing this could be rewritten to be more
+        # efficient/concise. For example, it seems possible to implement
         # this using a simple conditional like this:
-        #        
+        #
         # if self == view:
         #    return True
         # else:
         #    return False
-        # 
-        # It occurs to me that the GPLane class should use a NamedView attr 
+        #
+        # It occurs to me that the GPLane class should use a NamedView attr
         # along with (or in place of) quat, scale, pov and zoomFactor attrs.
-        # That would make this method (and possibly other code) easier to 
+        # That would make this method (and possibly other code) easier to
         # write and understand.
-        # 
+        #
         # Ask Bruce about all this.
-        # 
-        # BTW, this code was originally copied/borrowed from 
+        #
+        # BTW, this code was originally copied/borrowed from
         # GLPane.animateToView(). Mark 2008-02-03.
-    
+
         # Make copies of self parameters.
         q1 = Q(self.quat)
         s1 = self.scale
         p1 = V(self.pov[0], self.pov[1], self.pov[2])
         z1 = self.zoomFactor
-        
+
         if view is None:
             # use the graphics area in which self is displayed
             # (usually the main 3D graphics area; code in this class
             #  has not been reviewed for working in other GLPane_minimal instances)
             view = self.assy.glpane
-        
+
         # Copy the parameters of view for comparison
         q2 = Q(view.quat)
         s2 = view.scale
@@ -315,13 +315,13 @@ class NamedView(SimpleCopyMixin, Node):
             return True
         else:
             return False
-        
+
     pass # end of class NamedView
 
 # bruce 050417: commenting out class Datum (and ignoring its mmp record "datum"),
 # since it has no useful effect.
-# bruce 060523: removing the commented out code. In case it's useful for 
-# Datum Planes, it can be found in cvs rev 1.149 or earlier of Utility.py, 
+# bruce 060523: removing the commented out code. In case it's useful for
+# Datum Planes, it can be found in cvs rev 1.149 or earlier of Utility.py,
 # and commented out
 # references to it remain in other files. It referred to cad/images/datumplane.png.
 

@@ -1,11 +1,11 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 JoinStrands_By_DND_RequestCommand
 
 This is a request command called whenever a user wants to join two strands by
 drag and drop. (DND = Drag and Drop). During singletLeftDown of the current
 graphicsMode, it calls this request command and then during left up, this
-request command is exited. 
+request command is exited.
 
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -28,7 +28,7 @@ from dna.commands.JoinStrands.JoinStrands_Command import JoinStrands_Command
 
 class JoinStrands_By_DND_RequestCommand(JoinStrands_Command):
     """
-   
+
     Example: In this BuildDna_EditCommand (graphicsMode), if you want to
     join  two strands, upon 'singletLeftDown'  it enters
     JoinStrands_Command , also calling leftDown method of its graphicsmode.
@@ -44,15 +44,15 @@ class JoinStrands_By_DND_RequestCommand(JoinStrands_Command):
     @see: BuildDna_GraphicsMode.singletLeftDown()
     @see: ClickToJoinStrands_GraphicsMode.
     """
-    
+
     command_level = CL_REQUEST
     commandName = 'JoinStrands_By_DND'
     featurename = 'JoinStrands By DND RequestCommand'
     GraphicsMode_class = JoinStrands_GraphicsMode
-    
-    
-    command_should_resume_prevMode = True 
+
+
+    command_should_resume_prevMode = True
     command_has_its_own_PM = False
-    
-    
+
+
     pass

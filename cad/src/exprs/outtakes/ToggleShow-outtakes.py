@@ -1,5 +1,5 @@
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 $Id$
 
 
@@ -55,7 +55,7 @@ ToggleTrueIcon = Rect(1,1,gray) # stub
 #e define default ToggleShow_stateref or StateRef value, in case env doesn't have one...
 
 from __Symbols__ import thing, label, stateref
-    
+
 ToggleShow = NamedLambda(
     'ToggleShow',
     ((thing, Widget),

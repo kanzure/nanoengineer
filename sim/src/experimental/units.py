@@ -1,4 +1,4 @@
-# Copyright 2005 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005 Nanorex, Inc.  See LICENSE file for details.
 """Physical units for calculations
 
 Physical quantities are represented here as dictionaries. One key is

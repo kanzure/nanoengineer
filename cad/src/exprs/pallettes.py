@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 pallettes.py
 
@@ -40,20 +40,20 @@ class PalletteWell(DelegatingInstanceOrExpr):
     what_to_make_nickname = or_Expr(type, "something") #e classname of expr, after burrowing? some other namelike attr of expr?
         # (note, hard to have that, unless expr is a new special Instance type of "makable" rather than a bare expr --
         #  and it probably ought to be. ##e)
-    
+
     sbar_text = Option(str, format_Expr("make %s", what_to_make_nickname) )
-    
+
     _what_to_make = DraggableObject(_self.expr)
         ##e rename DraggableObject -> Draggable? I misrecalled it as that... and "object" is arguably redundant.
-    
+
     _newobj = State(Anything, None) # set internally to an object we create during _self.on_press
-    
+
     delegate = Highlightable(
         Boxed(expr, borderthickness = 2 * PIXELS), # plain
             ###BUG: Boxed fails with exprs that don't have bleft, with a very hard to decipher exception
         Boxed(expr, borderthickness = 2 * PIXELS, bordercolor = blue), # highlight
         Boxed(expr, borderthickness = 2 * PIXELS, bordercolor = green), # [pressed] green signifies "going" (mainly, green != blue)
-        
+
         on_press = _self.on_press,
         on_drag = _newobj.on_drag,
         on_release = _newobj.on_release,

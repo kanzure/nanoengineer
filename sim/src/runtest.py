@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details.
 
 """runtest.py description.test [--generate]
 
@@ -317,7 +317,7 @@ def main(argv, myStdout=sys.stdout, generate=False):
         copy("results", outstd)
         if structCompare:
             copy(base + ".xyz", outxyz)
-            copy(base + ".ba", outba) 
+            copy(base + ".ba", outba)
     else:
         myStdout.write(open("results").read())
 

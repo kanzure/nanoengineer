@@ -20,7 +20,7 @@ import math
 from utilities import debug_flags
 from foundation.state_utils import DataMixin
 
-import Numeric 
+import Numeric
 
 _DEBUG_QUATS = False
     #bruce 050518; I'll leave this turned on in the main sources for awhile
@@ -84,14 +84,14 @@ def angleBetween(vec1, vec2):
     lensq2 = Numeric.dot(vec2, vec2)
     if lensq2 < TEENY:
         return 0.0
-    
-    #Replaced earlier formula "vec1 /= lensq1 ** .5" to fix the 
-    #following bug:  
-    #The above formula was modifying the arguments using the /= statement. 
-    #Numeric.array objects (V objects) are mutable, and op= operators modify 
-    #them so replacing  [--ninad 20070614 comments, based on an email 
-    #conversation with Bruce where he noticed the real problem.] 
-    
+
+    #Replaced earlier formula "vec1 /= lensq1 ** .5" to fix the
+    #following bug:
+    #The above formula was modifying the arguments using the /= statement.
+    #Numeric.array objects (V objects) are mutable, and op= operators modify
+    #them so replacing  [--ninad 20070614 comments, based on an email
+    #conversation with Bruce where he noticed the real problem.]
+
     vec1 = vec1 / lensq1 ** .5
     vec2 = vec2 / lensq2 ** .5
     # The case of nearly-equal vectors will be covered by the >= 1.0 clause.
@@ -165,30 +165,30 @@ Z_AXIS = V(0, 0, 1)
 class Q(DataMixin):
     """
     Quaternion class. Many constructor forms:
-    
+
     Q(W, x, y, z) is the quaternion with axis vector x,y,z
     and cos(theta/2) = W
     (e.g. Q(1,0,0,0) is no rotation [used a lot])
     [Warning: the python argument names are not in the same order as in
      the usage-form above! This is not a bug, just possibly confusing.]
-    
+
     Q(x, y, z), where x, y, and z are three orthonormal vectors describing a
     right-handed coordinate frame, is the quaternion that rotates the standard
     axes into that reference frame (the frame has to be right handed, or there's
     no quaternion that can do it!)
-    
+
     Q(V(x,y,z), theta) is what you probably want [axis vector and angle]. [used widely]
     #doc -- units of theta? (guess: radians)
-    
+
     Q(vector, vector) gives the quat that rotates between them [used widely]
     [which such quat? presumably the one that does the least rotation in all]
-    
+
     [remaining forms were undocumented until 050518:]
 
     Q(number) gives Q(1,0,0,0) [perhaps never used, not sure]
-    
+
     Q(quat) gives a copy of that quat [used fairly often]
-    
+
     Q([W,x,y,z]) (for any sequence type) gives the same quat as Q(W, x, y, z)
      [used for parsing csys records, maybe in other places].
 
@@ -218,7 +218,7 @@ class Q(DataMixin):
             #  and that these arg names don't correspond to their meanings,
             #  which are W,x,y,z (as documented) rather than x,y,z,w.]
             self.vec = V(x, y, z, w)
-        
+
         elif z is not None: # three axis vectors
             # Just use first two
             # [bruce comments 050518:
@@ -229,7 +229,7 @@ class Q(DataMixin):
             #    so I fixed it.
             #  - The old code sometimes used 'z' but the new code never does
             #    (except to decide to use this case, and when _DEBUG_QUATS to check the results).
-            
+
             # Q(x, y, z) where x, y, and z are three orthonormal vectors
             # is the quaternion that rotates the standard axes into that
             # reference frame
@@ -252,12 +252,12 @@ class Q(DataMixin):
                 check_posns_near( res.rot(Z_AXIS), z, "sz" )
             return
             # old code (incorrect and i think never called) commented out long ago, removed in rev. 1.27 [bruce 060228]
-            
+
         elif type(y) in numTypes:
             # axis vector and angle [used often]
             v = (x / vlen(x)) * Numeric.sin(y * 0.5)
             self.vec = V(Numeric.cos(y * 0.5), v[0], v[1], v[2])
-            
+
         elif y is not None:
             # rotation between 2 vectors [used often]
             #bruce 050518 bugfix/optim: test y for None, not for truth value
@@ -302,16 +302,16 @@ class Q(DataMixin):
                 s = ((1 - w**2)**.5) / vl
                 self.vec = V(w, v[0]*s, v[1]*s, v[2]*s)
             pass
-        
+
         elif type(x) in numTypes:
             # just one number [#k is this ever used?]
             self.vec = V(1, 0, 0, 0)
-        
+
         else:
             #bruce 050518 comment: a copy of the quat x, or of any length-4 sequence [both forms are used]
             self.vec = V(x[0], x[1], x[2], x[3])
         return # from Q.__init__
-    
+
     def __getattr__(self, attr): # in class Q
         if attr.startswith('_'):
             raise AttributeError, attr #bruce 060228 optim (also done at end)
@@ -358,17 +358,17 @@ class Q(DataMixin):
 
     #bruce 060209 defining __eq__ and __ne__ for efficient state comparisons
     # given presence of __getattr__ (desirable for Undo).
-    # (I don't think it needs a __nonzero__ method, and if it had one 
+    # (I don't think it needs a __nonzero__ method, and if it had one
     # I don't know if Q(1,0,0,0) should be False or True.)
-    #bruce 060222 note that it also now needs __eq__ and __ne__ to be 
+    #bruce 060222 note that it also now needs __eq__ and __ne__ to be
     # compatible with its _copyOfObject (they are).
     # later, __ne__ no longer needed since defined in DataMixin.
 
     # override abstract method of DataMixin
-    def _copyOfObject(self): 
+    def _copyOfObject(self):
         #bruce 051003, for use by state_utils.copy_val (in class Q)
         return self.__class__(self)
-    
+
     # override abstract method of DataMixin
     def __eq__(self, other): #bruce 070227 revised this
         try:
@@ -382,7 +382,7 @@ class Q(DataMixin):
             # which made Q(1, 0, 0, 0) == Q(0.877583, 0.287655, 0.38354, 0) (since they're equal in at least one component)!!
             # Apparently it was my own bug, since it says above that I wrote this method on 060209.
         pass
-        
+
     def __getitem__(self, num):
         return self.vec[num]
 
@@ -447,7 +447,7 @@ class Q(DataMixin):
                  q1.w*self.y - q1.x*self.z + q1.y*self.w + q1.z*self.x,
                  q1.w*self.z + q1.x*self.y - q1.y*self.x + q1.z*self.w)
         self.vec = temp
-        
+
         self.counter -= 1
         if self.counter <= 0:
             self.counter = 50
@@ -639,7 +639,7 @@ def Veq(v1, v2):
     # (in principle it would work, based on my current understanding of Numeric...)
 
 # == bruce 050518 moved the following here from extrudeMode.py (and bugfixed/docstringed them)
-    
+
 def floats_near(f1, f2): #bruce, circa 040924, revised 050518 to be relative, 050520 to be absolute for small numbers.
     """
     Say whether two floats are "near" in value (just for use in sanity-check assertions).
@@ -698,5 +698,5 @@ if __name__ == '__main__':
     q3 = Q(1, 0, 0, 0)
     assert same_vals( q1, q3 ), "BUG: not same_vals( Q(1,0,0,0), Q(1,0,0,0) )"
     print "tests done"
-    
+
 # end

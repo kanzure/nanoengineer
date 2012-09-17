@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 ops_pam.py - PAM3+5 <-> PAM5 conversion operations
 
@@ -29,13 +29,13 @@ class ops_pam_Mixin:
     """
 
     # these commands have toolbuttons:
-    
+
     def convertPAM3to5Command(self):
         commandname = "Convert PAM3 to PAM5"
         which_pam = MODEL_PAM5
         self._convert_selection_to_pam_model( which_pam, commandname)
         return
-    
+
     def convertPAM5to3Command(self):
         commandname = "Convert PAM5 to PAM3"
         which_pam = MODEL_PAM3
@@ -46,14 +46,14 @@ class ops_pam_Mixin:
     # and probably never should. For debugging (or in case they
     # are occasionally useful to users), they'll probably be given
     # debug menu commands.
-    
-    def convertPAM3to5_noghosts_Command(self): 
+
+    def convertPAM3to5_noghosts_Command(self):
         commandname = "Convert PAM3 to PAM5 no ghosts"
         which_pam = MODEL_PAM5
         self._convert_selection_to_pam_model( which_pam, commandname, make_ghost_bases = False)
         return
-    
-    ## def convertPAM5to3_leaveghosts_Command(self): 
+
+    ## def convertPAM5to3_leaveghosts_Command(self):
     ##     commandname = "Convert PAM5 to PAM3 leave ghosts"
     ##     which_pam = MODEL_PAM3
     ##     self._convert_selection_to_pam_model( which_pam, commandname, remove_ghost_bases_from_PAM3 = False)
@@ -64,7 +64,7 @@ class ops_pam_Mixin:
     # could be factored out from _convert_selection_to_pam_model below,
     # but not trivially, since all the history messages and
     # some of the return-since-no-work conditions need changes
-    
+
     def _convert_selection_to_pam_model(self,
                                         which_pam,
                                         commandname = "",
@@ -85,7 +85,7 @@ class ops_pam_Mixin:
         """
         if not commandname:
             commandname = "Convert to %s" % which_pam # kluge, doesn't matter yet
-                
+
         # find all selected atoms (including those in selected chunks)
         atoms = dict(self.selatoms)
         for chunk in self.selmols:
@@ -94,7 +94,7 @@ class ops_pam_Mixin:
         if not atoms:
             env.history.message( greenmsg(commandname + ": ") + redmsg("Nothing selected.") )
             return
-        
+
         # expand them to cover whole basepairs -- use ladders to help?
         # (the atoms with errors are not in valid ladders, so that
         #  is also an easy way to exclude those)
@@ -102,10 +102,10 @@ class ops_pam_Mixin:
         num_atoms_with_good_ladders = 0
         ladders = {}
         ghost_bases = {} # initially only holds PAM5 ghost bases
-        
+
         for atom in atoms.itervalues():
             try:
-                ladder = atom.molecule.ladder 
+                ladder = atom.molecule.ladder
             except AttributeError: # for .ladder
                 continue # not the right kind of atom, etc
             if not ladder or not ladder.valid:
@@ -137,7 +137,7 @@ class ops_pam_Mixin:
         number_of_unpaired_bases_to_convert = 0
 
         ladders_needing_ghost_bases = {} # maps ladder to (ladder, list of indices) #bruce 080528
-        
+
         for ladder in ladders:
             # TODO: if ladder can't convert (nim for that kind of ladder),
             # say so as a summary message, and skip it. (But do we know how
@@ -145,7 +145,7 @@ class ops_pam_Mixin:
 
             # TODO: if ladder doesn't need to convert (already in desired model),
             # skip it.
-            
+
             length = len(ladder)
             index_set = {} # base indexes in ladder of basepairs which touch our dict of atoms
             rails = ladder.all_rails()
@@ -203,7 +203,7 @@ class ops_pam_Mixin:
                 env.history.message( greenmsg(commandname + ": ") + orangemsg("Warning: " + fix_plurals(msg)))
             env.history.message( greenmsg(commandname + ": ") + redmsg("Nothing found to convert.") )
             return
-        
+
         # print a message about what we found to convert
         what1 = what2 = ""
         if number_of_basepairs_to_convert:
@@ -215,7 +215,7 @@ class ops_pam_Mixin:
             what = what1 + " and " + what2
         else:
             what = what1 + what2
-        
+
         env.history.message( greenmsg(commandname + ": ") + "Will convert %s ..." % what )
 
         # warn if we're skipping some atoms [similar code occurs twice in this method]
@@ -241,11 +241,11 @@ class ops_pam_Mixin:
                 for ind in index_list:
                     atom = baseatoms[ind]
                     atoms_to_convert[atom.key] = atom
-        
+
         # cause the dna updater (which would normally run after we return,
         #  but is also explicitly run below) to do the rest of the conversion
         # (and report errors for whatever it can't convert)
-        
+
         for ladder in ladders_to_inval:
             ladder._dna_updater_rescan_all_atoms()
 
@@ -253,7 +253,7 @@ class ops_pam_Mixin:
             _f_baseatom_wants_pam[atom] = which_pam
 
         # run the dna updater explicitly
-        
+
         print "about to run dna updater for", commandname
         self.assy.update_parts() # not a part method
             # (note: this catches dna updater exceptions and turns them into redmsgs.)
@@ -301,7 +301,7 @@ class ops_pam_Mixin:
         self.assy.w.win_update()
 
         return
-    
+
     pass # end of class ops_pam_Mixin
 
 # end

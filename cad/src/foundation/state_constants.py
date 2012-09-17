@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 state_constants.py -- definitions needed by state_utils and its client code,
 including constants for declaring attributes' roles in
@@ -54,14 +54,14 @@ S_REF = 'S_REF' # like S_DATA, but for attributes whose value is None or a "refe
     # (It's not yet clear exactly how this differs from S_DATA, or whether it matters if ref'd objects are encountered
     #  in a scan into children. Are these "siblings or cousins" (like a jig's atoms) or "foreign objects" (like some QDialog)
     #  or "other state-holders" (like GLPane or MainWindow) or "constants" (like Elements and Atomtypes)?)
-    
+
 S_REFS = 'S_REFS' # like S_REF, but value might be a list or dict (etc) containing one or more referenced objects.
 
 
 S_PARENT = 'S_PARENT' # like S_DATA, but for attributes whose value is None or a "parent object"
     # (one which should be encountered in a scan of undoable objects going only into children,
     #  and of which this object is a child or grandchild etc).
-    
+
 S_PARENTS = 'S_PARENTS' # like S_PARENT, but value might be a list or dict (etc) containing one or more parent objects.
 
 
@@ -108,7 +108,7 @@ class _UNSET_class:
 
 # ensure only one instance of _UNSET_ itself, even if we reload this module
 try:
-    _UNSET_ 
+    _UNSET_
 except:
     _UNSET_ = _UNSET_class("_UNSET_")
 

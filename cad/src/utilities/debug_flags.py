@@ -8,7 +8,7 @@ into more specific debugging flags.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Notes:
 

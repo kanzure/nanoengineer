@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 handles.py - graphical handles used in Extrude Mode.
 
@@ -29,7 +29,7 @@ class handleWithHandleSet:
     """
     used to wrap handles returned from a handleset, so they can use its methods
     """
-    def __init__(self, handle, handleset, copy_id = None): 
+    def __init__(self, handle, handleset, copy_id = None):
         self.handle = handle
         self.handleset = handleset
         self.copy_id = copy_id
@@ -124,7 +124,7 @@ class HandleSet:
         hh = self.handles
         res = []
         v = norm(p2-p1)
-        # is this modifying the vector in-place, causing a bug?? 
+        # is this modifying the vector in-place, causing a bug??
         ## offset += self.origin # treat our handles' pos as relative to this
         # I don't know, but one of the three instances of += was doing this!!!
         # probably i was resetting the atom or mol pos....
@@ -210,7 +210,7 @@ class repunitHandleSet(HandleSet): #e this really belongs in extrudeMode.py, not
     def move_handle( self, handle, copy_id, motion):
         self.target.drag_repunit(copy_id, motion)
     def hset_name(self, copy_id): #e move this name code to the hset itself
-        if copy_id: 
+        if copy_id:
             name = "repeat unit #%d" % copy_id
         else:
             name = "base unit"

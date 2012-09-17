@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 PM_TableWidget.py
 
@@ -21,34 +21,34 @@ from PyQt4.Qt import QWidget
 
 class PM_TableWidget( QTableWidget ):
     """
-    The PM_TableWidget widget provides a table widget.    
+    The PM_TableWidget widget provides a table widget.
     """
-    
-    defaultState = Qt.Unchecked  
+
+    defaultState = Qt.Unchecked
     setAsDefault = True
     labelWidget = None
-        
-    def __init__(self, 
-                 parentWidget, 
-                 label          = '', 
+
+    def __init__(self,
+                 parentWidget,
+                 label          = '',
                  labelColumn  = 1,
                  setAsDefault  = True,
                  spanWidth = True
                  ):
         """
-        Appends a QTableWidget (Qt) widget to the bottom of I{parentWidget}, 
+        Appends a QTableWidget (Qt) widget to the bottom of I{parentWidget},
         a Property Manager group box.
         """
-                        
+
         QTableWidget.__init__(self)
-        self.parentWidget = parentWidget        
+        self.parentWidget = parentWidget
         self.labelColumn = labelColumn
         self.setAsDefault = setAsDefault
         self.spanWidth = spanWidth
-        
+
         self.label = QLabel(label)
-        
+
         parentWidget.addPmWidget(self)
-    
-              
+
+
 # End of PM_TableWidget ############################

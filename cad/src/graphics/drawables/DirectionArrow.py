@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 DirectionArrow.py
 
@@ -7,13 +7,13 @@ DirectionArrow.py
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
-ninad 2007-06-12: Created this class (initially) to support the implementation 
-of 'offset plane' (was created in Plane.py) 
-ninad 2007-08-20: Split it out of Plane.py into this new file. 
+ninad 2007-06-12: Created this class (initially) to support the implementation
+of 'offset plane' (was created in Plane.py)
+ninad 2007-08-20: Split it out of Plane.py into this new file.
 
 TODO:
-- Need to implement some grid plane features. 
-- Plane should be selectable when clicked anywhere inside. 
+- Need to implement some grid plane features.
+- Plane should be selectable when clicked anywhere inside.
 """
 
 from OpenGL.GL import glPushName
@@ -47,9 +47,9 @@ class DirectionArrow(DragHandler_API, Selobj_API):
     interacted with in the 3D graphics area. The direction arrow object
     is created in its parent class. (class corresponding to self.parent)
 
-    Example: Used to generate a plane offset to the selected plane, 
+    Example: Used to generate a plane offset to the selected plane,
              in the direction indicated by the direction arrow.
-             Clicking on the arrow reverses its direction and 
+             Clicking on the arrow reverses its direction and
              thus the direction of the plane placement.
     """
     def __init__(self, parent, glpane, tailPoint, defaultDirection):
@@ -66,60 +66,60 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         @type  tailPoint: V
 
         @param defaultDirection: The direction of the arrow.
-        @type  defaultDirection: 
+        @type  defaultDirection:
         """
         self.parent = parent
         self.glpane = glpane
-        self.tailPoint = tailPoint  
-        self.direction = defaultDirection        
+        self.tailPoint = tailPoint
+        self.direction = defaultDirection
         self.glname = glpane.alloc_my_glselect_name(self) #bruce 080917 revised
         self.flipDirection = False
         self.drawRequested = False
 
     def setDrawRequested(self, bool_request = False):
         """
-        Sets the draw request for drawing the direction arrow. 
+        Sets the draw request for drawing the direction arrow.
         This class's draw method is called in the parent class's draw method
-        This functions sets the flag that decides whether to draw direction 
+        This functions sets the flag that decides whether to draw direction
         arrow (the flag  value is returned using isDrawRequested method.
         @param bool_request: Default is False. (request to draw direction arrow)
         @type  bool_request: bool
         """
         self.drawRequested = bool_request
 
-    def isDrawRequested(self): 
-        """ 
-        Returns the flag that decides whether to draw the direction arrow. 
+    def isDrawRequested(self):
+        """
+        Returns the flag that decides whether to draw the direction arrow.
         @return B{self.drawRequested} (boolean value)
         @rtype  instance variable B{self.drawRequested}
         """
-        return self.drawRequested 
+        return self.drawRequested
 
     def draw(self):
-        """ 
-        Draw the direction arrow. (This method is called inside of the 
+        """
+        Draw the direction arrow. (This method is called inside of the
         parent object's drawing code.
         """
         try:
             glPushName(self.glname)
             if self.flipDirection:
-                self._draw(flipDirection = self.flipDirection)    
+                self._draw(flipDirection = self.flipDirection)
             else:
                 self._draw()
         except:
             glPopName()
             print_compact_traceback("ignoring exception when drawing handle %r: " % self)
         else:
-            glPopName()        
+            glPopName()
         pass
 
     def _draw(self, flipDirection = False, highlighted = False):
-        """ Main drawing code. 
-        @param flipDirection: This flag decides the direction in which the 
-               arrow is drawn. This value is set in the leftClick method. 
+        """ Main drawing code.
+        @param flipDirection: This flag decides the direction in which the
+               arrow is drawn. This value is set in the leftClick method.
                The default value is 'False'
         @type   flipDirection: bool
-        @param highlighted: Decids the color of the arrow based on whether 
+        @param highlighted: Decids the color of the arrow based on whether
                it is highlighted. The default value is 'False'
         @type  highlighted: bool
 
@@ -131,18 +131,18 @@ class DirectionArrow(DragHandler_API, Selobj_API):
             color = gray
 
         if flipDirection:
-            #@NOTE: Remember we are drawing the arrow inside of the _draw_geometry 
+            #@NOTE: Remember we are drawing the arrow inside of the _draw_geometry
             #so its drawing it in the translated coordinate system (translated
-            #at the center of the Plane. So we should do the following. 
-            #(i.e. use V(0,0,1)). This will change if we decide to draw the 
-            #direction arrow outside of the parent object 
+            #at the center of the Plane. So we should do the following.
+            #(i.e. use V(0,0,1)). This will change if we decide to draw the
+            #direction arrow outside of the parent object
             #requesting this drawing.--ninad 20070612
-            #Using headPoint = self.tailPoint + V(0,0,1) * 2.0 etc along with 
+            #Using headPoint = self.tailPoint + V(0,0,1) * 2.0 etc along with
             #the transformation matrix in self.draw_in_abs_coordinate()
             #fixes bug 2702 and 2703 -- Ninad 2008-06-11
             headPoint = self.tailPoint + V(0,0,1) * 2.0
             ##headPoint = self.tailPoint + 2.0 * norm(self.parent.getaxis())
-        else:            
+        else:
             headPoint = self.tailPoint - V(0,0,1) * 2.0
             ##headPoint = self.tailPoint - 2.0 * self.parent.getaxis()
 
@@ -152,8 +152,8 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         vec = self.glpane.scale*0.07*vec
         tailRadius = vlen(vec)*0.16
 
-        drawDirectionArrow(color, 
-                           self.tailPoint, 
+        drawDirectionArrow(color,
+                           self.tailPoint,
                            headPoint,
                            tailRadius,
                            self.glpane.scale,
@@ -164,44 +164,44 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         Draw the handle as a highlighted object.
         @param glpane: B{GLPane} object
         @type  glpane: L{GLPane}
-        @param color: Highlight color 
-        """    
-        q = self.parent.quat 	 
-        glPushMatrix() 	 
-        glTranslatef( self.parent.center[0], 	 
-                      self.parent.center[1], 	 
-                      self.parent.center[2]) 	 
-        glRotatef( q.angle * ONE_RADIAN, 	 
-                   q.x, 	 
-                   q.y, 	 
+        @param color: Highlight color
+        """
+        q = self.parent.quat 	
+        glPushMatrix() 	
+        glTranslatef( self.parent.center[0], 	
+                      self.parent.center[1], 	
+                      self.parent.center[2]) 	
+        glRotatef( q.angle * ONE_RADIAN, 	
+                   q.x, 	
+                   q.y, 	
                    q.z)
 
-        if self.flipDirection:            
-            self._draw(flipDirection = self.flipDirection, 
-                       highlighted   = True)    
+        if self.flipDirection:
+            self._draw(flipDirection = self.flipDirection,
+                       highlighted   = True)
         else:
             self._draw(highlighted   = True)
 
         glPopMatrix()
 
     ###=========== Drag Handler interface Starts =============###
-    #@TODO Need some documentation. Basically it implements the drag handler 
+    #@TODO Need some documentation. Basically it implements the drag handler
     #interface described in DragHandler.py See also exprs.Highlightable.py
     # -- ninad 20070612
-    def handles_updates(self): 
+    def handles_updates(self):
         return True
 
-    def DraggedOn(self, event, mode): 
+    def DraggedOn(self, event, mode):
         return
 
-    def ReleasedOn(self, selobj, event, mode): 
+    def ReleasedOn(self, selobj, event, mode):
         pass
 
     # =========== Drag Handler interface Ends =============
 
     # ============== selobj interface Starts ==============
 
-    #@TODO Need some documentation. Basically it implements the selobj 
+    #@TODO Need some documentation. Basically it implements the selobj
     # interface mentioned in exprs.Highlightable.py -- ninad 2007-06-12
 
     def leftClick(self, point, event, mode):
@@ -220,7 +220,7 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         self.flipDirection = not self.flipDirection
         mode.update_selobj(event)
         mode.o.gl_update()
-        return self               
+        return self
 
     def mouseover_statusbar_message(self):
         """
@@ -231,12 +231,12 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         @rtype:  str
         """
         msg1 = "Click on arrow to flip its direction"
-        return msg1 
+        return msg1
 
     def highlight_color_for_modkeys(self, modkeys):
         return orange
 
-    # Copied Bruce's code from class Highlightable with some mods. 
+    # Copied Bruce's code from class Highlightable with some mods.
     # Need to see if selobj_still_ok() is needed. OK for now.
     # --Ninad 2007-05-31
     def selobj_still_ok(self, glpane):

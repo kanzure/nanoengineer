@@ -1,11 +1,11 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 WhatsThisText_for_PreferencesDialog.py
 
 This file provides functions for setting the "What's This" and tooltip text
-for widgets in the NE1 Preferences dialog only. 
+for widgets in the NE1 Preferences dialog only.
 
-Edit WhatsThisText_for_MainWindow.py to set "What's This" and tooltip text 
+Edit WhatsThisText_for_MainWindow.py to set "What's This" and tooltip text
 for widgets in the Main Window.
 
 @version: $Id$
@@ -18,10 +18,10 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     """
     Assigning the I{What's This} text for the Preferences dialog.
     """
-    
+
     _pd = preferencesDialog
 
-    if sys.platform == 'darwin':        
+    if sys.platform == 'darwin':
         # TODO: figure out how to get fix_whatsthis_text_and_links to handle
         # this for us (like it does for most whatsthis text).
         # For more info see comments from today in other files.
@@ -29,24 +29,24 @@ def whatsThis_PreferencesDialog(preferencesDialog):
         _keyString = "<b>(Cmd + C and Cmd + V)</b> respectively"
     else:
         _keyString = "<b>(Ctrl + C and Ctrl + V)</b> respectively"
-    
-    #General preference 
+
+    #General preference
     _text = """<b>Offset scale factor for pasting chunks</b>
-    <p>When one or more chunks, that are placed as independent nodes in the 
-    Model Tree, are copied and then pasted using the modifier 
-    keys %s, this scale factor determines the offset of the pasted chunks 
-    from the original chunks. Note that if the copied selection includes any 
-    DNA objects such as DNA segments, strands etc, the program will use 
-    an offset scale that is used for pasting the DNA objects instead of this 
+    <p>When one or more chunks, that are placed as independent nodes in the
+    Model Tree, are copied and then pasted using the modifier
+    keys %s, this scale factor determines the offset of the pasted chunks
+    from the original chunks. Note that if the copied selection includes any
+    DNA objects such as DNA segments, strands etc, the program will use
+    an offset scale that is used for pasting the DNA objects instead of this
     offset scale) </p>"""%(_keyString)
     _pd.pasteOffsetScaleFactorForChunks_doubleSpinBox.setWhatsThis(_text)
     _pd.pasteOffsetForChunks_lable.setWhatsThis(_text)
-    
+
     _text = """<b>Offset scale factor for pasting Dna objects</b>
-    <p>When one or more DNA objects such as DNA segments, strands etc, are 
-    copied and then pasted using the modifier keys %s, this scale factor 
-    determines the offset of the pasted DNA objects from the original ones. 
-    Note that this also applies to pasting chunks within a group in the Model 
+    <p>When one or more DNA objects such as DNA segments, strands etc, are
+    copied and then pasted using the modifier keys %s, this scale factor
+    determines the offset of the pasted DNA objects from the original ones.
+    Note that this also applies to pasting chunks within a group in the Model
     Tree. </p>"""%(_keyString)
     _pd.pasteOffsetScaleFactorForDnaObjects_doubleSpinBox.setWhatsThis(_text)
     _pd.pasteOffsetForDna_lable.setWhatsThis(_text)
@@ -63,7 +63,7 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     _pd.bond_line_thickness_spinbox.setWhatsThis(_text) # nice!
     _pd.textLabel1.setWhatsThis(_text)
     # and What's This text for all the others widgets (yuk!)
-    
+
     _pd.display_origin_axis_checkbox.setWhatsThis(
         """<p><b>Display origin axis</b></p>
         <p>
@@ -96,7 +96,7 @@ def whatsThis_PreferencesDialog(preferencesDialog):
         </p>"""
     _pd.update_number_spinbox.setWhatsThis(_text)
     _pd.update_units_combobox.setWhatsThis(_text)
-        
+
     _pd.update_every_rbtn.setWhatsThis(
         """<b>Update every <i>n units.</u></b>
         <p>
@@ -123,14 +123,14 @@ def whatsThis_PreferencesDialog(preferencesDialog):
         </p>"""
     _pd.endmax_lbl.setWhatsThis(_text)
     _pd.endMaxDoubleSpinBox.setWhatsThis(_text)
-    
+
     _text = \
         """<b>CutoverMax</b>
         <p>Use steepest descent until no interaction exceeds this force.
         </p>"""
     _pd.cutovermax_lbl.setWhatsThis(_text)
     _pd.cutoverMaxDoubleSpinBox.setWhatsThis(_text)
-    
+
     _text = \
         """<b>CutoverRMS</b>
         <p>
@@ -170,13 +170,13 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     _text = \
         """<p><b>View animation speed</b></p>
         <p>
-        Sets the animation speed when animating between views 
-        (i.e. Front view to Right view).  It is recommended that this be set 
+        Sets the animation speed when animating between views
+        (i.e. Front view to Right view).  It is recommended that this be set
         to Fast when working on large models.
         </p>"""
     _pd.textLabel1_5.setWhatsThis(_text)
     _pd.animation_speed_slider.setWhatsThis(_text)
-    
+
     _text = \
         """<p><b>Mouse rotation speed</b></p>
         <p>
@@ -186,21 +186,21 @@ def whatsThis_PreferencesDialog(preferencesDialog):
         </p>"""
     _pd.mouseSpeedDuringRotation_slider.setWhatsThis(_text)
     _pd.rotationSensitivity_txtlbl.setWhatsThis(_text)
-    
+
     _text = \
         """<p><b>Level of detail</b></p>
         <p>
         Sets the level of detail for atoms and bonds.<br>
-        <br>  
+        <br>
         <b>High</b> = Best graphics quality (slowest rendering speed)<br>
-        <b>Medium</b> = Good graphics quality<br> 
+        <b>Medium</b> = Good graphics quality<br>
         <b>Low</b> = Poor graphics quality (fastest rendering speed) <br>
         <b>Variable</b> automatically switches between High, Medium and Low
         based on the model size (number of atoms).
         </p>"""
     _pd.textLabel1_7.setWhatsThis(_text)
     _pd.level_of_detail_combox.setWhatsThis(_text)
-    
+
     _pd.textLabel1_3_2.setWhatsThis(
         """<p><b>Ball and stick atom scale</b></p>
         <p>
@@ -289,7 +289,7 @@ def whatsThis_PreferencesDialog(preferencesDialog):
         in ball and stick display mode"""
     _pd.textLabel1_3.setWhatsThis(_text)
     _pd.cpk_cylinder_rad_spinbox.setWhatsThis(_text)
-    
+
     _pd.autobond_checkbox.setWhatsThis(
         """<p>Default setting for <b>Autobonding</b> at startup
         (enabled/disabled)</p>""")
@@ -305,7 +305,7 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     _pd.buildmode_highlighting_checkbox.setWhatsThis(
         """<p>Default setting for <b>Hover highlighting</b> at startup
         (enabled/disabled)</p>""")
-    
+
     _pd.gromacs_label.setWhatsThis(
         """Enable GROMACS and choose the mdrun executable path to use.""")
     _pd.gromacs_checkbox.setWhatsThis(
@@ -439,7 +439,7 @@ def whatsThis_PreferencesDialog(preferencesDialog):
     _text = \
         """Saves the main window's current position and size for the next
         time the program starts."""
-    _pd.save_current_btn.setWhatsThis(_text)     
+    _pd.save_current_btn.setWhatsThis(_text)
     _pd.restore_saved_size_btn.setWhatsThis(
         """Restores the main window's current position from the last time
         the program was closed""")

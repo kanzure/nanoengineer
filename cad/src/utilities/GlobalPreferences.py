@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 GlobalPreferences.py
 
@@ -245,7 +245,7 @@ def use_frustum_culling(): #piotr 080401
                      non_debug = True,
                          # leave this visible w/o ATOM_DEBUG for release
                          # [bruce 080408]
-                     prefs_key = "A10/GLPane: enable frustum culling?") 
+                     prefs_key = "A10/GLPane: enable frustum culling?")
 
     return res
 
@@ -291,7 +291,7 @@ def _kluge_global_mt_update():
     win = env.mainwindow()
     win.mt.mt_update()
     return
-    
+
 def pref_show_node_color_in_MT():
     #bruce 080507, mainly for testing new MT method repaint_some_nodes;
     # won't yet work for internal groups that act like MT leaf nodes
@@ -305,7 +305,7 @@ def pref_show_node_color_in_MT():
                      call_with_new_value = (lambda val: _kluge_global_mt_update())
                     )
     return res
-    
+
 def pref_show_highlighting_in_MT():
     #bruce 080507
     """
@@ -336,7 +336,7 @@ def pref_minimize_leave_out_PAM_bondpoints(): #bruce 080507
     """
     If enabled, bondpoints on PAM atoms are left out of simulations
     and minimizations, rather than being converted to H (as always occurred
-    until now) or anchored (not yet possible) or left unchanged. 
+    until now) or anchored (not yet possible) or left unchanged.
 
     @warning: not yet fully implemented.
     """
@@ -474,17 +474,17 @@ ENABLE_PROTEINS = debug_pref("Enable Proteins? (next session)",
 # ==
 
 def _debug_pref_keep_signals_always_connected(): #Ninad 2008-08-13
-    #If the above flag, if True, signals are connected when PM is created 
+    #If the above flag, if True, signals are connected when PM is created
     # (always True by default) If this is False, the signals are connected
     #in show() method of the PM and disconnected in the close() method
-    
-    ##Based on Bruce's comment 2008-09-23: 
-    ## The following bug is unlikely because presumably the user can never see 
-    ## the old PM object and the underlying call is a memory leak 
-    ## issue than anything else (harder to fix) -- 
-    ## What happens when you are in something with signals (e.g. extrude) and do 
+
+    ##Based on Bruce's comment 2008-09-23:
+    ## The following bug is unlikely because presumably the user can never see
+    ## the old PM object and the underlying call is a memory leak
+    ## issue than anything else (harder to fix) --
+    ## What happens when you are in something with signals (e.g. extrude) and do
     ## file->close or file->open.
-    ## A bug could happen if the signals remain connected to the old command 
+    ## A bug could happen if the signals remain connected to the old command
     ##object. ....
 
     res = debug_pref("Keep signals always connected (next session)?",
@@ -500,7 +500,7 @@ KEEP_SIGNALS_ALWAYS_CONNECTED = _debug_pref_keep_signals_always_connected()
 
 def _debug_pref_break_strands_feature(): #Ninad 2008-08-18
     #debug flag for experimental code Ninad is
-    #working on (various break strands options). 
+    #working on (various break strands options).
     #Note that this flag is also used in BreakStrand_Command
     #UPDATE 2008-08-19: This preference is set to True by default
     res = debug_pref("DNA: debug new break strands options feature (next session)",

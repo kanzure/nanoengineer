@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 basic.py -- define things to be imported by every module in this package (using import *)
 
@@ -106,7 +106,7 @@ reload_once(exprs.If_expr)
 
 ##import staterefs
 ##reload_once(staterefs)
-##from staterefs import * 
+##from staterefs import *
 
 import exprs.iterator_exprs # 070302
 reload_once(exprs.iterator_exprs)

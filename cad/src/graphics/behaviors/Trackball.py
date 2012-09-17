@@ -42,7 +42,7 @@ class Trackball:
             # note: oldmouse and newmouse are not mouse positions; they come out of proj2sphere.
             # I think they're related to a non-incremental trackball goal; not sure yet. [bruce 060514 comment]
         self.mouseSpeedDuringRotation = None
-        
+
     def rescale(self, wide, high):
         """
         This should be called when the trackball's window or pane has been resized
@@ -60,7 +60,7 @@ class Trackball:
         # here instead of init so that it will come into effect immediately
         self.mouseSpeedDuringRotation = \
             env.prefs[ mouseSpeedDuringRotation_prefs_key]
-        
+
         self.oldmouse = proj2sphere( (px - self.w2) * self.scale * self.mouseSpeedDuringRotation,
                                      (self.h2 - py) * self.scale * self.mouseSpeedDuringRotation )
 
@@ -76,11 +76,11 @@ class Trackball:
          or glpane.quat alone, but this is not the same as a retval suitable for incrementing obj.quat alone.)
         """
         #bruce 060514 revised this code (should be equivalent to the prior code), added docstring
-        #ninad 060906 added 'rotation sensitivity to this formula. the rotation sensitivity will be used 
-        #while middle drag rotating the model. By default a lower value is set for this and can be adjusted 
+        #ninad 060906 added 'rotation sensitivity to this formula. the rotation sensitivity will be used
+        #while middle drag rotating the model. By default a lower value is set for this and can be adjusted
         #via a user preference. This helps mitigate bug 1856
         newmouse = proj2sphere((px - self.w2) * self.scale * self.mouseSpeedDuringRotation,
-                               (self.h2 - py) * self.scale * self.mouseSpeedDuringRotation) 
+                               (self.h2 - py) * self.scale * self.mouseSpeedDuringRotation)
         if self.oldmouse is not None:
             quat = Q(self.oldmouse, newmouse)
             if uq is not None:
@@ -90,7 +90,7 @@ class Trackball:
             quat = Q(1,0,0,0)
         self.oldmouse = newmouse
         return quat
-    
+
     pass # end of class Trackball
 
 # end

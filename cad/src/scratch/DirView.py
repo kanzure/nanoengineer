@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 General directory view widget. Based on Qt/PyQt example dirview.py,
 with modifications for use in MMKit.
@@ -178,29 +178,29 @@ class FileItem(QTreeWidgetItem):
         parent.addChild(self)
         if name is not None:
             self.setText(1, name)
-        
+
         self.f = name
         self.fileObj = fio
-    
+
     def getFileObj(self):
         return self.fileObj
-    
+
     def text(self, column):
         if column == 0:
             return self.f
-    
+
     #def setup(self):
     #    self.setExpandable(1)
     #    QTreeWidgetItem.setup(self)
-        
+
 
 class Directory(QTreeWidgetItem):
-    
+
     def __init__(self, parent, name=None):
         QTreeWidgetItem.__init__(self)
-        
+
         self.filterList = ('mmp', 'MMP')
-        
+
         if isinstance(parent, QListView):
             self.p = None
             if name:
@@ -210,7 +210,7 @@ class Directory(QTreeWidgetItem):
         else:
             self.p = parent
             self.f = name
-            
+
         self.readable = QDir( self.fullName() ).isReadable()
 
         if  not self.readable :
@@ -223,10 +223,10 @@ class Directory(QTreeWidgetItem):
             parent.addTopLevelItem(self)
         else:
             parent.addChild(self)
-        
+
 
     def setOpen(self, o):
-        if  o: 
+        if  o:
             self.setIcon(0, folderOpenIcon)
         else:
             self.setIcon(0, folderClosedIcon)
@@ -268,7 +268,7 @@ class Directory(QTreeWidgetItem):
                             continue
                         d = FileItem(self, f.absFilePath(), fileName)
                         d.setIcon(0, fileIcon)
-    
+
         qt4todo('QTreeWidgetItem.setOpen(self, o)')
 
 
@@ -283,10 +283,10 @@ class Directory(QTreeWidgetItem):
                 qt4todo('Make the parent a Directory instead of a DirView')
                 s = self.f
             else:
-                s = self.p.fullName() + self.f 
+                s = self.p.fullName() + self.f
         else:
             s = self.f
-        
+
         if not s.endswith('/'):
             s += '/'
         return s
@@ -299,7 +299,7 @@ class Directory(QTreeWidgetItem):
         ##    return 'Directory'
         ##else:
         ##    return 'Unreadable Directory'
-    
+
     def setFilter(self, filterList):
         '''This is used to filter out file display in the QListView.
            @param filterList is a list of file tyes like '.mmp' or '.MMP' etc. '''
@@ -307,7 +307,7 @@ class Directory(QTreeWidgetItem):
 
 class DirView(QTreeWidget):
     def __init__(self, parent=None, name=None):
-        QTreeWidget.__init__(self, parent) 
+        QTreeWidget.__init__(self, parent)
         global folderClosedIcon, folderLockedIcon, folderOpenIcon, fileIcon
 
         folderClosedIcon = QIcon(QPixmap(folder_closed_image))
@@ -318,31 +318,31 @@ class DirView(QTreeWidget):
         self.setHeaderLabels(["", "Name"])
         #self.addColumn("Name", 150) # added 150. mark 060303. [bruce then changed 'width=150' to '150' to avoid exception]
             # Calling addColumn() here causes DirView to change size after its parent (MMKit) is shown.
-            # I've not been successful figuring out how to control the height of the DirView (QTreeWidget) 
-            # after adding this column. See comments in MWsemantics._findGoodLocation() for more 
+            # I've not been successful figuring out how to control the height of the DirView (QTreeWidget)
+            # after adding this column. See comments in MWsemantics._findGoodLocation() for more
             # information about how I compensate for this. Mark 060222.
         #self.setGeometry(QRect(7,-1,191,150))
-        self.setMinimumSize(QSize(160,150)) 
+        self.setMinimumSize(QSize(160,150))
             # Trying to force height to be 150, but addColumn() overrides this.  To see the problem,
             # simply comment out addColumn() above and enter Build mode. mark 060222.
         #self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding,0,0,self.sizePolicy().hasHeightForWidth()))
         qt4todo('self.setTreeStepSize(20)')
         qt4todo('self.setColumnWidth(0, 150)') # Force the column width to 150 again. Fixes bug 1613. mark 060303.
             # The only time you'll see bug 1613 is when your partlib path is very long.
-            # The column width is set by the width of the partlib path.  
-            # If you have a short path (i.e. /atom/cad/partlib), you wouldn't notice this bug.  
-            # A fresh Windows install has its partlib in C:\Program Files\NanoEngineer-1 vx.x.x Alpha\partlib.  
+            # The column width is set by the width of the partlib path.
+            # If you have a short path (i.e. /atom/cad/partlib), you wouldn't notice this bug.
+            # A fresh Windows install has its partlib in C:\Program Files\NanoEngineer-1 vx.x.x Alpha\partlib.
             # This was causing the MMKit to be very wide on Windows by default on startup.
-        
+
         #self.connect(self, SIGNAL("selectionChanged(QTreeWidgetItem *)"), self.partChanged)
-        
+
     def partChanged(self, item):
         if isinstance(item, FileItem):
             fi = item.getFileObj()
             print "The selected file is: ", str(fi)
-    
-    
-    
+
+
+
 ########################################################################
 # Test code
 # Here is the example we find in PyQt-x11-gpl-4.0.1/examples/itemviews/dirview.py
@@ -377,7 +377,7 @@ if False and __name__ == '__main__':
         root.setOpen(1)
         mw.show()
         a.exec_()
-    
+
     else:
         roots = QDir("/download")
         fiList = roots.entryInfoList()

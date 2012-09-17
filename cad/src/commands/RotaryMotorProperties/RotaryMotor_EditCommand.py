@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 RotaryMotor_EditCommand.py
 
@@ -22,14 +22,14 @@ class RotaryMotor_EditCommand(Motor_EditCommand):
     """
     The RotaryMotor_EditCommand class  provides an editCommand Object.
     The editCommand, depending on what client code needs it to do, may create
-    a new rotary motor or it may be used for an existing rotary motor. 
-    """   
+    a new rotary motor or it may be used for an existing rotary motor.
+    """
     #Property Manager
-    PM_class = RotaryMotorPropertyManager    
-    cmd = greenmsg("Rotary Motor: ")        
+    PM_class = RotaryMotorPropertyManager
+    cmd = greenmsg("Rotary Motor: ")
     commandName = 'ROTARY_MOTOR'
-    featurename = "Rotary Motor"    
-    
+    featurename = "Rotary Motor"
+
     def _gatherParameters(self):
         """
         Return all the parameters from the Rotary Motor Property Manager.
@@ -39,23 +39,23 @@ class RotaryMotor_EditCommand(Motor_EditCommand):
         final_speed = self.propMgr.finalSpeedDblSpinBox.value()
         dampers_state = self.propMgr.dampersCheckBox.isChecked()
         enable_minimize_state = self.propMgr.enableMinimizeCheckBox.isChecked()
-        color = self.struct.color      
+        color = self.struct.color
         atoms = self.win.assy.selatoms_list()
 
 
-        return (torque, 
-                initial_speed, 
-                final_speed, 
-                dampers_state, 
-                enable_minimize_state, 
-                color, 
+        return (torque,
+                initial_speed,
+                final_speed,
+                dampers_state,
+                enable_minimize_state,
+                color,
                 atoms)
 
     def _getStructureType(self):
         """
-        Subclasses override this method to define their own structure type. 
-        Returns the type of the structure this editCommand supports. 
-        This is used in isinstance test. 
+        Subclasses override this method to define their own structure type.
+        Returns the type of the structure this editCommand supports.
+        This is used in isinstance test.
         @see: EditCommand._getStructureType() (overridden here)
         """
         return RotaryMotor
@@ -63,10 +63,10 @@ class RotaryMotor_EditCommand(Motor_EditCommand):
 
     def _createStructure(self):
         """
-        Create a Rotary Motor object. (The model object which this edit 
-        controller creates) 
+        Create a Rotary Motor object. (The model object which this edit
+        controller creates)
         """
-        assert not self.struct       
+        assert not self.struct
 
         atoms = self.win.assy.selatoms_list()
 
@@ -76,7 +76,7 @@ class RotaryMotor_EditCommand(Motor_EditCommand):
         if atomNumberRequirementMet:
             self.win.assy.part.ensure_toplevel_group()
             motor = RotaryMotor(self.win.assy)
-            motor.findCenterAndAxis(atoms, self.win.glpane)   
+            motor.findCenterAndAxis(atoms, self.win.glpane)
             self.win.assy.place_new_jig(motor)
         else:
             motor = None
@@ -88,13 +88,13 @@ class RotaryMotor_EditCommand(Motor_EditCommand):
         """
         Modifies the structure (Rotary Motor) using the provided params.
         @param params: The parameters used as an input to modify the structure
-                       (Rotary Motor created using this 
-                       RotaryMotor_EditCommand) 
+                       (Rotary Motor created using this
+                       RotaryMotor_EditCommand)
         @type  params: tuple
         """
         assert self.struct
-        assert params 
-        assert len(params) == 7             
+        assert params
+        assert len(params) == 7
 
         torque, initial_speed, final_speed, \
               dampers_state, enable_minimize_state, \
@@ -110,7 +110,7 @@ class RotaryMotor_EditCommand(Motor_EditCommand):
             logMessage = logMessage + " Motor will remain attached to the"\
                        " atoms listed in the 'Motor Atoms' list in this" \
                        " property manager"
-            logMessage = orangemsg(logMessage)            
+            logMessage = orangemsg(logMessage)
             self.propMgr.updateMessage(logMessage)
             assert len(atoms) > 0
 
@@ -131,14 +131,14 @@ class RotaryMotor_EditCommand(Motor_EditCommand):
         self.propMgr.updateAttachedAtomListWidget(atomList = atoms)
 
         self.win.win_update() # Update model tree
-        self.win.assy.changed()     
+        self.win.assy.changed()
 
     ##=====================================##
 
     def _checkMotorAtomLimits(self, numberOfAtoms):
         """
-        Check if the number of atoms selected by the user, to which the motor 
-        is to be attached, is within acceptable limits. 
+        Check if the number of atoms selected by the user, to which the motor
+        is to be attached, is within acceptable limits.
         @param numberOfAtoms: Number of atoms selected by the user, to which the
                               motor needs to be attached.
         @type numberOfAtoms: int
@@ -149,7 +149,7 @@ class RotaryMotor_EditCommand(Motor_EditCommand):
         if numberOfAtoms == 0:
             logMessage = "No Atoms selected to create a Rotary Motor."
             isAtomRequirementMet = False
-            return (isAtomRequirementMet, logMessage) 
+            return (isAtomRequirementMet, logMessage)
 
         # wware 051216, bug 1114, need >= 2 atoms for rotary motor
         if numberOfAtoms < 2:
@@ -167,8 +167,8 @@ class RotaryMotor_EditCommand(Motor_EditCommand):
         # Print warning if over 200 atoms are selected.
         # The warning should be displayed in a MessageGroupBox. Mark 2007-05-28
         if numberOfAtoms > 200:
-            if not atom_limit_exceeded_and_confirmed(self.win, 
-                                                     numberOfAtoms, 
+            if not atom_limit_exceeded_and_confirmed(self.win,
+                                                     numberOfAtoms,
                                                      limit = 200):
                 logMessage = "Warning: Motor is attached to more than 200 "\
                            "atoms. This may result in a performance degradation"

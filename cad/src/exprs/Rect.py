@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Rect.py -- provide Rect, RectFrame, and other simple 2d shapes
 
@@ -81,7 +81,7 @@ class Rect(Widget2D): # finally working as of 061106
         #  [070227] hmm, can't it just be moved from here into Widget2D itself? Yes, that works!
     def draw(self):
         glDisable(GL_CULL_FACE)
-        draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
+        draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect?
         glEnable(GL_CULL_FACE)
     pass
 
@@ -109,7 +109,7 @@ class Sphere(Widget2D): # the superclass is to give it a 2D lbox. We'll need to 
     def draw(self):
         drawsphere(self.fix_color(self.color), self.center, self.radius, self.detailLevel)
     pass
-    
+
 # ==
 
 class Spacer_pre061205_obs(Rect): #061126

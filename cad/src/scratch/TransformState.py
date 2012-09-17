@@ -1,4 +1,4 @@
-# Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2009 Nanorex, Inc.  See LICENSE file for details.
 """
 TransformState.py -- mutable transform classes, shared by TransformNodes
 
@@ -40,7 +40,7 @@ class TransformState(StateMixin, object):
     # - make value accessible as data object? (if so, let it be an attr self.value)
     #   (note: a ref to this would autosubscribe to the two components; or we could cache constructed object)
     # - permit comparison as if we were data? (no, buggy if someone uses '==' when they mean 'is')
-    
+
     # todo:
     # - undoable state for the data
     # - finish nim ops to change the data (translate, rotate, etc),
@@ -64,11 +64,11 @@ class TransformState(StateMixin, object):
 
     rotation = _IDENTITY_ROTATION
     translation = _IDENTITY_TRANSLATION
-    
+
     # not yet needed:
     ## value = TransformData( rotation, translation ) # REVIEW expr name, whether this formula def is appropriate
 
-    
+
     # TODO: add formula for matrix? (to help merge with TransformControl?)
 
 
@@ -81,13 +81,13 @@ class TransformState(StateMixin, object):
                implem only needed in some subclasses
         """
         return
-    
+
     def applyDataFrom(self, other):
         """
         """
         self.rotate( other.rotation, center = ORIGIN)
         self.translate( other.translation)
-        
+
     def translate(self, vector): # see also 'def move' in other classes
         self.translation = self.translation + vector
         self._kluge_manual_inval()
@@ -121,7 +121,7 @@ class StaticTransform( TransformState):
     ### IMPLEM: intercept changes and inval or update our TC... and its own subscribers in the graphics code...
 
     transformControl = None
-    
+
     def __init__(self, value = None, tc = None):
         self._nodes = {}
         if value is not None:
@@ -135,7 +135,7 @@ class StaticTransform( TransformState):
         if tc is not None:
             self.transformControl = tc ### IMPLEM proper fields/effects and maintenance of the relationship
         return
-    
+
     def add_node(self, node):
         self._nodes[node] = node
         return
@@ -143,7 +143,7 @@ class StaticTransform( TransformState):
     def del_node(self, node):
         del self._nodes[node]
         return
-    
+
     def nodecount(self):
         """
         Return the number of nodes we belong to.
@@ -155,7 +155,7 @@ class StaticTransform( TransformState):
         yield the nodes we belong to
         """
         return self._nodes.itervalues()
-    
+
     pass
 
 # ==
@@ -192,13 +192,13 @@ class DynamicTransform( TransformState):
         for node in self.nodes:
             res.extend( node.bridging_objects() )
             ### REVIEW: can one be included more than once? if so, use a dict...
-            # guess: yes, once we have multi-node ones. ### 
+            # guess: yes, once we have multi-node ones. ###
         return res
 
     def _kluge_manual_inval(self):
         TransformState._kluge_manual_inval(self)
         self._invalidate_transform_value()
-        
+
     def _invalidate_transform_value(self):
         for bo in self._bridging_objects:
             bo.invalidate_distortion()

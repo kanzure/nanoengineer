@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 PreferencesDialog.py
 
@@ -51,7 +51,7 @@ from PM.PM_Constants import PM_SPONSOR_FRAME_SPACING
 from PM.PM_Constants import PM_TOPROWBUTTONS_MARGIN
 from PM.PM_Constants import PM_TOPROWBUTTONS_SPACING
 from PM.PM_Constants import PM_LABEL_LEFT_ALIGNMENT, PM_LABEL_RIGHT_ALIGNMENT
-   
+
 from PM.PM_Constants import PM_ALL_BUTTONS
 from PM.PM_Constants import PM_DONE_BUTTON
 from PM.PM_Constants import PM_CANCEL_BUTTON
@@ -82,7 +82,7 @@ class ContainerWidget(QFrame):
     _widgetList = []
     _groupBoxCount = 0
     _lastGroupBox = None
-    
+
     def __init__(self, name):
         """
         Creates a container widget within the page widget
@@ -107,8 +107,8 @@ class ContainerWidget(QFrame):
         self.vBoxLayout.addLayout(self.gridLayout)
 
         # Vertical spacer
-        #vSpacer = QtGui.QSpacerItem(1, 1, 
-                                    #QSizePolicy.Preferred, 
+        #vSpacer = QtGui.QSpacerItem(1, 1,
+                                    #QSizePolicy.Preferred,
                                     #QSizePolicy.Expanding)
         #self.vBoxLayout.addItem(vSpacer)
         return
@@ -129,32 +129,32 @@ class ContainerWidget(QFrame):
             widgetSpanCols = 1
 
         self.gridLayout.addWidget( qtWidget,
-                                   widgetRow, 
+                                   widgetRow,
                                    widgetColumn,
-                                   1, 
+                                   1,
                                    widgetSpanCols )
 
         self._rowCount += 1
         return
-    
+
     def getPmWidgetPlacementParameters(self, pmWidget):
         """
-        Returns all the layout parameters needed to place 
+        Returns all the layout parameters needed to place
         a PM_Widget in the group box grid layout.
-        
+
         @param pmWidget: The PM widget.
         @type  pmWidget: PM_Widget
         """
-        
+
         row = self._rowCount
-        
-        #PM_CheckBox doesn't have a label. So do the following to decide the 
-        #placement of the checkbox. (can be placed either in column 0 or 1 , 
-        #This also needs to be implemented for PM_RadioButton, but at present 
-        #the following code doesn't support PM_RadioButton. 
+
+        #PM_CheckBox doesn't have a label. So do the following to decide the
+        #placement of the checkbox. (can be placed either in column 0 or 1 ,
+        #This also needs to be implemented for PM_RadioButton, but at present
+        #the following code doesn't support PM_RadioButton.
         if isinstance(pmWidget, PM_CheckBox):
             spanWidth = pmWidget.spanWidth
-            
+
             if not spanWidth:
                 # Set the widget's row and column parameters.
                 widgetRow      = row
@@ -166,25 +166,25 @@ class ContainerWidget(QFrame):
                 labelRow       = row
                 labelSpanCols  = 1
                 labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
-                            
+
                 if widgetColumn == 0:
-                    labelColumn   = 1                              
+                    labelColumn   = 1
                 elif widgetColumn == 1:
                     labelColumn   = 0
-            else:                
+            else:
                 # Set the widget's row and column parameters.
                 widgetRow      = row
                 widgetColumn   = pmWidget.widgetColumn
                 widgetSpanCols = 2
                 widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
                 rowIncrement   = 1
-                #no label 
+                #no label
                 labelRow       = 0
                 labelColumn    = 0
                 labelSpanCols  = 0
                 labelAlignment = PM_LABEL_RIGHT_ALIGNMENT
-                
-            
+
+
             return widgetRow, \
                widgetColumn, \
                widgetSpanCols, \
@@ -194,13 +194,13 @@ class ContainerWidget(QFrame):
                labelColumn, \
                labelSpanCols, \
                labelAlignment
-        
-       
-        label       = pmWidget.label            
+
+
+        label       = pmWidget.label
         labelColumn = pmWidget.labelColumn
         spanWidth   = pmWidget.spanWidth
-        
-        if not spanWidth: 
+
+        if not spanWidth:
             # This widget and its label are on the same row
             labelRow       = row
             labelSpanCols  = 1
@@ -211,27 +211,27 @@ class ContainerWidget(QFrame):
             widgetSpanCols = 1
             widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
             rowIncrement   = 1
-            
+
             if labelColumn == 1:
                 widgetColumn   = 0
                 labelAlignment = PM_LABEL_LEFT_ALIGNMENT
                 widgetAlignment = PM_LABEL_RIGHT_ALIGNMENT
-                        
-        else: 
-                      
-            # This widget spans the full width of the groupbox           
-            if label: 
+
+        else:
+
+            # This widget spans the full width of the groupbox
+            if label:
                 # The label and widget are on separate rows.
                 # Set the label's row, column and alignment.
                 labelRow       = row
                 labelColumn    = 0
                 labelSpanCols  = 2
-                    
+
                 # Set this widget's row and column parameters.
                 widgetRow      = row + 1 # Widget is below the label.
                 widgetColumn   = 0
                 widgetSpanCols = 2
-                
+
                 rowIncrement   = 2
             else:  # No label. Just the widget.
                 labelRow       = 0
@@ -243,10 +243,10 @@ class ContainerWidget(QFrame):
                 widgetColumn   = 0
                 widgetSpanCols = 2
                 rowIncrement   = 1
-                
+
             labelAlignment = PM_LABEL_LEFT_ALIGNMENT
             widgetAlignment = PM_LABEL_LEFT_ALIGNMENT
-                
+
         return widgetRow, \
                widgetColumn, \
                widgetSpanCols, \
@@ -260,7 +260,7 @@ class ContainerWidget(QFrame):
     def addPmWidget(self, pmWidget):
         """
         This is a reminder to Derrick and Mark to review the PM_Group class
-        and its addPmWidget() method, since we want to support PM widget 
+        and its addPmWidget() method, since we want to support PM widget
         classes.
         """
         """
@@ -282,8 +282,8 @@ class ContainerWidget(QFrame):
                  labelAlignment = \
                  self.getPmWidgetPlacementParameters(pmWidget)
 
-        if pmWidget.labelWidget: 
-            #Create Label as a pixmap (instead of text) if a valid icon path 
+        if pmWidget.labelWidget:
+            #Create Label as a pixmap (instead of text) if a valid icon path
             #is provided
             labelPath = str(pmWidget.label)
             if labelPath and labelPath.startswith("ui/"): #bruce 080325 revised
@@ -293,33 +293,33 @@ class ContainerWidget(QFrame):
                     pmWidget.labelWidget.setText('')
 
             self.gridLayout.addWidget( pmWidget.labelWidget,
-                                       labelRow, 
+                                       labelRow,
                                        labelColumn,
-                                       1, 
+                                       1,
                                        labelSpanCols,
                                        labelAlignment )
 
 
-        # The following is a workaround for a Qt bug. If addWidth()'s 
-        # <alignment> argument is not supplied, the widget spans the full 
-        # column width of the grid cell containing it. If <alignment> 
-        # is supplied, this desired behavior is lost and there is no 
-        # value that can be supplied to maintain the behavior (0 doesn't 
+        # The following is a workaround for a Qt bug. If addWidth()'s
+        # <alignment> argument is not supplied, the widget spans the full
+        # column width of the grid cell containing it. If <alignment>
+        # is supplied, this desired behavior is lost and there is no
+        # value that can be supplied to maintain the behavior (0 doesn't
         # work). The workaround is to call addWidget() without the <alignment>
         # argument. Mark 2007-07-27.
 
         if widgetAlignment == PM_LABEL_LEFT_ALIGNMENT:
             self.gridLayout.addWidget( pmWidget,
-                                       widgetRow, 
+                                       widgetRow,
                                        widgetColumn,
-                                       1, 
-                                       widgetSpanCols) 
+                                       1,
+                                       widgetSpanCols)
                                         # aligment = 0 doesn't work.
         else:
             self.gridLayout.addWidget( pmWidget,
-                                       widgetRow, 
+                                       widgetRow,
                                        widgetColumn,
-                                       1, 
+                                       1,
                                        widgetSpanCols,
                                        widgetAlignment
                                        )
@@ -331,7 +331,7 @@ class ContainerWidget(QFrame):
 
 # End of ContainerWidget class
 
-    
+
 class PageWidget(QWidget):
     """
     The page widget base class.
@@ -349,8 +349,8 @@ class PageWidget(QWidget):
         self.containerList = []
 
         # Horizontal spacer
-        hSpacer = QtGui.QSpacerItem(1, 1, 
-                                    QSizePolicy.Expanding, 
+        hSpacer = QtGui.QSpacerItem(1, 1,
+                                    QSizePolicy.Expanding,
                                     QSizePolicy.Preferred)
 
         self.hBoxLayout = QtGui.QHBoxLayout(self)
@@ -368,7 +368,7 @@ class PageWidget(QWidget):
 
     def insertContainer(self, containerName = None, indx = -1):
         """
-        inserts a container class named containerName in the place specified 
+        inserts a container class named containerName in the place specified
         by indx
         """
         # set indx to append to the end of the list if indx is not passed
@@ -384,21 +384,21 @@ class PageWidget(QWidget):
         self.containerList.insert(indx, _containerWidget)
         self.hBoxLayout.insertWidget(indx,_containerWidget)
         return _containerWidget
-    
+
     def addContainer(self, containerName = None):
         """
-        Adds a container to the end of the list and returns the 
+        Adds a container to the end of the list and returns the
         container's handle
         """
         _groupBoxCount = 0
         _containerWidget = self.insertContainer(containerName)
         return _containerWidget
-            
+
     def getPageContainers(self, containerKey = None):
         """
         Returns a list of containers which the page owns.
         Always returns a list for consistancy.  The list can be restricted to
-        only those that have containerKey in the name.  If there's only one, the 
+        only those that have containerKey in the name.  If there's only one, the
         programmer can do list = list[0]
         """
 
@@ -422,17 +422,17 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
     The Preferences dialog class.
 
     This is experimental.
-    
+
     pagenameList[0] always has to be a singular item, it cannot be a list.
     All sub-lists are interpreted as being children of the item preceding it.
     """
-    #pagenameList = ["General", 
-                    #"Graphics Area", 
+    #pagenameList = ["General",
+                    #"Graphics Area",
                     #["Zoom, Pan and Rotate", "Rulers"],
                     #"Atoms",
                     #"Bonds",
                     #"DNA",
-                    #["Minor groove error indicator", 
+                    #["Minor groove error indicator",
                      #"Base orientation indicator"],
                     #"Adjust",
                     #"Lighting",
@@ -441,27 +441,27 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                     #"Window",
                     #"Reports",
                     #"Tooltips"]
-    
-    #NOTE: when creating the function names for populating the pages with 
-    # widgets...  Create the function name by replacing all spaces with 
-    # underscores and removing all characters that are not ascii 
+
+    #NOTE: when creating the function names for populating the pages with
+    # widgets...  Create the function name by replacing all spaces with
+    # underscores and removing all characters that are not ascii
     # letters or numbers, and appending the result to "populate_"
     # ex. "Zoom, Pan and Rotate" has the function:
     #     populate_Zoom_Pan_and_Rotate()
-    
+
     pagenameDict = {}
 
     def __init__(self):
         """
         Constructor for the prefs dialog.
         """
-        self.pagenameList = ["General", 
-                    "Graphics Area", 
+        self.pagenameList = ["General",
+                    "Graphics Area",
                     ["Zoom, Pan and Rotate", "Rulers"],
                     "Atoms",
                     "Bonds",
                     "DNA",
-                    ["Minor groove error indicator", 
+                    ["Minor groove error indicator",
                      "Base orientation indicator"],
                     "Adjust",
 #                    "Lighting",
@@ -560,12 +560,12 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         # side of the Preferences dialog (inside the "Systems Option" tab)
         # to the slot for turning to the correct page in the QStackedWidget
         # on the right side.
-        self.connect(self.categoriesTreeWidget, 
+        self.connect(self.categoriesTreeWidget,
                      SIGNAL("itemSelectionChanged()"), self.showPage)
 
         # Connections for OK and What's This buttons at the bottom of the dialog.
         self.connect(self.okButton, SIGNAL("clicked()"), self.accept)
-        self.connect(self.whatsThisToolButton, SIGNAL("clicked()"), 
+        self.connect(self.whatsThisToolButton, SIGNAL("clicked()"),
                      QWhatsThis.enterWhatsThisMode)
 
         self.whatsThisToolButton.setIcon(
@@ -579,10 +579,10 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         #self.propertyManagerScrollArea.setObjectName("propertyManagerScrollArea")
         #self.propertyManagerScrollArea.setWidget(self.categoriesTreeWidget)
         #self.propertyManagerScrollArea.setWidgetResizable(True)
-    
+
     def _addPages(self, pagenameList, myparent = None):
         """
-        Creates all page widgets in pagenameList and add them 
+        Creates all page widgets in pagenameList and add them
         to the Preferences dialog.
         """
 
@@ -617,7 +617,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
     def addPage(self, page, myparent = None):
         """
         Adds page into this preferences dialog at position index.
-        If index is negative, the page is added at the end. 
+        If index is negative, the page is added at the end.
 
         param page: Page widget.
         type  page: L{PageWidget}
@@ -632,10 +632,10 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
             _item = QtGui.QTreeWidgetItem(self.categoriesTreeWidget)
         else:
             _item = QtGui.QTreeWidgetItem(myparent)
-        _item.setText(0, 
-                      QtGui.QApplication.translate("PreferencesDialog", 
-                                                   page.name, 
-                                                   None, 
+        _item.setText(0,
+                      QtGui.QApplication.translate("PreferencesDialog",
+                                                   page.name,
+                                                   None,
                                                    QtGui.QApplication.UnicodeUTF8))
 
         return _item
@@ -653,7 +653,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget.addQtWidget(_pushbutton)
         _label = QtGui.QLabel(page_widget)
         _choices = ['choice a', 'choice b' ]
-        _pref_ComboBox = PM_ComboBox( page_widget, label =  "choices:", 
+        _pref_ComboBox = PM_ComboBox( page_widget, label =  "choices:",
                                       choices = _choices, setAsDefault = True)
         _pref_color = PM_ColorComboBox(page_widget, spanWidth = True)
         _pref_CheckBox = PM_CheckBox(page_widget, text ="nothing interesting", \
@@ -670,8 +670,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                  text = "here")
         radio1 = PM_RadioButton(page_widget, text = "self button1")
         radio2 = PM_RadioButton(page_widget, text = "self button2")
-        radiobtns = PM_RadioButtonList (_pmGroupBox1, title = "junk", 
-                                        label = "junk2", 
+        radiobtns = PM_RadioButtonList (_pmGroupBox1, title = "junk",
+                                        label = "junk2",
                                         buttonList = [[ 1, "btn1", "btn1"],
                                                       [ 2, "btn2", "btn2"]])
         slider1 = PM_Slider(page_widget, label = "slider 1:")
@@ -684,7 +684,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
 #        Dial = PM_Dial( page_widget, label = "Direction", suffix = "degrees")
 
         return
-        
+
     def getPage(self, pagename):
         """
         Returns the page widget for pagename.
@@ -696,11 +696,11 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
             print_compact_traceback(msg)
             return
         return self.prefsStackedWidget.widget(self.pagenameDict[pagename])
-    
+
     def populatePages(self):
         import string
         for name in self.pagenameDict:
-            # create the function name by replacing spaces with "_" and 
+            # create the function name by replacing spaces with "_" and
             # removing everything that is not an _, ascii letter, or number
             # and appending that to populate_
             fname = "populate_%s" % "".join([ x for x in name.replace(" ","_") \
@@ -766,22 +766,22 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        logosGroupBox = PM_GroupBox( _pageContainer, 
+        logosGroupBox = PM_GroupBox( _pageContainer,
                                      title = "Sponsor logos download permission",
                                      connectTitleButton = False)
         self.logo_download_RadioButtonList = \
             PM_RadioButtonList (logosGroupBox,
-                                buttonList = [[ 0, 
-                                                "Always ask before downloading", 
+                                buttonList = [[ 0,
+                                                "Always ask before downloading",
                                                 "Always ask permission to download sponsor logos from the Nanorex server"],
-                                              [ 1, 
-                                                "Never ask before downloading", 
+                                              [ 1,
+                                                "Never ask before downloading",
                                                 "Never ask permission before downloading sponsor logos from the Nanorex server"],
-                                              [ 2, 
-                                                "Never download", 
+                                              [ 2,
+                                                "Never download",
                                                 "Never download sponsor logos from the Nanorex server"] ])
-        
-        buildChunksGroupBox = PM_GroupBox( _pageContainer, 
+
+        buildChunksGroupBox = PM_GroupBox( _pageContainer,
                                      title = "Build Chunks Settings",
                                      connectTitleButton = False)
         self.autobondCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Autobond")
@@ -789,12 +789,12 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.waterCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Water")
         self.autoSelectAtomsCheckBox = PM_CheckBox(buildChunksGroupBox, text ="Auto select atoms of deposited objects")
 
-        offsetFactorPastingGroupBox = PM_GroupBox( _pageContainer, 
+        offsetFactorPastingGroupBox = PM_GroupBox( _pageContainer,
                                      title = "Offset factor for pasting objects",
                                      connectTitleButton = False)
         self.pasteOffsetForChunks_doublespinbox = PM_DoubleSpinBox(offsetFactorPastingGroupBox, label = "Chunk Objects", singleStep = 1)
         self.pasteOffsetForDNA_doublespinbox = PM_DoubleSpinBox(offsetFactorPastingGroupBox, label = "DNA Objects", singleStep = 1)
-      
+
         return
 
     def populate_Tooltips(self, pagename):
@@ -826,12 +826,12 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                            widgetColumn = 0,
                                                            text ="include Vdw radii in atom distance tooltip")
         self.atom_distance_precision_SpinBox = PM_SpinBox(atom_tooltip_options_GroupBox,
-                                                         label = "Distance precision: ", 
-                                                         suffix = " decimal places", 
+                                                         label = "Distance precision: ",
+                                                         suffix = " decimal places",
                                                          singleStep = 1)
         self.atom_angle_precision_SpinBox = PM_SpinBox(atom_tooltip_options_GroupBox,
-                                                         label = "Angle precision:", 
-                                                         suffix = " decimal places", 
+                                                         label = "Angle precision:",
+                                                         suffix = " decimal places",
                                                          singleStep = 1)
         bond_tooltip_options_GroupBox = PM_GroupBox(_pageContainer,
                                                     title = "Bond tooltip options",
@@ -845,7 +845,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                            widgetColumn = 0,
                                                            text ="Chunk information")
         return
-    
+
     def populate_Reports(self, pagename):
         print "populate_Reports: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -861,9 +861,9 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.history_include_message_timestamp_CheckBox = PM_CheckBox(history_preferences,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
-                                                           text ="Include message timestamp")                                                              
+                                                           text ="Include message timestamp")
         return
-    
+
     def populate_DNA(self, pagename):
         print "populate_DNA: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -873,17 +873,17 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                   title = "DNA default values",
                                                   connectTitleButton = False)
         _choices = ["B-DNA"]
-        self.conformation_ComboBox = PM_ComboBox(DNA_default_values_GroupBox, 
+        self.conformation_ComboBox = PM_ComboBox(DNA_default_values_GroupBox,
                                       label =  "Conformation:", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
         self.bases_per_turn_DoubleSpinBox = PM_DoubleSpinBox(DNA_default_values_GroupBox,
-                                                         label = "Bases per turn:", 
+                                                         label = "Bases per turn:",
                                                          suffix = "",
                                                          decimals = 2,
                                                          singleStep = .1)
         self.rise_DoubleSpinBox = PM_DoubleSpinBox(DNA_default_values_GroupBox,
-                                                         label = "Rise:", 
+                                                         label = "Rise:",
                                                          suffix = " Angstroms",
                                                          decimals = 3,
                                                          singleStep = .01)
@@ -914,9 +914,9 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.three_prime_end_custom_ColorComboBox = PM_ColorComboBox(strand_arrowhead_display_options_GroupBox,
                                                            label = "3' end custom color:")
         self.five_prime_end_custom_ColorComboBox = PM_ColorComboBox(strand_arrowhead_display_options_GroupBox,
-                                                           label = "5' end custom color:")        
+                                                           label = "5' end custom color:")
         return
-    
+
     def populate_Bonds(self, pagename):
         print "populate_Bonds: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -936,7 +936,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.restore_bond_colors_PushButton = PM_PushButton(bond_colors_GroupBox,
                                                       text = "Restore Default Colors",
                                                       spanWidth = False)
-       
+
         misc_bond_settings_GroupBox = PM_GroupBox(_pageContainer,
                                                   title = "Miscellaneous bond settings",
                                                   connectTitleButton = False)
@@ -966,7 +966,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                            widgetColumn = 0,
                                                            text ="Show bond stretch indicators")
         return
-    
+
     def populate_Rulers(self, pagename):
         print "populate_Rules: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -977,14 +977,14 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                       title = "Rulers",
                                       connectTitleButton = False)
         _choices = ["Both rulers", "Verticle ruler only", "Horizontal ruler only"]
-        self.display_rulers_ComboBox = PM_ComboBox(rulers_GroupBox, 
+        self.display_rulers_ComboBox = PM_ComboBox(rulers_GroupBox,
                                       label =  "Display:", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
         _choices = ["Lower left", "Upper left", "Lower right", "Upper right"]
-        self.origin_rulers_ComboBox = PM_ComboBox(rulers_GroupBox, 
+        self.origin_rulers_ComboBox = PM_ComboBox(rulers_GroupBox,
                                       label =  "Origin:", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
         self.ruler_color_ColorComboBox = PM_ColorComboBox(rulers_GroupBox,
                                                       label = "Color:")
@@ -997,15 +997,15 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                                spanWidth = True,
                                                                widgetColumn = 0)
         return
-    
+
     def populate_Plugins(self, pagename):
         print "populate_Plugins: %s" % pagename
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        pluginList = [ "QuteMolX", 
-                       "POV-Ray", 
-                       "MegaPOV", 
+        pluginList = [ "QuteMolX",
+                       "POV-Ray",
+                       "MegaPOV",
                        "POV include dir",
                        "GROMACS",
                        "cpp",
@@ -1013,7 +1013,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                        "Rosetta DB"]
         #if DEBUG:
             #self._addPageTestWidgets(_pageContainer)
-        executablesGroupBox = PM_GroupBox( _pageContainer, 
+        executablesGroupBox = PM_GroupBox( _pageContainer,
                                            title = "Location of Executables",
                                            connectTitleButton = False)
         self.checkboxes = {}
@@ -1031,7 +1031,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
             aWidgetList.append( ("PM_CheckBox", self.checkboxes[name], 0, _rowNumber) )
             aWidgetList.append( ("PM_FileChooser", self.choosers[name], 1, _rowNumber) )
             _rowNumber = _rowNumber + 1
-                 
+
         _widgetGrid = PM_WidgetGrid(executablesGroupBox,
                              widgetList = aWidgetList,
                              labelColumn  = 0)
@@ -1039,7 +1039,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
             print self.checkboxes
             print self.choosers
         return
-    
+
     def populate_Adjust(self, pagename):
         print "populate_Adjust: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -1050,9 +1050,9 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                            connectTitleButton = False)
         _choices = ["NanoDynamics-1 (Default)", "GROMACS with ND1 Force Field",
                     "Background GROMACS with ND1 Force Field"]
-        self.physics_engine_choice_ComboBox = PM_ComboBox(adjust_physics_engine_GroupBox, 
+        self.physics_engine_choice_ComboBox = PM_ComboBox(adjust_physics_engine_GroupBox,
                                       label =  "", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
         self.enable_electrostatics_CheckBox = PM_CheckBox(adjust_physics_engine_GroupBox,
                                                      spanWidth = True,
@@ -1073,11 +1073,11 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                               minimum = 1,
                                               label = "")
         _choices = ["frames", "seconds", "minutes", "hours"]
-        self.animation_detail_level_ComboBox = PM_ComboBox(physics_engine_animation_GroupBox, 
+        self.animation_detail_level_ComboBox = PM_ComboBox(physics_engine_animation_GroupBox,
                                       label =  "",
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
-        aWidgetList = [ 
+        aWidgetList = [
             ("PM_RadioButton", self.constant_animation_update_RadioButton, 0, 0),
             ("PM_RadioButton", self.update_every_RadioButton, 0, 1),
             ("PM_SpinBox", self.update_rate_SpinBox, 1, 1),
@@ -1106,7 +1106,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                            maximum = 100,
                                            suffix = " pN")
         return
-    
+
     def populate_Atoms(self, pagename):
         print "populate_Atoms: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -1133,9 +1133,9 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                   title = "Miscellaneous atom options",
                                                   connectTitleButton = False)
         _choices = ["Low", "Medium", "High", "Variable"]
-        self.atoms_detail_level_ComboBox = PM_ComboBox(misc_atom_settings_GroupBox, 
+        self.atoms_detail_level_ComboBox = PM_ComboBox(misc_atom_settings_GroupBox,
                                       label =  "Level of detail:", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
         self.ball_and_stick_atom_scale_SpinBox = PM_SpinBox(misc_atom_settings_GroupBox,
                                                        label = "",
@@ -1159,7 +1159,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         widget_grid_1 = PM_WidgetGrid(misc_atom_settings_GroupBox,
                                       spanWidth = True,
                                       widgetList = aWidgetList)
-        
+
         self.overlapping_atom_indicators_CheckBox = PM_CheckBox(misc_atom_settings_GroupBox,
                                                            spanWidth = True,
                                                            widgetColumn = 0,
@@ -1169,7 +1169,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                                     widgetColumn = 0,
                                                                     text ="Force to keep bonds during transmute:")
         return
-    
+
     def populate_Window(self, pagename):
         print "populate_Window: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -1179,7 +1179,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                   title = "Window Postion and Size",
                                                   connectTitleButton = False)
         self.current_width_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
-                                                         label = "", 
+                                                         label = "",
                                                          suffix = "pixels",
                                                          labelColumn = 0,
                                                          singleStep = 1,
@@ -1187,10 +1187,10 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.current_height_SpinBox = PM_SpinBox(window_position_and_size_GroupBox,
                                                          label = "",
                                                          labelColumn = 0,
-                                                         suffix = "pixels", 
+                                                         suffix = "pixels",
                                                          singleStep = 1,
                                                          )
-        self.current_size_save_Button = PM_PushButton(window_position_and_size_GroupBox, 
+        self.current_size_save_Button = PM_PushButton(window_position_and_size_GroupBox,
                                                  text = "Save Current")
         aWidgetList = [ ("QLabel", "Current size:", 0),
                         ("PM_SpinBox", self.current_width_SpinBox, 1),
@@ -1200,14 +1200,14 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         widgetRow = PM_WidgetRow(window_position_and_size_GroupBox,
                          title     = '',
                          spanWidth = True,
-                         widgetList = aWidgetList)        
+                         widgetList = aWidgetList)
 
         #self.saved_size_x_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
                                                          #label = "")
         #self.saved_size_y_LineEdit = PM_LineEdit(window_position_and_size_GroupBox,
                                                          #label = "")
-                                                         
-        self.restore_saved_size_Button = PM_PushButton(window_position_and_size_GroupBox, 
+
+        self.restore_saved_size_Button = PM_PushButton(window_position_and_size_GroupBox,
                                                  text = "Restore saved",
                                                  label = "Saved size: 640 x 480   ")
         self.saved_size_label = self.restore_saved_size_Button.labelWidget
@@ -1262,17 +1262,17 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                text = "Use custom font",
                                                spanWidth = True,
                                                widgetColumn = 0)
-        self.custom_fontComboBox = PM_FontComboBox(custom_font_GroupBox, 
+        self.custom_fontComboBox = PM_FontComboBox(custom_font_GroupBox,
                                       label =  "Font:", labelColumn = 0,
                                       setAsDefault = False,
                                       spanWidth = False)
         self.custom_font_size_SpinBox = PM_SpinBox(custom_font_GroupBox,
                                             label = "Size: ")
-        self.make_default_font_PushButton = PM_PushButton(custom_font_GroupBox, 
+        self.make_default_font_PushButton = PM_PushButton(custom_font_GroupBox,
                                                      spanWidth = True,
                                                      text = "Make selected font the default font")
         return
-    
+
     def populate_Graphics_Area(self, pagename):
         print "populate_Graphics_Area: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -1281,8 +1281,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         gdsIconDist = dict(zip(GDS_NAMES, GDS_ICONS))
 
         _choices = []
-        self.globalDisplayStyleStartupComboBox = PM_ComboBox(_pageContainer, 
-                                      label =  "Global display style at start-up:", 
+        self.globalDisplayStyleStartupComboBox = PM_ComboBox(_pageContainer,
+                                      label =  "Global display style at start-up:",
                                       choices = _choices, setAsDefault = False)
         for gdsName in GDS_NAMES: # gds = global display style
             basename = gdsIconDist[gdsName] + ".png"
@@ -1290,43 +1290,43 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                     basename)
             self.globalDisplayStyleStartupComboBox.addItem(geticon(iconPath), gdsName)
 
-        compassGroupBox = PM_GroupBox(_pageContainer, 
+        compassGroupBox = PM_GroupBox(_pageContainer,
                                        title = "Compass display settings",
                                        connectTitleButton = False)
-        self.display_compass_CheckBox = PM_CheckBox(compassGroupBox, 
+        self.display_compass_CheckBox = PM_CheckBox(compassGroupBox,
                                                text = "Display compass: ",
                                                widgetColumn = 0)
         _choices = ["Upper right", "Upper left", "Lower left", "Lower right"]
-        self.compass_location_ComboBox = PM_ComboBox(compassGroupBox, 
+        self.compass_location_ComboBox = PM_ComboBox(compassGroupBox,
                                       label =  "Compass Location:", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
-        self.display_compass_labels_checkbox = PM_CheckBox(compassGroupBox, 
+        self.display_compass_labels_checkbox = PM_CheckBox(compassGroupBox,
                                                text = "Display compass labels ",
                                                spanWidth = True,
                                                widgetColumn = 0)
-        axesGroupBox = PM_GroupBox(_pageContainer, 
+        axesGroupBox = PM_GroupBox(_pageContainer,
                                    title = "Axes",
                                    connectTitleButton = False)
-        self.display_origin_axis_checkbox = PM_CheckBox(axesGroupBox, 
+        self.display_origin_axis_checkbox = PM_CheckBox(axesGroupBox,
                                                text = "Display origin axis",
                                                widgetColumn = 0)
-        self.display_pov_axis_checkbox = PM_CheckBox(axesGroupBox, 
+        self.display_pov_axis_checkbox = PM_CheckBox(axesGroupBox,
                                                text = "Display point of view (POV) axis ",
                                                spanWidth = True,
                                                widgetColumn = 0)
-        cursor_text_GroupBox = PM_GroupBox(_pageContainer, 
+        cursor_text_GroupBox = PM_GroupBox(_pageContainer,
                                        title = "Cursor text settings",
                                        connectTitleButton = False)
-        #self.cursor_text_CheckBox = PM_CheckBox(cursor_text_GroupBox, 
+        #self.cursor_text_CheckBox = PM_CheckBox(cursor_text_GroupBox,
                                            #text = "Cursor text",
                                            #widgetColumn = 0)
         self.cursor_text_font_size_SpinBox = PM_DoubleSpinBox(cursor_text_GroupBox,
-                                                         label = "", 
-                                                         suffix = "pt", 
+                                                         label = "",
+                                                         suffix = "pt",
                                                          singleStep = 1,
                                                          )
-        self.cursor_text_reset_Button = PM_ToolButton(cursor_text_GroupBox, 
+        self.cursor_text_reset_Button = PM_ToolButton(cursor_text_GroupBox,
                                                  iconPath = "ui/actions/Properties Manager/restore_defaults3.png")
 
         aWidgetList = [ ("QLabel", "Font size: ", 0),
@@ -1334,7 +1334,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                         ("QLabel", "     ", 2),
                         ("PM_ToolButton", self.cursor_text_reset_Button, 3),
                         ("QSpacerItem", 0, 0, 3)]
-                            
+
         widgetRow = PM_WidgetRow(cursor_text_GroupBox,
                          title     = '',
                          spanWidth = True,
@@ -1343,28 +1343,28 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.cursor_text_color_ComboBox = PM_ColorComboBox(cursor_text_GroupBox,
                                                       label = "Cursor Text color:",
                                                       spanWidth = False)
-        misc_graphics_GroupBox = PM_GroupBox(_pageContainer, 
+        misc_graphics_GroupBox = PM_GroupBox(_pageContainer,
                                        title = "Other graphics options",
                                        connectTitleButton = False)
-        self.display_confirmation_corner_CheckBox = PM_CheckBox(misc_graphics_GroupBox, 
+        self.display_confirmation_corner_CheckBox = PM_CheckBox(misc_graphics_GroupBox,
                                            text = "Display confirmation corner",
                                            widgetColumn = 0)
-        self.anti_aliasing_CheckBox = PM_CheckBox(misc_graphics_GroupBox, 
+        self.anti_aliasing_CheckBox = PM_CheckBox(misc_graphics_GroupBox,
                                            text = "Enable anti-aliasing (next session)",
                                            widgetColumn = 0)
-        
+
         return
-    
+
     def populate_Base_orientation_indicator(self, pagename):
         print "populate_Base_orientation_indicator: %s" % pagename
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        self.base_orientation_indicatiors_CheckBox = PM_CheckBox(_pageContainer, 
+        self.base_orientation_indicatiors_CheckBox = PM_CheckBox(_pageContainer,
                                              text = "Display base orientation indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
-        self.base_orientation_GroupBox = PM_GroupBox(_pageContainer, 
+        self.base_orientation_GroupBox = PM_GroupBox(_pageContainer,
                                                       title = "Base orientation indicator parameters",
                                                       connectTitleButton = False)
         _choices = ["View place (up)", "View place (out)", "View place (right)"]
@@ -1377,23 +1377,23 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.inverse_indicators_color_ColorComboBox = PM_ColorComboBox(self.base_orientation_GroupBox,
                                                       label = "Color:",
                                                       spanWidth = False)
-        self.enable_inverse_indicatiors_CheckBox = PM_CheckBox(self.base_orientation_GroupBox, 
+        self.enable_inverse_indicatiors_CheckBox = PM_CheckBox(self.base_orientation_GroupBox,
                                              text = "Enable inverse indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
         self.angle_threshold_DoubleSpinBox = PM_DoubleSpinBox(self.base_orientation_GroupBox,
-                                                         label = "Angle threshold:", 
+                                                         label = "Angle threshold:",
                                                          suffix = "",
                                                          maximum = 360,
                                                          spanWidth = False,
                                                          singleStep = .1)
         self.terminal_base_distance_SpinBox = PM_SpinBox(self.base_orientation_GroupBox,
-                                                         label = "Terminal base distance:", 
+                                                         label = "Terminal base distance:",
                                                          suffix = "",
                                                          spanWidth = False,
                                                          singleStep = 1)
         return
-    
+
     def populate_Undo(self, pagename):
         print "populate_Undo: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -1413,21 +1413,21 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                      maximum = 99999,
                                                      spanWidth = False,
                                                      singleStep = 1)
-        vSpacer = QtGui.QSpacerItem(1, 1, 
-                                    QSizePolicy.Preferred, 
+        vSpacer = QtGui.QSpacerItem(1, 1,
+                                    QSizePolicy.Preferred,
                                     QSizePolicy.Expanding)
         _pageContainer.vBoxLayout.addItem(vSpacer)
         return
-    
+
     def populate_Zoom_Pan_and_Rotate(self, pagename):
         print "populate_Zoom_Pan_and_Rotate: %s" % pagename
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        view_rotation_settings_GroupBox = PM_GroupBox(_pageContainer, 
+        view_rotation_settings_GroupBox = PM_GroupBox(_pageContainer,
                                                       title = "View rotation settings",
                                                       connectTitleButton = False)
-        self.animate_views_CheckBox = PM_CheckBox(view_rotation_settings_GroupBox, 
+        self.animate_views_CheckBox = PM_CheckBox(view_rotation_settings_GroupBox,
                                              text = "Animate between views",
                                              widgetColumn = 0)
         self.view_animation_speed_Slider = PM_Slider(view_rotation_settings_GroupBox,
@@ -1440,7 +1440,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         aWidgetList = [["QLabel", "View Animation Speed: ", 0, 0],
                        ["PM_Slider", self.view_animation_speed_Slider, 1, 0],
                        ["PM_PushButton", self.view_animation_speed_reset_ToolButton, 3, 0],
-                       ["QLabel", "slow ", 1, 1], 
+                       ["QLabel", "slow ", 1, 1],
                        ["QLabel", "                                       fast", 1, 1]]
         widget_grid_1 = PM_WidgetGrid(view_rotation_settings_GroupBox,
                                       spanWidth = True,
@@ -1454,7 +1454,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         aWidgetList = [["QLabel", "Mouse rotation speed: ", 0, 0],
                        ["PM_Slider", self.mouse_rotation_speed_Slider, 1, 0],
                        ["PM_PushButton", self.mouse_rotation_speed_reset_ToolButton, 3, 0],
-                       ["QLabel", "slow ", 1, 1], 
+                       ["QLabel", "slow ", 1, 1],
                        ["QLabel", "                                        fast", 1, 1]]
         widget_grid_2 = PM_WidgetGrid(view_rotation_settings_GroupBox,
                                       spanWidth = True,
@@ -1462,29 +1462,29 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         mouse_zoom_settings_GroupBox = PM_GroupBox(_pageContainer,
                                                    title = "Mouse wheel zoom settings",
                                                    connectTitleButton = False)
-        
+
         _choices = ["Pull/push wheel to zoom in/out", "Push/pull wheel to zoom in/out"]
-        self.zoom_directon_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox, 
+        self.zoom_directon_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox,
                                       label =  "Direction:", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
         _choices = ["Center about cursor postion", "Center about screen"]
-        self.zoom_in_center_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox, 
+        self.zoom_in_center_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox,
                                       label =  "Zoom in:", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
         _choices = ["Pull/push wheel to zoom in/out", "Push/pull wheel to zoom in/out"]
-        self.zoom_out_center_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox, 
+        self.zoom_out_center_ComboBox = PM_ComboBox(mouse_zoom_settings_GroupBox,
                                       label =  "Zoom out:", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
         self.hover_highlighting_timeout_SpinBox = PM_DoubleSpinBox(mouse_zoom_settings_GroupBox,
-                                                         label = "Hover highlighting\ntimeout interval", 
+                                                         label = "Hover highlighting\ntimeout interval",
                                                          suffix = " seconds",
 #                                                         spanWidth = True,
                                                          singleStep = .1)
         return
-    
+
     def populate_Lighting(self, pagename):
         print "populate_Lighting: %s" % pagename
         page_widget = self.getPage(pagename)
@@ -1492,15 +1492,15 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         _pageContainer = _pageContainer[0]
         self.lighting_defaults_PushButton = PM_PushButton( _pageContainer,
                                                       text = "Restore Defaults")
-        directional_lighting_GroupBox = PM_GroupBox(_pageContainer, 
+        directional_lighting_GroupBox = PM_GroupBox(_pageContainer,
                                         title = "Directional light properties",
                                         connectTitleButton = False)
         _choices = ["1 (off)", "2 (off)", "3 (off)"]
-        self.light_ComboBox = PM_ComboBox(directional_lighting_GroupBox, 
+        self.light_ComboBox = PM_ComboBox(directional_lighting_GroupBox,
                                       label =  "", labelColumn = 0,
-                                      choices = _choices, 
+                                      choices = _choices,
                                       setAsDefault = False)
-        self.light_on_CheckBox = PM_CheckBox(directional_lighting_GroupBox, 
+        self.light_on_CheckBox = PM_CheckBox(directional_lighting_GroupBox,
                                              text = ": On",
                                              widgetColumn = 0)
         aWidgetList = [ ("QLabel", "Light: ", 0),
@@ -1517,8 +1517,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                              label = "",
                                              text = ".1")
         self.ambient_light_Slider = PM_Slider(directional_lighting_GroupBox)
-        aWidgetList = [["QLabel", "Ambient:", 0], 
-                       ["PM_LineEdit", self.ambient_light_LineEdit, 1], 
+        aWidgetList = [["QLabel", "Ambient:", 0],
+                       ["PM_LineEdit", self.ambient_light_LineEdit, 1],
                        ["PM_Slider", self.ambient_light_Slider, 2]]
         _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
                                  spanWidth = True,
@@ -1528,8 +1528,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                              label = "",
                                              text = ".1")
         self.difuse_light_Slider = PM_Slider(directional_lighting_GroupBox)
-        aWidgetList = [["QLabel", "Difuse:", 0], 
-                       ["PM_LineEdit", self.difuse_light_LineEdit, 1], 
+        aWidgetList = [["QLabel", "Difuse:", 0],
+                       ["PM_LineEdit", self.difuse_light_LineEdit, 1],
                        ["PM_Slider", self.difuse_light_Slider, 2]]
         _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
                                  spanWidth = True,
@@ -1539,8 +1539,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                              label = "",
                                              text = ".1")
         self.specular_light_Slider = PM_Slider(directional_lighting_GroupBox)
-        aWidgetList = [["QLabel", "Specular:", 0], 
-                       ["PM_LineEdit", self.specular_light_LineEdit, 1], 
+        aWidgetList = [["QLabel", "Specular:", 0],
+                       ["PM_LineEdit", self.specular_light_LineEdit, 1],
                        ["PM_Slider", self.specular_light_Slider, 2]]
         _sliderline = PM_WidgetRow(directional_lighting_GroupBox,
                                  spanWidth = True,
@@ -1554,18 +1554,18 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
         self.Z_light_LineEdit = PM_LineEdit(directional_lighting_GroupBox,
                                              label = "Z:",
                                              text = ".1")
-        material_specular_properties_GroupBox = PM_GroupBox(_pageContainer, 
+        material_specular_properties_GroupBox = PM_GroupBox(_pageContainer,
                                         title = "Material specular properties",
-                                        connectTitleButton = False)        
-        self.material_specular_properties_on_CheckBox = PM_CheckBox(material_specular_properties_GroupBox, 
+                                        connectTitleButton = False)
+        self.material_specular_properties_on_CheckBox = PM_CheckBox(material_specular_properties_GroupBox,
                                              text = ": On",
                                              widgetColumn = 0)
         self.material_specular_properties_finish_LineEdit = PM_LineEdit(material_specular_properties_GroupBox,
                                              label = "Finish: ",
                                              text = ".1")
         self.material_specular_properties_finish_Slider = PM_Slider(material_specular_properties_GroupBox)
-#        aWidgetList = [["QLabel", "Finish:", 0], 
-#                       ["PM_LineEdit", material_specular_properties_finish_LineEdit, 1], 
+#        aWidgetList = [["QLabel", "Finish:", 0],
+#                       ["PM_LineEdit", material_specular_properties_finish_LineEdit, 1],
 #                       ["PM_Slider", material_specular_properties_finish_Slider, 2]]
 #        _sliderline = PM_WidgetRow(material_specular_properties_GroupBox,
 #                                 spanWidth = True,
@@ -1579,8 +1579,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                              label = "Shininess: ",
                                              text = ".1")
         self.material_specular_properties_shininess_Slider = PM_Slider(material_specular_properties_GroupBox)
-#        aWidgetList = [["QLabel", "Shininess:", 0], 
-#                       ["PM_LineEdit", material_specular_properties_shininess_LineEdit, 1], 
+#        aWidgetList = [["QLabel", "Shininess:", 0],
+#                       ["PM_LineEdit", material_specular_properties_shininess_LineEdit, 1],
 #                       ["PM_Slider", material_specular_properties_shininess_Slider, 2]]
 #        _sliderline = PM_WidgetRow(material_specular_properties_GroupBox,
 #                                 spanWidth = True,
@@ -1594,8 +1594,8 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                              label = "Brightness: ",
                                              text = ".1")
         self.material_specular_properties_brightness_Slider = PM_Slider(material_specular_properties_GroupBox)
-#        aWidgetList = [["QLabel", "Brightness:", 0], 
-#                       ["PM_LineEdit", material_specular_properties_brightness_LineEdit, 1], 
+#        aWidgetList = [["QLabel", "Brightness:", 0],
+#                       ["PM_LineEdit", material_specular_properties_brightness_LineEdit, 1],
 #                       ["PM_Slider", material_specular_properties_brightness_Slider, 2]]
 #        _sliderline = PM_WidgetRow(material_specular_properties_GroupBox,
 #                                 spanWidth = True,
@@ -1605,27 +1605,27 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                  spanWidth = True,
                                  widgetList = labelList)
         return
-    
+
     def populate_Minor_groove_error_indicator(self, pagename):
         print "populate_Minor_groove_error_indicator: %s" % pagename
         page_widget = self.getPage(pagename)
         _pageContainer = page_widget.getPageContainers()
         _pageContainer = _pageContainer[0]
-        self.minor_groove_error_indicatiors_CheckBox = PM_CheckBox(_pageContainer, 
+        self.minor_groove_error_indicatiors_CheckBox = PM_CheckBox(_pageContainer,
                                              text = "Display minor groove error indicators",
                                              spanWidth = True,
                                              widgetColumn = 0)
-        self.minor_groove_error_parameters_GroupBox = PM_GroupBox(_pageContainer, 
+        self.minor_groove_error_parameters_GroupBox = PM_GroupBox(_pageContainer,
                                                       title = "Error indicator parameters",
                                                       connectTitleButton = False)
         self.minor_groove_error_minimum_angle_SpinBox = PM_SpinBox(self.minor_groove_error_parameters_GroupBox,
-                                                         label = "Minimum angle:", 
+                                                         label = "Minimum angle:",
                                                          suffix = " degrees",
                                                          spanWidth = False,
                                                          maximum = 360,
                                                          singleStep = 1)
         self.minor_groove_error_maximum_angle_SpinBox = PM_SpinBox(self.minor_groove_error_parameters_GroupBox,
-                                                         label = "Maximum angle:", 
+                                                         label = "Maximum angle:",
                                                          suffix = " degrees",
                                                          spanWidth = False,
                                                          maximum = 360,
@@ -1637,7 +1637,7 @@ class PreferencesDialog(QDialog, Ui_PreferencesDialog):
                                                       text = "Reset factory defaults",
                                                       spanWidth = False)
         return
-    
+
 
 # End of PreferencesDialog class
 

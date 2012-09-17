@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 undo_UI.py - Undo-related main menu commands other than Undo/Redo themselves
 
@@ -37,14 +37,14 @@ def editMakeCheckpoint(win):
       "Slot for making a checkpoint (only available when
        Automatic Checkpointing is disabled)."
     """
-    env.history.message( greenmsg("Make Checkpoint")) 
+    env.history.message( greenmsg("Make Checkpoint"))
     # do it
     try:
         #REVIEW: Should make sure this is correct with or without
         # auto-checkpointing enabled, and leaves that setting unchanged.
         # (This is not urgent, since in present UI it can't be called
         #  except when auto-checkpointing is disabled.)
-        um = win.assy.undo_manager 
+        um = win.assy.undo_manager
         if um:
             um.make_manual_checkpoint()
             # no msg needed, was emitted above:
@@ -70,7 +70,7 @@ def editClearUndoStack(win):
       "Slot for clearing the Undo Stack.  Requires the user to confirm."
     """
     #bruce 060304, modified from Mark's prototype in MWsemantics
-    
+
     #e the following message should specify the amount of data to be lost...
     #e and the menu item text also should
     msg = "Please confirm that you want to clear the Undo/Redo Stack.<br>" + \

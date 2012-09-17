@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
  Users place files into the INPUT directory and run batchsim.
@@ -240,7 +240,7 @@ def showOneJob(dirName, jobNumber):
     for fileName in fileList:
         if (fileName.endswith(".mmp")):
             print "    %s %s" % (jobNumber, fileName)
-    
+
 def showJobsInDirectory(dirName, header):
     gotOne = False
     fileList = os.listdir(dirName)

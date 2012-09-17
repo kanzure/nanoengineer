@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 CommandToolbar_Constants.py
 
 @author: Ninad
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 Module classification: [bruce 071228]

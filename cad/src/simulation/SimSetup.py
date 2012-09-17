@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 SimSetup.py
 
@@ -6,7 +6,7 @@ Dialog for setting up to run the simulator.
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Created by Mark, under the name runSim.py.
 
@@ -81,18 +81,18 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         """
         QDialog.__init__(self, win) # win is parent.
         self.setupUi(self)
-        
+
         self.setWindowIcon(geticon('ui/border/RunDynamics.png'))
-        
+
         self.whatsthis_btn.setIcon(
             geticon('ui/actions/Properties Manager/WhatsThis.png'))
         self.whatsthis_btn.setIconSize(QSize(22, 22))
         self.whatsthis_btn.setToolTip('Enter "What\'s This?" help mode')
-        
+
         self.connect(self.whatsthis_btn,
                      SIGNAL("clicked()"),
                      QWhatsThis.enterWhatsThisMode)
-        
+
         self.watch_motion_buttongroup = QButtonGroup()
         self.watch_motion_buttongroup.setExclusive(True)
         for obj in self.watch_motion_groupbox.children():
@@ -108,17 +108,17 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             # if it's not the main Part.
         connect_checkbox_with_boolean_pref(self.potential_energy_checkbox,
                                            Potential_energy_tracefile_prefs_key)
-        
+
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringDynamics_checkBox,
             electrostaticsForDnaDuringDynamics_prefs_key)
-        
+
         self.assy = part.assy # used only for assy.filename
         self.suffix = suffix
         self.previous_movie = previous_movie or _stickyParams or Movie(self.assy) # used only for its parameter settings
             # note: as of bruce 060601 fixing bug 1840, previous_movie is no longer ever passed by caller.
         self.movie = Movie(self.assy) # public attr used by client code after we return; always a Movie even on failure.
-            # (we need it here since no extra method runs on failure, tho that could probably be fixed) 
+            # (we need it here since no extra method runs on failure, tho that could probably be fixed)
             # bruce 050325 changes:
             # We make a new Movie here (but only when we return with success).
             # But we use default param settings from prior movie.
@@ -137,33 +137,33 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         self.update_number_spinbox.setWhatsThis(
             """<b>Update every <i>n units.</u></b>
             <p>
-            Specify how often to update the model during the simulation. 
-            This allows the user to monitor simulation results while the 
+            Specify how often to update the model during the simulation.
+            This allows the user to monitor simulation results while the
             simulation is running.
             </p>""")
         self.update_units_combobox.setWhatsThis(
             """<b>Update every <i>n units.</u></b>
             <p>
-            Specify how often to update the model during the simulation. 
-            This allows the user to monitor simulation results while the 
+            Specify how often to update the model during the simulation.
+            This allows the user to monitor simulation results while the
             simulation is running.
             </p>""")
         self.update_every_rbtn.setWhatsThis(
             """<b>Update every <i>n units.</u></b>
             <p>
-            Specify how often to update the model during the simulation. 
-            This allows the user to monitor simulation results while the 
+            Specify how often to update the model during the simulation.
+            This allows the user to monitor simulation results while the
             simulation is running.</p>""")
         self.update_asap_rbtn.setWhatsThis(
             """<b>Update as fast as possible</b>
             <p>
-            Update every 2 seconds, or faster (up to 20x/sec) if it doesn't 
+            Update every 2 seconds, or faster (up to 20x/sec) if it doesn't
             slow down the simulation by more than 20%.
             </p>""")
         self.temperatureSpinBox.setWhatsThis(
             """<b>Temperature</b>
             <p>
-            The temperature of the simulation in Kelvin 
+            The temperature of the simulation in Kelvin
             (300 K = room temperature)</p>""")
         self.totalFramesSpinBox.setWhatsThis(
             """<b>Total frames</b>
@@ -178,22 +178,22 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         self.setWhatsThis(
             """<b>Run Dynamics</b>
             <p>
-            The is the main dialog for configuring and launching a 
+            The is the main dialog for configuring and launching a
             Molecular Dynamics simulation run. Specify the simulation parameters
             and click <b>Run Simulation</b> to launch.</p>
             <p>
             <img source=\"ui/actions/Simulation/PlayMovie.png\"><br>
-            The <b>Play Movie</b> command can be used to play back the 
+            The <b>Play Movie</b> command can be used to play back the
             simulation.
             </p>""")
-        
+
         if not debug_pref("GROMACS: Enable for Run Dynamics", Choice_boolean_False,
                           prefs_key=True):
             # Hide the Simulation engine groupbox altogether.
             self.md_engine_groupbox.setHidden(True)
-            
+
         self.exec_()
-        
+
     def setup(self):
         self.movie.cancelled = True # We will assume the user will cancel
         #bruce 050324: fixed KnownBug item 27 by making these call setValue, not assign to it:
@@ -206,7 +206,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         self.stepsPerFrameDoubleSpinBox.setValue( self.previous_movie.stepsper / 10.0 )
 #        self.timestepSB.setValue( self.previous_movie.timestep ) # Not supported in Alpha
         # new checkboxes for Alpha7, circa 060108
-        #self.create_movie_file_checkbox.setChecked( self.previous_movie.create_movie_file ) 
+        #self.create_movie_file_checkbox.setChecked( self.previous_movie.create_movie_file )
             # whether to store movie file (see NFR/bug 1286). [bruce & mark 060108]
             # create_movie_file_checkbox removed for A7 (bug 1729). mark 060321
 
@@ -234,7 +234,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
                 self.update_units_combobox.setCurrentText( update_units)
                     #k let's hope this changes the current choice, not the popup menu item text for the current choice!
         return
-    
+
     def createMoviePressed(self):
         """
         Creates a DPB (movie) file of the current part.
@@ -248,7 +248,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
         if self.simulation_engine_combobox.currentIndex() == 1:
             # GROMACS was selected as the simulation engine.
             #
-            # NOTE: This code is just for demo and prototyping purposes - the 
+            # NOTE: This code is just for demo and prototyping purposes - the
             # real approach will be architected and utilize plugins.
             #
             # Brian Helfrich 2007-04-06
@@ -261,20 +261,20 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             # NanoDynamics-1 was selected as the simulation engine
             #
             errorcode, partdir = self.assy.find_or_make_part_files_directory()
-    
+
             self.movie.cancelled = False # This is the only way caller can tell we succeeded.
             self.movie.totalFramesRequested = self.totalFramesSpinBox.value()
             self.movie.temp = self.temperatureSpinBox.value()
             self.movie.stepsper = self.stepsPerFrameDoubleSpinBox.value() * 10.0
             self.movie.print_energy = self.potential_energy_checkbox.isChecked()
     #        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
-            #self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked() 
+            #self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked()
                 # removed for A7 (bug 1729). mark 060321
             self.movie.create_movie_file = True
-    
+
             # compute update_data and update_cond, using new or old code
             try:
-                # try new common code for this, bruce 060705            
+                # try new common code for this, bruce 060705
                 ruc = self.ruc
                 update_cond = ruc.get_update_cond_from_widgets()
                 assert update_cond or (update_cond is False) ###@@@ remove when works, and all the others like this
@@ -313,7 +313,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
                 #   to do something else with the info like store it somewhere, or it may not (check runSim.py for details #k),
                 #   but its return value will be ignored if it's called for the last frame.)
                 # The details of these functions (and the UI feeding them) might be revised.
-    
+
                 # This code for setting update_cond is duplicated (inexactly) in Minimize_CommandRun.doMinimize()
                 if update_as_fast_as_possible:
                     # This radiobutton might be misnamed; it really means "use the old code,
@@ -341,7 +341,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
             self.movie._update_data = update_data # for propogating them to the next sim run
             self.movie.update_cond = update_cond # used this time
             # end of 060705 changes
-    
+
             suffix = self.suffix
             tStamp = timeStamp()
             if self.assy.filename and not errorcode: # filename could be an MMP or PDB file.
@@ -351,7 +351,7 @@ class SimSetup(QDialog, Ui_SimSetupDialog): # before 050325 this class was calle
                 self.movie.filename = os.path.join(partdir, fil + '.' + tStamp + suffix + '.dpb')
                 self.movie.origfile = os.path.join(partdir, fil + '.' + tStamp + '.orig' + ext)
                 shutil.copy(self.assy.filename, self.movie.origfile)
-            else: 
+            else:
                 self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled.%s%s.dpb" % (tStamp, suffix))
                 # Untitled parts usually do not have a filename
             #bruce 060601 fix bug 1840, also make params sticky across opening of new files

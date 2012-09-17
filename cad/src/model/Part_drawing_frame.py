@@ -1,4 +1,4 @@
-# Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Part_drawing_frame.py -- classes for use as a Part's drawing_frame
 
@@ -67,7 +67,7 @@ class Part_drawing_frame(_Part_drawing_frame_superclass):
     For more info, see docstring of Part.before_drawing_model.
     """
     def __init__(self):
-        
+
         self.repeated_bonds_dict = {}
 
         # Note: this env reference may cause undesirable usage tracking,
@@ -91,7 +91,7 @@ class Part_drawing_frame(_Part_drawing_frame_superclass):
             self._f_state_for_indicate_overlapping_atoms = \
                 NeighborhoodGenerator( [], TOO_CLOSE, include_singlets = True )
             pass
-        
+
         return
 
     pass
@@ -111,7 +111,7 @@ class fake_Part_drawing_frame(_Part_drawing_frame_superclass):
             # dict then would make bonds sometimes fail to be drawn).
             # Client code must tolerate this value.
         return
-    
+
     pass
-        
+
 # end

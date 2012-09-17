@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 pam_conversion_mmp.py -- help dna model objects convert between PAM models during writemmp
 
@@ -36,7 +36,7 @@ class writemmp_mapping_memo(object):
     mapping = None
     def __init__(self, mapping):
         self.mapping = mapping
-    def destroy(self): # todo: call, to avoid ref cycles 
+    def destroy(self): # todo: call, to avoid ref cycles
         self.mapping = None
     pass
 
@@ -47,13 +47,13 @@ class writemmp_mapping_memo(object):
 class DnaLadderRailChunk_writemmp_mapping_memo(writemmp_mapping_memo):
     """
     """
-    
+
     convert_pam_enabled = False
 
     _ladder_memo = None
 
     _save_as_pam = None
-    
+
     def __init__(self, mapping, chunk):
         # immediately memoize some settings which need to be constant
         # during use, as a bug precaution. Also do whatever precomputes
@@ -80,7 +80,7 @@ class DnaLadderRailChunk_writemmp_mapping_memo(writemmp_mapping_memo):
             self._ladder_memo = mapping.get_memo_for(self.ladder)
             self._save_as_pam = self._ladder_memo._f_save_as_what_PAM_model()
         return
-    
+
     def _f_save_as_what_PAM_model(self):
         return self._save_as_pam
 
@@ -90,13 +90,13 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
     """
     """
     number_of_conversion_atoms = None
-    
+
     def __init__(self, mapping, chunk):
         DnaLadderRailChunk_writemmp_mapping_memo.__init__(self, mapping, chunk)
         self.Pl_atoms = self._compute_Pl_atoms()
         self.number_of_conversion_atoms = self._compute_number_of_conversion_atoms()
         return
-    
+
     def _f_number_of_conversion_atoms(self):
         return self.number_of_conversion_atoms
 
@@ -114,7 +114,7 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
                     res += 1
         return res
 
-    def _compute_Pl_atoms(self): 
+    def _compute_Pl_atoms(self):
         if self._save_as_pam == MODEL_PAM3:
             return None # or if this fails, [None] * (length+1)
 
@@ -129,7 +129,7 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
 
         # note: we never look at Pls cached on neighbor_baseatoms
         # since any such Pl would belong in a neighbor chunk, not ours
-        
+
         if direction == Pl_STICKY_BOND_DIRECTION:
             # Pls want to stick to the right within baseatoms;
             # pass baseatom pairs in current order
@@ -166,7 +166,7 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
         which binds, or should bind, adjacent baseatoms a1 and a2,
         where bond direction going from a1 to a2 agrees with
         Pl_STICKY_BOND_DIRECTION.
-        
+
         One of those atoms might be passed as None,
         indicating we want a Pl at the end, bound to only one baseatom,
         or None if there should be no such Pl atom.
@@ -216,7 +216,7 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
         # now find or make a non-live Pl to return, iff conversion options desire this.
         if self._save_as_pam != MODEL_PAM5:
             return None
-        
+
         ### REVIEW: is this also a good time to compute (and store in it?) its position?
         # guess yes, since we have a1 and a2 handy and know their bond directions.
         # Note that this only runs once per writemmp, but the position is fixed then
@@ -238,9 +238,9 @@ class DnaStrandChunk_writemmp_mapping_memo(DnaLadderRailChunk_writemmp_mapping_m
                 #  but if so, we'll do that in a separate call.)
                 # If not, there needn't be one (not sure about that).
         pass # end of def _compute_one_Pl_atom (not reached)
-    
+
     pass # end of class DnaStrandChunk_writemmp_mapping_memo
- 
+
 # ==
 
 # helpers for DnaLadder
@@ -256,7 +256,7 @@ class DnaLadder_writemmp_mapping_memo(writemmp_mapping_memo):
         self.wrote_axis_chunks = [] # public attrs
         self.wrote_strand_chunks = []
         return
-    
+
     def _f_save_as_what_PAM_model(self):
         return self.save_as_pam
 
@@ -305,7 +305,7 @@ class DnaLadder_writemmp_mapping_memo(writemmp_mapping_memo):
         record = "dna_rung_bonds %s %s %s %s\n" % (s1, e1, s2, e2)
         mapping.write(record)
         return
-    
+
     pass
 
 # ==
@@ -329,7 +329,7 @@ class Fake_Pl(object): #bruce 080327
     owning_Ss_atom = None # not yet used
     bond_direction = 0 # not yet used (direction of self from that atom)
         # usually (or always?) this is (- Pl_STICKY_BOND_DIRECTION)
-    
+
     def __init__(self, owning_Ss_atom, bond_direction):
         self.key = atKey.next()
         self.owning_Ss_atom = owning_Ss_atom
@@ -343,7 +343,7 @@ class Fake_Pl(object): #bruce 080327
         # note: average_value seems to work here
         res = average_value( [n.posn() for n in self.neighbors()], V(0, 0, 0) )
         return res + V(0, 2, 0) # offset (kluge, wrong)
-    
+
     def writemmp(self, mapping, dont_write_bonds_for_these_atoms = ()):
         """
         Write a real mmp atom record for self (not a real atom),
@@ -357,12 +357,12 @@ class Fake_Pl(object): #bruce 080327
         records.
 
         @param mapping: an instance of class writemmp_mapping. Can't be None.
-        
+
         @note: compatible with Atom.writemmp and Node.writemmp,
                though we're not a subclass of Atom or Node.
         """
         # WARNING: has common code with Atom.writemmp
-        
+
         num_str = mapping.encode_next_atom(self)
         ## display = self.display
         display = diDEFAULT
@@ -413,7 +413,7 @@ class Fake_Pl(object): #bruce 080327
 
     def neighbors(self):
         return filter(None, self._neighbor_atoms())
-    
+
     pass # end of class
 
 # end

@@ -1,6 +1,6 @@
-# Copyright 2004-2005 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2005 Nanorex, Inc.  See LICENSE file for details.
 """
-VQT.py 
+VQT.py
 
 Vectors, Quaternions, and Trackballs
 
@@ -79,17 +79,17 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
     (e.g. Q(1,0,0,0) is no rotation [used a lot])
     [Warning: the python argument names are not in the same order as in
      the usage-form above! This is not a bug, just possibly confusing.]
-    
+
     Q(x, y, z) where x, y, and z are three orthonormal vectors
     is the quaternion that rotates the standard axes into that
     reference frame [this was first used, and first made correct, by bruce 050518]
     (the frame has to be right handed, or there's no quaternion that can do it!)
-    
+
     Q(V(x,y,z), theta) is what you probably want [axis vector and angle]. [used widely]
-    
+
     Q(vector, vector) gives the quat that rotates between them [used widely]
     [bruce 050518 asks: which such quat? presumably the one that does the least rotation in all]
-    
+
     [undocumented until 050518: Q(number) gives Q(1,0,0,0) [perhaps never used, not sure];
      Q(quat) gives a copy of that quat [used fairly often];
      Q([W,x,y,z]) (for any sequence type) gives the same quat as Q(W, x, y, z)
@@ -104,7 +104,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             #  and that these arg names don't correspond to their meanings,
             #  which are W,x,y,z (as documented) rather than x,y,z,w.]
             self.vec = V(x,y,z,w)
-        
+
         elif z is not None: # three axis vectors
             # Just use first two
             # [bruce comments 050518:
@@ -115,7 +115,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             #    so I fixed it.
             #  - The old code sometimes used 'z' but the new code never does
             #    (except to decide to use this case, and when debug_quats to check the results).
-            
+
             # Q(x, y, z) where x, y, and z are three orthonormal vectors
             # is the quaternion that rotates the standard axes into that
             # reference frame
@@ -161,12 +161,12 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
 ##            nw = sqrt(1.0 + x[0] + y[1] + z[2])/2.0
 ##            axis = norm(axis)*sqrt(1.0-nw**2)
 ##            self.vec = V(nw, axis[0], axis[1], axis[2])
-            
+
         elif type(y) in numTypes:
             # axis vector and angle [used often]
             v = (x / vlen(x)) * sin(y*0.5)
             self.vec = V(cos(y*0.5), v[0], v[1], v[2])
-            
+
         elif y is not None:
             # rotation between 2 vectors [used often]
             #bruce 050518 bugfix/optim: test y for None, not for truth value
@@ -211,16 +211,16 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
                 s=sqrt(1-w**2)/vl
                 self.vec=V(w, v[0]*s, v[1]*s, v[2]*s)
             pass
-        
+
         elif type(x) in numTypes:
             # just one number [#k is this ever used?]
             self.vec=V(1, 0, 0, 0)
-        
+
         else:
             #bruce 050518 comment: a copy of the quat x, or of any length-4 sequence [both forms are used]
             self.vec=V(x[0], x[1], x[2], x[3])
         return # from Q.__init__
-    
+
     def __getattr__(self, name):
         if name == 'w':
             return self.vec[0]
@@ -261,7 +261,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             return mat
         else:
             raise AttributeError, 'No "%s" in Quaternion' % name
-        
+
     def __getitem__(self, num):
         return self.vec[num]
 
@@ -274,7 +274,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         self.vec[0] = cos(theta)
         self.__reset()
         return self
-        
+
 
     def __reset(self):
         if self.__dict__.has_key('matrix'):
@@ -311,7 +311,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
                q1.w*self.y - q1.x*self.z + q1.y*self.w + q1.z*self.x,
                q1.w*self.z + q1.x*self.y - q1.y*self.x + q1.z*self.w)
         self.vec=temp
-        
+
         self.counter -= 1
         if self.counter <= 0:
             self.counter = 50
@@ -504,7 +504,7 @@ def Veq(v1, v2):
     # (in principle it would work, based on my current understanding of Numeric...)
 
 # == bruce 050518 moved the following here from extrudeMode.py (and bugfixed/docstringed them)
-    
+
 def floats_near(f1,f2): #bruce, circa 040924, revised 050518 to be relative, 050520 to be absolute for small numbers.
     """Say whether two floats are "near" in value (just for use in sanity-check assertions).
     """

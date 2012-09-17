@@ -1,4 +1,4 @@
-# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details.
 '''
 setup.py (for sim code)
 
@@ -14,7 +14,7 @@ One way to run this might be "make extensions" or "make pyx"; see Makefile in th
 A more direct way is to ask your shell to do
 
   python setup.py build_ext --inplace
-  
+
 For up to date info about how to do this (especially for Windows), see the wiki.
 
 Running this makes some output files and subdirectories, and prints lots of output.

@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 """
@@ -17,7 +17,7 @@ def setupUi(win):
     @param win: NE1's main window object.
     @type  win: Ui_MainWindow
     """
-    
+
     # Populate all "Tools" submenus.
     Ui_BuildStructuresMenu.setupUi(win)
     Ui_BuildToolsMenu.setupUi(win)

@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 instance_helpers.py -- provides InstanceOrExpr and some related things
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History (partial):
 
@@ -138,7 +138,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         # This implem is meant for graphical prims like Rect.
         # ok for expr but wrong for instance! actually, not true - inst makes itself! so wrong for an explicit Maker I guess...
         return self.__class__.__name__.split('.')[-1] ##e see where else we have that code, maybe world.py; have classattr to override?
-    
+
     def __init__(self, *args, **kws):
         # note: just before any return herein, we must call self._e_init_e_serno(), so it's called after any canon_expr we do;
         # also, the caller (if a private method in us) can then do one inside us; see comment where this is handled in __call__
@@ -163,7 +163,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         self._destructive_init(args, kws)
         IorE_guest_mixin.__init__(self) # must be done after _destructive_init
         return
-    
+
     def __call__(self, *args, **kws):
         new = self._copy()
         new._destructive_init(args, kws)
@@ -174,7 +174,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
 
 # I'm not sure whether this unfinished _i_type and _e_delegate_type code will be used -- for now, leave it but comment it out [070206]
 ##    _e_delegate_type = False # subclass-specific constant -- whether Instance type determination should be delegated to self._delegate
-##    
+##
 ##    def _i_type(self): #070206
 ##        """Return something that represents the type of Instance or Expr we are.
 ##        (This is not the same as Python type. For more info on what we return, see ###doc.)
@@ -193,7 +193,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
 ##            name = "Expr" ###e include something about the predicted instance type? what if it's condition- or time-varying?
 ##                # maybe only include it if an outer level includes a type-coercer??
 ##        return name
-    
+
     # deprecated public access to self._e_kws -- used by _DEFAULT_ decls
     def custom_compute_method(self, attr):###NAMECONFLICT?
         """
@@ -210,7 +210,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         printfyi("something made use of deprecated _DEFAULT_ feature on attr %r" % (attr,)) ###e deprecated - remove uses, gradually
             # in fact, reviewing the uses 070120, there are none left, and the last ones in widget2d went away long ago. ###e ZAP IT
         return formula._e_compute_method(self, '@' + attr) #k index arg is a guess, 061110
-    
+
     # copy methods (used by __call__)
     def _copy(self, _instance_warning = True):
         ## assert not self._e_is_instance ## ??? [061019]
@@ -308,7 +308,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
                 self._e_kws[name] = val
                 continue
             pass
-        
+
         # Q. When do we fill in defaults for missing args? A. We don't -- the above code + options code effectively handles that,
         # PROVIDED we access them by name, not by position in self._e_args. (Is it reasonable to require that?? ###k)
         # Q. When do we type-coerce all args? For now, I guess we'll wait til instantiation. [And it's nim.]
@@ -385,7 +385,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         Called only from __init__, when self knows nothing except its class.
         """
         ## printnim("make_in needs to replace _self in customization formulas with _self from env")#061110 313p
-            # 061113 Q: what's the status of this? does _e_eval or _e_compute_method do it somehow, making this obs?? 
+            # 061113 Q: what's the status of this? does _e_eval or _e_compute_method do it somehow, making this obs??
             # or is it truly nim -- but if so, how does _self work in args inside _value in Boxed? oh, that's not customized,
             # rel to Boxed -- but it is, rel to the exprs in _value, which is what counts. hmm...
             # now I'm recalling something about lexenv_Expr fixing this (& it's dated later same day, 061110)...
@@ -400,18 +400,18 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
             # For initial uses, we might not care about these "details"! Possible initial kluge implem: let _this(class)
             # turn into an instance itself, which figures out at runtime what to delegate to. Doing this below, "class _this".
             # WRONG, next day 061114 I'm doing it differently: _this(class) turns into an internal_Expr. Still found as "class _this".
-            
+
         printnim("should make_in worry about finding an existing instance at the same index?")
             # guess: no, it'd be obsolete; not sure. #061110 313p
             # update 070120: our caller _make_in wants to handle this -- by this time, a new self exists so it's too late or wasteful.
-        
+
         expr, env, ipath = data ###@@@ might want to split env into rules (incl lexenv) & place (incl staterefs, glpane)
         assert env #061110
         assert not self._e_is_instance #e remove when works
         assert not expr._e_is_instance
 
         # copy all pure-expr things [order of several sections here revised, 070120]
-        
+
         self._e_has_args = expr._e_has_args #k ??
         # copy references to _e_args & _e_kws
         # note: exprs passed to specific args or kws can be lazily type-coerced and instantiated by Arg or Option decls in subclasses
@@ -419,7 +419,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         self._e_kws = expr._e_kws # replaces _e_formula_dict as of 061106; WARNING: shared and mutable; WE MUST NEVER MODIFY IT
 
         # do pure-expr things that could (in theory) still leave us a pure expr, but are needed before instantiation
-        
+
         ## assert expr._e_has_args, "this expr needs its arguments supplied: %r" % self
             # we might allow exceptions to this later, based on type decl, especially if it has no declared args
             # (how can we tell, here?? ###e),
@@ -440,9 +440,9 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
                 # Maybe that flag we pass should also warn it not to destroy anything else (e.g. if it someday feels like
                 # adding a generated keyword arg, it better copy _e_kws in this case). ##e
             assert self._e_has_args
-        
+
         # set some Instance things
-        
+
         self._e_class = expr # for access to _e_kws and args #k needed? #e rename: self._e_expr? not sure. #k not yet used
 
         printnim("instance_helpers needs init_class call, init_expr call")
@@ -459,13 +459,13 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         # index always comes from <index/attr path> and *not* from which arg or opt, i think... sometimes they correspond,
         # and some predeclared members of kids could access those for you, e.g. self.kids.args or just self.args for short...
         # we could even say _e_args for the raw ones, .args for the cooked ones.
-        
+
         self._e_is_instance = True
 
         self._init_self_as_Instance(env, ipath)
-        
+
         return # from _destructive_make_in
-    
+
     def _init_class(self): ###@@@ CALL ME
         """
         called once per directly-instantiated python class, when its first python instance is created
@@ -500,7 +500,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         pass
 
     # ==
-    
+
     def _C__delegate(self): #070121
         delegate = self.delegate
         if is_pure_expr(delegate):
@@ -585,7 +585,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         ### we'll have memoization code for all these attrs
         ### and we'll need better control of gl state like GL_CULL_FACE, if we can run this while it's already disabled
 
-    # note: draw can't be defined here since it masks the one provided by the delegate, if the subclass delegates! [070201]    
+    # note: draw can't be defined here since it masks the one provided by the delegate, if the subclass delegates! [070201]
 ##    def draw(self):
 ##        "#doc"
 ##        print "warning: no draw method in %r" % self # probably verbose enough to not be missed...
@@ -602,7 +602,7 @@ class InstanceOrExpr(IorE_guest_mixin): # see docstring for discussion of the ba
         """
         self.env.glpane.gl_update()
         return
-    
+
     pass # end of class InstanceOrExpr
 
 # ==
@@ -742,7 +742,7 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr #070
                     # but it's useful for debugging -- so leave it in for now. 061114
                     printnim("too expensive for routine use")
                     msg = "no attr %r in delegate %r of self = %r" % (attr, delegate, self)
-                    if attr == _DELEGATION_DEBUG_ATTR: 
+                    if attr == _DELEGATION_DEBUG_ATTR:
                         print "debug_attr:", msg
                     raise AttributeError, msg
                 else:
@@ -804,17 +804,17 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # ca. 061110; docstring re
         delegate = Instance( _self._value, '!_value') #k guess: this might eval it once too many times... ####k
         # [later, as of 061113 -- it works, but this point of too many evals has never been fully understood,
         #  so for all i now, it happens but causes no obvious harm in these examples -- should check sometime. ##e]
-        
+
         # [much later, 061114: i think I know why it works -- Instance indeed does an eval, but it's the eval from _self._value
         #  to what's stored in self._value, which is *already* an Instance because evaling the rule makes one!
         #  see other comments about this in Boxed _init_instance dated today. as they say, it's all wrong and will probably change.
         #  in fact, if I said here delegate = _self._value, I think it ought to work fine! Try it sometime. ######TRYIT]
-        
+
         #k Note: I used '!_value' as index, because I worried that using '_value' itself could collide with an index used to eval the expr version of _value,
         # in future examples which do that (though varying expr is not presently supported by Instance, I think -- OTOH
         # there can be two evals inside _i_instance due to eval_Expr, so the problem might arise that way, dep on what it does with
         # indices itself).
-        
+
     ##e could add sanity check that self.delegate and self._value are instances
     # (probably the same one, tho not intended by orig code, and won't remain true when Instance is fixed) [061114]
     def _e_model_type_you_make(self): ###k 070215 very experimental
@@ -875,7 +875,7 @@ class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): # moved here & 
 # Highlightable(image) - no
 # Highlightable(ModelObject) - maybe yes, but looks deprecated -- Highlightable should be used in a viewing macro. So no.
 # ImageChunk [not yet used] - like Highlightable? no... unclear. Maybe this model/graphics-object distinction needs formalization...
-# Overlay - 
+# Overlay -
 # ==
 
 class ModelObject(DelegatingInstanceOrExpr): #070201 moved here from demo_drag.py; see also ModelObject3D, Geom3D...
@@ -964,7 +964,7 @@ class _this(SymbolicExpr): # it needs to be symbolic to support automatic getatt
             # Caller/client could arrange another eval if it needed to. [061114 guess]
         assert res, "_this failed to find referent for %r" % self._e_thisname ##e improve
         return res
-    pass # end of class _this   
+    pass # end of class _this
 
     ##class _this(SymbolicInstanceOrExpr_obs, DelegatingMixin): #061113; might work for now, prob not ok in the long run
     #e [see an outtakes file, or cvs rev 1.57, for more of this obs code for _this, which might be useful someday]

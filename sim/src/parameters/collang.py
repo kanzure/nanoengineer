@@ -24,7 +24,7 @@ def findnext(f,pat):
         card = f.readline()
         if not card: return None
         m = pat.match(card)
-        if m: return m        
+        if m: return m
 
 def ending(nam,suf):
     if suf==nam[-len(suf):]: return nam
@@ -86,7 +86,7 @@ def golden(f,a,fa,b,fb,c,fc, tol=1e-2):
         else: return golden(f, new, fnew, b,fb, c,fc)
 
 def ak(m):
-    
+
     # find lowest point
     lo=m[0][1]
     ix=0
@@ -170,17 +170,17 @@ for fn in os.listdir('angles'):
 
     if ix==0: ix=1
     if ix>len(m)-2: ix=len(m)-2
-    
+
     m2=m[ix-1:ix+2]
 
     x=m2[:,0]
     xn=1.0
     a=zeros((3,3),Float)
-    
+
     for i in [2,1,0]:
-        
+
         a[:,i]=xn
-        
+
         xn=x*xn
     b=m2[:,1]
     coef, sosr, rank, svs = linear_least_squares(a,b)

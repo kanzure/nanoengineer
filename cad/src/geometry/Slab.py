@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Slab.py - a slab in space, with a 3d-point-in-slab test
 
@@ -32,5 +32,5 @@ class Slab:
         return '<slab of '+`self.thickness`+' at '+`self.point`+'>'
 
     pass
-    
+
 # end

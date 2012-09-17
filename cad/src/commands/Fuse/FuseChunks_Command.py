@@ -13,7 +13,7 @@ Originally by Mark as class 'fuseChunksMode'.
 Ninad 2008-01-25: Split Command and GraphicsMode classes
                  out of class fuseChunksMode. The graphicsMode class can be
                  found in FuseChunks_GraphicsMode.py
-                 
+
 TODO as of 2008-09-09:
 
 -refactor update ui related code. Example some methods call propMgr.updateMessage()
@@ -57,12 +57,12 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
     2. Fuse Atoms - atoms between chunks will be fused when they overlap each
        other.
     """
-       
+
     # class constants
     PM_class = FusePropertyManager
     GraphicsMode_class = FuseChunks_GraphicsMode
     FlyoutToolbar_class = FuseFlyout
-    
+
     commandName = 'FUSECHUNKS'
     featurename = "Fuse Chunks Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
@@ -82,7 +82,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
         # considered overlapping
 
     fuse_mode = '' # The Fuse mode, either 'Make Bonds' or 'Fuse Atoms'.
-       
+
 
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class
@@ -93,28 +93,28 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         self.translate_graphicsMode = Translate_in_FuseChunks_GraphicsMode(*args, **kws)
         self.rotate_graphicsMode  = Rotate_in_FuseChunks_GraphicsMode(*args, **kws)
-    
-        
+
+
     def command_entered(self):
         """
-        Extends superclass method. 
-        @see: baseCommand.command_entered() for documentation. 
+        Extends superclass method.
+        @see: baseCommand.command_entered() for documentation.
         """
         super(FuseChunks_Command, self).command_entered()
         self.change_fuse_mode(str(self.propMgr.fuseComboBox.currentText()))
             # This maintains state of fuse mode when leaving/reentering mode,
             # and syncs the PM and glpane (and does a gl_update).
-            
+
         if self.o.assy.selmols:
             self.graphicsMode.something_was_picked = True
 
     def command_enter_misc_actions(self):
         self.w.toolsFuseChunksAction.setChecked(1)
-            
+
     def command_exit_misc_actions(self):
         self.w.toolsFuseChunksAction.setChecked(0)
-            
-    
+
+
 ##    def Backup(self): # REVIEW: I suspect there is no way to call this method, so I commented it out. [bruce 080806 comment]
 ##        """
 ##        Undo any bonds made between chunks.
@@ -260,7 +260,7 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
 
         ######### Overlapping Atoms methods #############
 
-    def find_overlapping_atoms(self, 
+    def find_overlapping_atoms(self,
                                skip_hidden = True,
                                ignore_chunk_picked_state = False):
         """
@@ -339,65 +339,65 @@ class FuseChunks_Command(Move_Command, fusechunksBase):
         tol_str = fusechunks_lambda_tol_natoms(self.tol, natoms)
         tolerenceLabel = tol_str
         self.propMgr.toleranceSlider.labelWidget.setText(tolerenceLabel)
-        
-    
-    def find_overlapping_atoms_to_delete_from_atomlists(self, 
-                                              atomlist_to_keep, 
-                                              atomlist_with_overlapping_atoms, 
+
+
+    def find_overlapping_atoms_to_delete_from_atomlists(self,
+                                              atomlist_to_keep,
+                                              atomlist_with_overlapping_atoms,
                                               tolerance = 1.1
                                               ):
         """
         @param atomlist_to_keep: Atomlist which will be used as a reference atom
-               list. The atoms in this list will be used to find the atoms 
+               list. The atoms in this list will be used to find the atoms
                in the *other list* which overlap atom positions in *this list*.
                Thus, the atoms in 'atomlist_to_keep' will be preserved (and thus
                won't be appended to self.overlapping_atoms)
         @type atomlist_to_keep: list
-        @param atomlist_with_overlapping_atoms: This list will be checked with 
+        @param atomlist_with_overlapping_atoms: This list will be checked with
                the first list (atom_list_to_keep) to find overlapping atoms.
-               The atoms in this list that overlap with the atoms from the 
+               The atoms in this list that overlap with the atoms from the
                original list will be appended to self.overlapping_atoms
                (and will be eventually deleted)
-        
+
 	"""
-        
+
         overlapping_atoms_to_delete = []
-        
+
         # Remember: chunk = a selected chunk  = atomlist to keep
         # mol = a non-selected -- to find overlapping atoms from
-               
-        
+
+
         # Loop through all the atoms in the selected chunk.
         # Use values() if the loop ever modifies chunk or mol--
-        for a1 in atomlist_to_keep: 
+        for a1 in atomlist_to_keep:
             # Singlets can't be overlapping atoms. SKIP those
-            if a1.is_singlet(): 
+            if a1.is_singlet():
                 continue
-            
+
             # Loop through all the atoms in atomlist_with_overlapping_atoms.
             for a2 in atomlist_with_overlapping_atoms:
                 # Only atoms of the same type can be overlapping.
-                # This also screens singlets, since a1 can't be a 
+                # This also screens singlets, since a1 can't be a
                 # singlet.
-                if a1.element is not a2.element: 
+                if a1.element is not a2.element:
                     continue
 
-                # Compares the distance between a1 and a2.  
+                # Compares the distance between a1 and a2.
                 # If the distance
-                # is <= tol, then we have an overlapping atom.  
-                # I know this isn't a proper use of tol, 
+                # is <= tol, then we have an overlapping atom.
+                # I know this isn't a proper use of tol,
                 # but it works for now.   Mark 050901
                 if vlen (a1.posn() - a2.posn()) <= tolerance:
                     # Add this pair to the list--
-                    overlapping_atoms_to_delete.append( (a1,a2) ) 
+                    overlapping_atoms_to_delete.append( (a1,a2) )
                     # No need to check other atoms in this chunk--
-                    break 
-                
+                    break
+
         return overlapping_atoms_to_delete
 
     def _delete_overlapping_atoms(self):
         pass
-    
+
     def fuse_atoms(self):
         """
         Deletes overlapping atoms found with the selected chunk(s).

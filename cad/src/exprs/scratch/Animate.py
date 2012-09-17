@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Animate.py [just notes so far]
 
@@ -18,7 +18,7 @@ or explicit formula for setting external vars to, or.... [arg syntax unexplored,
 redraws measure time since start, decide what to draw (based on time), whether to gl_update after draw (whether we didn't reach the end)
 
 (but the actual setting of a specific time comes at the start of the redraw, as late as possible, so motion looks as accurate as poss)
-                                                                                                        
+
 (an indep setting gives max frame rate to permit, but for now, max possible will be what we want, very likely)
 
 (measurement is in real time, not counting time we're suspended in some way, eg user pause button, not in the app, etc)

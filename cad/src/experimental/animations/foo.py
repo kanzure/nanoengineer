@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 import sys, os
 WHERE = '/home/wware/tmp/mpeg'
 

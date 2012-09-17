@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 BaseIterator.py - stub, not yet used -- probably superseded by
 class PositionInWholeChain in WholeChain.py, being written now.
@@ -17,11 +17,11 @@ Plan:
   maybe global helpers are good, or even a flyweight for doing the scan (can have attrs like ringQ, base index, etc).
   hmm, that flyweight base scanner could be used in dna sequence code (edit, write to file, etc),
   for this, for marker move... seems like a good idea.
-  methods: 
+  methods:
   - make one from atom, or ladder/whichrail/whichbase
   - scan it both dirs
   - get things from it (as attrs or get methods)
-  - ask it things like whether there's a nick or crossover? scan to next nick or crossover? etc  
+  - ask it things like whether there's a nick or crossover? scan to next nick or crossover? etc
 
 See also:
 * obsolete scratch file outtakes/BasePair.py (might have some methodname ideas)
@@ -111,11 +111,11 @@ class BaseIterator(object):
         next_rail = None # will be set if we find it
         for candidate in next_ladder.all_rails():
             if candidate.baseatoms[0].molecule is next_chunk: ### BUG: invalid during updater, chunks get broken.
-                
-            
 
 
-        
+
+
+
         self._update_after_changing_init_args()
     pass
 

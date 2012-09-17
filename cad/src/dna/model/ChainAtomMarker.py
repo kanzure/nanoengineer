@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 ChainAtomMarker.py - a marked atom and direction in a chain of atoms,
 with help for moving it to a new atom if its old atom is killed;
@@ -32,7 +32,7 @@ _NUMBER_OF_MARKER_ATOMS = 2
 class ChainAtomMarker(Jig):
     """
     Abstract class.
-    
+
     Marks a single atom in some kind of chain of live atoms
     (which kind and how to move along it is known only to more
     concrete subclasses), and a direction along that chain,
@@ -73,11 +73,11 @@ class ChainAtomMarker(Jig):
     """
 
     # default values of instance variables:
-    
+
     # Jig API variables
-    
+
     sym = "ChainAtomMarker" # probably never visible, since this is an abstract class
-    
+
     # other variables
 
     marked_atom = None
@@ -85,17 +85,17 @@ class ChainAtomMarker(Jig):
     _length_1_chain = False #bruce 080216
 
     # declare attributes involved in copy, undo, mmp save
-    
+
     copyable_attrs = Jig.copyable_attrs + ('marked_atom', 'next_atom', '_length_1_chain')
         # that sets them up for copy and undo;
         # no need for mmp write/read code for these, since they're written as part of self.atoms
         # and reinitialized from that when we're constructed,
         # but do REVIEW and assert that they're in the right order when written.
-        
+
         # note: more copyable_attrs might be needed in subclasses
-    
+
 ##    _old_atom = None # (not undoable or copyable) (but see comment on "make _old_atom undoable" below)
-    
+
     # == Jig API methods
 
     def __init__(self, assy, atomlist):
@@ -143,7 +143,7 @@ class ChainAtomMarker(Jig):
             self.marked_atom = self.next_atom = None #bruce 080216
         self._check_atom_order() #bruce 080216 do in all cases, was just main one
         return
-            
+
     def needs_atoms_to_survive(self):
         # False, so that if both our atoms are removed, we don't die.
         # Problem: if we're selected and copied, but our atoms aren't, this would copy us.
@@ -151,7 +151,7 @@ class ChainAtomMarker(Jig):
         # and thus only selected if entire DNA Group is. REVIEW if this code is ever used
         # in a non-DnaGroup context. [Also REVIEW now that we have two atoms.]
         return False
-    
+
     def confers_properties_on(self, atom): ### REVIEW now that we have two atoms, for copy code
         """
         [overrides Node method]
@@ -179,7 +179,7 @@ class ChainAtomMarker(Jig):
                   "continuing, but beware of errors when reopening the file"
             print_compact_traceback( msg + ": ")
             pass
-        
+
         return Jig.writemmp(self, mapping)
 
     def __repr__(self): # 080118
@@ -192,7 +192,7 @@ class ChainAtomMarker(Jig):
         res = "<%s[%r -> %r] at %#x>" % \
               (classname, self.marked_atom, self.next_atom, id(self))
         return res
-        
+
     # == other methods
 
     def _check_atom_order(self):
@@ -215,7 +215,7 @@ class ChainAtomMarker(Jig):
         if self._length_1_chain:
             return 1
         return _NUMBER_OF_MARKER_ATOMS
-    
+
     def is_homeless(self): # REVIEW: Maybe rename to needs_update?
         """
         Has either of our atoms been killed?
@@ -226,7 +226,7 @@ class ChainAtomMarker(Jig):
         if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
             print "is_homeless(%r) returning %r" % (self, res)
         return res
-    
+
 # old code:
 ##        res = (not self.atoms) and (self._old_atom is not None)
 ##        if res:
@@ -256,5 +256,5 @@ class ChainAtomMarker(Jig):
 ##            assert self.is_homeless()
 ##            return self._old_atom
 ##        pass
-    
+
     pass # end of class ChainAtomMarker

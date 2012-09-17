@@ -46,14 +46,14 @@ class GLPane_stereo_methods(object):
     The main class needs to call these methods at appropriate times
     and use some attributes we maintain in appropriate ways.
     For documentation see the method docstrings and code comments.
-    
+
     All our attribute names and method names contain the string 'stereo',
     making them easy to find by text-searching the main class source code.
     """
 
     # note: instance variable default values are class assignments
     # in the main class, of stereo_enabled and a few other attrs.
-    
+
     def set_stereo_enabled(self, enabled): #bruce 080911
         """
         Set whether stereo will be enabled during the next draw
@@ -103,23 +103,23 @@ class GLPane_stereo_methods(object):
                 else:
                     current_stereo_image = 1
         return current_stereo_image
-    
+
     # stereo rendering methods [piotr 080515 added these, and their calling code]
 
     def _enable_stereo(self, stereo_image, preserve_colors = False, no_clipping = False):
         """
-        Enables stereo rendering.        
+        Enables stereo rendering.
 
         This should be called before entering a drawing phase
         and should be accompanied by a self._disable_stereo call
         after the drawing for that phase.
-        
+
         These methods push a modelview matrix on the matrix stack
         and modify the matrix.
 
         @param stereo_image: Indicates which stereo image is being drawn
                              (-1 == left, 1 == right, 0 == stereo is disabled)
-        
+
         @param preserve_colors: Disable color mask manipulations,
                                 which normally occur in anaglyph mode.
                                 (Also disable depth buffer clearing
@@ -146,7 +146,7 @@ class GLPane_stereo_methods(object):
 
         if stereo_mode <= 2:
             # side-by-side stereo mode
-            # clip left or right image 
+            # clip left or right image
             # reset the modelview matrix
 
             if not no_clipping:
@@ -161,7 +161,7 @@ class GLPane_stereo_methods(object):
                     clip_eq = (-1.0, 0.0, 0.0, 0.0)
                 else:
                     clip_eq = ( 1.0, 0.0, 0.0, 0.0)
-                # using GL_CLIP_PLANE5 for stereo clipping 
+                # using GL_CLIP_PLANE5 for stereo clipping
                 glClipPlane(GL_CLIP_PLANE5, clip_eq)
                 glEnable(GL_CLIP_PLANE5)
                 glPopMatrix()
@@ -171,13 +171,13 @@ class GLPane_stereo_methods(object):
                 angle *= -1
 
             # translate images for side-by-side stereo
-            glTranslatef(separation * stereo_image * self.right[0], 
-                         separation * stereo_image * self.right[1], 
+            glTranslatef(separation * stereo_image * self.right[0],
+                         separation * stereo_image * self.right[1],
                          separation * stereo_image * self.right[2])
 
             # rotate the stereo image ("toe-in" method)
             glRotatef(angle * stereo_image,
-                      self.up[0], 
+                      self.up[0],
                       self.up[1],
                       self.up[2])
 
@@ -201,12 +201,12 @@ class GLPane_stereo_methods(object):
                     # piotr 080911 response: You are right. This technically
                     # causes a bug: the red image is not highlightable,
                     # but actually when using anaglyph glasses, the bug is not
-                    # noticeable, as both red and blue images converge. 
+                    # noticeable, as both red and blue images converge.
                     # The bug becomes noticeable if user tries to highlight an
-                    # object without wearing the anaglyph glasses.  
+                    # object without wearing the anaglyph glasses.
                     # At this point, I think we can either leave it as it is,
-                    # or consider implementing anaglyph stereo by using 
-                    # OpenGL alpha blending. 
+                    # or consider implementing anaglyph stereo by using
+                    # OpenGL alpha blending.
                     # Also, I am not sure if highlighting problem is the only bug
                     # that is caused by clearing the GL_DEPTH_BUFFER_BIT.
                     glClear(GL_DEPTH_BUFFER_BIT)
@@ -222,7 +222,7 @@ class GLPane_stereo_methods(object):
 
             # rotate the stereo image ("toe-in" method)
             glRotatef(angle * stereo_image,
-                      self.up[0], 
+                      self.up[0],
                       self.up[1],
                       self.up[2])
         return
@@ -234,15 +234,15 @@ class GLPane_stereo_methods(object):
         """
         if not self.stereo_enabled:
             return
-        
+
         if self.stereo_mode <= 2:
             # side-by-side stereo mode
             # make sure that the clipping plane is disabled
             glDisable(GL_CLIP_PLANE5)
-        else: 
+        else:
             # anaglyphs stereo mode
             # enable all colors
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE) 
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 
         # restore the matrix
         glMatrixMode(GL_MODELVIEW)
@@ -256,7 +256,7 @@ class GLPane_stereo_methods(object):
         """
         set self.stereo_* attributes (mode, separation, angle)
         based on current user prefs values
-        
+
         @note: this should be called just once per draw event, before
                anything might use these attributes, to make sure
                these settings remain constant throughout that event (perhaps not

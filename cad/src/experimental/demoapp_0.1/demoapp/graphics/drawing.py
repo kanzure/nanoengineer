@@ -40,4 +40,4 @@ def drawline2d(color, p1, p2): # modified from drawcircle2d
     glVertexPointer(2, GL_FLOAT, 0, points)
     glDrawArrays(GL_LINE_LOOP, 0, len(points))
     glPopClientAttrib()
-    
+

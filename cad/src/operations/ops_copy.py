@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 ops_copy.py -- general cut/copy/delete operations on selections
 containing all kinds of model tree nodes.
@@ -46,13 +46,13 @@ class ops_copy_Mixin:
     # == ###@@@ cut/copy/paste/kill will all be revised to handle bonds better (copy or break them as appropriate)
     # incl jig-atom connections too [bruce, ca. time of assy/part split]
     # [renamings, bruce 050419: kill -> delete_sel, cut -> cut_sel, copy -> copy_sel; does paste also need renaming? to what?]
-    
+
     # bruce 050131/050201 revised these Cut and Copy methods to fix some Alpha bugs;
     # they need further review after Alpha, and probably could use some merging. ###@@@
     # See also assy.delete_sel (Delete operation).
-    
-    
-    #@see: self._getInitialPasteOffsetForPastableNodes() to see how these are 
+
+
+    #@see: self._getInitialPasteOffsetForPastableNodes() to see how these are
     #attrs are used
     _initial_paste_offset_for_chunks = V(0, 0, 0)
     _initial_paste_offset_for_other_pastables = V(0, 0, 0)
@@ -63,7 +63,7 @@ class ops_copy_Mixin:
         if debug_flags.atom_debug:
             print_compact_stack( "atom_debug: assy.cut called, should use its new name cut_sel: ")
         return self.cut_sel()
-    
+
     def cut_sel(self, use_selatoms = True):
         #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
         #bruce 050419 renamed this from cut to avoid confusion with Node method
@@ -93,7 +93,7 @@ class ops_copy_Mixin:
         # Some of those could be addressed by adding a flag to Copier to
         # tell it it was "copying as part of Cut". Maybe we could even get
         # it to move rather than copy for nodes in a specified set.
-        
+
         mc = env.begin_op("Cut") #bruce 050908 for Undo
         try:
             cmd = greenmsg("Cut: ")
@@ -119,7 +119,7 @@ class ops_copy_Mixin:
                 ### Answer: some parts can be deleted by being entirely cut (top node too) or killed, others can't.
                 ### This is not a property of the node, so much as of the Part, I think.... not clear since 1-1 corr.
                 ### but i'll go with that guess. immortal parts are the ones that can't be killed in the UI.
-                
+
                 #bruce 050201 to fix catchall bug 360's "Additional Comments From ninad@nanorex.com  2005-02-02 00:36":
                 # don't let assy.tree itself be cut; if that's requested, just cut all its members instead.
                 # (No such restriction will be required for assy.copy_sel, even when it copies entire groups.)
@@ -146,10 +146,10 @@ class ops_copy_Mixin:
             # And they are no longer in their original location,
             # but neither they nor the group "new" is in its final location.
             # (But they still belong to their original Part, until this is changed later.)
-            
+
             #e some of the following might someday be done automatically by something like end_event_handler (obs)
             # and/or by methods in a Cut command object [bruce 050908 revised comment]
-            
+
             if new.members:
                 # move them to the clipboard (individually for now, though this
                 # is wrong if they are bonded; also, this should be made common code
@@ -171,7 +171,7 @@ class ops_copy_Mixin:
                         # when there is more than one item. That would fix the
                         # bond-breaking issue mentioned above.
                 nshelf_after = len(self.shelf.members) #bruce 050201
-                msg = fix_plurals("Cut %d item(s)." % (nshelf_after - nshelf_before)) 
+                msg = fix_plurals("Cut %d item(s)." % (nshelf_after - nshelf_before))
                 env.history.message(cmd + msg) #bruce 050201
             else:
                 if not (use_selatoms and self.selatoms):
@@ -188,7 +188,7 @@ class ops_copy_Mixin:
 ##        if debug_flags.atom_debug:
 ##            print_compact_stack( "atom_debug: assy.copy called, should use its new name copy_sel: ")
 ##        return self.copy_sel()
-    
+
     # copy any selected parts (molecules) [making a new clipboard item... #doc #k]
     #  Revised by Mark to fix bug 213; Mark's code added by bruce 041129.
     #  Bruce's comments (based on reading the code, not all verified by test): [###obs comments]
@@ -205,7 +205,7 @@ class ops_copy_Mixin:
     #  for now) the group members are in bottom-to-top order.)
 
     #e bruce 050523: should revise this to use selection_from_MT object...
-    
+
     def copy_sel(self, use_selatoms = True): #bruce 050505 added use_selatoms = True option, so MT ops can pass False (bugfix)
         #bruce 050419 renamed this from copy
         #bruce 050523 new code
@@ -216,7 +216,7 @@ class ops_copy_Mixin:
         from dna.model.DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
             # must be runtime import; after release, clean up by doing it in class Assembly
             # and referring to these as self.assy.DnaAxisChunk etc
-        
+
         def chunks_to_copy_along_with(chunk):
             """
             Return a list (or other sequence) of chunks that we should copy along with chunk.
@@ -233,13 +233,13 @@ class ops_copy_Mixin:
             else:
                 pass
             return ()
-        
+
         part = self
         sel = selection_from_part(part,
                                   use_selatoms = use_selatoms,
                                   expand_chunkset_func = chunks_to_copy_along_with
                                   )
-        
+
         # 2. prep this for copy by including other required objects, context, etc...
         # (eg a new group to include it all, new chunks for bare atoms)
         # and emit message about what we're about to do
@@ -264,7 +264,7 @@ class ops_copy_Mixin:
             whynot = copier.whynot()
             env.history.message(cmd + redmsg(whynot))
             return
-        
+
         # 3. do it
         new = copier.copy_as_node_for_shelf()
         self.shelf.addchild(new)
@@ -276,24 +276,24 @@ class ops_copy_Mixin:
             #  Probably that's no longer true, but it needs to be checked before this is changed. [050526])
         self.w.win_update()
         return
-    
-    def copy_sel_in_same_part(self, use_selatoms = True): 
+
+    def copy_sel_in_same_part(self, use_selatoms = True):
         """
         Copies the selected object in the same part.
-        
-        @param  use_selatoms: If true, it uses the selected atoms in the GLPane 
-                for copying. 
+
+        @param  use_selatoms: If true, it uses the selected atoms in the GLPane
+                for copying.
 
         @type   use_selatoms: boolean
 
         @return copiedObject: Object copied and added to the same part
-                (e.g. Group, chunk, jig) 
-                
+                (e.g. Group, chunk, jig)
+
         @note: Uses: Used in mirror operation.
         """
-        #NOTE: This uses most of the code in copy_sel. 
-        
-        # 1. what objects is user asking to copy?        
+        #NOTE: This uses most of the code in copy_sel.
+
+        # 1. what objects is user asking to copy?
         part = self
         sel = selection_from_part(part, use_selatoms = use_selatoms)
         # 2. prep this for copy by including other required objects, context, etc...
@@ -330,7 +330,7 @@ class ops_copy_Mixin:
             # (It might not be that simple -- at one point we needed to scan anything they were jig-connected to as well.
             #  Probably that's no longer true, but it needs to be checked before this is changed. [050526])
         self.w.win_update()
-        
+
         return copiedObject
 
     def part_for_save_selection(self):
@@ -372,7 +372,7 @@ class ops_copy_Mixin:
         if node is None:
             desc = "Can't save this selection." #e can this happen? needs better explanation. Does it happen for no sel?
             return None, noop, desc
-        # now we know we can save it; find or create part to save        
+        # now we know we can save it; find or create part to save
         if not copiedQ:
             # node is top of an existing Part, which we should save in its entirety. Its existing pov is fine.
             savepart = node.part
@@ -405,36 +405,36 @@ class ops_copy_Mixin:
 
     def paste(self, pastableNode, mousePosition = None):
         """
-        Paste the given item in the 3D workspace. 
-        
+        Paste the given item in the 3D workspace.
+
         A. Implementation notes for the single shot paste operation:
-           - The object (chunk or group) is pasted with a slight offset. 
+           - The object (chunk or group) is pasted with a slight offset.
              Example:
              Create a graphene sheet, select it , do Ctrl + C and then Ctrl + V.
-             The pasted object is offset to original one. 
-           - It deselects others, selects the pasted item and then does a zoom 
-             to selection so that the selected item is in the center of the 
+             The pasted object is offset to original one.
+           - It deselects others, selects the pasted item and then does a zoom
+             to selection so that the selected item is in the center of the
              screen.
-           - Bugs/ Unsupported feature: If you paste multiple copies of an 
-             object they are pasted at the same location. 
+           - Bugs/ Unsupported feature: If you paste multiple copies of an
+             object they are pasted at the same location.
              (i.e. the offset is constant)
-        
+
         B. Implemetation notes for 'Paste from clipboard' operation:
            - Enter L{PasteFromClipboard_Command}, select a pastable from the PM and then
-             double click inside the 3D workspace to paste that object. 
-             This function uses the mouse coordinates during double click for 
-             pasting.         
-            
+             double click inside the 3D workspace to paste that object.
+             This function uses the mouse coordinates during double click for
+             pasting.
+
         @param pastableNode: The item to be pasted in the 3D workspace
         @type  pastableNode: L{Node}
-        
-        @param mousePosition: These are the coordinates during mouse 
+
+        @param mousePosition: These are the coordinates during mouse
                               double click while in Paste Mode.
-                              If the node has a center it will be moved by the 
-                              moveOffset, which is L{[mousePosition} - 
-                              node.center. This parameter is not used if its a 
+                              If the node has a center it will be moved by the
+                              moveOffset, which is L{[mousePosition} -
+                              node.center. This parameter is not used if its a
                               single shot paste operation (Ctrl + V)
-        @type mousePosition:  Array containing the x, y, z position on the 
+        @type mousePosition:  Array containing the x, y, z position on the
                               screen, or None
         @see:L{self._pasteChunk}, L{self._pasteGroup}, L{self._pasteJig}
         @see:L{MWsemantics.editPaste}, L{MWsemantics.editPasteFromClipboard}
@@ -443,8 +443,8 @@ class ops_copy_Mixin:
         @rtype: tuple of (node or None, string)
         """
         ###REVIEW: this has not been reviewed for DNA data model. No time to fix for .rc1. [bruce 080414 late]
-        
-        pastable = pastableNode 
+
+        pastable = pastableNode
         pos = mousePosition
         moveOffset = V( 0, 0, 0)
         itemPasted = None
@@ -459,50 +459,50 @@ class ops_copy_Mixin:
         # "just work", copying them into a new location in the model tree.
         # And it ought to work for selected non-nodes like atoms, too, IMHO.
         # [bruce 071011 comment]
-        
+
         if isinstance(pastable, Chunk):
-            itemPasted, errorMsg = self._pasteChunk(pastable, pos)         
+            itemPasted, errorMsg = self._pasteChunk(pastable, pos)
         elif isinstance(pastable, Group):
             itemPasted, errorMsg = self._pasteGroup(pastable, pos)
         elif isinstance(pastable, Jig):
-            #NOTE: it never gets in here because an independent jig on the 
-            #clipboard is not considered 'pastable' . This needs to change 
-            # so that Planes etc , which are internally 'jigs' can be pasted 
+            #NOTE: it never gets in here because an independent jig on the
+            #clipboard is not considered 'pastable' . This needs to change
+            # so that Planes etc , which are internally 'jigs' can be pasted
             # when they exist as a single node -- ninad 2007-08-31
             itemPasted, errorMsg = self._pasteJig(pastable, pos)
         else:
             errorMsg = redmsg("Internal error pasting clipboard item [%s]") % \
                 pastable.name
-        
-        
+
+
         if pos is None:
             self.assy.unpickall_in_GLPane()
             itemPasted.pick()
-            #Do not "zoom to selection" (based on a discussion with Russ) as 
+            #Do not "zoom to selection" (based on a discussion with Russ) as
             #its confusing -- ninad 2008-06-06 (just before v1.1.0 code freeze)
             ##self.assy.o.setViewZoomToSelection(fast = True)
-        
+
         self.assy.w.win_update()
-        
+
         if errorMsg:
             msg = errorMsg
         else:
             msg = greenmsg("Pasted copy of clipboard item: [%s] ") % \
                 pastable.name
-            
+
         env.history.message(msg)
-        
+
         return itemPasted, "copy of %r" % pastable.name
-            
+
     def _pasteChunk(self, chunkToPaste, mousePosition = None):
         """
-        Paste the given chunk in the 3D workspace. 
+        Paste the given chunk in the 3D workspace.
         @param chunkToPaste: The chunk to be pasted in the 3D workspace
         @type  chunkToPaste: L{Chunk}
-        
-        @param mousePosition: These are the coordinates during mouse double 
-                              click. 
-        @type mousePosition:  Array containing the x, y, z position on the 
+
+        @param mousePosition: These are the coordinates during mouse double
+                              click.
+        @type mousePosition:  Array containing the x, y, z position on the
                               screen, or None
         @see: L{self.paste} for implementation notes.
 
@@ -510,17 +510,17 @@ class ops_copy_Mixin:
         @rtype: tuple of (node or None, string)
         """
         assert isinstance(chunkToPaste, Chunk)
-        
+
         pastable = chunkToPaste
-        pos = mousePosition     
+        pos = mousePosition
         newChunk = None
         errorMsg = None
         moveOffset = V(0, 0, 0)
-        
+
         newChunk = pastable.copy_single_chunk(None)
         chunkCenter  = newChunk.center
-        
-        
+
+
         #@see: self._getInitialPasteOffsetForPastableNodes()
         original_copied_nodes = [chunkToPaste]
         if chunkToPaste:
@@ -529,8 +529,8 @@ class ops_copy_Mixin:
         else:
             initial_offset_for_chunks = V(0, 0, 0)
             initial_offset_for_other_pastables = V(0, 0, 0)
-            
-        
+
+
         if pos:
             #Paste from clipboard (by Double clicking)
             moveOffset = pos - chunkCenter
@@ -540,29 +540,29 @@ class ops_copy_Mixin:
             boundingBox.merge(newChunk.bbox)
             scale = float(boundingBox.scale() * 0.06)
             if scale < 0.001:
-                scale = 0.1                 
-            moveOffset = scale * self.assy.o.right 
+                scale = 0.1
+            moveOffset = scale * self.assy.o.right
             moveOffset += scale * self.assy.o.down
             moveOffset += initial_offset_for_chunks
-                
-        #@see: self._getInitialPasteOffsetForPastableNodes()   
+
+        #@see: self._getInitialPasteOffsetForPastableNodes()
         self._initial_paste_offset_for_chunks = moveOffset
-            
-        newChunk.move(moveOffset)       
+
+        newChunk.move(moveOffset)
         self.assy.addmol(newChunk)
-        
+
         return newChunk, errorMsg
-        
+
     def _pasteGroup(self, groupToPaste, mousePosition = None):
         """
         Paste the given group (and all its members) in the 3D workspace.
-        
+
         @param groupToPaste: The group to be pasted in the 3D workspace
         @type  groupToPaste: L{Group}
-        
-        @param mousePosition: These are the coordinates during mouse 
-                              double click. 
-        @type mousePosition:  Array containing the x, y, z 
+
+        @param mousePosition: These are the coordinates during mouse
+                              double click.
+        @type mousePosition:  Array containing the x, y, z
                               position on the screen, or None
         @see: L{self.paste} for implementation notes.
         @see: self. _getInitialPasteOffsetForPastableNodes()
@@ -570,38 +570,38 @@ class ops_copy_Mixin:
         @return: (itemPasted, errorMsg)
         @rtype: tuple of (node or None, string)
         """
-        #@TODO: REFACTOR and REVIEW this. 
+        #@TODO: REFACTOR and REVIEW this.
         #Many changes made just before v1.1.0 codefreeze for a new must have
         #bug fix -- Ninad 2008-06-06
-        
+
         #Note about new implementation as of 2008-06-06:
-        #When pasting a selection which may contain various groups as 
+        #When pasting a selection which may contain various groups as
         #well as independent chunks, this method does the following --
-        #a) checks if the items to be pasted have at least one Dna object 
+        #a) checks if the items to be pasted have at least one Dna object
         #   such as a DnaGroup or DnaStrandOrSegment or a DnaStrandOrAxisChunk
-        #If it finds the above, the scale for computing the move offset 
-        #for pasting all the selection is the one for pasting dna objects 
-        #(see scale_when_dna_in_newNodeList). 
+        #If it finds the above, the scale for computing the move offset
+        #for pasting all the selection is the one for pasting dna objects
+        #(see scale_when_dna_in_newNodeList).
         #- If there are no dna objects AND all pastable items are pure chunks
         # then uses a scale computed using bounding box of the chunks.. if thats
-        #too low, then uses 'scale_when_dna_in_newNodeList' 
-        #for all non 'pure chunk' pastable items, it always uses 
+        #too low, then uses 'scale_when_dna_in_newNodeList'
+        #for all non 'pure chunk' pastable items, it always uses
         #'scale_when_dna_in_newNodeList'. soon, these scale values will become a
         #user preference. -- Ninad 2008-06-06
-        
+
         assert isinstance(groupToPaste, Group)
-        
+
         pastable = groupToPaste
-        pos = mousePosition     
+        pos = mousePosition
         newGroup = None
         errorMsg = None
         moveOffset = V(0, 0, 0)
-        
+
         assy = self.assy
 
         nodes = list(pastable.members) # used in several places below ### TODO: rename
 
-        newstuff = copied_nodes_for_DND( [pastable], 
+        newstuff = copied_nodes_for_DND( [pastable],
                                          autogroup_at_top = True, ###k
                                          assy = assy )
         if len(newstuff) == 1:
@@ -621,8 +621,8 @@ class ops_copy_Mixin:
                 # (Yes, to fix bug 2919; or better, just copy the whole node
                 #  using the copy function now used on its members
                 #  [bruce 080717 reply]. This is now attempted above.)
-            newNodeList = copied_nodes_for_DND( nodes, 
-                                                autogroup_at_top = False, 
+            newNodeList = copied_nodes_for_DND( nodes,
+                                                autogroup_at_top = False,
                                                 assy = assy )
             if not newNodeList:
                 errorMsg = orangemsg("Clipboard item is probably an empty group. "\
@@ -634,34 +634,34 @@ class ops_copy_Mixin:
                     # i.e. the message is wrong. [bruce 080717 guess]
                 return newGroup, errorMsg
             pass
-                
+
         # note: at this point, if use_new_code is false,
         # newGroup is still empty (newNodeList not yet added to it);
         # in that case they are added just before returning.
-        
+
         selection_has_dna_objects = self._pasteGroup_nodeList_contains_Dna_objects(newNodeList)
-        
+
         scale_when_dna_in_newNodeList =  env.prefs[pasteOffsetScaleFactorForDnaObjects_prefs_key]
-        scale_when_no_dna_in_newNodeList = env.prefs[pasteOffsetScaleFactorForChunks_prefs_key]  
-        
+        scale_when_no_dna_in_newNodeList = env.prefs[pasteOffsetScaleFactorForChunks_prefs_key]
+
         def filterChunks(node):
             """
-            Returns True if the given node is a chunk AND its NOT a DnaStrand 
-            chunk or DnaAxis chunk. Otherwise returns False. 
+            Returns True if the given node is a chunk AND its NOT a DnaStrand
+            chunk or DnaAxis chunk. Otherwise returns False.
             See also sub-'def filterOtherPastables', which does exactly opposite
-            It filters out pastables that are not 'pure chunks' 
+            It filters out pastables that are not 'pure chunks'
             """
             if isinstance(node, self.assy.Chunk):
                 if not node.isAxisChunk() or node.isStrandChunk():
                     return True
             return False
-        
+
         def filterOtherPastables(node):
             """
-            Returns FALSE if the given node is a chunk AND its NOT a DnaStrand 
+            Returns FALSE if the given node is a chunk AND its NOT a DnaStrand
             chunk or DnaAxis chunk. Otherwise returns TRUE. (does exactly opposite
             of def filterChunks
-            @see: sub method filterChunks. 
+            @see: sub method filterChunks.
             _getInitialPasteOffsetForPastableNodesc
             """
             if isinstance(node, self.assy.Chunk):
@@ -671,88 +671,88 @@ class ops_copy_Mixin:
 
         chunkList = []
         other_pastable_items = []
-        
-        chunkList = filter(lambda newNode: filterChunks(newNode), newNodeList)    
-        
+
+        chunkList = filter(lambda newNode: filterChunks(newNode), newNodeList)
+
         if len(chunkList) < len(newNodeList):
-            other_pastable_items = filter(lambda newNode: 
-                                          filterOtherPastables(newNode), 
-                                          newNodeList) 
-        
+            other_pastable_items = filter(lambda newNode:
+                                          filterOtherPastables(newNode),
+                                          newNodeList)
+
         #@see: self._getInitialPasteOffsetForPastableNodes()
-        original_copied_nodes = nodes 
+        original_copied_nodes = nodes
         if nodes:
             initial_offset_for_chunks, initial_offset_for_other_pastables = \
                                      self._getInitialPasteOffsetForPastableNodes(original_copied_nodes)
         else:
             initial_offset_for_chunks = V(0, 0, 0)
             initial_offset_for_other_pastables = V(0, 0, 0)
-        
+
         if chunkList:
             boundingBox = BBox()
             for m in chunkList:
-                boundingBox.merge(m.bbox)           
-            approxCenter = boundingBox.center() 
+                boundingBox.merge(m.bbox)
+            approxCenter = boundingBox.center()
             if selection_has_dna_objects:
                 scale = scale_when_dna_in_newNodeList
             else:
                 #scale that determines moveOffset
-                scale = float(boundingBox.scale() * 0.06)   
+                scale = float(boundingBox.scale() * 0.06)
                 if scale < 0.001:
                     scale = scale_when_no_dna_in_newNodeList
-                    
+
             if pos:
                 moveOffset = pos - approxCenter
-            else:                       
-                moveOffset  = scale * self.assy.o.right 
-                moveOffset += scale * self.assy.o.down 
+            else:
+                moveOffset  = scale * self.assy.o.right
+                moveOffset += scale * self.assy.o.down
                 moveOffset += initial_offset_for_chunks
-                
-            #@see: self._getInitialPasteOffsetForPastableNodes()   
+
+            #@see: self._getInitialPasteOffsetForPastableNodes()
             self._initial_paste_offset_for_chunks = moveOffset
             #Move the chunks (these will be later added to the newGroup)
             for m in chunkList:
                 m.move(moveOffset)
-        
+
         if other_pastable_items:
             approxCenter = V(0.01, 0.01, 0.01)
-            scale = scale_when_dna_in_newNodeList       
+            scale = scale_when_dna_in_newNodeList
             if pos:
                 moveOffset = pos - approxCenter
-            else:  
-                moveOffset = initial_offset_for_other_pastables                 
-                moveOffset += scale * self.assy.o.right 
-                moveOffset += scale * self.assy.o.down 
-            
+            else:
+                moveOffset = initial_offset_for_other_pastables
+                moveOffset += scale * self.assy.o.right
+                moveOffset += scale * self.assy.o.down
+
             #@see: self._getInitialPasteOffsetForPastableNodes()
-            self._initial_paste_offset_for_other_pastables = moveOffset 
-            
-            
+            self._initial_paste_offset_for_other_pastables = moveOffset
+
+
             for m in other_pastable_items:
                 m.move(moveOffset)
             pass
-                
+
         #Now add all the nodes in the newNodeList to the Group, if needed
         if not use_new_code:
             for newNode in newNodeList:
                 newGroup.addmember(newNode)
-                    
+
         assy.addnode(newGroup)
             # review: is this the best place to add it?
             # probably there is no other choice, since it comes from the clipboard
             # (unless we introduce a "model tree cursor" or "current group").
             # [bruce 080717 comment]
-        
+
         return newGroup, errorMsg
-    
+
     #Determine if the selection
     def _pasteGroup_nodeList_contains_Dna_objects(self, nodeList): # by Ninad
         """
         Private method, that tells if the given list has at least one dna object
-        in it. e.g. a dnagroup or DnaSegment etc. 
-        Used in self._pasteGroup as of 2008-06-06. 
-        
-        @TODO: May even be moved to a general utility class 
+        in it. e.g. a dnagroup or DnaSegment etc.
+        Used in self._pasteGroup as of 2008-06-06.
+
+        @TODO: May even be moved to a general utility class
         in dna pkg. (but needs self.assy for isinstance checks)
         """
         # BUG: doesn't look inside Groups. Ignorable,
@@ -766,59 +766,59 @@ class ops_copy_Mixin:
                 if node.isStrandChunk() or node.isAxisChunk():
                     return True
         return False
-    
+
     def _getInitialPasteOffsetForPastableNodes(self, original_copied_nodes): # by Ninad
         """
         @see: self._pasteGroup(), self._pasteChunk()
         What it supports:
-        1. User selects some objects 
+        1. User selects some objects
         2. Hits Ctrl + C
         3. Hits Ctrl + V
           - first ctrl V  pastes object at an offset, (doesn't recenter the view)
             to the original one
           - 2nd paste offsets it further and like that....
-          
+
         This fixes bug 2890
         """
-        #@TODO: Review this method. It was added just before v1.1.0 to fix a 
+        #@TODO: Review this method. It was added just before v1.1.0 to fix a
         #copy-paste-pasteagain-pasteagain bug -- Ninad 2008-06-06
-        
+
         if same_vals(original_copied_nodes, self._previously_pasted_node_list):
-            initial_offset_for_chunks = self._initial_paste_offset_for_chunks 
-            initial_offset_for_other_pastables = self._initial_paste_offset_for_other_pastables 
+            initial_offset_for_chunks = self._initial_paste_offset_for_chunks
+            initial_offset_for_other_pastables = self._initial_paste_offset_for_other_pastables
         else:
             initial_offset_for_chunks = V(0, 0, 0)
             initial_offset_for_other_pastables = V(0, 0, 0)
-            
-        self._previously_pasted_node_list = original_copied_nodes    
-        
+
+        self._previously_pasted_node_list = original_copied_nodes
+
         return initial_offset_for_chunks, initial_offset_for_other_pastables
-            
-    
+
+
     def _pasteJig(self, jigToPaste, mousePosition = None):
         """
-        Paste the given Jig in the 3D workspace. 
+        Paste the given Jig in the 3D workspace.
         @param jigToPaste: The chunk to be pasted in the 3D workspace
         @type  jigToPaste: L{Jig}
-        
-        @param mousePosition: These are the coordinates during mouse double 
-                              click. 
-        @type mousePosition:  Array containing the x, y, z position on the 
+
+        @param mousePosition: These are the coordinates during mouse double
+                              click.
+        @type mousePosition:  Array containing the x, y, z position on the
                               screen, or None
         @see: L{self.paste} for implementation notes.
 
         @return: (itemPasted, errorMsg)
         @rtype: tuple of (node or None, string)
         """
-        
+
         assert isinstance(jigToPaste, Jig)
-        
+
         pastable = jigToPaste
-        pos = mousePosition     
+        pos = mousePosition
         errorMsg = None
         moveOffset = V(0, 0, 0)
-        
-        ## newJig = pastable.copy(None) # BUG: never works (see comment below); 
+
+        ## newJig = pastable.copy(None) # BUG: never works (see comment below);
         # inlining it so I can remove that method from Node: [bruce 090113]
         pastable.redmsg("This cannot yet be copied")
         newJig = None # will cause bugs below
@@ -829,18 +829,18 @@ class ops_copy_Mixin:
             # Or perhaps a new implem of Node.copy which uses the existing
             # general copy code properly (if pastables are always single nodes).
             # [bruce 080314 comment]
-        
+
         jigCenter  = newJig.center
-        
+
         if pos:
             moveOffset = pos - jigCenter
         else:
-            moveOffset = 0.2 * self.assy.o.right 
-            moveOffset += 0.2 * self.assy.o.down         
-            
-        newJig.move(moveOffset) 
+            moveOffset = 0.2 * self.assy.o.right
+            moveOffset += 0.2 * self.assy.o.down
+
+        newJig.move(moveOffset)
         self.assy.addnode(newJig)
-        
+
         return newJig, errorMsg
 
     def kill(self):
@@ -855,15 +855,15 @@ class ops_copy_Mixin:
         [except the top node, if we're an immortal Part]
         """
         ###REVIEW: this may not yet work properly for DNA. No time to review or fix for .rc1. [bruce 080414 late]
-        
+
         #bruce 050419 renamed this from kill, to distinguish it
         # from standard meaning of obj.kill() == kill that obj
         #bruce 050201 for Alpha: revised this to fix bug 370
         ## "delete whatever is selected from this assembly " #e use this in the assy version of this method, if we need one
-        
+
         cmd = greenmsg("Delete: ")
         info = ""
-            
+
         ###@@@ #e this also needs a results-message, below.
         if use_selatoms and self.selatoms:
             self.changed()
@@ -879,9 +879,9 @@ class ops_copy_Mixin:
             for a in self.selatoms.values(): # the above can be itervalues, but this can't be!
                 a.kill()
             self.selatoms = {} # should be redundant
-            
+
             info = fix_plurals( "Deleted %d atom(s)" % nsa)
-        
+
         ## bruce 050201 removed the condition "self.selwhat == 2 or self.selmols"
         # (previously used to decide whether to kill all picked nodes in self.topnode)
         # since selected jigs no longer force selwhat to be 2.
@@ -904,9 +904,9 @@ class ops_copy_Mixin:
             self.topnode.apply2picked(lambda o: o.kill())
         self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the Atom and Chunk kill methods, and add/remove methods
         #bruce 050427 moved win_update into delete_sel as part of fixing bug 566
-        
+
         env.history.message( cmd + info) # Mark 050715
-        
+
         self.w.win_update()
         return
 
@@ -929,7 +929,7 @@ def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None, _sort = 
     MT order (native order within their Part's topnode) to determine the order
     of the returned list of copied nodes. If the input order matters, use
     copy_nodes_in_order instead.
-    
+
     @note: _sort is a private option for use by copy_nodes_in_order.
 
     @note: this method is used for several kinds of copying, not only for DND.
@@ -1000,7 +1000,7 @@ def copy_nodes_in_order(nodes, assy = None): #bruce 070525
         copies = []
     assert len(copies) == len(nodes) # should be true even if some nodes were not copyable
     return copies
-    
+
 # ==
 
 class Copier: #bruce 050523-050526; might need revision for merging with DND copy
@@ -1042,7 +1042,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         # - if more than topnode is being copied, make a wrapping group around
         #   everything that gets copied (this is not really a copy of the PartGroup, e.g. its name is unrelated).
         # - perhaps modify the name of the top node copied (or of the wrapping group) to say it's a copy.
-        # Algorithm: 
+        # Algorithm:
         # we'll make dicts of leafnodes to partly copy, but save most of the work
         # (including all decisions about groups) for a scan during the actual copy.
         fullcopy = self.fullcopy = {}
@@ -1106,7 +1106,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             #  but whether it's 0 is right, which is all that matters. But I have not reviewed
             #  whether the code related to how it's used is fully correct. bruce 060627 comment]
         return # from prep_for_copy_to_shelf
-    
+
     # the following methods should be called only after some operation has been prepped for
     # (and usually before it's been done, but that's not required)
     def ok(self):
@@ -1127,7 +1127,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         Return a list of nodes, or None
         """
         return self.copy_as_list( make_partial_groups = False)
-        
+
     def copy_as_node_for_shelf(self):
         """
         Create and return a new single node (not yet placed in any Group)
@@ -1170,7 +1170,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
     def copy_as_list(self, make_partial_groups = True):
         """
         [private helper method, used in the above copy_as_xxx methods]
-        
+
         Create and return a list of one or more new nodes (not yet placed in any Group)
         which is a copy of our selected objects
         (with all ordering in the copy coming from the model tree order of the originals),
@@ -1267,7 +1267,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         if DEBUG_COPY and res:
             print "debug copy: discarding the outer Group wrapper of: %r" % group
         return res
-    
+
     def _non_dissolveable_group(self, group): #bruce 080414
         """
         id(group) is in self.tentative_new_groups, and if it's an ordinary
@@ -1277,9 +1277,9 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         Return True if this is one of the special kinds that doesn't want that.
         """
         DnaStrandOrSegment = self.assy.DnaStrandOrSegment
-        DnaGroup = self.assy.DnaGroup        
+        DnaGroup = self.assy.DnaGroup
         return isinstance(group, DnaGroup) or isinstance(group, DnaStrandOrSegment)
-    
+
     def autogroup_if_several(self, newstuff): #bruce 050527
         #e should probably refile this into self.assy or so,
         # or even into Node or Group (for target node which asks for the grouping to do),
@@ -1305,7 +1305,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 # perhaps using our internal record of whether they were tentative).
             newstuff = [res]
         return newstuff
-        
+
     def wrap_or_rename(self, newstuff):
         # wrap or rename result
         if len(newstuff) > 1: #revised 050527
@@ -1336,12 +1336,12 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
 
         ##e this is where we'd like to recenter the view (rather than the object, as the old code did for single chunks),
         # but I'm not sure exactly how, so I'll save this for later. ###@@@
-        
+
         return res
-        
+
         ##e ideally we'd implem atoms & bonds differently than now, and copy using Numeric, but not for now.
-        
-    def recurse(self, orig): #e rename 
+
+    def recurse(self, orig): #e rename
         """
         copy whatever is needed from orig and below, but don't fix refs
         immediately; append new copies to self.newstuff.
@@ -1397,7 +1397,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 # if self.make_partial_groups, this means: if anything in orig was copied.
                 # otherwise, this means: always false (don't run this code).
                 # [bruce 080414 comment]
-                
+
                 # we'll make some sort of Group from newstuff, as a partial copy of orig
                 # (note that orig is a group which was not selected, so is only needed
                 #  to hold copies of selected things inside it, perhaps at lower levels
@@ -1474,7 +1474,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         Warning: it is run before [###doc -- before what?].
         """
         self.do_these_at_end.append(func)
-    
+
     pass # end of class Copier
 
 # end

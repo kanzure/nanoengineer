@@ -1,9 +1,9 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLPane_minimal.py -- common superclass for GLPane-like widgets.
 
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -125,7 +125,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
     #  to help with this the mixin provides methods
     #  _call_func_that_draws_model and
     #  _call_func_that_draws_objects)
-    
+
     # note: every subclass defines .assy as an instance variable or property
     # (as of bruce 080220), but we can't define a default value or property
     # for that here, since some subclasses define it in each way
@@ -135,7 +135,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
 
     SIZE_FOR_glSelectBuffer = 10000
         # guess, probably overkill, seems to work, no other value was tried
-    
+
     # default values of instance variables:
 
     shareWidget = None
@@ -170,7 +170,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
     def __init__(self, parent, shareWidget, useStencilBuffer):
         """
         #doc
-        
+
         @note: If shareWidget is specified, useStencilBuffer is ignored:
                set it in the widget you're sharing with.
         """
@@ -194,7 +194,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
                 # use full scene anti-aliasing on hardware that supports it
                 # (note: setting this True works around bug 2961 on some systems)
                 glformat.setSampleBuffers(True)
-            
+
             QGLWidget.__init__(self, glformat, parent)
             pass
 
@@ -204,7 +204,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
             # I'm doing yesterday and today means this would work fine,
             # or at least it does most of what would be required for that.
             # [bruce 090304]
-        
+
         self._initialize_view_attributes()
 
         # Initial value of depth "constant" (changeable by prefs.)
@@ -215,9 +215,9 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         self._functions_to_call_when_gl_context_is_current = []
 
         # piotr 080714: Defined this attribute here in case
-        # chunk.py accesses it in ThumbView. 
+        # chunk.py accesses it in ThumbView.
         self.lastNonReducedDisplayMode = default_display_mode
-        
+
         # piotr 080807
         # Most recent quaternion to be used in animation timer.
         self.last_quat = None
@@ -232,7 +232,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
             # change between the time pushed and the time later used
             # (by something that collects them from here in association
             #  with a ColorSortedDisplayList).
-        
+
         return
 
     def _initialize_view_attributes(self): #bruce 090220 split this out
@@ -250,7 +250,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
 
         # half-height of window in Angstroms (reset by certain view-changing operations)
         self.scale = float(env.prefs[startup_GLPane_scale_prefs_key])
-        
+
         # zoom factor
         self.zoomFactor = 1.0
             # Note: I believe (both now, and in a comment dated 060829 which is
@@ -262,7 +262,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
             # consider removing it, unless we think it might be useful for
             # something in the future. [bruce 080910 comment]
         return
-    
+
     # define properties which return model-space vectors
     # corresponding to various directions relative to the screen
     # (can be used during drawing or when handling mouse events)
@@ -289,7 +289,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
     def __out(self, _q = V(0, 0, 1)):
         return self.quat.unrot(_q)
     out = property(__out)
-    
+
     def __lineOfSight(self, _q = V(0, 0, -1)):
         return self.quat.unrot(_q)
     lineOfSight = property(__lineOfSight)
@@ -305,7 +305,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         #Ninad 2008-04-17: This method was added AFTER rattlesnake rc2.
         #bruce 080912 bugfix: don't give theta the wrong sign when
         # dot(vec, self.up) < 0 and dot(vec, self.right) == 0.
-        vec = norm(vec)        
+        vec = norm(vec)
         theta = angleBetween(vec, self.right)
         if dot(vec, self.up) < 0:
             theta = - theta
@@ -358,13 +358,13 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         """
         #bruce 080912 merged this from subclass methods, guessed docstring
         self._setup_lighting()
-        
+
         glShadeModel(GL_SMOOTH)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_CULL_FACE)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        
+
         if not self.isSharing():
             self._setup_display_lists()
         return
@@ -376,7 +376,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         #bruce 080912 moved this from GLPane into GLPane_minimal
 
         self._resize_counter += 1 #bruce 080922
-        
+
         self.width = width
         self.height = height
 
@@ -391,26 +391,26 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
         if height < 300:
             height = 300
         self.trackball.rescale(width, height)
-        
+
         self.initialised = True
-        
+
         return
 
     def __get_aspect(self):
         #bruce 080912 made this a property, moved to this class
         return (self.width + 0.0) / (self.height + 0.0)
-    
+
     aspect = property(__get_aspect)
-    
+
     def _setup_projection(self, glselect = False):
         ### WARNING: This is not actually private! TODO: rename it.
         """
         Set up standard projection matrix contents using various attributes of
         self (aspect, vdist, scale, zoomFactor).  Also reads the current OpenGL
         viewport bounds in window coordinates.
-        
+
         (Warning: leaves matrixmode as GL_PROJECTION.)
-        
+
         @param glselect: False (default) normally, or a 4-tuple
                (format not documented here) to prepare for GL_SELECT picking by
                calling gluPickMatrix().
@@ -499,12 +499,12 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
             # (cov == - pov) to origin of coordinate system for drawing.
             # We translate by -cov to bring model.cov to origin.
         return
-    
+
     def _setup_lighting(self):
         # note: in subclass GLPane, as of 080911 this is defined in
         # its mixin superclass GLPane_lighting_methods
         assert 0, "subclass must override this"
-        
+
     def _setup_display_lists(self): # bruce 071030
         """
         This needs to be called during __init__ if a new display list context
@@ -545,7 +545,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
 
     def is_lozenge_visible(self, pos1, pos2, radius): # piotr 080402
         """
-        Frustum culling test for lozenge-shaped objects. Subclasses should 
+        Frustum culling test for lozenge-shaped objects. Subclasses should
         override it to disable drawing objects outside of the view frustum.
         """
         return True
@@ -645,7 +645,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
     def setDepthRange_Highlighting(self):
         glDepthRange(0.0, 1.0 - self.DEPTH_TWEAK)
         return
-    
+
     # ==
 
     # REVIEW:
@@ -655,7 +655,7 @@ class GLPane_minimal(QGLWidget, GLPane_drawingset_methods, object): #bruce 07091
     # subclassses even if it doesn't animate. Ultimately it might be better
     # to refactor them a lot and/or move them out of this class hierarchy
     # entirely. [bruce 080912 comment]
-    
+
     def current_view_for_Undo(self, assy): #e shares code with saveNamedView
         """
         Return the current view in this glpane (which we assume is showing

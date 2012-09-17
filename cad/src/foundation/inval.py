@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 inval.py -- simple invalidation/update system for attributes within an object
 
@@ -60,7 +60,7 @@ class inval_map:
     """
     def __init__(self):
         self.affected_by = {} # a public attribute
-        
+
     def record_output_depends_on_inputs(self, output, inputs):
         """
         Record the fact that output (an attr name)
@@ -78,7 +78,7 @@ class inval_map:
             if not output in lis:
                 lis.append(output)
         return
-    
+
     pass # end of class inval_map
 
 # ==
@@ -127,7 +127,7 @@ class InvalMixin:
     attributes and methods in the main class whose names
     start with prefixes _inputs_for_, _get_, _recompute_.
     """
-    
+
     # Recomputation methods. Certain attributes, whose values should always
     # equal the result of formulas which depend on other attributes (of the
     # same or different objects), are not always explicitly defined,
@@ -137,7 +137,7 @@ class InvalMixin:
     # "invalidation methods" defined elsewhere).
     # [Sometime I should write a separate documentation file containing a
     #  more complete explanation. #e]
-    # 
+    #
     # The recomputation method _recompute_xxx should compute the currently
     # correct value for the attribute self.xxx, and either return it, or store
     # it in self.xxx (and return None), as it prefers. (If the correct value
@@ -197,10 +197,10 @@ class InvalMixin:
 ##            debug_counter = 38653
 ##            print_compact_stack("a random non-_xxx call of this, for %r of %r: " % (attr, self))
         return getattr_helper(self, attr)
-    
+
     # invalidation methods for client objects to call manually
     # and/or for us to call automatically:
-    
+
     def validate_attr(self, attr):
         # in the initial implem, just storing the attr's value is sufficient.
         # let's just make sure it was in fact stored.
@@ -210,7 +210,7 @@ class InvalMixin:
 
     def validate_attrs(self, attrs):
         map( self.validate_attr, attrs)
-        
+
     def invalidate_attrs(self, attrs, **kws):
         """
         invalidate each attribute named in the given list of attribute names
@@ -220,7 +220,7 @@ class InvalMixin:
             map( self.invalidate_attr, attrs)
         else:
             map( lambda attr: self.invalidate_attr(attr, **kws), attrs)
-        
+
     def invalidate_attr(self, attr, skip = ()):
         """
         Invalidate the attribute with the given name.
@@ -240,7 +240,7 @@ class InvalMixin:
         # it was not already invalid; we have to invalidate its dependents too
         self.changed_attr(attr, skip = skip)
         return
-        
+
     def changed_attr(self, attr, **kws):
         for dep in self.__imap[attr]:
             self.invalidate_attr(dep, **kws)
@@ -253,7 +253,7 @@ class InvalMixin:
         but when invalidating each one's dependees, we'll
         skip inval of *all* the attrs you say you directly changed,
         since we presume you changed them all to correct values.
-        
+
         For example, if a affects b, b affects c, and you tell us you
         changed a and b, we'll end up invalling c but not b.
         Thus, this is not the same as calling changed_attr on each one --
@@ -264,7 +264,7 @@ class InvalMixin:
             self.changed_attr( attr, skip = attrs )
 
     # init method:
-    
+
     def init_InvalMixin(self): # used to be called 'init_invalidation_map'
         """
         call this in __init__ of each instance of each client class
@@ -278,21 +278,21 @@ class InvalMixin:
             invalmap_per_class[key] = imap
         self.__imap = imap.affected_by
         return
-    
+
     # debug methods (invalidatable_attrs is also used by some Undo update methods (not just for debugging) as of 060224)
 
     def invalidatable_attrs(self):
         res = self.__imap.keys()
         res.sort() #bruce 060224
         return res
-    
+
     def invalidatableQ(self, attr):
         return attr in self.__imap #bruce 060224 revised this
-        
+
     def invalidQ(self, attr):
         assert self.invalidatableQ(attr)
         return not self.__dict__.has_key(attr)
-        
+
     def validQ(self, attr):
         assert self.invalidatableQ(attr)
         return self.__dict__.has_key(attr)
@@ -302,7 +302,7 @@ class InvalMixin:
 
     def valid_attrs(self):
         return filter( self.validQ, self.invalidatable_attrs() )
-    
+
     pass # end of class InvalMixin
 
 
@@ -345,7 +345,7 @@ def getattr_helper(self, attr):
             # (test is to see if get result depends on default value '1')
             # error: val was neither returned nor stored; always raise exception
             # (but store it ourselves to discourage recursion if exception ignored)
-            setattr(self, attr, val) 
+            setattr(self, attr, val)
             msg = "bug: _recompute_%s returned None, and did not store any value" % attr
             print msg
             assert val is not None, msg # not sure if this will be seen
@@ -359,15 +359,15 @@ def getattr_helper(self, attr):
 class testclass(InvalMixin):
     def __init__(self):
         self.init_InvalMixin()
-        
+
     _inputs_for_c = ['a','b']
     def _recompute_c(self):
         return self.a + self.b
-    
+
     _inputs_for_d = ['c']
     def _recompute_d(self):
         return 100 + self.c
-    
+
     _inputs_for_e = ['c']
     def _recompute_e(self):
         return 1000 + self.c

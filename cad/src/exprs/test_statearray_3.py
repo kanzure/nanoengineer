@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 test_statearray_3.py
 
@@ -49,7 +49,7 @@ from exprs.__Symbols__ import _self
 
 from exprs.DragBehavior_AlongLine import DragBehavior_AlongLine
 
-# == example 3 
+# == example 3
 
 # 070318: now that DraggablyBoxed resizer works, I'll revise example 2 in some related ways,
 # including using a saved_coordsys as in SimpleDragBehavior. This new example has the same intent
@@ -102,7 +102,7 @@ class test_StateArrayRefs_3( DelegatingInstanceOrExpr): # testexpr_35b, _35c
     def _height_dragger_for_index(self, index):
         stateref = StateArrayRefs_getitem_as_stateref( self.heights, index )
             #e change to self.heights.getitem_as_stateref(index)? self.heights._staterefs[index]?? self.heights[index]???
-        newindex = ('_height_dragger_3_for_index', index) 
+        newindex = ('_height_dragger_3_for_index', index)
         return self.Instance( _height_dragger_3( stateref, self.direction,
                                                  sbar_text = "%s (#%r)" % (self.msg, index,),
                                                  range = self.range

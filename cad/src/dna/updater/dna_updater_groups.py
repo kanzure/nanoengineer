@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_groups.py - enforce rules on chunks containing changed PAM atoms
 
@@ -58,7 +58,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
     # user operations, though. So it's probably better to process mmp files
     # in a separate step, after reading them and before (or after?) running
     # this updater. @@@
-    
+
     # Note:
     # - before we're called, markers have moved to the right place, died, been made,
     #   so that every wholechain has one controlling marker. But nothing has moved
@@ -88,7 +88,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
                        changes_ok = False,
                        debug_print_even_if_none = _DEBUG_GROUPS )
         # should not change atoms in the ways we track
-    
+
     # move chunks if needed
     for chunk in new_chunks:
         wholechain = chunk.wholechain # defined for DnaLadderRailChunks
@@ -115,7 +115,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
     # Clean up old_groups:
     #
     # [update 080331: comment needs revision, since Block has been deprecated]
-    # 
+    #
     # For any group we moved anything out of (or are about to delete something
     # from now), we assume it is either a DnaSegment or DnaStrand that we moved
     # a chunk or marker out of, or a Block that we delete all the contents of,
@@ -156,7 +156,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
                           for group in old_groups.itervalues() ]
     depth_group_pairs.sort()
     depth_group_pairs.reverse() # deepest first
-    
+
     for depth_junk, old_group in depth_group_pairs:
         if old_group.is_top_of_selection_group() or \
            old_group.is_higher_than_selection_group():
@@ -174,7 +174,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
     ignore_new_changes("from trimming groups we removed things from",
                        changes_ok = False,
                        debug_print_even_if_none = _DEBUG_GROUPS )
-    
+
     ignore_new_changes("as update_DNA_groups returns", changes_ok = False )
 
     return # from update_DNA_groups

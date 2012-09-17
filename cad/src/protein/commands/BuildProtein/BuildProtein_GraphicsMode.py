@@ -15,13 +15,13 @@ DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND = True
 _superclass = SelectChunks_GraphicsMode
 class BuildProtein_GraphicsMode(SelectChunks_GraphicsMode):
     """
-    Graphics mode for Build Protein command. 
+    Graphics mode for Build Protein command.
     """
-    
+
     def Enter_GraphicsMode(self):
         _superclass.Enter_GraphicsMode(self)
         return
-    
+
     def chunkLeftUp(self, aChunk, event):
         """
         Upon chunkLeftUp, it enters the protein edit command
@@ -53,7 +53,7 @@ class BuildProtein_GraphicsMode(SelectChunks_GraphicsMode):
                 if aChunk.isProteinChunk():
                     aChunk.protein.edit(self.win)
         return
-    
+
     def editObjectOnSingleClick(self):
         """
         Subclasses can override this method. If this method returns True,
@@ -64,5 +64,5 @@ class BuildProtein_GraphicsMode(SelectChunks_GraphicsMode):
         """
         if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:
             return True
-        
+
     pass

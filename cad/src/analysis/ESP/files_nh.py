@@ -1,10 +1,10 @@
-# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 files_nh.py
 
 @author; Mark
 @version: $Id$
-@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -27,34 +27,34 @@ def write_nh_simspec_file(sim_name, sim_parms, sims_to_run, results_to_save, out
     # 3. Results Plugin(s) Section
     # 4. Footer Section.
     # Mark 050915.
-    
+
     simspec_fname = get_nh_simspec_filename(sim_name)
     workflow_fname = get_nh_workflow_filename(sim_name)
     mmp_fname = get_nh_mmp_filename(sim_name)
-    
+
     f = open(simspec_fname,'w') # Open Nano-Hive Sim Spec file.
-    
+
     sp = sim_parms
-    
+
     write_nh_header(f, sp.desc, sp.iterations, sp.spf, sp.temp, workflow_fname, mmp_fname)
-    
+
     # Need to ask Brian about conditions for Bond record to be written.
-    if 0: 
+    if 0:
         write_nh_bond_calc_rec(f)
-    
+
     # Physical Interaction Plugins ########################################
-    
+
     if "MPQC_ESP" in sims_to_run:
         write_nh_mpqc_esp_plane_rec(f, sp.esp_image, output_dir)
-        
+
     if "MPQC_GD" in sims_to_run:
         write_nh_mpqc_gd_rec(f)
-            
+
     if "AIREBO" in sims_to_run:
         write_nh_airebo_rec(f)
 
     # Results Plugins ########################################
-    
+
     if "MEASUREMENTS_TO_FILE" in results_to_save:
         write_nh_measurements_to_file_results_rec(f, output_dir)
 
@@ -63,19 +63,19 @@ def write_nh_simspec_file(sim_name, sim_parms, sims_to_run, results_to_save, out
 
     if "NETCDF" in results_to_save:
         write_nh_netcdf_results_rec(f, output_dir)
-    
+
     # Footer ########################################
     write_nh_footer(f)
-    
+
     f.close()
-            
+
 def write_nh_workflow_file(sim_name):
     """
     Writes the Nano-Hive Workflow file, which is a TCL script used by Nano-Hive to
     run the simulation.  It describes the workflow of the simulation.
     """
     workflow_fname = get_nh_workflow_filename(sim_name)
-    
+
     f = open(workflow_fname,'w')
 
     f.write ('NH_Import $inFile\n\n')
@@ -83,22 +83,22 @@ def write_nh_workflow_file(sim_name):
     f.write ('NH_Calculate 0 $espImage $traverser\n')
     f.write ('NH_Intermediate 0 $simResult\n\n')
     f.write ('NH_Final $simResult\n')
-    
+
     f.close()
 
 
-    
+
 def write_nh_header(f, desc, iter, spf, temp, workflow_fname, mmp_fname):
     """
     Writes the Nano-Hive Sim specification file, which is an XML file that describes the
     simulation environment, plugin selection and plugin parameters.
     """
     nh_home = get_nh_home()
-    
+
     #print "files_nh.write_nh_header(): Nano-Hive Home:", nh_home
-    
+
     # Write SimSpec header ########################################
-    
+
     f.write ('<simulation>\n')
     f.write('  <description>%s</description>\n' % desc)
     f.write('\n')
@@ -109,10 +109,10 @@ def write_nh_header(f, desc, iter, spf, temp, workflow_fname, mmp_fname):
     f.write('\n')
     f.write('  <simulationFlow file="%s">\n' % workflow_fname)
     f.write('    <input name="inFile" type="nanorexMMP" file="%s" />\n' % mmp_fname)
-    
+
     # This traverser is for the local machine.
     f.write('    <traverser name="traverser" plugin="RC_Traverser" />\n')
-    
+
 def write_nh_footer(f):
 
     f.write('\n')
@@ -121,29 +121,29 @@ def write_nh_footer(f):
 
 def write_nh_bond_calc_rec(f):
     f.write('    <calculator name="bondCalculator" plugin="BondCalculator" />\n')
-    
+
 # == Physical Interaction Plug-ins ==========================
-    
+
 def write_nh_mpqc_esp_plane_rec(f, esp_image, output_dir):
-    
+
     nh_home = get_nh_home()
-    
+
     cpnt = esp_image.center * 1e-10
     centerPoint = (float(cpnt[0]), float(cpnt[1]), float(cpnt[2]))
     #print "ESP Image CenterPoint =", centerPoint
-        
+
     npnt = cpnt + (esp_image.planeNorm  * 1e-10)
-    
+
     # This is a temporary workaround until Brian fixes the normalPoint Y value issue (must be positive).
     # This forces ESP Images to be oriented in the X-Z plane until it is fixed.
     # Mark 050927.
     # normalPoint = (0.0, 0.0, 1.0) + cpnt
     normalPoint = (float(npnt[0]), float(npnt[1]), float(npnt[2])) # KEEP THIS!!!
     #print "ESP Image NormalPoint =", normalPoint
-        
+
     resolution = esp_image.resolution
     # print "ESP Image Resolution =", resolution
-        
+
     cutoffHeight = esp_image.image_offset * 1e-10
     #print "ESP Image cutoffHeight =", cutoffHeight
     cutoffWidth = esp_image.edge_offset * 1e-10
@@ -152,7 +152,7 @@ def write_nh_mpqc_esp_plane_rec(f, esp_image, output_dir):
     #print "ESP Image outputLength =", outputLength
 
     multi = esp_image.multiplicity
-    
+
     f.write('\n')
     f.write('    <calculator name="espImage" plugin="MPQC_SClib">\n')
     f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
@@ -181,7 +181,7 @@ def write_nh_mpqc_esp_plane_rec(f, esp_image, output_dir):
 def write_nh_mpqc_gd_rec(f):
 
     nh_home = get_nh_home()
-    
+
     f.write('\n')
     f.write('    <calculator name="qmDynamicsInteraction" plugin="MPQC_SClib">\n')
     f.write('      <parameter name="logDirectory" value="%s/log" />\n' % nh_home)
@@ -191,12 +191,12 @@ def write_nh_mpqc_gd_rec(f):
     f.write('      <parameter name="gradientDynamics" value="yes" />\n')
     f.write('      <parameter name="deltaTbyTau" value="1.0" />\n')
     f.write('    </calculator>\n')
-            
+
 
 def write_nh_mpqc_gd_rec(f):
-        
+
     nh_home = get_nh_home()
-    
+
     f.write('\n')
     f.write('    <calculator name="physicalInteraction" plugin="REBO_MBM">\n')
     f.write('      <parameter name="dataDirectory" value="%s/data/REBO_MBM" />\n' % nh_home)
@@ -205,7 +205,7 @@ def write_nh_mpqc_gd_rec(f):
 #== Results Plug-ins ==========================
 
 def write_nh_measurements_to_file_results_rec(f, output_dir):
-    
+
     f.write('\n')
     f.write('    <result name="MeasurementSetToFile" plugin="MeasurementSetToFile">\n')
     f.write('      <parameter name="outputInterval" value="1" />\n')
@@ -215,9 +215,9 @@ def write_nh_measurements_to_file_results_rec(f, output_dir):
     f.write('    </result>\n')
 
 def write_nh_povrayvideo_results_rec(f, output_dir, partname):
-    
+
     nh_home = get_nh_home()
-        
+
     # Need subdirectory for all the POV-Ray pov files.
     # Also need to add lighting, scene setup, background color, etc.
     f.write('\n')
@@ -236,7 +236,7 @@ def write_nh_povrayvideo_results_rec(f, output_dir, partname):
     f.write('    </result>\n')
 
 def write_nh_netcdf_results_rec(f, output_dir):
-    
+
     f.write('\n')
     f.write('    <result name="simResult" plugin="NetCDF_DataSet">\n')
     f.write('      <parameter name="outputInterval" value="1" />\n')

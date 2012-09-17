@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Chunk_mmp_methods.py -- Chunk mixin for methods related to mmp format
 (reading or writing)
@@ -15,7 +15,7 @@ Bruce 090123 split these methods out of class Chunk in chunk.py.
 (For prior svn history, see chunk.py -- this is too small
 to be worth dragging along all that history via svn copy.)
 
-TODO: 
+TODO:
 
 Someday, refactor into a separate chunk-mmp-handling object.
 
@@ -62,8 +62,8 @@ class Chunk_mmp_methods:
             # an mmp file)
             (hs_num,) = val.split()
             hs = interp.atom(hs_num)
-            self.set_hotspot(hs) 
-                # this assertfails if hotspot is invalid 
+            self.set_hotspot(hs)
+                # this assertfails if hotspot is invalid
                 # [review: does caller handle that?]
         elif key == ['color']: #bruce 050505
             # val should be 3 decimal ints from 0-255;
@@ -103,7 +103,7 @@ class Chunk_mmp_methods:
         @type mapping: an instance of class writemmp_mapping, or None.
 
         [subclasses can override this, as described above]
-    
+
         @note: this method is also used for non-mmp (but file-format- related)
         uses, but is still here in the mmp-specific mixin class because it has
         an mmp-related argument and is overridden by the mmp code of a

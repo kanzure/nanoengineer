@@ -1,4 +1,4 @@
-# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 test_commands.py -- try out using mode classes as command classes for a command stack;
  find out the minimal needs for a command with PM (and improve them);
@@ -36,7 +36,7 @@ When cleaning up PropMgrBaseClass etc, note some other things Mark wants to work
 
 - port more modes over to PropMgrBaseClass, e.g. extrudeMode
 
-- split some PMs/modes into more than one smaller PM (especially MMKit). 
+- split some PMs/modes into more than one smaller PM (especially MMKit).
   Note: See PM_ElementSelector.py. Mark 2007-08-07.
 
 Fix problems with _Example_TemporaryCommand_useParentPM (commented where it's used)
@@ -117,7 +117,7 @@ _Example_TemporaryCommand_useParentPM = ExampleCommand
 class ExampleCommand1(ExampleCommand):
     """
     Example command, which uses behavior similar to SelectAtoms_Command
-    [but, _superclass is now revised...]. 
+    [but, _superclass is now revised...].
     [Which inherits class Command.]
     """
     commandName = 'ExampleCommand1-commandName' # internal #e fix init code in basicMode to get it from classname?
@@ -125,7 +125,7 @@ class ExampleCommand1(ExampleCommand):
     # note: init code in basicMode won't even run now, since superclass defs it i think --
     # actually, not sure abt that, probably it doesn't
     PM_class = ExampleCommand1_PM
-    
+
     # note: ok_btn_clicked, etc, must be defined in our PM class (elsewhere),
     # not in this class.
 
@@ -146,7 +146,7 @@ class ExampleCommand1(ExampleCommand):
 class PM_WidgetDemo(ExampleCommand):
     """
     Used to demo all the PM widgets.
-    
+
     @see: PM_WidgetsDemoPropertyManager in PM_WidgetsDemoPropertyManager.py.
     """
     # Note: this is no longer added to the UI. I don't know why it was removed.

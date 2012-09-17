@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 PM_Constants.py -- Property Manager constants.
 
@@ -11,7 +11,7 @@ History:
 mark 2007-07-22: Created initially for PM_Dialog as part of the code cleanup
                  and review for new coding standards. Renamed all constants
                  to names with uppercase letters.
-                 
+
 To do:
 - search and replace all lowercase constants with uppercase constants.
 """
@@ -23,7 +23,7 @@ from PyQt4.Qt import Qt
 __author__ = "Mark"
 
 # PropMgr constants (system specific).
-# Same as above, except these names meet our Python coding guildlines. 
+# Same as above, except these names meet our Python coding guildlines.
 # To do: search and replace all lowercase constants with uppercase constants.
 if sys.platform == "darwin":
     PM_MINIMUM_WIDTH = 300 # The min PropMgr width.

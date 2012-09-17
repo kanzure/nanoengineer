@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """This addresses bug 1167, where if the BROWSER environment variable
 is not set, nE-1 may not be able to find the web browser to do wiki
 help. Let's see if we can resolve that issue without putting \"export

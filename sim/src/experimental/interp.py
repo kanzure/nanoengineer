@@ -1,4 +1,4 @@
-# Copyright 2005 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005 Nanorex, Inc.  See LICENSE file for details.
 """Usage:
 
 Type 'python interp.py c' to generate C code.

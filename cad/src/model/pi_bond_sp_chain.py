@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 pi_bond_sp_chain.py -- geometric info for individual pi bonds, or chains
 of them connected by sp atoms.
@@ -205,7 +205,7 @@ class PiBondSpChain(PerceivedStructureType):
         """
         # there is no superclass method for this -- it's only called on bond.pi_bond_obj for our own bonds
         ###e it might be worth only invalidating if the bond type differs from what we last used when recomputing
-        self.have_geom = False        
+        self.have_geom = False
     def get_pi_info(self, bond, out = DFLT_OUT, up = DFLT_UP, abs_coords = False):
         if len(self.listb) == 1:
             if debug_flags.atom_debug:
@@ -233,7 +233,7 @@ class PiBondSpChain(PerceivedStructureType):
             assert bond.atom2 is self.lista[ind]
             bond_axis = - bond_axis
             biL_pvec, biR_pvec = biR_pvec, biL_pvec
-        return pi_info_from_abs_pvecs( bond, bond_axis, biL_pvec, biR_pvec, abs_coords = abs_coords) 
+        return pi_info_from_abs_pvecs( bond, bond_axis, biL_pvec, biR_pvec, abs_coords = abs_coords)
 
     def pvecs_i(self, i, abs_coords = False):
         """
@@ -277,13 +277,13 @@ class PiBondSpChain(PerceivedStructureType):
         # or we could let the pi info be in abs coords and rotate the vecs before use?
         # yes, this is effectively what we ended up doing, except even the abs coords get computed each time they're asked for
         # from the quats stored by this routine.
-        
+
         self.twist = None # default value
         self.axes = self.quats_cum = self.chain_quat_cum = None # invalid values (for catching bugs)
 
         bonds = self.listb
         lista = self.lista
-        
+
 ##        # first, do we want that 90-deg offset? Only if double bonds, I think.
 ##        # (It's just a kluge to avoid returning pi orders of (1,0) for some of them and (0,1) for the others.
 ##        #  We use it so we can return pi orders of (1,0) for all double bonds.)
@@ -352,7 +352,7 @@ class PiBondSpChain(PerceivedStructureType):
         if v2 == V_DOUBLE and v1 in (V_AROMATIC, V_GRAPHITE):
             return True
         return False
-    
+
     def recompute_geom_from_quats(self): # non-ring class
         """
         [not a ring; various possible end situations]
@@ -374,7 +374,7 @@ class PiBondSpChain(PerceivedStructureType):
         # plus a projection and (in some cases, depending on bond types i think -- see self.twist90)
         # 90-degree turn at each bond-bond connection;
         # the projection part for all the bond-bond connections is already accumulated in self.chain_quat_cum.
-        
+
         # note: the following p-vec retvals are in abs coords, as they should be
         #e rename the funcs, since they are not only for sp2, but for any atom that ends our chain of pi bonds
         pvec1 = p_vector_from_sp2_atom(atoms[0], bonds[0], out = out, up = up) # might be None
@@ -583,7 +583,7 @@ def pi_vectors(bond, out = DFLT_OUT, up = DFLT_UP, abs_coords = False): # rename
             # both vectors not None -- use them, but negate pvec2 if this makes them more aligned
             if dot(pvec1, pvec2) < 0:
                 pvec2 = - pvec2
-    return pi_info_from_abs_pvecs( bond, bond_axis, pvec1, pvec2, abs_coords = abs_coords) 
+    return pi_info_from_abs_pvecs( bond, bond_axis, pvec1, pvec2, abs_coords = abs_coords)
 
 def pi_info_from_abs_pvecs( bond, bond_axis, pvec1, pvec2, abs_coords = False):
     """
@@ -623,7 +623,7 @@ V_CARBOMERIC: (0.5, 1), # I think the 0.5 should actually be 1-x for adjacent bo
 }
 
 # ==
-        
+
 def p_vector_from_sp2_atom(atom, bond, out = DFLT_OUT, up = DFLT_UP):
     """
     Given an sp2 atom and a possibly-pi bond to it,
@@ -711,7 +711,7 @@ def p_vector_from_sp2_2_bonds(atom, bond, out = DFLT_OUT, up = DFLT_UP):
     if vlen(v1) < 0.01: # in angstroms
         return + up
     v2 = other2.posn() - apos
-    
+
     v2p = cross(v2,v1)
     lenv2p = vlen(v2p)
     if lenv2p < 0.01:

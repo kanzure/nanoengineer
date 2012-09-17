@@ -1,4 +1,4 @@
-# Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLPane_csdl_collector.py -- classes for use as a GLPane's csdl_collector
 
@@ -25,7 +25,7 @@ class _GLPane_csdl_collector_superclass:
     """
     use_drawingsets = False # whether to draw CSDLs using DrawingSets
     bare_primitives = None # None, or a CSDL for collecting bare primitives
-    
+
     pass
 
 # ==
@@ -48,7 +48,7 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
             # note: this won't be a ref cycle once we're done with,
             # since glpane won't refer to us anymore then
         return
-    
+
     def setup_for_drawingsets(self):
         # review: needed in fake_GLPane_csdl_collector too??
         """
@@ -62,7 +62,7 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         self.bare_primitives = ColorSortedDisplayList(reentrant = True)
         ColorSorter.start(self._glpane, self.bare_primitives)
         return
-    
+
     def collect_csdl(self, csdl, intent):
         """
         When self.use_drawingsets is set, model component drawing code which
@@ -108,7 +108,7 @@ class GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         assert ColorSorter._parent_csdl is csdl
         ColorSorter.finish( draw_now = False)
         return csdl
-    
+
     def grab_intent_to_csdls_dict(self):
         """
         Return (with ownership) to the caller (and reset in self)
@@ -136,7 +136,7 @@ class fake_GLPane_csdl_collector(_GLPane_csdl_collector_superclass):
         print_compact_stack(
             "warning: fake_GLPane_csdl_collector is being instantiated: " )
         return
-    
+
     pass
-        
+
 # end

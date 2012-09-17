@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 @author: Urmi
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -20,7 +20,7 @@ _theProteinFlyout = None
 
 def setupUi(mainWindow):
     """
-    Construct the QWidgetActions for the Dna flyout on the 
+    Construct the QWidgetActions for the Dna flyout on the
     Command Manager toolbar.
     """
     global _theDnaFlyout
@@ -30,10 +30,10 @@ def setupUi(mainWindow):
 # probably needs a retranslateUi to add tooltips too...
 
 def activateProteinFlyout(mainWindow):
-    mainWindow.commandToolbar.updateCommandToolbar(mainWindow.buildProteinAction, 
+    mainWindow.commandToolbar.updateCommandToolbar(mainWindow.buildProteinAction,
                                                    _theProteinFlyout)
 
-class ProteinFlyout:    
+class ProteinFlyout:
     def __init__(self, mainWindow, parentWidget):
         """
         Create necessary flyout action list and update the flyout toolbar in
@@ -41,9 +41,9 @@ class ProteinFlyout:
         class.
 
         @param mainWindow: The mainWindow object
-        @type  mainWindow: B{MWsemantics} 
+        @type  mainWindow: B{MWsemantics}
 
-        @param parentWidget: The parentWidget to which actions defined by this 
+        @param parentWidget: The parentWidget to which actions defined by this
                              object belong to. This needs to be revised.
 
         """
@@ -57,32 +57,32 @@ class ProteinFlyout:
     def getFlyoutActionList(self):
         """
         Returns a tuple that contains lists of actions used to create
-        the flyout toolbar. 
+        the flyout toolbar.
         Called by CommandToolbar._createFlyoutToolBar().
-        @return: params: A tuple that contains 3 lists: 
+        @return: params: A tuple that contains 3 lists:
         (subControlAreaActionList, commandActionLists, allActionsList)
         """
-        #'allActionsList' returns all actions in the flyout toolbar 
-        #including the subcontrolArea actions. 
+        #'allActionsList' returns all actions in the flyout toolbar
+        #including the subcontrolArea actions.
         allActionsList = []
 
 
-        #Action List for  subcontrol Area buttons. 
+        #Action List for  subcontrol Area buttons.
         subControlAreaActionList = []
         subControlAreaActionList.append(self.exitProteinAction)
         separator = QtGui.QAction(self.parentWidget)
         separator.setSeparator(True)
-        subControlAreaActionList.append(separator) 
-        subControlAreaActionList.append(self.buildPeptideAction)        
-        subControlAreaActionList.append(self.editRotamersAction)        
-        subControlAreaActionList.append(self.editResiduesAction)        
-        subControlAreaActionList.append(self.compareProteinsAction)        
+        subControlAreaActionList.append(separator)
+        subControlAreaActionList.append(self.buildPeptideAction)
+        subControlAreaActionList.append(self.editRotamersAction)
+        subControlAreaActionList.append(self.editResiduesAction)
+        subControlAreaActionList.append(self.compareProteinsAction)
         subControlAreaActionList.append(self.displayProteinStyleAction)
         allActionsList.extend(subControlAreaActionList)
 
-        commandActionLists = [] 
-        #Append empty 'lists' in 'commandActionLists equal to the 
-        #number of actions in subControlArea 
+        commandActionLists = []
+        #Append empty 'lists' in 'commandActionLists equal to the
+        #number of actions in subControlArea
         for i in range(len(subControlAreaActionList)):
             lst = []
             commandActionLists.append(lst)
@@ -102,45 +102,45 @@ class ProteinFlyout:
         self.buildPeptideAction = NE1_QWidgetAction(parentWidget,
                                                       win = self.win)
         self.buildPeptideAction.setText("Insert Peptide")
-        self.buildPeptideAction.setCheckable(True)  
+        self.buildPeptideAction.setCheckable(True)
         self.buildPeptideAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/InsertPeptide.png"))
 
         self.editRotamersAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.editRotamersAction.setText("Rotamers")
-        self.editRotamersAction.setCheckable(True)  
+        self.editRotamersAction.setCheckable(True)
         self.editRotamersAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Rotamers.png"))
-        
+
         self.editResiduesAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.editResiduesAction.setText("Residues")
-        self.editResiduesAction.setCheckable(True)  
+        self.editResiduesAction.setCheckable(True)
         self.editResiduesAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Residues.png"))
-        
+
         self.compareProteinsAction = NE1_QWidgetAction(parentWidget, win = self.win)
         self.compareProteinsAction.setText("Compare")
-        self.compareProteinsAction.setCheckable(True)  
+        self.compareProteinsAction.setCheckable(True)
         self.compareProteinsAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/Compare.png"))
-        
-        self.displayProteinStyleAction = NE1_QWidgetAction(parentWidget, 
+
+        self.displayProteinStyleAction = NE1_QWidgetAction(parentWidget,
                                                            win = self.win)
 
         self.displayProteinStyleAction.setText("Edit Style")
-        self.displayProteinStyleAction.setCheckable(True)        
+        self.displayProteinStyleAction.setCheckable(True)
         self.displayProteinStyleAction.setIcon(
             geticon("ui/actions/Command Toolbar/BuildProtein/EditProteinDisplayStyle.png"))
-        
+
         self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
-        self.subControlActionGroup.setExclusive(False)   
+        self.subControlActionGroup.setExclusive(False)
         self.subControlActionGroup.addAction(self.buildPeptideAction)
         self.subControlActionGroup.addAction(self.displayProteinStyleAction)
-        
+
 
     def _addWhatsThisText(self):
         """
-        Add 'What's This' help text for all actions on toolbar. 
+        Add 'What's This' help text for all actions on toolbar.
         """
         #change this later
         from ne1_ui.WhatsThisText_for_CommandToolbars import whatsThisTextForProteinCommandToolbar
@@ -149,7 +149,7 @@ class ProteinFlyout:
 
     def _addToolTipText(self):
         """
-        Add 'Tool tip' help text for all actions on toolbar. 
+        Add 'Tool tip' help text for all actions on toolbar.
         """
         #add something here later
         return
@@ -158,8 +158,8 @@ class ProteinFlyout:
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
 
         @see: self.activateFlyoutToolbar, self.deActivateFlyoutToolbar
@@ -167,39 +167,39 @@ class ProteinFlyout:
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
+            change_connect = self.win.disconnect
 
-        change_connect(self.exitProteinAction, 
+        change_connect(self.exitProteinAction,
                        SIGNAL("triggered(bool)"),
                        self.activateExitProtein)
 
-        change_connect(self.buildPeptideAction, 
+        change_connect(self.buildPeptideAction,
                        SIGNAL("triggered(bool)"),
                        self.activateBuildPeptide_EditCommand)
 
-        change_connect(self.editRotamersAction, 
+        change_connect(self.editRotamersAction,
                        SIGNAL("triggered(bool)"),
                        self.activateEditRotamers_EditCommand)
 
-        change_connect(self.editResiduesAction, 
+        change_connect(self.editResiduesAction,
                        SIGNAL("triggered(bool)"),
                        self.activateEditResidues_EditCommand)
 
-        change_connect(self.compareProteinsAction, 
+        change_connect(self.compareProteinsAction,
                        SIGNAL("triggered(bool)"),
                        self.activateCompareProteins_EditCommand)
 
-        change_connect(self.displayProteinStyleAction, 
+        change_connect(self.displayProteinStyleAction,
                        SIGNAL("triggered(bool)"),
                        self.activateProteinDisplayStyle_Command)
 
     def activateFlyoutToolbar(self):
         """
-        Updates the flyout toolbar with the actions this class provides. 
-        """                   
+        Updates the flyout toolbar with the actions this class provides.
+        """
         if self._isActive:
             return
-        
+
         self._isActive = True
 
         self.win.commandToolbar.cmdButtonGroup.button(0).setChecked(True)
@@ -216,13 +216,13 @@ class ProteinFlyout:
         Updates the flyout toolbar with the actions this class provides.
         """
         if not self._isActive:
-            return 
+            return
 
         self._isActive = False
 
         self.resetStateOfActions()
 
-        self.connect_or_disconnect_signals(False)    
+        self.connect_or_disconnect_signals(False)
         self.win.commandToolbar.updateCommandToolbar(self.win.buildProteinAction,
                                                      self,
                                                      entering = False)
@@ -230,10 +230,10 @@ class ProteinFlyout:
     def resetStateOfActions(self):
         """
         Resets the state of actions in the flyout toolbar.
-        Uncheck most of the actions. Basically it 
+        Uncheck most of the actions. Basically it
         unchecks all the actions EXCEPT the ExitDnaAction
         @see: self.deActivateFlyoutToolbar()
-        @see: self.activateBreakStrands_Command() 
+        @see: self.activateBreakStrands_Command()
         @see: baseCommand.command_update_flyout()
         """
 
@@ -245,8 +245,8 @@ class ProteinFlyout:
     def activateExitProtein(self, isChecked):
         """
         Slot for B{Exit DNA} action.
-        """     
-        #@TODO: This needs to be revised. 
+        """
+        #@TODO: This needs to be revised.
 
         if hasattr(self.parentWidget, 'ok_btn_clicked'):
             if not isChecked:
@@ -300,10 +300,10 @@ class ProteinFlyout:
 
     def activateProteinDisplayStyle_Command(self, isChecked):
         """
-        Call the method that enters DisplayStyle_Command. 
-        (After entering the command) Also make sure that 
-        all the other actions on the DnaFlyout toolbar are unchecked AND 
-        the DisplayStyle Action is checked. 
+        Call the method that enters DisplayStyle_Command.
+        (After entering the command) Also make sure that
+        all the other actions on the DnaFlyout toolbar are unchecked AND
+        the DisplayStyle Action is checked.
         """
 
         self.win.enterProteinDisplayStyleCommand(isChecked)

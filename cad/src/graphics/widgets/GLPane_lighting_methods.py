@@ -47,7 +47,7 @@ class GLPane_lighting_methods(object):
     #bruce 080910 split them into a separate file
 
     # default values of instance variables
-    
+
     # [bruce 051212 comment: not sure if this needs to be in sync with any other values;
     #  also not sure if this is used anymore, since __init__ sets _lights from prefs db via loadLighting.]
     _lights = _default_lights
@@ -78,7 +78,7 @@ class GLPane_lighting_methods(object):
             self._setup_lighting()
         return
 
-    def setLighting(self, lights, _guard_ = 6574833, gl_update = True): 
+    def setLighting(self, lights, _guard_ = 6574833, gl_update = True):
         """
         Set current lighting parameters as specified
         (using the format as described in the getLighting method docstring).
@@ -143,12 +143,12 @@ class GLPane_lighting_methods(object):
         # in GLPane_lighting_methods (has more comments) and ThumbView,
         # but also significant differences. Should refactor sometime.
         # [bruce 060415/080912 comment]
-        
+
         glEnable(GL_NORMALIZE)
             # bruce comment 050311: I don't know if this relates to lighting or not
             # grantham 20051121: Yes, if NORMALIZE is not enabled (and normals
             # aren't unit length or the modelview matrix isn't just rotation)
-            # then the lighting equation can produce unexpected results.  
+            # then the lighting equation can produce unexpected results.
 
         #bruce 050413 try to fix bug 507 in direction of lighting:
         ##k might be partly redundant now; not sure whether projection matrix needs to be modified here [bruce 051212]
@@ -199,7 +199,7 @@ class GLPane_lighting_methods(object):
                 val[name] = params
             # save the prefs to the database file
             prefs[key] = val
-            # This was printing many redundant messages since this method is called 
+            # This was printing many redundant messages since this method is called
             # many times while changing lighting parameters in the Preferences | Lighting dialog.
             # Mark 051125.
             #env.history.message( greenmsg( "Lighting preferences saved" ))
@@ -224,7 +224,7 @@ class GLPane_lighting_methods(object):
                 # since this is called on startup and it's common for nothing to be saved.
                 # Return with no changes.
                 return False
-            # At this point, you have a saved prefs val, and if this is wrong it's an error.        
+            # At this point, you have a saved prefs val, and if this is wrong it's an error.
             # val format is described (partly implicitly) in saveLighting method.
             res = [] # will become new argument to pass to self.setLighting method, if we succeed
             for name in ['light0','light1','light2']:
@@ -255,8 +255,8 @@ class GLPane_lighting_methods(object):
         """
         # Restore light color prefs keys.
         env.prefs.restore_defaults([
-            light1Color_prefs_key, 
-            light2Color_prefs_key, 
+            light1Color_prefs_key,
+            light2Color_prefs_key,
             light3Color_prefs_key,
         ])
         self.setLighting( self._default_lights,  gl_update = gl_update )

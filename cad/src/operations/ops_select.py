@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 ops_select.py -- operations and internal methods for changing what's selected
 and maintaining other selection-related state. (Not well-organized.)
@@ -41,7 +41,7 @@ from dna.model.DnaMarker import DnaMarker
 from dna.model.DnaSegment import DnaSegment
 from cnt.model.NanotubeSegment import NanotubeSegment
 
-# Object flags, used by objectSelected() and its callers. 
+# Object flags, used by objectSelected() and its callers.
 ATOMS = 1
 CHUNKS = 2
 JIGS = 4
@@ -77,15 +77,15 @@ def objectSelected(part, objectFlags = ALLOBJECTS): # Mark 2007-06-24
     if objectFlags & JIGS:
         if part.getSelectedJigs():
             return True
-    
+
     if objectFlags & DNASTRANDS:
         if part.getSelectedDnaStrands():
             return True
-        
+
     if objectFlags & DNASEGMENTS:
         if part.getSelectedDnaSegments():
             return True
-        
+
     if objectFlags & DNAGROUPS:
         if part.getSelectedDnaGroups():
             return True
@@ -94,9 +94,9 @@ def objectSelected(part, objectFlags = ALLOBJECTS): # Mark 2007-06-24
 
 def renameableLeafNode(obj, groups_renameable = False): # probably by Mark
     """
-    Returns True if obj is a visible, renameable leaf node in the model tree. 
+    Returns True if obj is a visible, renameable leaf node in the model tree.
     Otherwise, returns False.
-    
+
     If obj is a Group or DnaGroup and groups_renameable is True,
     return True.
     """
@@ -105,7 +105,7 @@ def renameableLeafNode(obj, groups_renameable = False): # probably by Mark
     #  if not, we should add one. There might already be a method on
     #  class Node related to this -- see try_rename or its calls to find out.)
     # [bruce 081124 comment]
-    
+
     _nodeList = [[DnaAxisChunk,    False], # Chunk subclass
                  [DnaStrandChunk,  False], # Chunk subclass
                  [DnaMarker,       False], # Jig subclass
@@ -114,15 +114,15 @@ def renameableLeafNode(obj, groups_renameable = False): # probably by Mark
                  [NanotubeSegment, True], # Group subclass
                  [DnaGroup,        groups_renameable], # Group subclass
                  [Group,           groups_renameable]] # Group must be last in list.
-    
+
     if not obj.rename_enabled():
         return False
-    
+
     for _class, _renameable in _nodeList:
         if isinstance(obj, _class):
             return _renameable
-        
-    return True   
+
+    return True
 
 class ops_select_Mixin:
     """
@@ -140,7 +140,7 @@ class ops_select_Mixin:
         Checks if the current selection contains any atoms that have
         its display mode not set to B{diDEFAULT}.
 
-        @return: True if there is one or more selected atoms with its 
+        @return: True if there is one or more selected atoms with its
                  display mode not set to B{diDEFAULT}.
         @rtype:  bool
 
@@ -148,7 +148,7 @@ class ops_select_Mixin:
                (the atoms) are not explicitely selected.
         """
         for a in self.getOnlyAtomsSelectedByUser():
-            if a.display != diDEFAULT: 
+            if a.display != diDEFAULT:
                 return True
         return False
 
@@ -165,7 +165,7 @@ class ops_select_Mixin:
                (the atoms) are not explicitely selected.
         """
         for a in self.getOnlyAtomsSelectedByUser():
-            if a.display == diINVISIBLE: 
+            if a.display == diINVISIBLE:
                 return True
         return False
 
@@ -183,7 +183,7 @@ class ops_select_Mixin:
             atoms += chunk.atoms.values()
 
         for jig in self.assy.getSelectedJigs():
-            atoms += jig.atoms 
+            atoms += jig.atoms
 
         atoms += self.assy.selatoms_list()
 
@@ -194,7 +194,7 @@ class ops_select_Mixin:
         Returns a list of atoms selected by the user. It doesn't consider atoms
         in a chunk or of a jig if they (the atoms) are not explicitely selected.
         """
-        #ninad060818 is using this function to get distance and other info in the DynamiceTooltip class. 
+        #ninad060818 is using this function to get distance and other info in the DynamiceTooltip class.
         atoms = []
         atoms += self.assy.selatoms_list()
         return atoms
@@ -212,25 +212,25 @@ class ops_select_Mixin:
 
         self.topnode.apply2all(addSelectedJig)
         return selJigs
-    
+
     def getSelectedPlanes(self):
         """
-        Returns a list of selected planes. 
+        Returns a list of selected planes.
         @see: self.getSelectedJigs()
         """
         selectedJigs = self.getSelectedJigs()
-        
-        selectedPlanes = filter(lambda p: 
-                                isinstance(p, self.win.assy.Plane), 
+
+        selectedPlanes = filter(lambda p:
+                                isinstance(p, self.win.assy.Plane),
                                 selectedJigs)
         return selectedPlanes
-    
+
     def getSelectedDnaGroups(self):
         """
         Returns a list of the currently selected DnaGroup(s).
-        
+
         """
-        
+
         selDnaGroupList = []
         def addSelectedDnaGroup(obj, dnaList = selDnaGroupList):
             if obj.picked and isinstance(obj, DnaGroup):
@@ -238,13 +238,13 @@ class ops_select_Mixin:
 
         self.topnode.apply2all(addSelectedDnaGroup)
         return selDnaGroupList
-    
+
     def getSelectedDnaStrands(self):
         """
         Returns a list of the currently selected DnaStrand(s).
-        
+
         """
-        
+
         selDnaStrandList = []
         def addSelectedDnaStrand(obj, dnaList = selDnaStrandList):
             if obj.picked and isinstance(obj, DnaStrand):
@@ -252,13 +252,13 @@ class ops_select_Mixin:
 
         self.topnode.apply2all(addSelectedDnaStrand)
         return selDnaStrandList
-    
+
     def getSelectedDnaSegments(self):
         """
         Returns a list of the currently selected DnaSegment(s).
-        
+
         """
-        
+
         selDnaSegmentList = []
         def addSelectedDnaSegment(obj, dnaList = selDnaSegmentList):
             if obj.picked and isinstance(obj, self.win.assy.DnaSegment):
@@ -266,11 +266,11 @@ class ops_select_Mixin:
 
         self.topnode.apply2all(addSelectedDnaSegment)
         return selDnaSegmentList
-    
+
     def getSelectedNanotubeSegments(self):
         """
         @return: a list of the currently selected NanotubeSegments
-        """        
+        """
         selNanotubeSegmentList = []
         def addSelectedNanotubeSegment(obj, ntSegmentList = selNanotubeSegmentList):
             if obj.picked and isinstance(obj, self.win.assy.NanotubeSegment):
@@ -278,15 +278,15 @@ class ops_select_Mixin:
             return
         self.topnode.apply2all(addSelectedNanotubeSegment)
         return selNanotubeSegmentList
-    
+
     def getSelectedNanotubeSegment(self):
         """
         Returns only the currently selected nanotubeSegment, if any.
-        @return: the currently selected nanotubeSegment or None if no 
-                 nanotubeSegments are selected. Also returns None if more 
+        @return: the currently selected nanotubeSegment or None if no
+                 nanotubeSegments are selected. Also returns None if more
                  than one nanotubeSegment is select.
         @rtype: L{Chunk}
-        @note: use L{getSelectedNanotubeSegments()} to get the list of all 
+        @note: use L{getSelectedNanotubeSegments()} to get the list of all
                selected nanotubeSegments.
         """
         selectedNanotubeSegmentList = self.getSelectedNanotubeSegments()
@@ -295,7 +295,7 @@ class ops_select_Mixin:
         else:
             return None
         return
-        
+
     def getSelectedProteinChunks(self):
         """
         @return: a list of the currently selected Protein chunks
@@ -309,15 +309,15 @@ class ops_select_Mixin:
             return
         self.topnode.apply2all(addSelectedProteinChunk)
         return selProteinList
-    
+
     def getSelectedProteinChunk(self):
         """
         Returns only the currently selected protein chunk, if any.
-        @return: the currently selected protein chunk or None if no peptide 
+        @return: the currently selected protein chunk or None if no peptide
                  chunks are selected. Also returns None if more than one
                  peptide chunk is select.
         @rtype: L{Chunk}
-        @note: use L{getSelectedProteinChunks()} to get the list of all 
+        @note: use L{getSelectedProteinChunks()} to get the list of all
                selected proteins.
         """
         selectedProteinList = self.getSelectedProteinChunks()
@@ -329,7 +329,7 @@ class ops_select_Mixin:
 
     def getNumberOfSelectedChunks(self):
         """
-        Returns the number of selected chunks. 
+        Returns the number of selected chunks.
 
         @note:Atoms and jigs are not counted.
         """
@@ -337,7 +337,7 @@ class ops_select_Mixin:
 
     def getNumberOfSelectedJigs(self):
         """
-        Returns the number of selected jigs. 
+        Returns the number of selected jigs.
 
         @note:Atoms and chunks are not counted.
         """
@@ -353,7 +353,7 @@ class ops_select_Mixin:
                 nodes += [obj]
         self.topnode.apply2all(addMovableNode)
         return selected_movables
-    
+
     def getSelectedRenameables(self):
         """
         Returns the list of all selected nodes that can be renamed.
@@ -364,7 +364,7 @@ class ops_select_Mixin:
                 nodes += [obj]
         self.topnode.apply2all(addRenameableNode)
         return selected_renameables
-    
+
     def getSelectedNodes(self):
         """
         Return a list of all selected nodes in the MT.
@@ -375,19 +375,19 @@ class ops_select_Mixin:
                 selected_nodes.append(obj)
         self.topnode.apply2all(func)
         return selected_nodes
-        
-        
+
+
     def selectAll(self):
         """
         Select all atoms or all chunks, depending on the select mode.
 
         @note: The selection filter is applied if it is enabled.
-        """ 
+        """
         self.begin_select_cmd() #bruce 051031
         if self.selwhat == SELWHAT_CHUNKS:
             for m in self.molecules:
                 m.pick()
-            #Call Graphics mode API method to do any additinal selection 
+            #Call Graphics mode API method to do any additinal selection
             #(example select an entire DnaGroup if all its contents are selected
             #@see: basicGraphicsMode.end_selection_from_GLPane()
             currentCommand = self.w.commandSequencer.currentCommand
@@ -435,7 +435,7 @@ class ops_select_Mixin:
             self.unpickparts()
             for m in newpicked:
                 m.pick()
-            #Call Graphics mode API method to do any additinal selection 
+            #Call Graphics mode API method to do any additinal selection
             #(example select an entire DnaGroup if all its contents are selected
             #@see: basicGraphicsMode.end_selection_from_GLPane()
             currentCommand = self.w.commandSequencer.currentCommand
@@ -451,13 +451,13 @@ class ops_select_Mixin:
         env.history.message("Selection Inverted")
 
         self.w.win_update()
-        
+
     def expandDnaComponentSelection(self, dnaStrandOrSegment):
         """
-        Expand the DnaComponent selection. DnaComponent can be a strand or a 
-        segment. 
+        Expand the DnaComponent selection. DnaComponent can be a strand or a
+        segment.
         For DnaSegment -- it selects that dna segment and the adjacent segments
-        reachable through crossovers. 
+        reachable through crossovers.
         For DnaStrand it selects that strand and all the complementary strands.
         @see: self._expandDnaSegmentSelection()
         @see: SelectChunks_GraphicsMode.chunkLeftDouble()
@@ -469,16 +469,16 @@ class ops_select_Mixin:
             self._expandDnaStrandSelection(dnaStrandOrSegment)
         elif isinstance(dnaStrandOrSegment, self.win.assy.DnaSegment):
             self._expandDnaSegmentSelection(dnaStrandOrSegment)
-                
+
         currentCommand = self.w.commandSequencer.currentCommand
         currentCommand.graphicsMode.end_selection_from_GLPane()
         self.win.win_update()
 
-    
+
     def _expandDnaSegmentSelection(self, dnaSegment):
         """
-        Expand the selection of such that the segment <dnaSegment> and all its 
-        adjacent DnaSegments reachable through the crossovers, are selected. 
+        Expand the selection of such that the segment <dnaSegment> and all its
+        adjacent DnaSegments reachable through the crossovers, are selected.
         @see:self.expandDnaComponentSelection()
         """
         assert isinstance(dnaSegment, self.win.assy.DnaSegment)
@@ -486,31 +486,31 @@ class ops_select_Mixin:
         segmentList.extend(dnaSegment.get_DnaSegments_reachable_thru_crossovers())
         for segment in segmentList:
             if not segment.picked:
-                segment.pick()    
-    
+                segment.pick()
+
     def _expandDnaStrandSelection(self, dnaStrand):
         """
         Expand the selection such that the <dnaStrand> and all its complementary
-        strand chunks are selected. 
+        strand chunks are selected.
         """
         assert isinstance(dnaStrand, self.win.assy.DnaStrand)
         lst = dnaStrand.getStrandChunks()
         lst.extend(dnaStrand.get_DnaStrandChunks_sharing_basepairs())
-        
+
         for c in lst:
             if not c.picked:
-                c.pick()   
-    
+                c.pick()
+
     def contractDnaComponentSelection(self, dnaStrandOrSegment):
         """
         Contract the selection such that:
-        
+
         If is a DnaStrand, then that strand and all its complementary
         strand chunks are deselected.
-        
+
         If its a DnaSegment, then that segment and its adjacent segments reachable
         through cross overs are deselected.
-        
+
         @see:self._contractDnaStrandSelection()
         @see: self._contractDnaSegmentSelection()
         @see: SelectChunks_GraphicsMode.chunkLeftDouble()
@@ -522,22 +522,22 @@ class ops_select_Mixin:
             self._contractDnaStrandSelection(dnaStrandOrSegment)
         elif isinstance(dnaStrandOrSegment, self.win.assy.DnaSegment):
             self._contractDnaSegmentSelection(dnaStrandOrSegment)
-    
+
     def _contractDnaStrandSelection(self, dnaStrand):
         assert isinstance(dnaStrand, self.win.assy.DnaStrand)
         assert isinstance(dnaStrand, self.win.assy.DnaStrand)
         lst = dnaStrand.getStrandChunks()
         lst.extend(dnaStrand.get_DnaStrandChunks_sharing_basepairs())
-        
+
         for c in lst:
             if c.picked:
-                c.unpick() 
-    
+                c.unpick()
+
     def _contractDnaSegmentSelection(self, dnaSegment):
         """
-        Contract the selection of the picked DnaSegments such that the segment 
-        <dnaSegment> and all its adjacent DnaSegments reachable through the 
-        crossovers, are deselected. 
+        Contract the selection of the picked DnaSegments such that the segment
+        <dnaSegment> and all its adjacent DnaSegments reachable through the
+        crossovers, are deselected.
         """
         assert isinstance(dnaSegment, self.win.assy.DnaSegment)
         segmentList = [dnaSegment]
@@ -545,7 +545,7 @@ class ops_select_Mixin:
         for segment in segmentList:
             if segment.picked:
                 segment.unpick()
-    
+
 
     def selectExpand(self):
         """
@@ -605,7 +605,7 @@ class ops_select_Mixin:
 
         assert self.selwhat == SELWHAT_ATOMS
         for a in self.selatoms.values():
-            if a.picked: 
+            if a.picked:
                 # If a selected atom has an unpicked neighbor, it gets added to the contract_list
                 # Bruce mentions: you can just scan realNeighbors if you want to only scan
                 # the non-singlet atoms. Users may desire this behavior - we can switch it on/off
@@ -639,10 +639,10 @@ class ops_select_Mixin:
         """
         Enable/disable the mouse "selection lock". When enabled, selection
         operations using the mouse (i.e. clicks and drags) are disabled in the
-        3D graphics area (glpane). All other selection commands via the 
+        3D graphics area (glpane). All other selection commands via the
         toolbar, menus, model tree and keyboard shortcuts are not affected by
         the selection lock state.
-        
+
         @param lockState: The selection lock state, where:
                         - True  = selection locked
                         - False = selection unlocked
@@ -654,45 +654,45 @@ class ops_select_Mixin:
         else:
             self.w.selectLockAction.setIcon(
                 geticon("ui/actions/Tools/Select/Selection_Unlocked.png"))
-        
+
         self.o.mouse_selection_lock_enabled = lockState
         # Update the cursor and statusbar.
         self.o.setCursor()
-        
+
         if 0:
             print "mouse_selection_lock_enabled=", \
                   self.o.mouse_selection_lock_enabled
-        
+
     def hideSelection(self):
         """
-        Hides the current selection. Selected atoms are made invisible. 
-        Selected chunks and/or any other object (i.e. jigs, planes, etc.) 
+        Hides the current selection. Selected atoms are made invisible.
+        Selected chunks and/or any other object (i.e. jigs, planes, etc.)
         are hidden.
         """
         # Added by Mark 2008-02-14. [slight revisions, bruce 080305]
 
         cmd = "Hide: "
         env.history.message(greenmsg(cmd))
-        
+
         # Hide selected objects.
         self.assy.Hide()
-        
+
         if self.selatoms:
             # Hide selected atoms by changing their display style to invisible.
             for a in self.selatoms.itervalues():
                 a.setDisplayStyle(diINVISIBLE)
         return
-    
+
     def unhideSelection(self):
         """
         Unhides the current selection.
-        
+
         If the current selection mode is "Select Chunks", the selected nodes
         (i.e. chunks, jigs, planes, etc.) are unhidden. If all the nodes
         were already visible (unhidden), then we unhide any invisble atoms
-        inside chunks by changing their display style to default (even if 
+        inside chunks by changing their display style to default (even if
         their display style before they were hidden was something different).
-        
+
         If the current selection mode is "Select Atoms (i.e. Build Atoms), then
         the selected atoms are made visible by changing their display style
         to default (even if their display style before they were hidden
@@ -704,24 +704,24 @@ class ops_select_Mixin:
         # TODO: fix possible speed issue: this looks like it might be slow for
         #  deep nesting in model tree, since it may unhide selected groups
         #  as a whole, as well as each node they contain. [bruce 081124 comment]
-        
+
         cmd = "Unhide: "
         env.history.message(greenmsg(cmd))
-        
+
         _node_was_unhidden = False
-        
+
         selectedNodes = self.getSelectedNodes()
-                
+
         # Unhide any movables. This includes chunks, jigs, etc. (but not atoms).
         for node in selectedNodes:
             if node.hidden:
                 _node_was_unhidden = True
                 node.unhide()
-                
+
         if _node_was_unhidden:
             self.w.win_update()
             return
-        
+
         if not self.selatoms:
             # Unhide any invisible atoms in the selected chunks.
             for chunk in self.assy.selmols[:]:
@@ -733,7 +733,7 @@ class ops_select_Mixin:
                 a.setDisplayStyle(diDEFAULT)
         self.w.win_update()
         return
-    
+
     # ==
 
     def selectChunksWithSelAtoms(self): #bruce 060721 renamed from selectParts; see also permit_pick_parts
@@ -748,7 +748,7 @@ class ops_select_Mixin:
         #   self.o.assy.selectChunksWithSelAtoms_noupdate() # josh 10/7 to avoid race in assy init
         # )
         # BTW, MainWindowUI.{py,ui} has an unused slot with the same name this method used to have [selectParts]
-        # [bruce 050517/060721 comment and docstring]        
+        # [bruce 050517/060721 comment and docstring]
         self.selectChunksWithSelAtoms_noupdate()
         self.w.win_update()
 
@@ -856,7 +856,7 @@ class ops_select_Mixin:
         #  external callers which pass their own water_enabled flag to it.
         #  So we can't just inline this into it.)
         # [bruce 071008]
-        #UPDATE 2008-08-01: Water surface is currently an aspect of the 
+        #UPDATE 2008-08-01: Water surface is currently an aspect of the
         #command class rather than graphicsMode class. The graphicsmode checks
         #it by calling self.command.isWaterSurfaceEnabled() --[ Ninad comment]
         commandSequencer = self.win.commandSequencer
@@ -924,7 +924,7 @@ class ops_select_Mixin:
     # I renamed them to distinguish them from the many other "pick" (etc) methods
     # for Node subclasses, with common semantics different than these have.
     # I removed some no-longer-used related methods.
-    
+
     # All these methods should be rewritten to be more general;
     # for more info, see comment about findAtomUnderMouse and jigGLSelect
     # in def end_selection_curve in Select_GraphicsMode.py.
@@ -932,8 +932,8 @@ class ops_select_Mixin:
 
     def pick_at_event(self, event): #renamed from pick; modified
         """
-        Pick whatever visible atom or chunk (depending on 
-        self.selwhat) is under the mouse, adding it to the current selection. 
+        Pick whatever visible atom or chunk (depending on
+        self.selwhat) is under the mouse, adding it to the current selection.
         You are not allowed to select a singlet.
         Print a message about what you just selected (if it was an atom).
         """
@@ -960,9 +960,9 @@ class ops_select_Mixin:
 
     def delete_at_event(self, event):
         """
-        Delete whatever visible atom or chunk (depending on self.selwhat) 
+        Delete whatever visible atom or chunk (depending on self.selwhat)
         is under the mouse. You are not allowed to delete a singlet.
-        This leaves the selection unchanged for any atoms/chunks in the current 
+        This leaves the selection unchanged for any atoms/chunks in the current
         selection not deleted. Print a message about what you just deleted.
         """
         self.begin_select_cmd()
@@ -1026,7 +1026,7 @@ class ops_select_Mixin:
 
     def unpickatoms(self): #e [should this be private?] [bruce 060721]
         """
-        Deselect any selected atoms (but don't change selwhat or do any 
+        Deselect any selected atoms (but don't change selwhat or do any
         updates).
         """ #bruce 050517 added docstring
         if self.selatoms:
@@ -1057,7 +1057,7 @@ class ops_select_Mixin:
         self.topnode.unpick()
         return
 
-    def unpickchunks(self): #bruce 060721 made this to replace the misnamed unpick_jigs = False option of unpickparts 
+    def unpickchunks(self): #bruce 060721 made this to replace the misnamed unpick_jigs = False option of unpickparts
         """
         Deselect any selected chunks in this part
         (but don't change selwhat or do any updates).
@@ -1096,12 +1096,12 @@ class ops_select_Mixin:
     def unpickall_in_win(self): #bruce 060721
         """
         Unselect all things that a general "unselect all" tool button or menu
-        command ought to. This should unselect all selectable things, and 
-        should be equivalent to doing both L{unpickall_in_GLPane()} and 
+        command ought to. This should unselect all selectable things, and
+        should be equivalent to doing both L{unpickall_in_GLPane()} and
         L{unpickall_in_MT()}.
         """
         self.unpickatoms()
-        self.unpickparts()        
+        self.unpickparts()
         return
 
     def begin_select_cmd(self):
@@ -1115,8 +1115,8 @@ class ops_select_Mixin:
     def selection_from_glpane(self): #bruce 050404 experimental feature for initial use in Minimize Selection; renamed 050523
         """
         Return an object which represents the contents of the current selection,
-        independently of part attrs... how long valid?? Include the data 
-        generally used when doing an op on selection from glpane (atoms and 
+        independently of part attrs... how long valid?? Include the data
+        generally used when doing an op on selection from glpane (atoms and
         chunks); see also selection_from_MT().
         """
         # the idea is that this is a snapshot of selection even if it changes
@@ -1127,7 +1127,7 @@ class ops_select_Mixin:
 
     def selection_for_all(self): #bruce 050419 for use in Minimize All; revised 050523
         """
-        Return a selection object referring to all our atoms (regardless of 
+        Return a selection object referring to all our atoms (regardless of
         the current selection, and not changing it).
         """
         part = self
@@ -1152,7 +1152,7 @@ def topmost_selected_nodes(nodes):
     """
     @param nodes: a list of nodes, to be examined for selected nodes or subnodes
     @type nodes: python sequence of Nodes
-    
+
     @return: a list of all selected nodes in or under the given list of nodes,
              not including any node which is inside any selected Group
              in or under the given list
@@ -1204,7 +1204,7 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
     Represent a "snapshot-by-reference" of the contents of the current selection,
     or any similar set of objects passed to the constructor.
 
-    @warning: this remains valid (and unchanged in meaning) if the 
+    @warning: this remains valid (and unchanged in meaning) if the
     selection-state changes, but might become invalid if the Part contents
     themselves change in any way! (Or at least if the objects passed to the
     constructor (like chunks or Groups) change in contents (atoms or child
@@ -1213,11 +1213,11 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
     def __init__(self, part, atoms = {}, chunks = [], nodes = []):
         """
         Create a snapshot-by-reference of whatever sets or lists of objects
-        are passed in the args atoms, chunks, and/or nodes (see details and 
+        are passed in the args atoms, chunks, and/or nodes (see details and
         limitations below).
 
         Objects should not be passed redundantly -- i.e. they should not
-        contain atoms or nodes twice, where we define chunks as containing 
+        contain atoms or nodes twice, where we define chunks as containing
         their atoms and Group nodes as containing their child nodes.
 
         Objects must be of the appropriate types (if passed):
@@ -1227,7 +1227,7 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
         (e.g. "topmost selected nodes").
 
         The current implem also prohibits passing both chunks and nodes lists,
-        but this limitation is just for its convenience and can be removed 
+        but this limitation is just for its convenience and can be removed
         when needed.
 
         The object-containing arguments are shallow-copied immediately, but the
@@ -1236,7 +1236,7 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
         argument is undefined. (In initial implem, the effect depends on when
         self.selmols is first evaluated.)
 
-        Some methods assume only certain kinds of object arguments were 
+        Some methods assume only certain kinds of object arguments were
         passed (see their docstrings for details).
         """
         #bruce 051129 revised docstring -- need to review code to verify its accuracy. ###k
@@ -1309,20 +1309,20 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             self.selmols_dict = res
             return res
         raise AttributeError, attr
-    
+
     def picks_atom(self, atom): #bruce 050526
         """
         Does this selection include atom, either directly or via its chunk?
         """
         return atom.key in self.selatoms or id(atom.molecule) in self.selmols_dict
-    
+
     def picks_chunk(self, chunk): #bruce 080414
         """
         Does this selection include chunk, either directly or via a containing
         Group in topnodes?
         """
         return id(chunk) in self.selmols_dict
-    
+
     def add_chunk(self, chunk): #bruce 080414
         """
         If not self.picks_chunk(chunk), add chunk to this selection
@@ -1342,7 +1342,7 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             #  __init__ shallow-copies those lists)
             pass
         return
-    
+
     def describe_objects_for_history(self):
         """
         Return a string like "5 items" but more explicit if possible, for use
@@ -1361,12 +1361,12 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             res += fix_plurals( "%d atom(s)" % len(self.selatoms) )
             #e could say "other atoms" if the selected nodes contain any atoms
         return res
-    
+
     def expand_atomset(self, ntimes = 1): #bruce 051129 for use in Local Minimize; compare to selectExpand
         """
         Expand self's set of atoms (to include all their real-atom neighbors)
-        (repeating this ntimes), much like "Expand Selection" but using no 
-        element filter, and of course having no influence by or effect on 
+        (repeating this ntimes), much like "Expand Selection" but using no
+        element filter, and of course having no influence by or effect on
         "current selection state" (atom.picked attribute).
 
         Ignore issue of self having selected chunks (as opposed to the atoms
@@ -1407,7 +1407,7 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
                     self.add_chunk(chunk2)
             continue
         return
-                
+
     pass # end of class Selection
 
 # end

@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 bond_chains.py -- helper functions related to chains of bonds
 
@@ -154,14 +154,14 @@ class abstract_bond_chain_analyzer:
 
     # per-subclass constants
     branches_ok = False # the other value is untested
-        
+
     def atom_ok(self, atom):
         """
         Subclass-specific primitive for whether an atom qualifies.
 
         @note: if an atom is only ok if it matches the prior atom in some way,
                use bond_ok instead, for that part of the condition.
-        
+
         [subclass should override]
         """
         return True
@@ -183,7 +183,7 @@ class abstract_bond_chain_analyzer:
         Assume self.atom_ok(atom). Return a list of
         atom's bonds for which the bond and its atoms
         satisfy bond_ok and atom_ok respectively.
-        
+
         This list might have any length (including 0
         or more than 2); we don't assume it's an error
         if the length is more than 2, though callers
@@ -211,7 +211,7 @@ class abstract_bond_chain_analyzer:
         in a bond chain (never the given bond; always one with both atoms
         and itself qualifying), or None if the chain ends at atom
         due to there being fewer or more than two qualifying bonds on atom.
-        
+
         (If the caller cares which of those conditions cause the chain
          to end at atom, it should check the last atom separately.
          This method doesn't assume that too many qualifying bonds
@@ -235,9 +235,9 @@ class abstract_bond_chain_analyzer:
         Return the maximal chain or ring of qualifying atoms
         connected by qualifying bonds, which includes bond.
         (See below for what is returned to represent the result.)
-        
+
         (Return None if bond or either of its atoms doesn't qualify.) [### REVIEW - compare to lone-atom error return]
-        
+
         If any qualifying atom has more than two qualifying bonds,
         behave differently depending on the per-subclass constant
         self.branches_ok: if it's False,
@@ -280,7 +280,7 @@ class abstract_bond_chain_analyzer:
         bond_ok = self.bond_ok
         if not bond_ok(bond):
             return None
-        
+
         ringQ, listb1, lista1 = grow_bond_chain(bond, atom1, self.next_bond_in_chain)
         assert len(listb1) == len(lista1) # guess, bruce 080119
         if ringQ:
@@ -327,7 +327,7 @@ class abstract_bond_chain_analyzer:
 
         The default implementation just returns (True, listb, lista),
         which has the same format as the grow_bond_chain return value.
-        
+
         The return value is used by other methods of self in several ways:
         * as a possible return value of find_chain_or_ring_from_bond and
           related methods;
@@ -352,7 +352,7 @@ class abstract_bond_chain_analyzer:
         @see: make_chain
         [subclasses should extend make_chain, which we call,
          rather than this method]
-        """        
+        """
         assert len(lista) - 1 == len(listb) # one more atom than bond
         assert len(listb) > 0 # somewhat arbitrary - could easily be recoded to not assume this
         if not self.branches_ok: # a per-subclass constant

@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 extensions.py
 
@@ -85,7 +85,7 @@ from utilities.debug import register_debug_menu_command, call_func_with_timing_h
 #
 # If this causes trouble, this import can be moved inside initialize()
 # if nbonds and have_pyrex_test are declared as module globals.
-# 
+#
 # Note that it's NOT safe to add "import extensions" to main.py, even inside
 # a conditional and/or to be run only on user request, until the build
 # process compiles and includes pyrex_test.so (or the Windows equivalent);
@@ -104,7 +104,7 @@ except:
         print_compact_traceback("debug_pyrex_test: exception importing pyrex_test or something inside it: ")
         print "debug_pyrex_test: Can't import pyrex_test; we'll define stub functions for its functions,"
         print "but trying to use them will raise an exception; see README-Pyrex for how to fix this."
-    
+
     def nbonds(mols): # stub function; in some cases it might be useful to define a correct but slow stub instead of a NIM stub
         "stub function for nbonds"
         assert 0, "nbonds NIM, since we couldn't import pyrex_test extension module; see README-Pyrex"
@@ -118,7 +118,7 @@ def count_bonds_cmd( target):
     assy = win.assy
     part = assy.tree.part
     mols = part.molecules
-    env.history.message( "count bonds (twice each) in %d mols:" % len(mols) ) 
+    env.history.message( "count bonds (twice each) in %d mols:" % len(mols) )
     def doit():
         return nbonds(mols)
     nb = call_func_with_timing_histmsg( doit)

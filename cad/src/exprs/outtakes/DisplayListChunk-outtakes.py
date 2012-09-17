@@ -1,6 +1,6 @@
 $Id$
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 this file should not remain in cvs once devel is done
 
 
@@ -72,14 +72,14 @@ But when compiling another list, we're not *allowed* to do it that way, since we
         not known until that algorithm recompiles ours
 
 
-           To accomplish the above, we call 
+           To accomplish the above, we call
 
-        
+
 
         , since they differ in when our display list call
         will be executed. In immediate mode, we have to first separately compile the display list, in order
-        to 
-        
+        to
+
         (This might be executed immediately or compiled into another display list, depending on when we're called.)
         But a few extra effects are necessary:
         - If the contents of any display list used when ours is called are not up to date,
@@ -88,7 +88,7 @@ But when compiling another list, we're not *allowed* to do it that way, since we
         ... tracking of two kinds, etc... explain recursion...
 
         list contents are not up to date, then before our list can be called,
-        
+
         [Note: might be called when actual drawing is occurring, or when compiling another displist.]
 """
 
@@ -162,7 +162,7 @@ in class DisplayListChunk:
     not GL_COMPILE_AND_EXECUTE, since in the latter case, it might encounter an unexpected call to a kid displist which is not
     up to date, and have no way to make it up to date, since OpenGL doesn't permit recursive compiling of displists.)
        We also have a method to compile a call to self.displist, which although callable by arbitrary commands' drawing code,
-    is semi-private in that it's only legally called while some object of this class is compiling a displist, 
+    is semi-private in that it's only legally called while some object of this class is compiling a displist,
     and it assumes there is a global place in which to record that displist call for use by that object's tracking of called displists.
     # ==
        To fit with the "maybe-inval" scheme for avoiding recomputes that we were warned might be needed, but turn out not to be
@@ -187,7 +187,7 @@ in class DisplayListChunk:
     - report our displist name (this is just the public attribute self.displist, which has a recompute rule)
     """
     # maybe semi-obs comments:
-    
+
     # belongs to one gl-displist-context
     # has self.displist (glpane displist id in that context)
     # has arg, self.delegate, can redraw it - it's an instance of a drawable
@@ -203,7 +203,7 @@ in class DisplayListChunk:
     #  *or* if we remake ours in compile-execute mode (equiv since when it later means smth else, that doesn't matter anymore
     #  since current cmds not being saved) (and i'm not sure it's always possible to first remake ours, then call it)
     #  (though we can try and see -- it's a user pref which is mainly for debugging, might affect speed or gl-bugs)
-    
+
     # if thing's draw effects don't change, and smth wants us to draw, in either case we just emit a call of the displist.
 
 # ==
@@ -283,7 +283,7 @@ obs stuff
 the comments in the following now seem resolved, and the code correct, so removing most of them
 
     def invalidate_contents(self):
-        "[private] called when something changes which might affect the sequence of OpenGL commands that should be compiled into self.displist" 
+        "[private] called when something changes which might affect the sequence of OpenGL commands that should be compiled into self.displist"
         ###e should propogate?? not sure -- this needs to inval the drawing effects of whatever drawing uses us...
         # but if something draws, does it track anything? what if the glpane itself calls us? this should tell it to gl_update!
         # but right now it doesn't... we'll need some fix for that! or a toplevel use of one of these for it... or an invalidator arg for this expr...
