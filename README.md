@@ -132,7 +132,7 @@ wget http://diyhpl.us/~bryan/irc/nanoengineer/nanoengineer-chroot.tar.gz
 tar -zxvf nanoengineer-chroot.tar.gz
 
 # mount these things if you want the GUI to work
-for i in tmp proc dev; do mount --bind /$i nanoengineer-chroot/$i; done
+for i in tmp proc dev; do sudo mount --bind /$i nanoengineer-chroot/$i; done
 
 # jump in
 sudo chroot nanoengineer-chroot/
