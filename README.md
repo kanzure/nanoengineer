@@ -131,17 +131,14 @@ wget http://diyhpl.us/~bryan/irc/nanoengineer/nanoengineer-chroot.tar.gz
 # extract the chroot
 tar -zxvf nanoengineer-chroot.tar.gz
 
+# mount these things if you want the GUI to work
+for i in tmp proc dev; do mount --bind /$i nanoengineer-chroot/$i; done
+
 # jump in
 sudo chroot nanoengineer-chroot/
 
-# run nanoengineer
+# now run nanoengineer
 su nanoengineeruser -c "python ~/code/nanoengineer/cad/src/main.py"
-```
-
-Additionally, you might want to hook up /dev/dri to make the frame rate match your native setup.
-
-```bash
-for i in tmp proc dev; do mount --bind /$i /path/to/chroot/$i; done
 ```
 
 Alternatively, you can follow [instructions to create a chroot](http://diyhpl.us/~bryan/irc/nanoengineer/nanoengineer-chroot-debootstrap). Developers can be reached on the [mailing list](http://groups.google.com/group/nanoengineer-dev) or on irc.freenode.net in the ##hplusroadmap channel.
