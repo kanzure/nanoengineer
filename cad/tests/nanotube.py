@@ -1,6 +1,6 @@
  #!/usr/bin/python
 
-# Copyright 2005, 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005, 2007 Nanorex, Inc.  See LICENSE file for details.
 """Nanotube generation tool for nanoENGINEER-1
 Usage:
     nanotube.py <n> <m> <length>
@@ -186,9 +186,9 @@ end molecular machine part Untitled
         outf.close()
         os.system("rasmol -xyz " + filename)
     def test(self):
-	mindist = None
-	maxdist = None
-	for a, b in self.bonds:
+        mindist = None
+        maxdist = None
+        for a, b in self.bonds:
             a, b = self.atoms[a-1], self.atoms[b-1]
             dist = ((a.x - b.x) ** 2 +
                     (a.y - b.y) ** 2 +

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 packageData_checker.py - script for checking and reporting on packageData.py
 
@@ -29,7 +29,7 @@ from packageData import needs_renaming_for_clarity
 from packageData import needs_refactoring # use this someday?
 from packageData import listing_order # use this? (it's not yet well ordered as of 080104)
 from packageData import subdir_notes
- 
+
 
 # utils for looking at output of AllPyFiles, not yet used within this file
 
@@ -111,11 +111,11 @@ def check_basename(basename):
             basename = basename[:-len(suffix)]
             print >> sys.stderr, " (using %r instead)" % basename
     return basename
-        
+
 def summarize_packageMapping( flags):
 
     counts = {}
-    
+
     for basename, value in packageMapping.items():
         basename = check_basename(basename)
         classification = packageClassification(value, flags)
@@ -152,11 +152,11 @@ ORDER_MODULE = 1
 ORDER_NEW_SUBPACKAGE = 2
 
 class _VirtualSubdir(type({})):
-    
+
     def __init__(self, basename):
         self.__basename = basename
         super(_VirtualSubdir, self).__init__()
-        
+
     def print_listing(self, indent = "", skip_toplevel_indent = False):
         if not skip_toplevel_indent:
             print indent + self.__basename + "/" + "   (%d)" % len(self)
@@ -258,7 +258,7 @@ def collect_virtual_listing( packageDict, ftype ):
 def print_listings():
     """
     """
-    
+
     global packageMapping_for_files
 
     if LIST_UNCLASSIFIED_FILES: #bruce 080223; usage: pass cad/src/*.py == ../*.py as arguments
@@ -273,7 +273,7 @@ def print_listings():
             else:
                 print "unrecognized argument: %r" % (pyfile,)
             continue
-    
+
     collect_virtual_listing( packageMapping_for_files, T_MODULE)
     collect_virtual_listing( packageMapping_for_packages, T_PACKAGE)
 
@@ -283,7 +283,7 @@ def print_listings():
         FAKENAME_NOTE = " FAKENAME_NOTE " # not a valid basename, but a string (since .lower() gets called on it)
         sort_order = ORDER_SUBDIR_NOTE
         dir1[FAKENAME_NOTE] = (sort_order, note)
-        
+
     _toplevel_virtual_subdir.print_listing(skip_toplevel_indent = True)
     return
 

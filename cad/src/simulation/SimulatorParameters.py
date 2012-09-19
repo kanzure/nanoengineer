@@ -11,7 +11,7 @@ function for GROMACS.
 
 @author: Eric M
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import os
@@ -67,7 +67,7 @@ class SimulatorParameters(object):
 
     def getYukawaRSwitch(self):
         return self._getFloatParameter("YukawaRSwitch", 2.0)
-    
+
     def getYukawaRCutoff(self):
         return self._getFloatParameter("YukawaRCutoff", 3.0)
 
@@ -89,5 +89,5 @@ class SimulatorParameters(object):
     def getYukawaConstantMultiple(self):
         return self._getFloatParameter("YukawaConstantMultiple", 1.0)
 
-    
-        
+
+

@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 GeneratorBaseClass.py -- DEPRECATED base class for generator dialogs
 or their controllers, which supplies ok/cancel/preview logic and some
@@ -79,7 +79,7 @@ class GeneratorBaseClass:
     """
     DEPRECATED, and no longer used for supported commands as of circa 080727.
     (Still used for some test/example commands.)
-    
+
     Mixin-superclass for use in the property managers of generator commands.
     In spite of the class name, this class only works when inherited *after*
     a property manager class (e.g. PM_Dialog) in a class's list of superclasses.
@@ -112,7 +112,7 @@ class GeneratorBaseClass:
       have the same effect on the actual dialog.
 
     [As of bruce 070719 I am not sure if not inheriting QDialog is possible.]
-    There are some other methods here that merit mentioning: 
+    There are some other methods here that merit mentioning:
     done_btn_clicked, cancel_btn_clicked, close.
     """
     # default values of class constants; subclasses should override these as
@@ -132,7 +132,7 @@ class GeneratorBaseClass:
         # someday include other attributes besides the name.)
     create_name_from_prefix = True # whether we'll create self.name from
         # self.prefix (by appending a serial number)
-    
+
     def __init__(self, win):
         """
         @param win: the main window object
@@ -142,7 +142,7 @@ class GeneratorBaseClass:
             # partwindow objects (and destroy them after Done)
             ###REVIEW: I think this (assignment or use of self.pw) does not
             # belong in this class [bruce 070615 comment]
-            
+
         self.struct = None
         self.previousParams = None
         #bruce 060616 added the following kluge to make sure both cmdname and
@@ -168,7 +168,7 @@ class GeneratorBaseClass:
             self.cmd = greenmsg(self.cmdname + ": ")
         self.change_random_seed()
         return
-    
+
     def build_struct(self, name, params, position):
         """
         Build the structure (model object) which this generator is supposed
@@ -189,7 +189,7 @@ class GeneratorBaseClass:
 
         @param params: The parameter tuple returned from
                        self.gather_parameters(). For more info,
-                       see docstring of gather_parameters in this class. 
+                       see docstring of gather_parameters in this class.
         @type  params: tuple
 
         @param position: The position in 3d model space at which to
@@ -226,7 +226,7 @@ class GeneratorBaseClass:
     # - all xxx_btn_clicked methods (also to be renamed, btn -> button)
     # - close
     # [070724 code review]
-    
+
     def restore_defaults_btn_clicked(self):
         """Slot for the Restore Defaults button."""
         ### TODO: docstring needs to say under what conditions this should be
@@ -238,14 +238,14 @@ class GeneratorBaseClass:
         # [070724 code review]
         if debug_flags.atom_debug:
             print 'restore defaults button clicked'
-        
+
     def preview_btn_clicked(self):
         """Slot for the Preview button."""
         if debug_flags.atom_debug:
             print 'preview button clicked'
         self.change_random_seed()
         self._ok_or_preview(previewing = True)
-    
+
     def ok_btn_clicked(self):
         """Slot for the OK button."""
         ### NEEDS RENAMING, ok -> done -- or merging with existing
@@ -271,12 +271,12 @@ class GeneratorBaseClass:
             # [bruce 070615 comment & 070724 code review]
             self.accept()
         self.struct = None
-        
+
         # Close property manager. Fixes bug 2524. [Mark 070829]
         # Note: this only works correctly because self.close comes from
         # a PM class, not from this class. [bruce 070829 comment]
         self.close()
-                    
+
         return
 
     def handlePluginExceptions(self, aCallable):
@@ -315,7 +315,7 @@ class GeneratorBaseClass:
         self.remove_struct()
         self.pluginException = True
         return
-    
+
     def _ok_or_preview(self, doneMsg = False, previewing = False):
         """
         Private method. Do the Done or Preview operation (and set the
@@ -365,7 +365,7 @@ class GeneratorBaseClass:
         return "%s created." % self.name
 
     _gensym_data_for_reusing_name = None
-    
+
     def _revert_number(self):
         """
         Private method. Called internally when we discard the current structure
@@ -417,7 +417,7 @@ class GeneratorBaseClass:
                 # (can't reuse name in this case -- not sure what prefix it was
                 #  made with)
             name = self.name
-        
+
         if previewing:
             env.history.message(self.cmd + "Previewing " + name)
         else:
@@ -433,7 +433,7 @@ class GeneratorBaseClass:
         self.win.win_update() # includes mt_update
 
         return
-    
+
     def done_btn_clicked(self):
         "Slot for the Done button"
         if debug_flags.atom_debug:
@@ -448,12 +448,12 @@ class GeneratorBaseClass:
         self.remove_struct()
         self._revert_number()
         self.reject()
-        
+
         # Close property manager. Fixes bug 2524. [Mark 070829]
         # Note: this only works correctly because self.close comes from
         # a PM class, not from this class. [bruce 070829 comment]
         self.close()
-            
+
         return
 
     def close(self, e = None):
@@ -465,7 +465,7 @@ class GeneratorBaseClass:
             # I think this is never called anymore,
             # and would lead to infinite recursion via cancel_btn_clicked
             # (causing bugs) if it was. [bruce 070829]
-        
+
         # Note: Qt wants the return value of .close to be of the correct type,
         # apparently boolean; it may mean whether to really close (just a guess)
         # (or it may mean whether Qt needs to process the same event further,
@@ -483,7 +483,7 @@ class GeneratorBaseClass:
             # errors or bugs.
             print_compact_traceback("bug in cancel_btn_clicked, or in not reporting an error it detected: ")
             return False
-        
+
     pass # end of class GeneratorBaseClass
 
 # end

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 from jelloGui import *
 import sys
 import random
@@ -80,7 +80,7 @@ class Computronium:
             f = addvec(scalevec(D, STIFFNESS),
                        scalevec(subvec(D, P), VISCOSITY / DT))
             forces[i1] = addvec(forces[i1], f)
-            forces[i2] = subvec(forces[i2], f) 
+            forces[i2] = subvec(forces[i2], f)
         self.applyForces(forces)
 
     def verletMomentum(self):

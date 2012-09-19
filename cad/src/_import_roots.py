@@ -1,10 +1,10 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 _import_roots.py - import all toplevel files in the import dependency hierarchy
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: most of the files we import here are for separate main programs, never
 normally imported into one process; this file exists for the use of import

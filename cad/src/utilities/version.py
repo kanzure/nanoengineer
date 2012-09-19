@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 version.py -- provide version information for NanoEngineer-1,
 including author list, program name, release info, etc.

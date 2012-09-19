@@ -16,8 +16,8 @@ Adding various comments and revising docstrings; perhaps not signing every such 
  probably just be to adapt this file to the external changes.)
 
 ninad20070507: moved Movie Player dashboard to Movie Property Manager.
-ninad2008-08-21: Cleanup: a) to introduce command_enter/exit_* methods in the 
-                  new Command API b) Moved flyouttoolbar related code in its own 
+ninad2008-08-21: Cleanup: a) to introduce command_enter/exit_* methods in the
+                  new Command API b) Moved flyouttoolbar related code in its own
                   module (Ui_PlayMovieFlyout)
 """
 
@@ -108,14 +108,14 @@ class movieMode(basicMode):
     command_level = CL_MISC_TOPLEVEL
 
     PM_class = MoviePropertyManager #bruce 080909
-    
+
     FlyoutToolbar_class = PlayMovieFlyout
-    
+
     flyoutToolbar = None
 
     def command_entered(self):
         """
-        Extends superclass method. 
+        Extends superclass method.
         @see: baseCommand.command_entered() for documentation.
         """
         _superclass.command_entered(self)
@@ -126,9 +126,9 @@ class movieMode(basicMode):
         #  but for now I'll leave it in.]
         self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
         self.o.assy.permit_pick_atoms()
-            
-        
-    def command_will_exit(self): 
+
+
+    def command_will_exit(self):
         """
         Extends superclass method, to offer to rewind the movie
         if it's not at the beginning. (Doesn't offer to prevent
@@ -151,7 +151,7 @@ class movieMode(basicMode):
             # above.
             #
             # [bruce 080806/080908 comments]
-        
+
         if ask:
             self._offer_to_rewind_if_necessary()
 
@@ -167,7 +167,7 @@ class movieMode(basicMode):
             movie._close()
             # note: this assumes this is the only movie which might be "open",
             # and that redundant _close is ok.
-        
+
         _superclass.command_will_exit(self)
         return
 
@@ -189,26 +189,26 @@ class movieMode(basicMode):
                 # (see text and comments in that class)
             mrd.exec_()
         return
-    
-    
+
+
     # see also command_will_exit, elsewhere in this file
-    
+
     def command_enter_PM(self):
         """
-        Extends superclass method.         
-        @see: baseCommand.command_enter_PM()  for documentation        
+        Extends superclass method.
+        @see: baseCommand.command_enter_PM()  for documentation
         """
 
-        _superclass.command_enter_PM(self) #bruce 080909 call this instead of inlining it      
-            
-        #@WARNING: The following code in command_enter_PM was originally in 
-        #def init_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21       
-        
+        _superclass.command_enter_PM(self) #bruce 080909 call this instead of inlining it
+
+        #@WARNING: The following code in command_enter_PM was originally in
+        #def init_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21
+
         self.enableMovieControls(False)
             #bruce 050428 precaution (has no noticable effect but seems safer in theory)
         #bruce 050428, working on bug 395: I think some undesirable state is left in the dashboard, so let's reinit it
         # (and down below we might like to init it from the movie if possible, but it's not always possible).
-            
+
         self.propMgr._moviePropMgr_reinit() ###e could pass frameno? is max frames avail yet in all playable movies? not sure.
         # [bruce 050426 comment: probably this should just be a call of an update method, also used during the mode ###e]
         movie = self.o.assy.current_movie # might be None, but might_be_playable() true implies it's not
@@ -217,10 +217,10 @@ class movieMode(basicMode):
         else:
             frameno = 0 #bruce 050426 guessed value
 
-        self.propMgr.frameNumberSpinBox.setValue(frameno, blockSignals = True) 
+        self.propMgr.frameNumberSpinBox.setValue(frameno, blockSignals = True)
         self.propMgr.moviePlayActiveAction.setVisible(0)
         self.propMgr.moviePlayRevActiveAction.setVisible(0)
-        
+
         if self.might_be_playable(): # We have a movie file ready.  It's showtime! [bruce 050426 changed .filename -> .might_be_playable()]
             movie.cueMovie(propMgr = self.propMgr) # Cue movie.
             self.enableMovieControls(True)
@@ -228,19 +228,19 @@ class movieMode(basicMode):
             if movie.filename: #k not sure this cond is needed or what to do if not true [bruce 050510]
                 env.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
         else:
-            self.enableMovieControls(False)         
+            self.enableMovieControls(False)
         return
-    
-  
+
+
     def command_enter_misc_actions(self):
         """
-        Overrides superclass method. 
-        
+        Overrides superclass method.
+
         @see: baseCommand.command_enter_misc_actions()  for documentation
         """
-        #@WARNING: The following code in  was originally in 
+        #@WARNING: The following code in  was originally in
         #def init_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21
-        
+
         self.w.simMoviePlayerAction.setChecked(1) # toggle on the Movie Player icon+
 
         # Disable some action items in the main window.
@@ -255,22 +255,22 @@ class movieMode(basicMode):
         # We do this last, so as not to do it if there are exceptions in the rest of the method,
         # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
         # [bruce 060414; same thing done in some other modes]
-        
+
         undo_manager.disable_undo_checkpoints('Movie Player')
         undo_manager.disable_UndoRedo('Movie Player', "in Movie Player") # optimizing this for shortness in menu text
             # this makes Undo menu commands and tooltips look like "Undo (not permitted in Movie Player)" (and similarly for Redo)
- 
-            
+
+
     def command_exit_misc_actions(self):
         """
-        Overrides superclass method. 
-        
+        Overrides superclass method.
+
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
-        #@WARNING: The following code in  was originally in 
+        #@WARNING: The following code in  was originally in
         #def restore_gui method. Its copied 'as is' from there.-- Ninad 2008-08-21
-        
-        # Reenable Undo/Redo actions, and undo checkpoints 
+
+        # Reenable Undo/Redo actions, and undo checkpoints
         #(disabled in command_entered);
         # do it first to protect it from exceptions in the rest of this method
         # (since if it never happens, Undo/Redo won't work for the rest of the session)
@@ -282,11 +282,11 @@ class movieMode(basicMode):
         self.set_cmdname('Movie Player') # this covers all changes while we were in the mode
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
-        self.w.disable_QActions_for_movieMode(False)   
+        self.w.disable_QActions_for_movieMode(False)
 
-    
+
     #END new command API methods =============================================
-    
+
     def enableMovieControls(self, enabled = True):
         self.propMgr.enableMovieControls(enabled)
 

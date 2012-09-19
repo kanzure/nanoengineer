@@ -29,14 +29,14 @@
 # == old code
 
 if 0:
-    
+
     Column(
       Rect(1.5, 1, red),
       ##Button(Overlay(TextRect(18, 3, "line 1\nline 2...."),Rect(0.5,0.5,black)), on_press = print_Expr("zz")),
           # buggy - sometimes invis to clicks on the text part, but sees them on the black rect part ###@@@
           # (see docstring at top for a theory about the cause)
-      
-    ##                  Button(TextRect(18, 3, "line 1\nline 2...."), on_press = print_Expr("zztr")), # 
+
+    ##                  Button(TextRect(18, 3, "line 1\nline 2...."), on_press = print_Expr("zztr")), #
     ##                  Button(Overlay(Rect(3, 1, red),Rect(0.5,0.5,black)), on_press = print_Expr("zzred")), # works
     ##                  Button(Rect(0.5,0.5,black), on_press = print_Expr("zz3")), # works
       Invisible(Rect(0.2,0.2,white)), # kluge to work around origin bug in TextRect ###@@@

@@ -1,11 +1,11 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 bond_constants.py -- constants and simple functions for use with class Bond
 (which can be defined without importing that class).
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -23,7 +23,7 @@ as for bond2.]
 from math import floor, ceil
 
 from geometry.VQT import Q
-from utilities.debug import print_compact_traceback    
+from utilities.debug import print_compact_traceback
 from utilities import debug_flags
 import foundation.env as env
 from simulation.PyrexSimulator import thePyrexSimulator
@@ -205,7 +205,7 @@ _bond_arrows = {
     1: "-- ->".split(), # from atom1 to atom2, i.e. to the right
    -1: "<- --".split(),
 }
-    
+
 def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705; direction feature, bruce 070414. ###e SHOULD CALL bond_left_atom
     """
     Given a bond, and an optional quat describing the orientation it's shown in,
@@ -229,7 +229,7 @@ def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705; direction feat
         bondletter = ''
     arrows = _bond_arrows.get(direction, ("<-", " (invalid direction) ->"))
     return "%s %s%s%s %s" % (a1s, arrows[0], bondletter, arrows[1], a2s)
-    
+
 def bond_left_atom(bond, quat = Q(1,0,0,0)): #bruce 070415, modified from bonded_atoms_summary, which ought to call this now ##e
     # TODO: make this method name clearer: bond_leftmost_atom? bond_get_atom_on_left? [bruce 080807 comment]
     """
@@ -249,13 +249,13 @@ def bond_left_atom(bond, quat = Q(1,0,0,0)): #bruce 070415, modified from bonded
 def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
     """
     If a standard atom, return a string like C26(sp2) with atom name and
-    atom hybridization type, but only include the type if more than one is 
-    possible for the atom's element and the atom's type is not the default 
+    atom hybridization type, but only include the type if more than one is
+    possible for the atom's element and the atom's type is not the default
     type for that element.
-    
+
     If a PAM Ss or Sj atom, returns a string like Ss28(A) with atom name
-    and dna base name. 
-    
+    and dna base name.
+
     @deprecated: For some purposes use L{Atom.getInformationString()} instead.
                  (But for others, that might not be suitable. Needs review.)
     """
@@ -264,7 +264,7 @@ def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
         res += "(%s)" % atom.atomtype.name
     if atom.getDnaBaseName():
         res += "(%s)" % atom.getDnaBaseName()
-    
+
     return res
 
 # ==
@@ -297,7 +297,7 @@ def ideal_bond_length(atom1, atom2, v6 = V_SINGLE): #bruce 080404
     current atomtypes) for a bond of the given order (default V_SINGLE).
     The atoms need not be bonded; if they are, that bond's current order
     is ignored. [review: revise that rule, to use it if they are bonded??]
-    
+
     (Use bond_params, which uses getEquilibriumDistanceForBond if ND-1
      is available.)
     """
@@ -328,7 +328,7 @@ def _compute_bond_params(atomtype1, atomtype2, v6): #bruce 080405 revised this
         # note: both atoms and atomtypes have .element
     eltnum2 = atomtype2.element.eltnum
     ltr = bond_letter_from_v6(v6)
-    
+
     # determine ideal bond length (special case for one element being Singlet)
     assert eltnum1 or eltnum2, "can't bond bondpoints to each other"
     if eltnum1 == 0 or eltnum2 == 0:
@@ -357,7 +357,7 @@ def _compute_bond_params(atomtype1, atomtype2, v6): #bruce 080405 revised this
     ratio = nicelen / float(rcovsum)
     rcov1 *= ratio
     rcov2 *= ratio
-    
+
     return rcov1, rcov2
 
 def _safely_call_getEquilibriumDistanceForBond( eltnum1, eltnum2, ltr): #bruce 080405 split this out
@@ -390,7 +390,7 @@ def _safely_call_getEquilibriumDistanceForBond( eltnum1, eltnum2, ltr): #bruce 0
             print_compact_traceback(msg)
         return None
     pass
-    
+
 # ==
 
 # Here's an old long comment which is semi-obsolete now [050707], but which motivates the term "v6".
@@ -437,7 +437,7 @@ def _safely_call_getEquilibriumDistanceForBond( eltnum1, eltnum2, ltr): #bruce 0
 # and keep track of this. We might distinguish between "user-permitted" or even "user-intended"
 # valence errors, vs "transient undesired" valence errors which we intend to automatically
 # quickly get rid of. If valence errors can be long-lasting, we'll want to draw them somehow.
-# 
+#
 # - Singlets still require exactly one bond (unless they've been killed), but it can have
 # any valence. This might affect how they're drawn, how they consider forming new bonds
 # (in extrude, fuse chunks, depositMode, etc), and how they're written into sim-input mmp files.

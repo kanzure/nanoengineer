@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 elements_data_other.py -- data for miscellaneous kinds of elements
 which are neither chemical nor PAM pseudoatoms
@@ -6,7 +6,7 @@ which are neither chemical nor PAM pseudoatoms
 
 @author: Bruce
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 See also: the "handle" Ah5, which is defined as a PAM5 pseudoelement
 for code-convenience reasons.
@@ -21,10 +21,10 @@ _DIRECTIONAL_BOND_ELEMENTS_OTHER = ()
 _defaultRadiusAndColor = {
     "Vs0" : (1.0, [0.8, 0.8, 0.8]), #bruce 080515 guess, "very light gray"
     }
-  
+
 _alternateRadiusAndColor = {
     }
-                 
+
 # Format of _mendeleev: see elements_data.py
 
 _mendeleev = [

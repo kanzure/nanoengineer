@@ -7,7 +7,7 @@
 ### definitions aren't in "if" statements checking for null (undefined) wrapper
 ### functions. These don't work on Windows because its dll wrappers are
 ### different, so none of the wrappers get defined on Windows in the a6 version.
-### 
+###
 ### The only change to the b3 version to make it work in a6 is that two calls to
 ### "if OpenGL.ERROR_CHECKING:" are commented out with ### below.
 
@@ -15,8 +15,8 @@ OpenGL extension ARB.shader_objects
 
 $version: $Id$
 
-This module customises the behaviour of the 
-OpenGL.raw.GL.ARB.shader_objects to provide a more 
+This module customises the behaviour of the
+OpenGL.raw.GL.ARB.shader_objects to provide a more
 Python-friendly API
 """
 from OpenGL import platform, constants, constant, arrays
@@ -29,9 +29,9 @@ import OpenGL
 from OpenGL import converters, error
 GL_INFO_LOG_LENGTH_ARB = constant.Constant( 'GL_INFO_LOG_LENGTH_ARB', 0x8B84 )
 
-glShaderSourceARB = platform.createExtensionFunction( 
+glShaderSourceARB = platform.createExtensionFunction(
     'glShaderSourceARB', dll=platform.GL,
-    resultType=None, 
+    resultType=None,
     argTypes=(constants.GLhandleARB, constants.GLsizei, ctypes.POINTER(ctypes.c_char_p), arrays.GLintArray,),
     doc = 'glShaderSourceARB( GLhandleARB(shaderObj), str( string) ) -> None',
     argNames = ('shaderObj', 'count', 'string', 'length',),
@@ -41,7 +41,7 @@ glShaderSourceARB = wrapper.wrapper(
     glShaderSourceARB
 ).setPyConverter(
     'count' # number of strings
-).setPyConverter( 
+).setPyConverter(
     'length' # lengths of strings
 ).setPyConverter(
     'string', conv.stringArray
@@ -63,7 +63,7 @@ for size in (1,2,3,4):
         globals()[name] = arrays.setInputArraySizeType(
             globals()[name],
             size,
-            arrayType, 
+            arrayType,
             'value',
         )
         del format, arrayType
@@ -75,7 +75,7 @@ def glGetObjectParameterivARB( shader, pname ):
     Retrieve the integer parameter for the given shader
     """
     status = arrays.GLintArray.zeros( (1,))
-    status[0] = 1 
+    status[0] = 1
     base_glGetObjectParameterivARB(
         shader, pname, status
     )
@@ -97,7 +97,7 @@ def _afterCheck( key ):
     """
     Generate an error-checking function for compilation operations
     """
-    def GLSLCheckError( 
+    def GLSLCheckError(
         result,
         baseOperation=None,
         cArguments=None,
@@ -108,7 +108,7 @@ def _afterCheck( key ):
             cArguments[0], key
         )
         if not status:
-            raise error.GLError( 
+            raise error.GLError(
                 result = result,
                 baseOperation = baseOperation,
                 cArguments = cArguments,
@@ -123,7 +123,7 @@ glCompileShaderARB.errcheck = _afterCheck( GL_OBJECT_COMPILE_STATUS_ARB )
 glLinkProgramARB.errcheck = _afterCheck( GL_OBJECT_LINK_STATUS_ARB )
 ## Not sure why, but these give invalid operation :(
 ##if glValidateProgramARB and OpenGL.ERROR_CHECKING:
-##	glValidateProgramARB.errcheck = _afterCheck( GL_OBJECT_VALIDATE_STATUS_ARB )
+##    glValidateProgramARB.errcheck = _afterCheck( GL_OBJECT_VALIDATE_STATUS_ARB )
 
 base_glGetInfoLogARB = glGetInfoLogARB
 def glGetInfoLogARB( obj ):

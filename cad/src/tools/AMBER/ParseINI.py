@@ -102,7 +102,7 @@ class ParseINI(object):
             spaces = spaces + 1
         self._sectionIndent = spaces
         self._sectionName = sectionName
-        
+
 
     def parse(self):
         sectionName = self._sectionName

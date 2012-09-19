@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 povheader.py
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 #bruce 050413: moved povpoint from 4 other modules (identical copies) into this one.
@@ -12,7 +12,7 @@ povheader.py
 def povpoint(p):
     # note z reversal -- povray is left-handed
     return "<" + str(p[0]) + "," + str(p[1]) + "," + str(-p[2]) + ">"
-    
+
 povheader = """
 // COLORS:
 #declare Red     = rgb <1, 0, 0>;
@@ -57,7 +57,7 @@ povheader = """
     rotate -90*x
     scale .5
 }
-  
+
 #macro rmotor(p1, p2, rad, col)
   cylinder { p1, p2, rad
    pigment { rgb col }
@@ -65,8 +65,8 @@ povheader = """
    }
 #end
 
-#macro lmotor(c1, c2, yrot, xrot, trans, col) 
-  box { c1,  c2    
+#macro lmotor(c1, c2, yrot, xrot, trans, col)
+  box { c1,  c2
     rotate yrot
     rotate xrot
     translate trans
@@ -74,15 +74,15 @@ povheader = """
     finish {Atomic}
     }
 #end
-  
+
 #macro spoke(p1, p2, rad, col)
   cylinder { p1, p2, rad
    pigment { rgb col }
    finish {Atomic}
    }
 #end
-  
-#macro atom(pos, rad, col) 
+
+#macro atom(pos, rad, col)
   sphere { pos, rad
     pigment { rgb col }
     finish {Atomic}
@@ -107,7 +107,7 @@ povheader = """
     pigment { rgb col2 }
     finish {Atomic}
     }
-    
+
 #end
 
 #macro tube2(pos1, col1, cc1, pos2, col2)
@@ -121,7 +121,7 @@ povheader = """
     pigment { rgb col2 }
     finish {Atomic}
     }
-    
+
 #end
 
 #macro tube3(pos1, pos2, col)
@@ -133,7 +133,7 @@ povheader = """
 
 #end
 
-#macro bond(pos1, pos2, col) 
+#macro bond(pos1, pos2, col)
   cylinder {pos1, pos2, 0.1
     pigment { rgb col }
     finish {Atomic}
@@ -158,7 +158,7 @@ povheader = """
     pigment { rgb col2 }
     finish {Atomic}
     }
-    
+
 #end
 
 #macro tube2r(rad, pos1, col1, cc1, pos2, col2)
@@ -172,7 +172,7 @@ povheader = """
     pigment { rgb col2 }
     finish {Atomic}
     }
-    
+
 #end
 
 #macro tube3r(rad, pos1, pos2, col)
@@ -184,7 +184,7 @@ povheader = """
 
 #end
 
-#macro bondr(rad, pos1, pos2, col) 
+#macro bondr(rad, pos1, pos2, col)
   cylinder {pos1, pos2, rad
     pigment { rgb col }
     finish {Atomic}
@@ -192,7 +192,7 @@ povheader = """
 #end
 
 
-#macro line(pos1, pos2, col) 
+#macro line(pos1, pos2, col)
   cylinder {pos1, pos2, 0.05
     pigment { rgb col }
     }
@@ -209,51 +209,51 @@ povheader = """
 #declare  c8 = pos + <-rad,rad,rad>;
   cylinder { c1,  c2, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c2,  c3, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c3,  c4, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c4,  c1, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c5,  c6, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c6,  c7, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c7,  c8, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c8,  c5, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c1,  c5, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c2,  c6, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c3,  c7, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
   cylinder { c4,  c8, 0.05
     pigment { rgb col }
-    finish {Atomic}    
+    finish {Atomic}
     }
 #end
 
@@ -275,7 +275,7 @@ povheader = """
 
 #macro esp_plane_texture(p1, p2, p3, p4, imgName)
     mesh2 {
-      vertex_vectors 
+      vertex_vectors
       {
         4,
         p1, p2, p3, p4
@@ -285,54 +285,54 @@ povheader = """
         <0.0, 1.0>, <0.0, 0.0>,
         <1.0, 0.0>, <1.0, 1.0>
       }
-      face_indices 
+      face_indices
       {
         2,
         <0, 1, 2>,
         <0, 2, 3>
-      } 
+      }
       uv_mapping
       pigment { image_map {png imgName
-                          } 
+                          }
       }
-      finish {Atomic}    
+      finish {Atomic}
     }
 #end
 
 #macro esp_plane_color(p1, p2, p3, p4, col4)
     mesh2 {
-      vertex_vectors 
+      vertex_vectors
       {
         4,
         p1, p2, p3, p4
       }
-      face_indices 
+      face_indices
       {
         2,
         <0, 1, 2>,
         <0, 2, 3>
-      } 
-      pigment {rgbf col4} 
-      finish {Atomic}    
+      }
+      pigment {rgbf col4}
+      finish {Atomic}
     }
 #end
 
 #macro grid_plane(p1, p2, p3, p4, col)
     cylinder { p1,  p2, 0.05
           pigment { rgb col }
-          finish {Atomic}    
+          finish {Atomic}
     }
     cylinder { p2,  p3, 0.05
           pigment { rgb col }
-          finish {Atomic}    
+          finish {Atomic}
     }
     cylinder { p3,  p4, 0.05
           pigment { rgb col }
-          finish {Atomic}    
+          finish {Atomic}
     }
     cylinder { p4,  p1, 0.05
           pigment { rgb col }
-          finish {Atomic}    
+          finish {Atomic}
     }
 #end
 

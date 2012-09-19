@@ -97,11 +97,11 @@ class GLPane_view_change_methods(object):
 
     def setViewZoomToSelection(self, fast = False): #Ninad 60903
         """
-        Change the view so that only selected atoms, chunks and Jigs fit in the GLPane. 
+        Change the view so that only selected atoms, chunks and Jigs fit in the GLPane.
         (i.e. Zoom to the selection) If <fast> is True, then snap to the view
         """
-        #ninad060905: 
-        #This considers only selected atoms, movable jigs and chunks while doing fit to window. 
+        #ninad060905:
+        #This considers only selected atoms, movable jigs and chunks while doing fit to window.
         #Zoom to selection ignores other immovable jigs. (it clearly tells this in a history msg)
         # For future:  Should work when a non movable jig is selected
         #Bugs due to use of Bbox remain as in fit to window.
@@ -149,7 +149,7 @@ class GLPane_view_change_methods(object):
         aspect = self.aspect
         if aspect < 1.0:
             scale /= aspect
-        pov = V(0, 0, 0) 
+        pov = V(0, 0, 0)
         if fast:
             self.snapToView(self.quat, scale, pov, 1.0)
         else:
@@ -157,13 +157,13 @@ class GLPane_view_change_methods(object):
 
     def setViewProjection(self, projection): # Added by Mark 050918.
         """
-        Set projection, where 0 = Perspective and 1 = Orthographic.  It does not set the 
+        Set projection, where 0 = Perspective and 1 = Orthographic.  It does not set the
         prefs db value itself, since we don't want all user changes to projection to be stored
         in the prefs db, only the ones done from the Preferences dialog.
         """
-        # Set the checkmark for the Ortho/Perspective menu item in the View menu.  
+        # Set the checkmark for the Ortho/Perspective menu item in the View menu.
         # This needs to be done before comparing the value of self.ortho to projection
-        # because self.ortho and the toggle state of the corresponding action may 
+        # because self.ortho and the toggle state of the corresponding action may
         # not be in sync at startup time. This fixes bug #996.
         # Mark 050924.
 
@@ -185,9 +185,9 @@ class GLPane_view_change_methods(object):
         @param namedView: The view to snap to.
         @type  namedView: L{NamedView}
         """
-        self.snapToView(namedView.quat, 
-                        namedView.scale, 
-                        namedView.pov, 
+        self.snapToView(namedView.quat,
+                        namedView.scale,
+                        namedView.pov,
                         namedView.zoomFactor)
 
     def animateToNamedView(self, namedView, animate = True):
@@ -199,17 +199,17 @@ class GLPane_view_change_methods(object):
 
         @param animate: If True, animate between views. If False, snap to
                         I{namedView}. If the user pref "Animate between views"
-                        is unchecked, then this argument is ignored. 
+                        is unchecked, then this argument is ignored.
         @type  animate: boolean
         """
         # Determine whether to snap (don't animate) to the destination view.
         if not animate or not env.prefs[animateStandardViews_prefs_key]:
             self.snapToNamedView(namedView)
             return
-        self.animateToView(namedView.quat, 
-                           namedView.scale, 
-                           namedView.pov, 
-                           namedView.zoomFactor, 
+        self.animateToView(namedView.quat,
+                           namedView.scale,
+                           namedView.pov,
+                           namedView.zoomFactor,
                            animate)
         return
 
@@ -231,15 +231,15 @@ class GLPane_view_change_methods(object):
         else:
             self.gl_update()
 
-    def rotateView(self, q2): 
+    def rotateView(self, q2):
         """
         Rotate current view to quat (viewpoint) q2
         """
         self.animateToView(q2, self.scale, self.pov, self.zoomFactor, animate = True)
         return
 
-    # animateToView() uses "Normalized Linear Interpolation" 
-    # and not "Spherical Linear Interpolation" (AKA slerp), 
+    # animateToView() uses "Normalized Linear Interpolation"
+    # and not "Spherical Linear Interpolation" (AKA slerp),
     # which traces the same path as slerp but works much faster.
     # The advantages to this approach are explained in detail here:
     # http://number-none.com/product/Hacking%20Quaternions/
@@ -247,7 +247,7 @@ class GLPane_view_change_methods(object):
         """
         Animate from the current view to the destination view defined by
         quat q2, scale s2, pov p2, and zoom factor z2.
-        If animate is False *or* the user pref "Animate between views" is not selected, 
+        If animate is False *or* the user pref "Animate between views" is not selected,
         then do not animate;  just snap to the destination view.
         """
         # Caller could easily pass these args in the wrong order.  Let's typecheck them.
@@ -274,10 +274,10 @@ class GLPane_view_change_methods(object):
 
         # The rotation path may turn either the "short way" (less than 180) or the "long way" (more than 180).
         # Long paths can be prevented by negating one end (if the dot product is negative).
-        if dot(wxyz1, wxyz2) < 0: 
+        if dot(wxyz1, wxyz2) < 0:
             wxyz2 = V(-q2.w, -q2.x, -q2.y, -q2.z)
 
-        # Compute the maximum number of frames for the maximum possible 
+        # Compute the maximum number of frames for the maximum possible
         # rotation (180 degrees) based on how long it takes to repaint one frame.
         self.gl_update_duration()
         max_frames = max(1, env.prefs[animateMaximumTime_prefs_key]/self._repaint_duration)
@@ -298,7 +298,7 @@ class GLPane_view_change_methods(object):
         if rot_angle > 180:
             rot_angle = 360 - rot_angle # go the short way
 
-        # For each delta, compute the total number of frames each would 
+        # For each delta, compute the total number of frames each would
         # require (by itself) for the animation sequence.
         ### REVIEW: LIKELY BUG: integer division in rot_angle/180 [bruce 080912 comment]
         rot_frames = int(rot_angle/180 * max_frames)
@@ -321,18 +321,18 @@ class GLPane_view_change_methods(object):
         pov_inc = (p2 - p1) / total_frames
 
         # Disable standard view actions on toolbars/menus while animating.
-        # This is a safety feature to keep the user from clicking another view 
+        # This is a safety feature to keep the user from clicking another view
         # animation action while this one is still running.
         self.win.enableViews(False)
 
-        # 'is_animating' is checked in SelectAtoms_GraphicsMode.update_selobj() to determine whether the 
-        # GLPane is currently animating between views.  If True, then update_selobj() will 
+        # 'is_animating' is checked in SelectAtoms_GraphicsMode.update_selobj() to determine whether the
+        # GLPane is currently animating between views.  If True, then update_selobj() will
         # not select any object under the cursor. mark 060404.
         self.is_animating = True
 
         try: #bruce 060404 for exception safety (desirable for both enableViews and is_animating)
 
-            # Main animation loop, which doesn't draw the final frame of the loop.  
+            # Main animation loop, which doesn't draw the final frame of the loop.
             # See comments below for explanation.
             for frame in range(1, total_frames): # Notice no +1 here.
                 # TODO: Very desirable to adjust total_frames inside the loop to maintain
@@ -348,27 +348,27 @@ class GLPane_view_change_methods(object):
 
             # The animation loop did not draw the last frame on purpose.  Instead,
             # we snap to the destination view.  This also eliminates the possibility
-            # of any roundoff error in the increment values, which might result in a 
+            # of any roundoff error in the increment values, which might result in a
             # slightly wrong final viewpoint.
-            self.is_animating = False 
-                # piotr 080325: Moved the flag reset to here to make sure 
-                # the last frame is redrawn the same way as it was before 
+            self.is_animating = False
+                # piotr 080325: Moved the flag reset to here to make sure
+                # the last frame is redrawn the same way as it was before
                 # the animation has started (e.g. to show external bonds
                 # if they were suppressed during the animation).
                 # I'm not entirely sure if that is a safe solution.
-                # The is_animating attribute is used to disable view and 
+                # The is_animating attribute is used to disable view and
                 # object renaming and I'm not sure if setting it "False"
                 # early will not interfere with the renaming code.
             self.snapToView(q2, s2, p2, z2, update_duration = True)
-                # snapToView() must call gl_update_duration() and not gl_update(), 
+                # snapToView() must call gl_update_duration() and not gl_update(),
                 # or we'll have an issue if total_frames ever ends up = 1. In that case,
                 # self._repaint_duration would never get set again because gl_update_duration()
                 # would never get called again. BTW,  gl_update_duration()  (as of 060127)
                 # is only called in the main animation loop above or when a new part is loaded.
-                # gl_update_duration() should be called at other times, too (i.e. when 
-                # the display mode changes or something significant happens to the 
+                # gl_update_duration() should be called at other times, too (i.e. when
+                # the display mode changes or something significant happens to the
                 # model or display mode that would impact the rendering duration),
-                # or better yet, the number of frames should be adjusted in the 
+                # or better yet, the number of frames should be adjusted in the
                 # main animation loop as it plays.  This is left as something for me to do
                 # later (probably after A7). This verbose comment is left as a reminder
                 # to myself about all this.  mark 060127.
@@ -382,11 +382,11 @@ class GLPane_view_change_methods(object):
 
         # Finished animating.
         # piotr 080325: set it off again just to make sure it is off
-        # if there was an exception in the animation loop 
+        # if there was an exception in the animation loop
         self.is_animating = False
 
     # ==
-    
+
     def center_and_scale_from_bbox(self, bbox, klugefactor = 1.0):
         #bruce 070919 split this out of some other methods here.
         ### REVIEW: should this be a BBox method (taking aspect as an argument)?
@@ -422,12 +422,12 @@ class GLPane_view_change_methods(object):
         """
         Redraw GLPane and update the repaint duration variable <self._repaint_duration>
         used by animateToView() to compute the proper number of animation frames.
-        Redraws the GLPane twice if <new_part> is True and only saves the repaint 
+        Redraws the GLPane twice if <new_part> is True and only saves the repaint
         duration of the second redraw.  This is needed in the case of drawing a newly opened part,
         which takes much longer to draw the first time than the second (or thereafter).
         """
         # The first redraw of a new part takes much longer than the second redraw.
-        if new_part: 
+        if new_part:
             self.gl_update()
             env.call_qApp_processEvents() # Required!
 

@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 DragBehavior_AlongLine.py
 
@@ -50,7 +50,7 @@ class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavi
         ##e rename Ray -> MarkedLine? (a line, with real number markings on it) ParametricLine? (no, suggests they can be distorted/curved)
     range = Option(tuple_Expr, None, doc = "range limit of height")#nim
     ##e drag event object can be passed to us... as a delegate! [In recent code, it seems like the Highlightable is taking this role.]
-        
+
     # (if this delegates or supers to something that knows all about the drag in a lower level way,
     #  then maybe it's not so bad to be getting dragevent info from self rather than a dragevent arg... hmm.
     #  An argument in favor of that: self is storing state related to one drag anyway, so nothing is lost
@@ -62,7 +62,7 @@ class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavi
     # related: Maybe DraggableObject gets split into the MovableObject and the DragBehavior...
 
     # same as in SimpleDragBehavior: saved_coordsys & current_event_mousepoint
-    
+
     # state:
     saved_coordsys = Instance( SavedCoordsys() ) # provides transient state for saving a fixed coordsys to use throughout a drag
 
@@ -82,14 +82,14 @@ class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavi
         """
         k = self.posn_parameter_ref.value
         return self.constrain_to_line.posn_from_params(k) #e review renaming, since we are asking it for a 3-tuple
-    
+
     def on_press(self):
         self.saved_coordsys.copy_from( self.highlightable) # needed before using current_event_mousepoint or current_event_mouseray
             # (since self.highlightable's coordsys changes during the drag)
         self.startpoint = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
         self.offset = self.startpoint - (ORIGIN + self._translation) #k maybe ok for now, but check whether sensible in long run
         self.line = self.constrain_to_line + self.offset # the line the hitpoint is on (and constrained to, if handle is rigid)
-            # (this is parallel to self.constrain_to_line and intersects the hitpoint) 
+            # (this is parallel to self.constrain_to_line and intersects the hitpoint)
     def on_drag(self):
         # Note: we can assume this is a "real drag" (not one which is too short to count), due to how we are called.
         mouseray = self.current_event_mouseray()
@@ -134,7 +134,7 @@ class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavi
             #
         if k is not None:
             # store k, after range-limiting
-            range = self.range # don't use the python builtin of the same name, 
+            range = self.range # don't use the python builtin of the same name,
                                #in this method! (#e or rename the option?)
             if range is not None:
                 low, high = range
@@ -142,8 +142,8 @@ class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavi
                     k = low
                 if high is not None and k > high:
                     k = high
-            self.posn_parameter_ref.value = k 
-            ##e by analogy with DraggableObject, should we perhaps save this 
+            self.posn_parameter_ref.value = k
+            ##e by analogy with DraggableObject, should we perhaps save this
             ##side effect until the end?
         return
     def on_release(self):

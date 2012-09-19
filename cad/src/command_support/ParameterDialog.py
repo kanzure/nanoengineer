@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ParameterDialog.py -- generate dialogs for editing sets of parameters,
 from descriptions of the parameters and of how to edit them,
@@ -70,7 +70,7 @@ from utilities.parse_utils import parse_top, Whole #bruce 080101 moved to toplev
 ##self.preview_btn.setIcon(QIcon(self.image5))
 ##self.whatsthis_btn.setIcon(QIcon(self.image6))
 ##self.nt_parameters_grpbtn.setIcon(QIcon(self.image7))
-        
+
 ## class parameter_dialog(QDialog): # was nanotube_dialog
 class parameter_dialog_or_frame:
     """
@@ -80,7 +80,7 @@ class parameter_dialog_or_frame:
     def __init__(self, parent = None, desc = None, name = None, modal = 0, fl = 0, env = None, type = "QDialog"):
         if env is None:
             import foundation.env as env # this is a little weird... probably it'll be ok, and logically it seems correct.
-        
+
         self.desc = desc
 
         self.typ = type
@@ -92,7 +92,7 @@ class parameter_dialog_or_frame:
             QFrame.__init__(self,parent,name)
         else:
             print "don't know about type == %r" % (type,)
-        
+
         self.image1 = QPixmap()
         self.image1.loadFromData(image1_data,"PNG") # should be: title_icon ####
         self.image3 = QPixmap()
@@ -200,11 +200,11 @@ class parameter_dialog_or_frame:
         self.param_getters = {} # map from param name to get-function (which gets current value out of its widget or controller)
 
         for group_desc in self.desc.kids('group'):
-            
+
             # == start parameters_grpbox ### this will differ for Windows style
 
             header_refs = [] # keep python refcounted refs to all objects we make (at least the ones pyuic stored in self attrs)
-            
+
             self.parameters_grpbox = QGroupBox(self.body_frame,"parameters_grpbox")
             self.parameters_grpbox.setFrameShape(QGroupBox.StyledPanel)
             self.parameters_grpbox.setFrameShadow(QGroupBox.Sunken)
@@ -239,10 +239,10 @@ class parameter_dialog_or_frame:
             # == start its kids
 
             # will use from above: self.parameters_grpbox, nt_parameters_body_layout
-            
+
             nextrow = 0 # which row of the QGridLayout to start filling next (loop variable)
             hidethese = [] # set of objects to hide or show, when this group is closed or opened
-            
+
             for param in group_desc.kids('parameter'):
                 # param (a group subobj desc) is always a parameter, but we already plan to extend this beyond that,
                 # so we redundantly test for this here.
@@ -263,7 +263,7 @@ class parameter_dialog_or_frame:
                     paramlabel = param.options.get('label') or paramname ##e wrong, label "" or none ought to be possible
                     # QtGui.QApplication.translate(self.__class__.__name__, "xyz")
                     label.setText(QtGui.QApplication.translate(self.__class__.__name__, paramlabel))
-                    
+
                 if param.isa('parameter', widget = 'combobox', type = ('str',None)):
                     self.members_combox = QComboBox(0,self.parameters_grpbox,"members_combox") ###k  what's 0?
                     editfield = self.members_combox
@@ -282,7 +282,7 @@ class parameter_dialog_or_frame:
                     getter = (lambda combobox = self.members_combox: str(combobox.currentText()))
                         ##e due to __tr or non-str values, it might be better to use currentIndex and look it up in a table
                         # (though whether __tr is good here might depend on what it's used for)
-                                    
+
                 elif param.isa('parameter', widget = ('lineedit', None), type = ('str',None)):
                     # this covers explicit str|lineedit, and 3 default cases str, lineedit, neither.
                     # (i.e. if you say parameter and nothing else, it's str lineedit by default.)
@@ -293,7 +293,7 @@ class parameter_dialog_or_frame:
                     default = str(param.options.get('default', ""))
                     self.length_linedit.setText(QtGui.QApplication.translate(self.__class__.__name__, default)) # __tr ok?
                     getter = (lambda lineedit = self.length_linedit: str(lineedit.text()))
-                    
+
                 elif param.isa('parameter', widget = ('lineedit', None), type = 'float'):
                     self.length_linedit = QLineEdit(self.parameters_grpbox,"length_linedit")
                     editfield = self.length_linedit
@@ -302,7 +302,7 @@ class parameter_dialog_or_frame:
                     controller = FloatLineeditController_Qt(self, param, self.length_linedit)
                     header_refs.append(controller)
                     getter = controller.get_value
-                    
+
                 elif param.isa('parameter', widget = ('spinbox', None), type = 'int') or \
                      param.isa('parameter', widget = ('spinbox'), type = None):
                     self.chirality_N_spinbox = QSpinBox(self.parameters_grpbox,"chirality_N_spinbox") # was chirality_m_spinbox, now chirality_N_spinbox
@@ -322,7 +322,7 @@ class parameter_dialog_or_frame:
                     nt_parameters_body_layout.addWidget(self.chirality_N_spinbox,thisrow,1)
                     hidethese.append(self.chirality_N_spinbox)
                     getter = self.chirality_N_spinbox.value # note: it also has .text, which includes suffix
-                    
+
                 else:
                     print "didn't match:",param ###e improve this
 
@@ -336,14 +336,14 @@ class parameter_dialog_or_frame:
                         QToolTip.add(label, QtGui.QApplication.translate(self.__class__.__name__, tooltip))
                     if tooltip and editfield:
                         QToolTip.add(editfield, QtGui.QApplication.translate(self.__class__.__name__, tooltip)) ##k ok?? review once not all params have same-row labels.
-                
+
                 if getter and paramname and paramname != '?':
                     self.param_getters[paramname] = getter
                 ### also bind these params to actions...
                 continue # next param
 
             header_refs.extend( [self.parameters_grpbox, self.nt_parameters_grpbtn, self.parameters_grpbox_label] )
-            
+
             # now create the logic/control object for the group
             group = CollapsibleGroupController_Qt(self, group_desc, header_refs, hidethese, self.nt_parameters_grpbtn)
                 ### maybe ask env for the class to use for this?
@@ -356,14 +356,14 @@ class parameter_dialog_or_frame:
             self.parameters_grpbox_label.setText(QtGui.QApplication.translate(self.__class__.__name__, group_desc.args[0])) # was "Nanotube Parameters"
                 ##e note that it's questionable in the syntax design for this property of a group (overall group label)
                 # to be in that position (desc arg 0).
-        
+
             # == end its kids
-            
+
             parameters_grpboxLayout.addLayout(nt_parameters_body_layout)
             body_frameLayout.addWidget(self.parameters_grpbox)
 
             # == end parameters groupbox
-            
+
             continue # next group
 
         nanotube_dialogLayout.addWidget(self.body_frame)
@@ -405,20 +405,20 @@ class parameter_dialog_or_frame:
 
     def languageChange(self):
         opts = self.desc.option_attrs
-        
+
         self.setCaption(QtGui.QApplication.translate(self.__class__.__name__, opts.caption)) # was "Nanotube"
         self.heading_label.setText(QtGui.QApplication.translate(self.__class__.__name__, opts.title)) # was "Nanotube"
         self.sponsor_btn.setText(QString.null)
-        
+
         self.done_btn.setText(QString.null)
         QToolTip.add(self.done_btn,QtGui.QApplication.translate(self.__class__.__name__, "Done"))
-        
+
         self.abort_btn.setText(QString.null)
         QToolTip.add(self.abort_btn,QtGui.QApplication.translate(self.__class__.__name__, "Cancel"))
-        
+
         self.preview_btn.setText(QString.null)
         QToolTip.add(self.preview_btn,QtGui.QApplication.translate(self.__class__.__name__, "Preview"))
-        
+
         self.whatsthis_btn.setText(QString.null)
         QToolTip.add(self.whatsthis_btn,QtGui.QApplication.translate(self.__class__.__name__, "What's This Help"))
 
@@ -441,7 +441,7 @@ class parameter_dialog_or_frame:
         self.cancel_btn.setText(QtGui.QApplication.translate(self.__class__.__name__, "Cancel"))
         self.ok_btn.setText(QtGui.QApplication.translate(self.__class__.__name__, "OK"))
         return
-    
+
     pass # end of class parameter_dialog_or_frame -- maybe it should be renamed
 
 # ==
@@ -519,7 +519,7 @@ class ParameterDialogBase(parameter_dialog_or_frame):
             # it may mean whether to really close (guess) [bruce 060719]
         if self.controller:
             res = self.controller.close()
-        return res 
+        return res
     def do_ok_btn(self):
 ##        print "do_ok_btn: printing then delegating"
         if 0:
@@ -563,7 +563,7 @@ def get_description(filename):
     Someday, support the other ones mentioned in our caller, ParameterDialog.__init__.__doc__.
     """
     assert type(filename) == type(""), "get_description only supports filenames for now (and not even unicode filenames, btw)"
-    
+
     file = open(filename, 'rU')
 
     gentok = generate_tokens(file.readline)
@@ -582,14 +582,14 @@ def get_description(filename):
         print "parse done"
 
     desc = res[0] #k class ThingData in parse_utils - move to another file? it stays with the toplevel grammar...
-    
+
     return desc # from get_description
 
 
 # == TEST CODE, though some might become real
 
 if __name__ == '__main__': # this has the parsing calls
-    
+
     class NTdialog(parameter_dialog_or_frame, QDialog): # in real life this will be something which delegates to controller methods
         def __init__(self, parent = None, desc = None):
             parameter_dialog_or_frame.__init__(self, parent, desc) # sets self.desc (buttons might want to use it)
@@ -619,20 +619,20 @@ if __name__ == '__main__': # this has the parsing calls
 
     import sys
     a = QApplication(sys.argv)
-        
+
     ## filename = "testui.txt"
     filename = "../plugins/CoNTub/HJ-params.desc"
 
     desc = get_description(filename)
 
     parent = None # should be win or app?
-    
+
     w = NTdialog(parent, desc) ### also, env to supply prefs, state to control
     w.show()
     a.connect(a, SIGNAL('lastWindowClosed()'), a, SLOT('quit()'))
     print "about to exec_"
     a.exec_()
-    
+
     print "exiting, test done"
-    
+
 # end

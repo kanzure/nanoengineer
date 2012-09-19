@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 qutemol.py - provides routines to support QuteMolX as a plug-in.
 
@@ -9,7 +9,7 @@ qutemol.py - provides routines to support QuteMolX as a plug-in.
 History:
 
 mark 2007-06-02
-- Created file. Much of the plug-in checking code was copied from 
+- Created file. Much of the plug-in checking code was copied from
 povray.py, written by Bruce.
 
 Module classification: [bruce 071215, 080103]
@@ -47,38 +47,38 @@ from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
 def launch_qutemol(pdb_file):
     """
     Launch and load QuteMolX with the PDB file I{pdb_file}.
-    
+
     @param pdb_file: the PDB filename to load
     @type  pdb_file: string
-    
+
     @return: (errorcode, errortext)
              where errorcode is one of the following: ###k
                  0 = successful
                  8 = QuteMolX failed for an unknown reason.
     @rtype:  int, text
     """
-    
+
     plugin_name = "QuteMolX"
     plugin_prefs_keys = (qutemol_enabled_prefs_key, qutemol_path_prefs_key)
-            
+
     errorcode, errortext_or_path = \
              checkPluginPreferences(plugin_name, plugin_prefs_keys,
                                     insure_executable = True)
     if errorcode:
         return errorcode, errortext_or_path
-    
+
     program_path = errortext_or_path
-    
+
     workdir, junk_exe = os.path.split(program_path)
-    
+
     # This provides a way to tell NE1 which version of QuteMolX is installed.
-    if debug_pref("QuteMol 0.4.1 or later", 
-                  Choice_boolean_True, 
+    if debug_pref("QuteMol 0.4.1 or later",
+                  Choice_boolean_True,
                   prefs_key = True):
         version = "0.4.1"
     else:
         version = "0.4.0"
-    
+
     # Start QuteMolX.
     try:
         args = [pdb_file]
@@ -87,28 +87,28 @@ def launch_qutemol(pdb_file):
                   "\n  working directory=", workdir, \
                   "\n  program_path=", program_path,  \
                   "\n  args are %r" % (args,)
-        
+
         arguments = QStringList()
         for arg in args:
             if arg != "":
                 arguments.append(arg)
-        
+
         p = Process()
-        
-        # QuteMolX must run from the directory its executable lives. Otherwise,  
+
+        # QuteMolX must run from the directory its executable lives. Otherwise,
         # it has serious problems (but still runs). Mark 2007-06-02.
         p.setWorkingDirectory(QString(workdir))
-        
-        # Tried p.startDetached() so that QuteMolX would be its own process and 
-        # continue to live even if NE1 exits. Unfortunately, 
-        # setWorkingDirectory() doesn't work. Seems like a Qt bug to me. 
+
+        # Tried p.startDetached() so that QuteMolX would be its own process and
+        # continue to live even if NE1 exits. Unfortunately,
+        # setWorkingDirectory() doesn't work. Seems like a Qt bug to me.
         # Mark 2007-06-02
         p.start(program_path, arguments)
-        
+
     except:
         print_compact_traceback( "exception in launch_qutemol(): " )
         return 8, "%s failed for an unknown reason." % plugin_name
-    
+
     # set an appropriate exitcode and msg
     if p.exitStatus() == QProcess.NormalExit:
         exitcode = p.exitStatus()
@@ -120,11 +120,11 @@ def launch_qutemol(pdb_file):
         exitcode = p.exitStatus()
         exitcode = -1
         msg = "Abnormal exit (or failure to launch)"
-        
+
     if exitcode:
-        return 8, "Error: " + msg 
+        return 8, "Error: " + msg
         # this breaks the convention of the other error returns
-            
+
     return 0, plugin_name + " launched." # from launch_qutemol
 
 
@@ -159,17 +159,17 @@ REMARK   8 ;           Number                Radius\n""")
         r = int(color[0] * 255 + 0.5)
         g = int(color[1] * 255 + 0.5)
         b = int(color[2] * 255 + 0.5)
-            
+
         # The following was distilled from chem.py: Atom.howdraw()
         #
         # "Render Radius"
         cpkRadius = \
             element.rvdw * env.prefs[cpkScaleFactor_prefs_key]
-            
+
         # "Covalent Radius"
         ballAndStickRadius = \
             element.rvdw * 0.25 * env.prefs[diBALL_AtomRadius_prefs_key]
-        
+
         #if element.symbol == 'Ax3':
         #    ballAndStickRadius = 0.1
 
@@ -177,43 +177,43 @@ REMARK   8 ;           Number                Radius\n""")
             ("REMARK   8  %-3s        %-3d       %3.3f       %3.3f           %3d  %3d  %3d\n"
              % (element.symbol, elementNumber, cpkRadius, ballAndStickRadius,
                 r, g, b))
-    
+
     fileHandle.close()
-    return 
+    return
 
 def write_qutemol_pdb_file(part, filename, excludeFlags):
     """
-    Writes an NE1-QuteMolX PDB file of I{part} to I{filename}. 
-    
+    Writes an NE1-QuteMolX PDB file of I{part} to I{filename}.
+
     @param part: the NE1 part.
     @type  part: L{assembly}
-    
+
     @param filename: the PDB filename to write
     @type  filename: string
-    
-    @param excludeFlags: used to exclude certain atoms from being written 
+
+    @param excludeFlags: used to exclude certain atoms from being written
         to the QuteMolX PDB file.
     @type  excludeFlags: int
-    
+
     @see L{writepdb()} for more information about I{excludeFlags}.
     """
-    
+
     f = open(filename, "w")
-    
+
     skyBlue = env.prefs[ backgroundGradient_prefs_key ]
-        
+
     bgcolor = env.prefs[ backgroundColor_prefs_key ]
     r = int (bgcolor[0] * 255 + 0.5)
     g = int (bgcolor[1] * 255 + 0.5)
     b = int (bgcolor[2] * 255 + 0.5)
-    
+
     TubBond1Radius = TubeRadius
     BASBond1Radius = \
                    diBALL_SigmaBondRadius * \
                    env.prefs[diBALL_BondCylinderRadius_prefs_key]
-                   
+
     writePDB_Header(f) # Writes our generic PDB header
-    
+
     # Write the QuteMolX REMARKS "header".
     # See the following wiki page for more information about
     # the format of all NE1-QuteMolX REMARK records:
@@ -223,26 +223,26 @@ def write_qutemol_pdb_file(part, filename, excludeFlags):
 REMARK   6 - The ";" character is used to denote non-data (explanatory) records
 REMARK   6   in the REMARK 7 and REMARK 8 blocks.
 REMARK   6
-REMARK   7 
+REMARK   7
 REMARK   7 ;Display Data (format version 0.1.0) nanoengineer-1.com/PDB_REMARK_7
 REMARK   7\n""")
-    
-    f.write("REMARK   7 ORIENTATION: %1.6f %1.6f %1.6f %1.6f\n" 
+
+    f.write("REMARK   7 ORIENTATION: %1.6f %1.6f %1.6f %1.6f\n"
             % (part.o.quat.w, part.o.quat.x, part.o.quat.y, part.o.quat.z))
-    f.write("REMARK   7 SCALE: %4.6f\n" 
+    f.write("REMARK   7 SCALE: %4.6f\n"
             % part.o.scale)
-    f.write("REMARK   7 POINT_OF_VIEW: %6.6f %6.6f %6.6f\n" 
+    f.write("REMARK   7 POINT_OF_VIEW: %6.6f %6.6f %6.6f\n"
             % (part.o.pov[0], part.o.pov[1], part.o.pov[2]))
-    f.write("REMARK   7 ZOOM=%6.6f\n" 
+    f.write("REMARK   7 ZOOM=%6.6f\n"
             % part.o.zoomFactor)
     if skyBlue:
         f.write("REMARK   7 BACKGROUND_COLOR: SkyBlue\n")
     else:
-        f.write("REMARK   7 BACKGROUND_COLOR: %3d %3d %3d\n" 
+        f.write("REMARK   7 BACKGROUND_COLOR: %3d %3d %3d\n"
             % (r, g, b))
-    f.write("REMARK   7 DISPLAY_STYLE: %s\n" 
+    f.write("REMARK   7 DISPLAY_STYLE: %s\n"
             % properDisplayNames[part.o.displayMode])
-    f.write("REMARK   7 TUBES_BOND_RADIUS: %1.3f\n" 
+    f.write("REMARK   7 TUBES_BOND_RADIUS: %1.3f\n"
             % TubBond1Radius)
     f.write("REMARK   7 BALL_AND_STICK_BOND_RADIUS: %1.3f\n"
             % BASBond1Radius)
@@ -262,26 +262,26 @@ REMARK   7\n""")
             b = int (mol.color[2] * 255 + 0.5)
             f.write("  COLOR: %3d %3d %3d " % (r, g, b))
         f.write("  NAME: \"%s\"\n" % mol.name)
-        
+
         molNum+=1
-        
+
     f.write("REMARK   7\n")
-        
+
     write_art_data(f)
-    
+
     f.close()
-    
+
     # Write the "body" of PDB file (appending it to what we just wrote).
     writepdb(part, filename, mode = 'a', excludeFlags = excludeFlags)
-    
+
 def write_qutemol_files(part, excludeFlags = EXCLUDE_HIDDEN_ATOMS):
     """
     Writes a PDB of the current I{part} to the Nanorex temp directory.
-    
+
     @param part: the NE1 part.
     @type  part: L{assembly}
-    
-    @param excludeFlags: used to exclude certain atoms from being written 
+
+    @param excludeFlags: used to exclude certain atoms from being written
         to the QuteMolX PDB file, where:
         WRITE_ALL_ATOMS = 0 (even writes hidden and invisble atoms)
         EXCLUDE_BONDPOINTS = 1 (excludes bondpoints)
@@ -290,35 +290,35 @@ def write_qutemol_files(part, excludeFlags = EXCLUDE_HIDDEN_ATOMS):
         EXCLUDE_DNA_AXIS_ATOMS = 8 (excludes PAM3 axis atoms)
         EXCLUDE_DNA_AXIS_BONDS = 16 (suppresses PAM3 axis bonds)
     @type  excludeFlags: int
-    
+
     @return: the name of the temp PDB file, or None if no atoms are in I{part}.
     @rtype:  str
     """
-    
-    # Is there a better way to get the number of atoms in <part>.? 
+
+    # Is there a better way to get the number of atoms in <part>.?
     # Mark 2007-06-02
-    stats = Statistics(part.tree) 
-        
+    stats = Statistics(part.tree)
+
     if 0:
         stats.num_atoms = stats.natoms - stats.nsinglets
         print "write_qutemol_files(): natoms =", stats.natoms, \
               "nsinglets =", stats.nsinglets, \
               "num_atoms =", stats.num_atoms
-    
+
     if not stats.natoms:
         # There are no atoms in the current part.
-        # writepdb() will create an empty file, which causes 
+        # writepdb() will create an empty file, which causes
         # QuteMolX to crash at launch.
         # Mark 2007-06-02
         return None
-    
+
     pdb_basename = "QuteMolX.pdb"
-    
+
     # Make full pathnames for the PDB file (in ~/Nanorex/temp/)
     tmpdir = find_or_make_Nanorex_subdir('temp')
     qutemol_pdb_file = os.path.join(tmpdir, pdb_basename)
-    
+
     # Write the PDB file.
     write_qutemol_pdb_file(part, qutemol_pdb_file, excludeFlags)
-    
+
     return qutemol_pdb_file

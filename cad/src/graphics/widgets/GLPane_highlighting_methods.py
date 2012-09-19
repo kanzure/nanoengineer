@@ -71,30 +71,30 @@ class GLPane_highlighting_methods(object):
      rather than directly from methods defined in class GLPane)
     """
     # default values for instance variables related to glSelectBuffer feature
-    # (note, SIZE_FOR_glSelectBuffer is also part of this set, but is 
+    # (note, SIZE_FOR_glSelectBuffer is also part of this set, but is
     #  defined in GLPane_minimal.py)
-    glselect_wanted = 0 
+    glselect_wanted = 0
         # whether the next paintGL should start with a glSelectBuffer call
-    current_glselect = False 
+    current_glselect = False
         # False, or a 4-tuple of parameters for GL_SELECT rendering
         ### TODO: document this better
 
     # note: self.glselect_dict is defined and initialized in
     # GLPane_rendering_methods, since it's also used there,
     # as well as in methods defined here and called there.
-    
+
     def do_glselect_if_wanted(self): #bruce 070919 split this out
         """
         Do the glRenderMode(GL_SELECT) drawing, and/or the glname-color
         drawing for shader primitives, used to guess which object
         might be under the mouse, for one drawing frame,
         if desired for this frame. Report results by storing candidate
-        mouseover objects in self.glselect_dict. 
-        
+        mouseover objects in self.glselect_dict.
+
         The depth buffer is initially clear, and must be clear
         when we're done as well.
 
-        @note: does not do related individual object depth/stencil 
+        @note: does not do related individual object depth/stencil
                buffer drawing -- caller must do that on some or all
                of the objects we store into self.glselect_dict.
         """
@@ -128,29 +128,29 @@ class GLPane_highlighting_methods(object):
                                       Choice_boolean_False, prefs_key = True )
 
             if self.enabled_shaders():
-                # TODO: optimization: find an appropriate place to call 
+                # TODO: optimization: find an appropriate place to call
                 # _compute_frustum_planes. [bruce 090105 comment]
-                
+
                 # Russ 081122: There seems to be no way to access the GL name
                 # stack in shaders. Instead, for mouseover, draw shader
                 # primitives with glnames as colors in glRenderMode(GL_RENDER),
                 # then read back the pixel color (glname) and depth value.
-                
+
                 # Temporarily replace the full-size viewport with a little one
                 # at the mouse location, matching the pick matrix location.
                 # Otherwise, we will draw a closeup of that area into the whole
                 # window, rather than a few pixels. (This wasn't needed when we
                 # only used GL_SELECT rendering mode here, because that doesn't
-                # modify the frame buffer -- it just returns hits by graphics 
+                # modify the frame buffer -- it just returns hits by graphics
                 # primitives when they are inside the clipping boundaries.)
                 #
                 # (Don't set the viewport *before* _setup_projection(), since
                 #  that method needs to read the current whole-window viewport
-                #  to set up glselect. See explanation in its docstring.)                
-                
+                #  to set up glselect. See explanation in its docstring.)
+
                 savedViewport = glGetIntegerv(GL_VIEWPORT)
                 glViewport(wX, wY, pwSize, pwSize) # Same as current_glselect.
-                
+
                 # First, clear the pixel RGBA to zeros and a depth of 1.0 (far),
                 # so we won't confuse a color with a glname if there are
                 # no shader primitives drawn over this pixel.
@@ -160,13 +160,13 @@ class GLPane_highlighting_methods(object):
                 gl_format, gl_type = GL_RGBA, GL_UNSIGNED_BYTE
                 glDrawPixels(pwSize, pwSize, gl_format, gl_type, (0, 0, 0, 0))
                 glDepthFunc(saveDepthFunc) # needed, though we'll change it again
-                
+
                 # We must be in glRenderMode(GL_RENDER) (as usual) when this is called.
                 # Note: _setup_projection leaves the matrix mode as GL_PROJECTION.
                 glMatrixMode(GL_MODELVIEW)
                 shaders = self.enabled_shaders()
                 try:
-                    # Set flags so that we will use glnames-as-color mode 
+                    # Set flags so that we will use glnames-as-color mode
                     # in shaders, and draw only shader primitives.
                     # (Ideally we would also draw all non-shader primitives
                     #  as some other color, unequal to all glname colors
@@ -174,16 +174,16 @@ class GLPane_highlighting_methods(object):
                     #  in order to obscure shader primitives where appropriate.
                     #  This is intended to be done but is not yet implemented.
                     #  [bruce 090105 addendum])
-                    for shader in shaders:                        
+                    for shader in shaders:
                         shader.setPicking(True)
                     self.set_drawing_phase("glselect_glname_color")
-                    
+
                     for stereo_image in self.stereo_images_to_draw:
                         self._enable_stereo(stereo_image)
                         try:
                             self._do_graphicsMode_Draw(for_mouseover_highlighting = True)
-                                # note: we can't disable depth writing here, 
-                                # since we need it to make sure the correct 
+                                # note: we can't disable depth writing here,
+                                # since we need it to make sure the correct
                                 # shader object comes out on top, or is
                                 # obscured by a DL object. Instead, we'll
                                 # clear the depth buffer again (at this pixel)
@@ -199,25 +199,25 @@ class GLPane_highlighting_methods(object):
                     self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                     # now it's important to continue, at least enough to restore other gl state
                     pass
-                for shader in shaders:                        
+                for shader in shaders:
                     shader.setPicking(False)
                 self.set_drawing_phase('?')
-                
+
                 # Restore the viewport.
-                glViewport(savedViewport[0], savedViewport[1], 
+                glViewport(savedViewport[0], savedViewport[1],
                            savedViewport[2], savedViewport[3])
-                
+
                 # Read pixel value from the back buffer and re-assemble glname.
                 glFinish() # Make sure the drawing has completed.
                     # REVIEW: is this glFinish needed? [bruce 090105 comment]
                 rgba = glReadPixels( wX, wY, 1, 1, gl_format, gl_type )[0][0]
                 pixZ = glReadPixelsf( wX, wY, 1, 1, GL_DEPTH_COMPONENT)[0][0]
-                
+
                 # Clear our depth pixel to 1.0 (far), so we won't mess up the
                 # subsequent call of preDraw_glselect_dict.
                 # (The following is not the most direct way, but it ought to work.
                 #  Note that we also clear the color pixel, since (being a glname)
-                #  it has no purpose remaining in the color buffer -- either it's 
+                #  it has no purpose remaining in the color buffer -- either it's
                 #  changed later, or, if not, that's a bug, but we'd rather have
                 #  it black than a random color.) [bruce 090105 bugfix]
                 glDepthFunc(GL_ALWAYS)
@@ -230,7 +230,7 @@ class GLPane_highlighting_methods(object):
 
                 # Comes back sign-wrapped, in spite of specifying UNSIGNED_BYTE.
                 def us(b):
-                    if b < 0: 
+                    if b < 0:
                         return 256 + b
                     return b
                 bytes = tuple([us(b) for b in rgba])
@@ -242,7 +242,7 @@ class GLPane_highlighting_methods(object):
                            "rgba bytes (0x%x, 0x%x, 0x%x, 0x%x), " % bytes +
                            "Z %f, glname 0x%x" % (pixZ, glname))
                     pass
-                
+
                 ### XXX This ought to be better-merged with the DL selection below.
                 if glname:
                     obj = self.object_for_glselect_name(glname)
@@ -287,28 +287,28 @@ class GLPane_highlighting_methods(object):
                         pass
                     pass
                 pass
-            
+
             if self._use_frustum_culling:
-                self._compute_frustum_planes() 
-                # piotr 080331 - the frustum planes have to be setup after the 
+                self._compute_frustum_planes()
+                # piotr 080331 - the frustum planes have to be setup after the
                 # projection matrix is setup. I'm not sure if there may
                 # be any side effects - see the comment below about
                 # possible optimization.
             glSelectBuffer(self.SIZE_FOR_glSelectBuffer)
                 # Note: this allocates a new select buffer,
-                # and glRenderMode(GL_RENDER) returns it and forgets it, 
+                # and glRenderMode(GL_RENDER) returns it and forgets it,
                 # so it's required before *each* call of glRenderMode(GL_SELECT) +
                 # glRenderMode(GL_RENDER), not just once to set the size.
                 # Ref: http://pyopengl.sourceforge.net/documentation/opengl_diffs.html
                 # [bruce 080923 comment]
             glInitNames()
-            
+
             # REVIEW: should we also set up a clipping plane just behind the
             # hit point, as (I think) is done in ThumbView, to reduce the
             # number of candidate objects? This might be a significant
             # optimization, though I don't think it eliminates the chance
             # of having multiple candidates. [bruce 080917 comment]
-            
+
             glRenderMode(GL_SELECT)
             glMatrixMode(GL_MODELVIEW)
             try:
@@ -325,16 +325,16 @@ class GLPane_highlighting_methods(object):
                 glMatrixMode(GL_MODELVIEW)
                 self._setup_modelview( ) ### REVIEW: correctness of this is unreviewed!
                 # now it's important to continue, at least enough to restore other gl state
-                
-            self._frustum_planes_available = False # piotr 080331 
-                # just to be safe and not use the frustum planes computed for 
+
+            self._frustum_planes_available = False # piotr 080331
+                # just to be safe and not use the frustum planes computed for
                 # the pick matrix
             self.set_drawing_phase('?')
             self.current_glselect = False
             # REVIEW: On systems with no stencil buffer, I think we'd also need
-            # to draw selobj here in highlighted form (in case that form is 
-            # bigger than when it's not highlighted), or (easier & faster) 
-            # just always pretend it passes the hit test and add it to 
+            # to draw selobj here in highlighted form (in case that form is
+            # bigger than when it's not highlighted), or (easier & faster)
+            # just always pretend it passes the hit test and add it to
             # glselect_dict -- and, make sure to give it "first dibs" for being
             # the next selobj. I'll implement some of this now (untested when
             # no stencil buffer) but not yet all. [bruce 050612]
@@ -342,7 +342,7 @@ class GLPane_highlighting_methods(object):
             if selobj is not None:
                 self.glselect_dict[id(selobj)] = selobj
                     # (review: is the following note correct?)
-                    # note: unneeded, if the func that looks at this dict always 
+                    # note: unneeded, if the func that looks at this dict always
                     # tries selobj first (except for a kluge near
                     # "if self.glselect_dict", commented on below)
             glFlush()
@@ -402,7 +402,7 @@ class GLPane_highlighting_methods(object):
                     else:
                         self.glselect_dict[id(obj)] = obj
                             # note: outside of this method, one of these will be
-                            # chosen to be saved as self.selobj and rerendered 
+                            # chosen to be saved as self.selobj and rerendered
                             # in "highlighted" form
                         ##if 0:
                         ##    # this debug print was useful for debugging bug 2945,
@@ -417,21 +417,21 @@ class GLPane_highlighting_methods(object):
                 continue # next hit_record
             #e maybe we should now sort glselect_dict by "hit priority"
             # (for depth-tiebreaking), or at least put selobj first.
-            # (or this could be done lower down, where it's used.) 
+            # (or this could be done lower down, where it's used.)
             # [I think we do this now...]
-            
+
         return # from do_glselect_if_wanted
-    
+
     def object_for_glselect_name(self, glname): #bruce 080220
         """
         """
         return self.assy.object_for_glselect_name(glname)
-    
+
     def alloc_my_glselect_name(self, obj): #bruce 080917
         """
         """
         return self.assy.alloc_my_glselect_name(obj)
-    
+
     def _draw_highlighted_selobj(self, selobj, hicolor):
         #bruce 070920 split this out; 090311 renamed it
         """
@@ -446,7 +446,7 @@ class GLPane_highlighting_methods(object):
         """
         # draw the selobj as highlighted, and make provisions for fast test
         # (by external code) of mouse still being over it (using stencil buffer)
-        
+
         # note: if selobj highlight is partly translucent or transparent (neither yet supported),
         # we might need to draw it depth-sorted with other translucent objects
         # (now drawn by some modes using Draw_after_highlighting, not depth-sorted or modularly);
@@ -454,14 +454,14 @@ class GLPane_highlighting_methods(object):
         # don't obscure it for purposes of highlighting hit-test). This will need to be thought through
         # carefully if there can be several translucent objects (meant to be opaque re hit-tests),
         # and traslucent highlighting. See also the comment about highlight_into_depth, below. [bruce 060724 comment]
-        
+
         # first gather info needed to know what to do -- highlight color (and whether to draw that at all)
         # and whether object might be bigger when highlighted (affects whether depth write is needed now).
-        
+
         assert hicolor is not None #bruce 070919
-        
+
         highlight_might_be_bigger = True # True is always ok; someday we might let some objects tell us this can be False
-        
+
         # color-writing is needed here, iff the mode asked for it, for this selobj.
         #
         # Note: in current code this is always True (as assertion above implies),
@@ -470,7 +470,7 @@ class GLPane_highlighting_methods(object):
         # in some ways and not others -- so just in case, keep this test for now.
         # [bruce 070919 comment]
         highlight_into_color = (hicolor is not None)
-        
+
         if highlight_into_color:
             # depth-writing is needed here, if highlight might be drawn in front of not-yet-drawn transparent surfaces
             # (like Build mode water surface) -- otherwise they will look like they're in front of some of the highlighting
@@ -479,12 +479,12 @@ class GLPane_highlighting_methods(object):
             highlight_into_depth = highlight_might_be_bigger
         else:
             highlight_into_depth = False ###@@@ might also need to store 0 into obj...see discussion above
-            
+
         if not highlight_into_depth:
             glDepthMask(GL_FALSE) # turn off depth writing (but not depth test)
         if not highlight_into_color:
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE) # don't draw color pixels
-            
+
         # Note: stencil buffer was cleared earlier in this paintGL call.
         glStencilFunc(GL_ALWAYS, 1, 1)
             # These args make sure stencil test always passes, so color is drawn if we want it to be,
@@ -499,14 +499,14 @@ class GLPane_highlighting_methods(object):
             # this enables both aspects of the test: effect on drawing, and use of stencil op (I think #k);
             # apparently they can't be enabled separately
         ##print glGetIntegerv( GL_STENCIL_REF)
-        
+
         # Now "translate the world" slightly closer to the screen,
         # to ensure depth test passes for appropriate parts of highlight-drawing
         # even if roundoff errors would make it unreliable to just let equal depths pass the test.
         # As of 070921 we use glDepthRange for this.
-        
+
         self.setDepthRange_Highlighting()
-        
+
         try:
             colorsorter_safe = getattr(selobj, '_selobj_colorsorter_safe', False)
                 # colorsorter_safe being False (in two places in this file)
@@ -533,9 +533,9 @@ class GLPane_highlighting_methods(object):
             )
             pass
         self.set_drawing_phase('?')
-        
+
         self.setDepthRange_Normal()
-        
+
         # restore other gl state
         # (but don't do unneeded OpenGL ops
         #  in case that speeds up OpenGL drawing)
@@ -546,8 +546,8 @@ class GLPane_highlighting_methods(object):
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
         if not highlight_into_depth:
             glDepthMask(GL_TRUE)
-        
-        if debug_pref("GLPane: draw stencil buffer?", 
+
+        if debug_pref("GLPane: draw stencil buffer?",
                       Choice_boolean_False,
                       prefs_key = True
                       ):
@@ -565,48 +565,48 @@ class GLPane_highlighting_methods(object):
             glEnable(GL_DEPTH_TEST)
             glDepthMask(GL_TRUE)
             pass
-        
+
         glDisable(GL_STENCIL_TEST)
-        
+
         return # from _draw_highlighted_selobj
-    
+
     def preDraw_glselect_dict(self): #bruce 050609
         """
         Assume the depth buffer is clear.
         Draw each object in self.glselect_dict (in a certain order)
-        (drawing them into depth buffer only) and measure its depth, 
+        (drawing them into depth buffer only) and measure its depth,
         until you find one near (undeep) enough (at the target pixel)
         to account for the target depth (self.targetdepth). Return
         that one, but first clear the depth buffer again.
-        
+
         @note: some details are not documented here; see the code.
         """
-        # We need to draw glselect_dict objects separately, 
+        # We need to draw glselect_dict objects separately,
         # so their drawing code runs now rather than in the past
-        # (when some display list was being compiled), 
+        # (when some display list was being compiled),
         # so they can notice they're in that dict.
-        # We also draw them first, so that the nearest one 
+        # We also draw them first, so that the nearest one
         # (or one of them, if there's a tie)
-        # is sure to update the depth buffer. 
-        # (Then we clear the depth buffer, so that this drawing 
+        # is sure to update the depth buffer.
+        # (Then we clear the depth buffer, so that this drawing
         #  doesn't mess up later drawing at the same depth.)
-        # (If some mode with special drawing code wants to join this system, 
-        #  it should be refactored to store special nodes in the model 
+        # (If some mode with special drawing code wants to join this system,
+        #  it should be refactored to store special nodes in the model
         #  which can be drawn in the standard way.)
         glMatrixMode(GL_MODELVIEW)
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE) 
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
             # optimization -- don't draw color pixels (depth is all we need)
         newpicked = None # in case of errors, and to record found object
         # here we should sort the objs to check the ones we most want first
         # (especially selobj)...
-        #bruce 050702 try sorting this, see if it helps pick bonds rather than 
+        #bruce 050702 try sorting this, see if it helps pick bonds rather than
         # invisible selatoms -- it seems to help.
         # This removes a bad side effect of today's earlier fix of bug 715-1.
         objects = self.glselect_dict.values()
         items = [] # (order, obj) pairs, for sorting objects
         for obj in objects:
             ### MAYBE TODO: add a special order for the object found previously
-            # by the glname-to-color code for shader primitives. 
+            # by the glname-to-color code for shader primitives.
             # But only do this after we're sure we draw all other objects
             # then too. And its order should be worse than selobj, I think.
             # [bruce 090105 comment]
@@ -626,7 +626,7 @@ class GLPane_highlighting_methods(object):
             items.append( (order, obj) )
         items.sort()
         report_failures = debug_pref(
-            "GLPane: preDraw_glselect_dict: report failures?", 
+            "GLPane: preDraw_glselect_dict: report failures?",
             Choice_boolean_False, prefs_key = True )
         if debug_pref("GLPane: check_target_depth debug prints?",
                       Choice_boolean_False, prefs_key = True):
@@ -760,14 +760,14 @@ class GLPane_highlighting_methods(object):
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         newdepth = wZ[0][0]
         targetdepth = self.targetdepth
-        ### possible change: here we could effectively move selobj forwards 
+        ### possible change: here we could effectively move selobj forwards
         # (to give it an advantage over other objects)...
         # but we'd need to worry about scales of coord systems in doing that...
-        # due to that issue it is probably easier to fix this solely when 
+        # due to that issue it is probably easier to fix this solely when
         # drawing it, instead.
-        if newdepth <= targetdepth + fudge: 
+        if newdepth <= targetdepth + fudge:
             # test passes -- return candidate below
-            
+
             # note: condition uses fudge factor in case of roundoff errors
             # (hardcoded as 0.0001 before 070115) or slight differences in
             # highlighted vs plain form of object (e.g. due to inconsistent

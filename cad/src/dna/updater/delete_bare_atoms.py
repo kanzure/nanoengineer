@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 delete_bare_atoms.py - delete atoms lacking required neighbors
 
@@ -51,7 +51,7 @@ def delete_bare_atoms( changed_atoms): # rename; also make not delete, just erro
     delete_these_atoms = [] # change to mark them as errors
 
     fix_these_bonds = {} # id(bond) -> bond
-    
+
     for atom in changed_atoms.itervalues():
         pam = atom.element.pam
         if pam: # optimization
@@ -105,7 +105,7 @@ def delete_bare_atoms( changed_atoms): # rename; also make not delete, just erro
             # transclose to find chunks connected by rung bonds, put in a dict, reset pam props below
             print " nim: reset pam props starting at", a1, a2
         continue
-    
+
     for atom in delete_these_atoms:
         #bruce 080515: always emit a deferred_summary_message,
         # since it can seem like a bug otherwise

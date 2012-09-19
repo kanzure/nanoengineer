@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 LinearMotorProp.py
 
@@ -18,7 +18,7 @@ class LinearMotorProp(QDialog, Ui_LinearMotorPropDialog):
 
         QWidget.__init__(self)
         self.setupUi(self)
-        
+
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
@@ -63,9 +63,9 @@ class LinearMotorProp(QDialog, Ui_LinearMotorPropDialog):
         simulations to begin with linear motors running at speed, this feature requires more work to be useful.</p>""")
 
     def setup(self):
-        
+
         self.jig_attrs = self.jig.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
-        
+
         # Jig color
         self.jig_QColor = RGBf_to_QColor(self.jig.normcolor) # Used as default color by Color Chooser
         self.jig_color_pixmap = get_widget_with_color_palette(
@@ -77,18 +77,18 @@ class LinearMotorProp(QDialog, Ui_LinearMotorPropDialog):
         self.widthLineEdit.setText(str(self.jig.width))
         self.sradiusLineEdit.setText(str(self.jig.sradius)) # spoke radius
         self.enable_minimize_checkbox.setChecked(self.jig.enable_minimize)
-   
+
     def change_jig_color(self):
         '''Slot method to change the jig's color.'''
         color = QColorDialog.getColor(self.jig_QColor, self)
 
-        if color.isValid():            
+        if color.isValid():
             self.jig_QColor = color
             self.jig_color_pixmap = get_widget_with_color_palette(
             self.jig_color_pixmap, self.jig_QColor)
             self.jig.color = self.jig.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
-            
+
     def change_motor_size(self, gl_update=True):
         '''Slot method to change the jig's length, width and/or spoke radius.'''
         self.jig.length = float(str(self.lengthLineEdit.text())) # motor length
@@ -96,7 +96,7 @@ class LinearMotorProp(QDialog, Ui_LinearMotorPropDialog):
         self.jig.sradius = float(str(self.sradiusLineEdit.text())) # spoke radius
         if gl_update:
             self.glpane.gl_update()
-        
+
     def accept(self):
         '''Slot for the 'OK' button '''
         self.jig.cancelled = False
@@ -105,13 +105,13 @@ class LinearMotorProp(QDialog, Ui_LinearMotorPropDialog):
         self.jig.stiffness = float(str(self.stiffnessLineEdit.text()))
 
         self.change_motor_size(gl_update=False)
-        
+
         self.jig.enable_minimize = self.enable_minimize_checkbox.isChecked()
 
         self.jig.assy.w.win_update() # Update model tree
         self.jig.assy.changed()
         QDialog.accept(self)
-        
+
     def reject(self):
         '''Slot for the 'Cancel' button '''
         self.jig.attr_update(self.jig_attrs) # Restore attributes of the jig.

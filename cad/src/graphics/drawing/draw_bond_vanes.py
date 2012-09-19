@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 draw_bond_vanes.py -- part of the drawing code for higher-order bonds --
 represent pi orbitals as "vanes".
@@ -59,7 +59,7 @@ def draw_bond_vanes(bond, glpane, sigmabond_cyl_radius, col):
             pass
         if ord_pi_z:
             # this only happens for triple or carbomeric bonds
-            draw_vane( bond, a1pz, a2pz, ord_pi_z, rad, col) 
+            draw_vane( bond, a1pz, a2pz, ord_pi_z, rad, col)
     return
 
 def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
@@ -122,14 +122,14 @@ def draw_vane( bond, a1p, a2p, ord_pi, rad, col ):
         # protect following code from color being None (which causes bus error,
         # maybe in PyOpenGL)
         assert len(color) == 3
-        
+
         ###@@@ it would be much faster to update this pref (or almost any
         # graphics color pref) if the OpenGL command to set the color was in its
         # own display list, redefined when the redraw starts, and called from
         # inside every other display list that needs it.  Then when you changed
         # it, gl_update would be enough -- the chunk display lists would not
         # need to be remade.
-        
+
         ###@@@ problems include:
         # - being fast enough
         # + dflt should be specified in just one place, and earlier than in this

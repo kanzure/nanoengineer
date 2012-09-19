@@ -31,7 +31,7 @@ _superclass = SelectChunks_GraphicsMode
 class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
     """
     #doc
-    
+
     @note: this has subclasses, including DnaSegment_GraphicsMode.
     """
 
@@ -90,9 +90,9 @@ class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
                     self.o.setCursor(self.win.rotateAboutCentralAxisCursor)
                 elif self.o.selobj.element.role == 'axis':
                     self.o.setCursor(self.win.translateAlongCentralAxisCursor)
-                    
-                    
-    
+
+
+
     def bareMotion(self, event):
         """
         @see: self.update_cursor_for_no_MB
@@ -161,8 +161,8 @@ class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
         self.leftADown(objectUnderMouse, event)
 
-    
-    
+
+
     def singletLeftDown(self, s, event):
         """
         Handles SingletLeftDown (left down on a bond point) event.
@@ -183,7 +183,7 @@ class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
         #So, for some significant amount of time, we may continue to use
         #this flag to temporarily enter/exit this command.
         #@see: self.leftUp(), BuildDna_GraphicsMode.singletLeftDown()
-        
+
         commandSequencer = self.win.commandSequencer
 
         commandSequencer.userEnterCommand('JoinStrands_By_DND')
@@ -537,7 +537,7 @@ class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
         self.o.gl_update()
         return
 
-    
+
     def editObjectOnSingleClick(self):
         """
         Subclasses can override this method. If this method returns True,
@@ -548,7 +548,7 @@ class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
         """
         if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:
             return True
-        
+
 
     def drawHighlightedChunk(self, glpane, selobj, hicolor, hicolor2):
         """
@@ -600,11 +600,11 @@ class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
         Draw the text near the cursor. It gives information about number of
         basepairs/bases being added or removed, length of the segment (if self.struct
         is a strand etc.
-        @param position: Optional argument. If position (a vector) is specified, 
-                         instead of drawing the text at the cursor position, 
-                         it is drawn at the specified position. 
+        @param position: Optional argument. If position (a vector) is specified,
+                         instead of drawing the text at the cursor position,
+                         it is drawn at the specified position.
         @type position: B{V} or None
-               
+
         @see: DnaSegment_GraphicsMode,  DnaStrand_GraphicsMode  (subclasses of
         this class where this is being used.
         """
@@ -615,7 +615,7 @@ class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
                 #number of base pairs etc
 
                 text , textColor = self.command.getCursorText()
-                                
+
                 if position is None:
                     self.glpane.renderTextNearCursor(text,
                                                      offset = 30,
@@ -623,11 +623,11 @@ class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
                                                      fontSize = env.prefs[cursorTextFontSize_prefs_key])
                 else:
                     self.glpane.renderTextAtPosition(position,
-                                                     text, 
+                                                     text,
                                                      textColor = textColor,
                                                      fontSize = env.prefs[cursorTextFontSize_prefs_key])
-    
-    
+
+
     def _drawLabels(self):
         """
         Overrides superclass method
@@ -635,7 +635,7 @@ class BuildDna_GraphicsMode( SelectChunks_GraphicsMode):
         @see: drawDnaLabels.py
         """
         _superclass._drawLabels(self)
-        #Draw the Dna base number labels. 
+        #Draw the Dna base number labels.
         draw_dnaBaseNumberLabels(self.glpane)
-        
-    
+
+

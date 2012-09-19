@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 test_polyline_drag.py
 
@@ -55,7 +55,7 @@ class test_polyline_drag(State_preMixin, ExampleCommand):
     lastSegmentEnd = State( Point, doc = "endpoint of last segment; only meaningful when rubberBand_enabled")
         # note: these might be redundant with some points in a polyline object;
         # should they be aliases into one?
-    
+
     rubberBandDrawable = If_expr( rubberBand_enabled,
                                   Line( lastSegmentStart, lastSegmentEnd,
                                         red,
@@ -63,11 +63,11 @@ class test_polyline_drag(State_preMixin, ExampleCommand):
                                         ),
                                   NullDrawable
                                   )
-    
+
     whatWeDraw = Instance(rubberBandDrawable)
 
     # init methods
-    
+
     def __init__(self, glpane):
         # not sure why this method is needed, see comment in test_connectWithState.__init__
         super(test_polyline_drag, self).__init__(glpane)
@@ -94,7 +94,7 @@ class test_polyline_drag(State_preMixin, ExampleCommand):
             ## AttributeError: 'test_polyline_drag' object has no attribute 'LMB_press_event'
             ##   [GLPane.py:1805] [selectAtomsMode.py:899]
         return
-    
+
     pass
 
 # end

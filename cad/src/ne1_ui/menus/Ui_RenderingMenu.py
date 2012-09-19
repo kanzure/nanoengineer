@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Ui_RenderingMenu.py - Menu for Rendering plug-ins like QuteMolX, POV-Ray
 and others to come (i.e. Sunflow)
@@ -33,5 +33,5 @@ def retranslateUi(win):
     """
     win.renderingMenu.setTitle(
         QtGui.QApplication.translate(
-            "MainWindow", "Rendering", 
+            "MainWindow", "Rendering",
             None, QtGui.QApplication.UnicodeUTF8))

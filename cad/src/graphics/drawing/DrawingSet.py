@@ -1,4 +1,4 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 DrawingSet.py -- Top-level API for drawing with batched primitives (spheres,
 cylinders, cones) supported by specialized OpenGL shader programs.
@@ -88,7 +88,7 @@ class DrawingSet:
         """
         @param csdl_list: Optional initial CSDL list.
         """
-        
+
         # Use the integer IDs of the CSDLs as keys in a dictionary.
         #
         # The "set" type is not used here, since it was introduced in Python
@@ -107,11 +107,11 @@ class DrawingSet:
         self._primSet = None
         self.CSDLs = {}
         return
-    
+
     # ==
 
     # A subset of the set-type API.
-    
+
     def addCSDL(self, csdl):
         """
         Add a CSDL to the DrawingSet.
@@ -208,7 +208,7 @@ class DrawingSet:
             have.update(add)
             self._primSet = None
         return
-    
+
     # ==
 
     def draw(self, highlighted = False, selected = False,
@@ -224,7 +224,7 @@ class DrawingSet:
         # (re)implement it for now when using deprecated class
         # TransformControl. This will make TCs do nothing in their
         # test cases in test_drawing. [bruce 090223 revision]
-                        
+
         # See if any of the CSDLs has changed (in primitive content, not in
         # transformControl value) more recently than the _primSet and
         # clear the _primSet cache if so.  (Possible optimization: regenerate
@@ -241,7 +241,7 @@ class DrawingSet:
 
         ##### REVIEW: does it copy any coordinates? [i don't think so]
         # if so, fix updateTransform somehow. [bruce 090224 comment]
-        
+
         if self._primSet is None:
             self._primSet = GLPrimitiveSet(self.CSDLs.values())
             pass

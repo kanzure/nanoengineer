@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 wiki_help.py -- associate webpages (typically in a wiki) with program features,
 and provide access to them. Pages typically contain feature-specific help info,
@@ -144,7 +144,7 @@ def open_wiki_help_dialog( featurename, actually_open = True ):
         html = """Click one of the following links to launch your web browser
                   to a NanoEngineer-1 wiki page containing help on the appropriate topic:<br>
                   - The current command/mode: %s<br>
-                  - %s 
+                  - %s
                </p>""" % (HTML_link(url, featurename), \
                       HTML_link(wiki_prefix() + "Main_Page", "The NanoEngineer-1 Wiki main page"))
                     #e in real life it'll be various aspects of your current context
@@ -188,7 +188,7 @@ def open_wiki_help_URL(url, whosdoingthis = "Wiki help"): #bruce 051229 split th
          )
         worked = False
     return worked
-    
+
 def wiki_prefix():
     """
     Return the prefix to which wiki page titles should be appended,
@@ -297,7 +297,7 @@ class WikiHelpBrowser(QDialog):
     """
     def __init__(self, text, parent = None, clicked_func = None, caption = "(caption)", size = None):
         QDialog.__init__(self,parent)
-        
+
         self.setWindowTitle(caption)
         self.setWindowIcon(QtGui.QIcon("ui/border/MainWindow"))
         self.setObjectName("WikiHelpBrowser")
@@ -308,19 +308,19 @@ class WikiHelpBrowser(QDialog):
         self.text_browser.setOpenExternalLinks(True)
         self.text_browser.setObjectName("text_browser")
         TextBrowserLayout.addWidget(self.text_browser, 0, 0, 1, 0)
-        
+
         self.text_browser.setMinimumSize(400, 200)
         # make it pale yellow like a post-it note
         self.text_browser.setHtml("<qt bgcolor=\"#FFFF80\">" + text)
-        
+
         self.close_button = QPushButton(self)
         self.close_button.setObjectName("close_button")
         self.close_button.setText("Close")
         TextBrowserLayout.addWidget(self.close_button, 1, 1)
-        
+
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         TextBrowserLayout.addItem(spacer, 1, 0)
-        
+
         self.resize(QSize(300, 300).expandedTo(self.minimumSizeHint()))
         if size == 1:
             self.text_browser.setMinimumSize(200, 400)
@@ -329,7 +329,7 @@ class WikiHelpBrowser(QDialog):
             self.resize(QSize(650, 250).expandedTo(self.minimumSizeHint()))
         self.connect(self.close_button, SIGNAL("clicked()"), self.close)
         return
-    
+
     pass
 
 def HTML_link(url, text):
@@ -368,5 +368,5 @@ def __testWikiHelpBrowser():
 
 if __name__ == "__main__":
     __testWikiHelpBrowser()
-    
+
 # end

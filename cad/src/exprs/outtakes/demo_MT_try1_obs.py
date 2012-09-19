@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 
@@ -50,7 +50,7 @@ def _make_new_MT_viewer_for_object(key):
     # This may require passing that "whole MT" in dynenv part of Instance.env with Instance part of essential data,
     # or revising how we call this so it can just get "whole MT" as one of the args.
     # The code that needs revising is mainly MT_kids_try1 -- see more comments therein.
-    return mt_instance 
+    return mt_instance
 
 _MT_viewer_for_object = MemoDict( _make_new_MT_viewer_for_object)
     # args are (object, essential-data) where data diffs should prevent sharing of an existing viewer
@@ -72,14 +72,14 @@ def MT_viewer_for_object(obj, essential_data = None):
 ##class Column(InstanceMacro): #kluge just for MT_kids_try1
 ##    eltlist = Arg(list_Expr)
 ##    _value = SimpleColumn( *eltlist) ### this is wrong, but it seemed to cause an infinite loop -- did it? ###k
-        ##    exceptions.KeyboardInterrupt: 
+        ##    exceptions.KeyboardInterrupt:
         ##  [debug.py:1320] [debug.py:1305] [test.py:120] [demo_MT.py:100] [demo_MT.py:102] (this line)
         ##  [Exprs.py:271] return getitem_Expr(self, index)  [Exprs.py:360] [Exprs.py:880]
         # guess: *expr is an infloop, since it tries to turn it into a sequence, forming expr[0], expr[1], etc, forever.
         # the Exprs lines above are probably compatible with that.
         # Can this bug be detected? Is there an __xxx__ which gets called first, to grab the whole sequence,
         # which I can make fail with an error? I can find out: *debug_expr where that expr prints all getattr failures. Later.
-    
+
 class MT_kids_try1(InstanceMacro):
     # args
     kids = Arg(list_Expr)####k more like List or list or Anything...
@@ -128,7 +128,7 @@ class MT_try1(InstanceMacro): # deprecated MT_try1 as of 070208, since MT_try2 w
 
     # state refs
     open = State(bool, False)
-    
+
     # other formulae
     # Note, + means openable (ie closed), - means closable (ie open) -- this is the Windows convention (I guess; not sure about Linux)
     # and until now I had them reversed. This is defined in two files and in more than one place in one of them. [bruce 070123]
@@ -141,7 +141,7 @@ class MT_try1(InstanceMacro): # deprecated MT_try1 as of 070208, since MT_try2 w
     openclose_visible = Highlightable(
         If( open, open_icon, closed_icon ),
         on_press = Set(open, not_Expr(open)) )
-    
+
     openclose_slot = If( call_Expr(node_openable, node), openclose_visible, openclose_spacer )
 
     icon = Rect(0.4, 0.4, green)##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
@@ -154,7 +154,7 @@ class MT_try1(InstanceMacro): # deprecated MT_try1 as of 070208, since MT_try2 w
         #e probably not in these items but in the surrounding Row (incl invis bg? maybe not, in case model appears behind it!)
         ##e italic for disabled nodes
         ##e support cmenu
-    
+
     _value = SimpleRow(
         openclose_slot,
         SimpleColumn(

@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 fix_deprecated_elements.py - fix deprecated PAM elements in-place in models
 
@@ -30,9 +30,9 @@ def fix_deprecated_elements( changed_atoms):
 
     fix_PAM3 = pref_fix_deprecated_PAM3_atoms()
     fix_PAM5 = pref_fix_deprecated_PAM5_atoms()
-    
+
     deprecated_atoms = []
-    
+
     for atom in changed_atoms.itervalues():
         deprecated_to = atom.element.deprecated_to
             # an element symbol, or None, or 'remove'
@@ -75,7 +75,7 @@ def fix_deprecated_elements( changed_atoms):
                 "Warning: dna updater killed [N] deprecated %s pseudoatom(s)" % \
                 (atom.element.symbol,)
             env.history.deferred_summary_message( orangemsg(summary_format) )
-            
+
             atom.kill()
 
             # TODO: worry about atom being a hotspot, or having a bondpoint which is a hotspot?

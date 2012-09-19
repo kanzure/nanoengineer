@@ -40,22 +40,22 @@ moiname= re.compile("(\w+)([=\-\+])\.moi$")
 am1p = re.compile("GBASIS=AM1")
 
 preface="""! Gamess control file
- $CONTRL SCFTYP=UHF MAXIT=200 RUNTYP=surface MULT=1 ICHARG=0 
-ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END     
- $SCF NCONV=8 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END 
- $STATPT NSTEP=50 OPTTOL=0.0001 $END     
- $FORCE VIBANL=.f. PRTIFC=.f. $END 
+ $CONTRL SCFTYP=UHF MAXIT=200 RUNTYP=surface MULT=1 ICHARG=0
+ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END
+ $SCF NCONV=8 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END
+ $STATPT NSTEP=50 OPTTOL=0.0001 $END
+ $FORCE VIBANL=.f. PRTIFC=.f. $END
  $SYSTEM TIMLIM=10000 MWORDS=250 $END
  $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=1 NPFUNC=1 DIFFSP=.t. $END
  $DFT DFTTYP=B3LYP $END
 """
 
 triplet="""! Gamess control file
- $CONTRL SCFTYP=UHF MAXIT=200 RUNTYP=energy MULT=3 ICHARG=0 
-ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END     
- $SCF NCONV=5 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END 
- $STATPT NSTEP=50 OPTTOL=0.0001 $END     
- $FORCE VIBANL=.f. PRTIFC=.f. $END 
+ $CONTRL SCFTYP=UHF MAXIT=200 RUNTYP=energy MULT=3 ICHARG=0
+ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END
+ $SCF NCONV=5 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END
+ $STATPT NSTEP=50 OPTTOL=0.0001 $END
+ $FORCE VIBANL=.f. PRTIFC=.f. $END
  $SYSTEM TIMLIM=10000 MWORDS=250 $END
  $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=1 NPFUNC=1 DIFFSP=.t. $END
  $DFT DFTTYP=B3LYP $END
@@ -90,7 +90,7 @@ elmnts=[("H",   1,   1.6737),
         ("S",  16,  53.233),
         ("Cl", 17,  58.867),
         ("Ar", 18,  66.33),
-        
+
         ("K",  19,  64.9256),
         ("Ca", 20,  66.5495),
         ("Sc", 21,  74.646),
@@ -122,8 +122,8 @@ def findnext(f,pat):
         card = f.readline()
         if not card: return None
         m = pat.match(card)
-        if m: return m        
-    
+        if m: return m
+
 def datread(fname):
     f=open(fname,"r")
 
@@ -164,7 +164,7 @@ def moiread(fname):
 
     f.close()
     return elem, atoms
-    
+
 def inpread(fname):
 
     f=open(fname+'.inp',"r")
@@ -201,15 +201,15 @@ def absetup(e1, e2):
      e1[0] = 'ALPH'
      e2[0] = 'BETA'
      return e1, e2
-    
+
 def inpwrite(fname, elem, pos, pref=" $DATA\nComment\nC1\n"):
     f=open(fname+'.inp',"w")
     f.write(pref)
 
     for i in range(len(elem)):
-        f.write(" %-10s %2d." % (elem[i], sym2num[elem[i]]) + 
+        f.write(" %-10s %2d." % (elem[i], sym2num[elem[i]]) +
                 " %12.7f %12.7f %12.7f" % tuple(pos[i]) + "\n")
-        
+
     f.write(" $END\n")
     f.close()
 
@@ -236,7 +236,7 @@ def xeread(name):
     e= []
     t = False
     findnext(f, potpat)
-    
+
     while 1:
         m = findnext(f, betapat)
         m1 = findnext(f,hevpat)
@@ -246,8 +246,8 @@ def xeread(name):
 
     f.close()
     return x,e
-        
-    
+
+
 def logread(name):
     f=open(name+'.log',"r")
     while 1:
@@ -265,7 +265,7 @@ def logread(name):
 
     atoms = zeros((0,3),Float)
     elem = []
-    
+
     while 1:
         card = f.readline()
         if len(card)<10: break
@@ -313,8 +313,8 @@ def fexist(fname):
     try: os.stat(fname)
     except OSError: return False
     return True
-            
-    
+
+
 def dirsetup():
     print "making input files:"
     files = os.listdir('.')
@@ -399,7 +399,7 @@ def enggen(fqbn):
 def surfread(filnam, zero):
     x,e = xeread('bonds/'+filnam)
 
-    
+
     # find lowest point
     lo=e[0]
     ix=0

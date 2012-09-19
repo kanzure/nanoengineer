@@ -152,7 +152,7 @@ class MWsemantics(QMainWindow,
 
         self._init_part_two_done = False
         self._activepw = None
-        
+
         self.commandToolbar = None
 
         self.orientationWindow = None
@@ -160,9 +160,9 @@ class MWsemantics(QMainWindow,
 
         self._dnaSequenceEditor = None  #see self.createSequenceEditrIfNeeded
                                     #for details
-                                    
+
         self._proteinSequenceEditor = None
-       
+
         # These boolean flags, if True, stop the execution of slot
         # methods that are called because the state of 'self.viewFullScreenAction
         # or self.viewSemiFullScreenAction is changed. Maybe there is a way to
@@ -197,7 +197,7 @@ class MWsemantics(QMainWindow,
         # (it might need to be moved into main.py at some point)
         self.tmpFilePath = find_or_make_Nanorex_directory()
 
-        
+
         # Load all NE1 custom cursors.
         from ne1_ui.cursors import loadCursors
         loadCursors(self)
@@ -215,7 +215,7 @@ class MWsemantics(QMainWindow,
         # the user must select "File > New" to open an empty document after
         # NE1 starts. Mark 2007-12-30.
         self.assy = self._make_a_main_assy()
-        
+
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
 
@@ -276,7 +276,7 @@ class MWsemantics(QMainWindow,
             # [I guess that comment is by Will... for now, this code doesn't do those things
             #  more than once, it appears. [bruce 070503 comment]]
             MWsemantics._init_part_two(self)
-        
+
         self.commandSequencer.start_using_initial_mode('$STARTUP_MODE')
 
         env.register_post_event_ui_updater( self.post_event_ui_updater) #bruce 070925
@@ -287,9 +287,9 @@ class MWsemantics(QMainWindow,
     def _make_a_main_assy(self): #bruce 080813 split this out, revised
         """
         [private]
-        
+
         Make a new main assy, meant for caller to store as self.assy.
-        
+
         Called during __init__, and by _make_and_init_assy (in a mixin class)
         for fileClose and fileOpen.
         """
@@ -302,7 +302,7 @@ class MWsemantics(QMainWindow,
             #bruce 060127 added own_window_UI flag to help fix bug 1403;
             # it's required for this assy to support Undo.
         return res
-        
+
     def _init_part_two(self):
         """
         #@ NEED DOCSTRING
@@ -335,7 +335,7 @@ class MWsemantics(QMainWindow,
         from ne1_ui.help.help import Ne1HelpDialog
         self.help = Ne1HelpDialog()
 
-        
+
         from commands.PovraySceneProperties.PovraySceneProp import PovraySceneProp
         self.povrayscenecntl = PovraySceneProp(self)
 
@@ -357,7 +357,7 @@ class MWsemantics(QMainWindow,
         # the glpane. This doesn't prevent other subwidgets from having focus.]
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
-        # 'depositState' is used by BuildAtoms_Command 
+        # 'depositState' is used by BuildAtoms_Command
         #to determine what type of object (atom, clipboard chunk or library part)
         # to deposit when pressing the left mouse button in Build mode.
         #
@@ -621,7 +621,7 @@ class MWsemantics(QMainWindow,
         fileSlotsMixin.closeEvent(self, ce)
 
     def sponsoredList(self):
-        return (               
+        return (
                 self.povrayscenecntl,
                 self.minimize_energy)
 
@@ -725,7 +725,7 @@ class MWsemantics(QMainWindow,
             # blame item
             print_compact_traceback( "exception (ignored) in postinit_item(%r): " % item )
         return
-    
+
     def win_update(self):
         """
         Update most state which directly affects the GUI display,
@@ -848,11 +848,11 @@ class MWsemantics(QMainWindow,
                 msg = orangemsg("Nothing to paste. Paste Command cancelled.")
                 env.history.message(msg)
                 return
-            
-            #pre-commandstack refactoring/cleanup comment: 
+
+            #pre-commandstack refactoring/cleanup comment:
             #Make 'paste' as a general command to fix this bug: Enter Dna command
             #, invoke paste command, exit paste, enter Dna again -- the flyout
-            #toolbar for dna is not visible . This whole thing will get revised 
+            #toolbar for dna is not visible . This whole thing will get revised
             #after the command stack cleanup (to be coded soon)
             # -- Ninad 2008-07-29
             self.commandSequencer.userEnterCommand('PASTE')
@@ -883,7 +883,7 @@ class MWsemantics(QMainWindow,
         """
         Invokes the MultipleDnaSegmentResize_EditCommand to resize the
         selected segments.
-        @see: chunk.make_glpane_cmenu_items (which makes a context menu 
+        @see: chunk.make_glpane_cmenu_items (which makes a context menu
               which has an item which can call this method)
         """
         #TODO: need more ui options to invoke this command.
@@ -964,14 +964,14 @@ class MWsemantics(QMainWindow,
         if not ok:
             # No msg. Ok for now. --Mark
             return
-        
+
         # Renumber the selected objects if the last character is "#"
-        # i.e. the # character will be replaced by a number, resulting in 
-        # uniquely named (numbered) nodes in the model tree. 
+        # i.e. the # character will be replaced by a number, resulting in
+        # uniquely named (numbered) nodes in the model tree.
         # IIRC, the numbering is not guaranteed to be in any specific order,
         # but testing has shown that leaf nodes are numbered in the order
         # they appear in the model tree. --Mark 2008-11-12
-        
+
         # REVIEW: I would guess that getSelectedRenameables is guaranteed
         # to return nodes in model tree order. If analysis of its code
         # confirms that, then its docstring should be made to say that.
@@ -1158,8 +1158,8 @@ class MWsemantics(QMainWindow,
         @type  lockState: boolean
         """
         self.assy.lockSelection(lockState)
-        
-        
+
+
 
     ###################################
     # Jig Toolbar Slots
@@ -1222,7 +1222,7 @@ class MWsemantics(QMainWindow,
     ###################################
     # Help Toolbar Slots
     ###################################
-    
+
     def helpTutorials(self):
         from foundation.wiki_help import open_wiki_help_URL
         url = "http://www.nanoengineer-1.net/mediawiki/index.php?title=Tutorials"
@@ -1334,7 +1334,7 @@ class MWsemantics(QMainWindow,
         # (where it made no sense)
         from operations.update_select_mode import update_select_mode # todo: move this to toplevel
         update_select_mode(self)
-        
+
     # get into Move Chunks (or Translate Components) command
     def toolsMoveMolecule(self):
         self.ensureInCommand('MODIFY')
@@ -1386,7 +1386,7 @@ class MWsemantics(QMainWindow,
         cmdrun = simSetup_CommandRun( self)
         cmdrun.run()
         return
-    
+
     #Urmi 20080725: Methods for running Rosetta Simulation
     def rosettaSetup(self):
         """
@@ -1395,9 +1395,9 @@ class MWsemantics(QMainWindow,
         from simulation.ROSETTA.RosettaSimulationPopUpDialog import RosettaSimulationPopUpDialog
         form = RosettaSimulationPopUpDialog(self)
         self.connect(form, SIGNAL('editingFinished()'), self.runRosetta)
-             
+
         return
-    
+
     def runRosetta(self):
         """
         Run a Rosetta simulation.
@@ -1405,16 +1405,16 @@ class MWsemantics(QMainWindow,
         from simulation.ROSETTA.rosetta_commandruns import rosettaSetup_CommandRun
         if self.rosettaArgs[0] > 0:
             cmdrun = rosettaSetup_CommandRun(self, self.rosettaArgs, "ROSETTA_FIXED_BACKBONE_SEQUENCE_DESIGN")
-            cmdrun.run() 
-        
+            cmdrun.run()
+
         return
-    
+
     def setRosettaParameters(self, numRuns, otherOptionsText):
         """
         Set parameters for a Rosetta .
         @param numRuns: number of Rosetta simulations.
         @type numRuns: int
-        @param otherOptionsText: string of all the other options, including the 
+        @param otherOptionsText: string of all the other options, including the
                                 ones in Rosett pop up dialog.
         @type otherOptionsText: str
         """
@@ -1423,21 +1423,21 @@ class MWsemantics(QMainWindow,
            self.commandSequencer.currentCommand.commandName == 'EDIT_PROTEIN' or \
            self.commandSequencer.currentCommand.commandName == 'EDIT_RESIDUES':
             protein = self.commandSequencer.currentCommand.propMgr.current_protein
-        
+
         #run Rosetta for the first selected protein
         if protein == "" and len(self.assy.selmols) >= 1:
             for chunk in self.assy.selmols:
                 if chunk.isProteinChunk():
                     protein = chunk.name
                     break
-                
+
         argList = [numRuns, otherOptionsText, protein]
         self.rosettaArgs = []
         self.rosettaArgs.extend(argList)
         return
-    
+
     #end of Rosetta simulation methods
-    
+
     def simNanoHive(self):
         """
         Opens the Nano-Hive dialog... for details see subroutine's docstring.
@@ -1523,7 +1523,7 @@ class MWsemantics(QMainWindow,
         self.ensureInCommand('SELECTMOLS')
         self.atomcntl.show()
 
-    def insertGraphene(self):   
+    def insertGraphene(self):
         """
         Invokes the graphene command ('BUILD_GRAPHENE')
         """
@@ -1531,7 +1531,7 @@ class MWsemantics(QMainWindow,
         self.commandSequencer.currentCommand.runCommand()
 
     # Build > CNT related slots and methods. ######################
-    
+
     def activateNanotubeTool(self):
         """
         Activates the Nanotube toolbar.
@@ -1548,14 +1548,14 @@ class MWsemantics(QMainWindow,
         @type  isChecked: boolean
         @see: B{Ui_NanotubeFlyout.activateInsertNanotubeLine_EditCommand}
         """
-        
+
         self.enterOrExitTemporaryCommand('INSERT_NANOTUBE')
-        
+
         currentCommand = self.commandSequencer.currentCommand
         if currentCommand.commandName == "INSERT_NANOTUBE":
             currentCommand.runCommand()
         return
-    
+
     def activateDnaTool(self):
         """
         Enter the InsertDna_EditCommand command.
@@ -1588,36 +1588,36 @@ class MWsemantics(QMainWindow,
             # exit command, if already in it
             currentCommand.command_Done()
         return
-        
+
     def enterBreakStrandCommand(self, isChecked = False):
         """
         """
-        #REVIEW- arg isChecked is unused. Need to revise this this in several 
+        #REVIEW- arg isChecked is unused. Need to revise this this in several
         #methods-- Ninad 2008-07-31
         self.enterOrExitTemporaryCommand( 'BREAK_STRANDS' )
-    
+
     def enterJoinStrandsCommand(self, isChecked = False):
         """
         """
-        self.enterOrExitTemporaryCommand( 'JOIN_STRANDS' )       
+        self.enterOrExitTemporaryCommand( 'JOIN_STRANDS' )
 
     def enterMakeCrossoversCommand(self, isChecked = False):
         """
         Enter make crossovers command.
         """
-        self.enterOrExitTemporaryCommand( 'MAKE_CROSSOVERS' )        
+        self.enterOrExitTemporaryCommand( 'MAKE_CROSSOVERS' )
 
     def enterOrderDnaCommand(self, isChecked = False):
         """
         """
-        self.enterOrExitTemporaryCommand('ORDER_DNA')        
+        self.enterOrExitTemporaryCommand('ORDER_DNA')
 
     def enterDnaDisplayStyleCommand(self, isChecked = False):
         """
         """
         self.enterOrExitTemporaryCommand('EDIT_DNA_DISPLAY_STYLE')
-        
-    #UM 063008: protein flyout toolbar commands    
+
+    #UM 063008: protein flyout toolbar commands
     def activateProteinTool(self):
         """
         Activates the Protein toolbar.
@@ -1625,82 +1625,82 @@ class MWsemantics(QMainWindow,
         commandSequencer = self.commandSequencer
         commandSequencer.userEnterCommand('BUILD_PROTEIN')
         return
-    
-    def insertPeptide(self, isChecked = False):  
+
+    def insertPeptide(self, isChecked = False):
         """
         Invokes the peptide command (INSERT_PEPTIDE)
-        @param isChecked: If insertPeptide button in the 
+        @param isChecked: If insertPeptide button in the
                           Protein Flyout toolbar is
-                          checked, enter insertPeptideMode. 
+                          checked, enter insertPeptideMode.
         @type isChecked: bool
         """
-        
-        self.enterOrExitTemporaryCommand('INSERT_PEPTIDE')     
-        
-        currentCommand = self.commandSequencer.currentCommand      
+
+        self.enterOrExitTemporaryCommand('INSERT_PEPTIDE')
+
+        currentCommand = self.commandSequencer.currentCommand
         if currentCommand.commandName == "INSERT_PEPTIDE":
             currentCommand.runCommand()
-        
+
     def enterProteinDisplayStyleCommand(self, isChecked = False):
         """
         Enter protein display style command
-        @param isChecked: If enterProteinDisplayStyleCommand button in the 
+        @param isChecked: If enterProteinDisplayStyleCommand button in the
                           Protein Flyout toolbar is
-                          checked, enter ProteinDisplayStyleMode. 
+                          checked, enter ProteinDisplayStyleMode.
         @type isChecked: bool
         """
         self.enterOrExitTemporaryCommand('EDIT_PROTEIN_DISPLAY_STYLE')
-        
-    
+
+
     def enterEditProteinCommand(self, isChecked = False):
         """
         Enter edit rotamers command
-        @param isChecked: If enterEditProteinCommand button in the 
+        @param isChecked: If enterEditProteinCommand button in the
                           Protein Flyout toolbar is
-                          checked, enter enterEditProteinMode. 
+                          checked, enter enterEditProteinMode.
         @type isChecked: bool
         """
         self.enterOrExitTemporaryCommand('EDIT_PROTEIN')
-            
-        
+
+
     def enterEditResiduesCommand(self, isChecked = False):
         """
         Enter edit residues command
-        @param isChecked: If enterEditResiduesCommand button in the 
+        @param isChecked: If enterEditResiduesCommand button in the
                           Protein Flyout toolbar is
-                          checked, enter enterEditResiduesMode. 
+                          checked, enter enterEditResiduesMode.
         @type isChecked: bool
         """
         self.enterOrExitTemporaryCommand('EDIT_RESIDUES')
-            
+
     def enterCompareProteinsCommand(self, isChecked = False):
         """
         Enter compare proteins command
-        @param isChecked: If enterCompareProteinsCommand button in the 
+        @param isChecked: If enterCompareProteinsCommand button in the
                           Protein Flyout toolbar is
-                          checked, enter enterCompareProteinsMode. 
+                          checked, enter enterCompareProteinsMode.
         @type isChecked: bool
         """
         self.enterOrExitTemporaryCommand('COMPARE_PROTEINS')
-       
+
 
     def enterStereoPropertiesCommand(self):
         """
         Enter Stereo Properties Command
         """
         self.enterOrExitTemporaryCommand('STEREO_PROPERTIES')
-                        
-                
+
+
     def enterQuteMolCommand(self):
         """
-        Show the QuteMol property manager. 
+        Show the QuteMol property manager.
         """
         commandSequencer = self.commandSequencer
         commandSequencer.userEnterCommand('QUTEMOL')
         # note: if we make the Qutemol action a 'ckeckable action'
         # (so when unchecked by the user, it should exit the QuteMol command),
         # then replace the above by a call to self.enterOrExitTemporaryCommand.
-        
+
     def insertDna(self, isChecked = False):
         """
         @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is
@@ -1708,9 +1708,9 @@ class MWsemantics(QMainWindow,
                           using the new DNADuplexEditCommand command.
         @type  isChecked: boolean
         @see: B{Ui_DnaFlyout.activateInsertDna_EditCommand}
-        """   
+        """
         self.enterOrExitTemporaryCommand('INSERT_DNA')
-        
+
         currentCommand = self.commandSequencer.currentCommand
         if currentCommand.commandName == 'INSERT_DNA':
             currentCommand.runCommand()
@@ -1818,12 +1818,12 @@ class MWsemantics(QMainWindow,
             self._dnaSequenceEditor = DnaSequenceEditor(self)
             self._dnaSequenceEditor.setObjectName("dna_sequence_editor")
             #Should changes.keep_forevenr be called here?
-            #Answer : No because python references to these objects are kept in 
+            #Answer : No because python references to these objects are kept in
             #the MainWindow attrs
 
         return self._dnaSequenceEditor
-    
-    
+
+
     def createProteinSequenceEditorIfNeeded(self):
         """
         Returns a Sequence editor object (a dockwidget).
@@ -1832,15 +1832,15 @@ class MWsemantics(QMainWindow,
         object is reused)
         @return: The sequence editor object (self._proteinSequenceEditor
         @rtype: B{ProteinSequenceEditor}
-        
+
         """
         if self._proteinSequenceEditor is None:
             from protein.ProteinSequenceEditor.ProteinSequenceEditor import ProteinSequenceEditor
             self._proteinSequenceEditor = ProteinSequenceEditor(self)
             self._proteinSequenceEditor.setObjectName("protein_sequence_editor")
 
-        return self._proteinSequenceEditor    
-    
+        return self._proteinSequenceEditor
+
     def toggle_selectByNameDockWidget(self, bool_toggle):
         pw = self._activepw
         leftChannelDockWidget = pw.getLeftChannelDockWidget()
@@ -1848,7 +1848,7 @@ class MWsemantics(QMainWindow,
             leftChannelDockWidget.show()
         else:
             leftChannelDockWidget.close()
-        
+
 
     def insertPovrayScene(self):
         self.povrayscenecntl.setup()
@@ -1880,8 +1880,8 @@ class MWsemantics(QMainWindow,
         @note: called from several places, including ok_btn_clicked
         (and in some cases, cancel_btn_clicked) of PM_Dialog and its
         subclasses
-        
-        The calls from ok_btn_clicked and cancel_btn_clicked methods are 
+
+        The calls from ok_btn_clicked and cancel_btn_clicked methods are
         probablycorrect, but are deprecated, and should be replaced by calls of
         self.command.command_Done (where self is the calling PM).
         """
@@ -1894,10 +1894,10 @@ class MWsemantics(QMainWindow,
         """
         Cancel the command which is supplying the currently visible
         Property Manager.
-        
+
         @note: called only from cancel_btn_clicked methods in PM_Dialog or its
         subclasses, but some of those call toolsDone instead.
-        
+
         (where self is the calling PM).
         """
         #bruce 080815/080827 docstring
@@ -1956,7 +1956,7 @@ class MWsemantics(QMainWindow,
         # implem passes it either to "central widget" (just guessing that's the GLPane) or to
         # the last widget we clicked on (or more likely, the one with the keyfocus).
         return
-    
+
     # Methods for temporarily disabling QActions in toolbars/menus ##########
 
     def enableViews(self, enableFlag = True):
@@ -2093,7 +2093,7 @@ class MWsemantics(QMainWindow,
               U{B{windowModified}<http://doc.trolltech.com/4/qwidget.html#windowModified-prop>}
         """
         # WARNING: there is mostly-duplicated code in this method and in
-        # class Ui_PartWindow.updateWindowTitle. I guess they are both 
+        # class Ui_PartWindow.updateWindowTitle. I guess they are both
         # always called, but only one of them matters depending on whether
         # experimental (and unfinished) MDI support is enabled.
         # Ideally a single helper function, or single method in a new
@@ -2128,10 +2128,10 @@ class MWsemantics(QMainWindow,
 
         # WARNING: the following code differs in the two versions
         # of this routine.
-        ##e [bruce 050811 comment:] 
-        # perhaps we should move prefix to the beginning, 
+        ##e [bruce 050811 comment:]
+        # perhaps we should move prefix to the beginning,
         # rather than just before "[";
-        # and in any case the other stuff here, 
+        # and in any case the other stuff here,
         # self.name() + " - " + "[" + "]", should also be
         # user-changeable, IMHO.
         #print "****self.accessibleName *****=", self.accessibleName()
@@ -2270,15 +2270,15 @@ class MWsemantics(QMainWindow,
         """
         This is a slot method for invoking the B{Color Scheme} command.
         """
-        self.enterOrExitTemporaryCommand('COLOR_SCHEME') 
-                
+        self.enterOrExitTemporaryCommand('COLOR_SCHEME')
+
     def lightingSchemeCommand(self):
         """
         This is a slot method for invoking the B{Lighting Scheme} command.
         """
         self.enterOrExitTemporaryCommand('LIGHTING_SCHEME')
-        
-                
+
+
     def toggleRulers(self, isChecked):
         """
         Displays/hides the rulers in the 3D graphics area (glpane).

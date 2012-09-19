@@ -93,14 +93,14 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.forwarded_nodes_after_opengroup = {}
         self.forwarded_nodes_after_child = {}
         return
-    
+
     def set_fp(self, fp):
         """
         set file pointer to write to (don't forget to call write_header after this!)
         """
         self.fp = fp
         return
-    
+
     def write(self, lines):
         """
         write one or more \n-terminates lines (passed as a single string) to our file pointer
@@ -108,7 +108,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         #e future versions might also hash these lines, to help make a movie id
         self.fp.write(lines)
         return
-    
+
     def encode_name(self, name): #bruce 050618 to fix part of bug 474 (by supporting ')' in node names)
         """
         encode name suitable for being terminated by ')', as it is in the current mmp format
@@ -121,7 +121,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         name = name.replace('(', '%28') # not needed except to let parens in mmp files be balanced (for the sake of text editors)
         name = name.replace(')', '%29') # needed
         return name
-    
+
     def close(self, error = False):
         if error:
             try:
@@ -145,7 +145,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             memo.destroy() # need exception protection?
         #e more?
         return
-    
+
     def write_header(self):
         assy = self.assy
         # The MMP File Format is initialized here, just before we write the file.
@@ -175,18 +175,18 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             # write a different version of this record then).
             assy.mmpformat = mmpformat
         self.fp.write("mmpformat %s\n" % mmpformat)
-        
+
         if self.min:
             self.fp.write("# mmp file written by Adjust or Minimize; can't be read before Alpha5\n")
         elif self.sim:
             self.fp.write("# mmp file written by Simulate; can't be read before Alpha5\n")
-        
+
         if not self.min:
             self.fp.write("kelvin %d\n" % assy.temperature)
         # To be added for Beta.  Mark 05-01-16
         ## f.write("movie_id %d\n" % assy.movieID)
         return
-    
+
     def encode_next_atom(self, atom):
         """
         Assign the next sequential number (for use only in this writing
@@ -209,7 +209,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             self.add_atomids_to_dict[atom.key] = num
         assert str(num) == self.encode_atom(atom)
         return str(num)
-    
+
     def encode_atom(self, atom):
         """
         Return an encoded reference to this atom (a short string, actually
@@ -238,7 +238,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         (KeyError exception if not).
         """
         return str(self.atnums[atom.key])
-    
+
     def dispname(self, display):
         """
         (replaces disp = dispNames[self.display] in older code)
@@ -270,7 +270,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         (in the traditional format as of 080521).
 
         @see: encode_atom_coordinates
-        
+
         @see: decode_atom_coordinate in another class [nim]
         """
         #bruce 080521 split this out of Atom.writemmp
@@ -281,19 +281,19 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
             #  before 080327 it was int(coord), which may be wrong
             #  for many coord values (full effect untested).)
         return str(number)
-        
+
     # bruce 050422: support for writing forward-refs to nodes, and later writing the nodes at the right time
     # (to be used for jigs which occur before their atoms in the model tree ordering)
     # 1. methods for when the node first wishes it could be written out
-    
+
     past_sim_part_of_file = False # set to True by external code (kluge?)
-    
+
     def not_yet_past_where_sim_stops_reading_the_file(self):
         return not self.past_sim_part_of_file
-    
+
     def node_ref_id(self, node):
         return id(node)
-    
+
     def write_forwarded_node_after_nodes( self, node, after_these, force_disabled_for_sim = False ):
         """
         Due to the mmp file format, node says it must come after the given nodes in the file,
@@ -334,31 +334,31 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         else:
             self.push_node(node, self.forwarded_nodes_after_child, after_this_node)
         return
-    
+
     def push_node(self, node, dict1, key):
         list1 = dict1.setdefault(key, []) #k syntax #k whether pyobjs ok as keys
         list1.append(node)
         return
-    
+
     # 2. methods for actually writing it out, when it finally can be
-    
+
     def pop_forwarded_nodes_after_opengroup(self, og):
         return self.pop_nodes( self.forwarded_nodes_after_opengroup, og)
-    
+
     def pop_forwarded_nodes_after_child(self, ch):
         return self.pop_nodes( self.forwarded_nodes_after_child, ch)
-    
+
     def pop_nodes( self, dict1, key):
         list1 = dict1.pop(key, [])
         return list1
-    
+
     def write_forwarded_node_for_real(self, node):
         self.write_node(node)
         #e also write some forward anchor... not sure if before or after... probably "after child" or "after node" (or leaf if is one)
         assert not node.is_group() # for now; true since we're only used on jigs; desirable since "info leaf" only works in this case
         self.write_info_leaf( 'forwarded', self.node_ref_id(node) )
         return
-    
+
     def write_info_leaf( self, key, val):
         """
         write an info leaf record for key and val.
@@ -368,7 +368,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         assert '\n' not in val
         self.write( "info leaf %s = %s\n" % (key, val) )
         return
-    
+
     def write_node(self, node):
         node.writemmp(self)
         return
@@ -389,7 +389,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
     def _make_memo_for(self, obj): #bruce 080326
         # maybe: need exception protection?
         return obj._f_make_writemmp_mapping_memo(self)
-        
+
     pass # end of class writemmp_mapping
 
 # ==
@@ -407,13 +407,13 @@ def writemmpfile_assy(assy, filename, addshelf = True, **mapping_options):
 
     # Note: only called by Assembly.writemmpfile as of long before 080326.
     # See also writemmpfile_part, called by Part.writemmpfile.
-    
+
     ##Huaicai 1/27/05, save the last view before mmp file saving
     #bruce 050419 revised to save into glpane's current part
     assy.o.saveLastView()
 
     assy.update_parts() #bruce 050325 precaution
-    
+
     fp = open(filename, "w")
 
     mapping = writemmp_mapping(assy, **mapping_options)
@@ -424,13 +424,13 @@ def writemmpfile_assy(assy, filename, addshelf = True, **mapping_options):
         mapping.write_header()
         assy.construct_viewdata().writemmp(mapping)
         assy.tree.writemmp(mapping)
-        
+
         mapping.write("end1\n")
         mapping.past_sim_part_of_file = True
-        
+
         if addshelf:
             assy.shelf.writemmp(mapping)
-        
+
         mapping.write("end molecular machine part " + assy.name + "\n")
     except:
         mapping.close(error = True)

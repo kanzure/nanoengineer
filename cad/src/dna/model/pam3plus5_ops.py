@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 pam3plus5_ops.py - PAM3+5 conversion helpers that modify model objects
 (but that are not writemmp-specific -- those have their own module)
@@ -74,7 +74,7 @@ def Pl_pos_from_neighbor_PAM3plus5_data(
     @see: analogous function for Gv: Gv_pos_from_neighbor_PAM3plus5_data
     """
     proposed_posns = []
-    
+
     for direction_to, ss in bond_directions_to_neighbors: # neighbors of Pl
         if ss.element.role == 'strand':
             # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
@@ -130,7 +130,7 @@ def kill_Pl_and_rebond_neighbors(atom):
     """
     Assume atom is a live and correctly structured Pl5 atom
     (but also check this for safety, at least for now).
-    
+
     If atom's neighbors have the necessary structure
     (Ss-Pl-Ss or X-Pl-Ss, with fully set and consistent bond_directions),
     then kill atom, replacing its bonds with a direct bond
@@ -140,7 +140,7 @@ def kill_Pl_and_rebond_neighbors(atom):
     """
     assert atom.element is Pl5 # remove when works
     assert not atom.killed()
-    
+
     # could also assert no dna updater error
 
     _old = temporarily_set_dnaladder_inval_policy( DNALADDER_INVAL_IS_NOOP_BUT_OK)
@@ -152,7 +152,7 @@ def kill_Pl_and_rebond_neighbors(atom):
     assert _old != DNALADDER_INVAL_IS_OK # see comment for explanation
     try:
         return _kill_Pl_and_rebond_neighbors_0(atom)
-    finally:        
+    finally:
         restore_dnaladder_inval_policy( _old)
     pass
 
@@ -162,9 +162,9 @@ def _kill_Pl_and_rebond_neighbors_0(atom):
 
     ### NOTE: many of the following checks have probably also been done by
     # calling code before we get here. Optimize this sometime. [bruce 080408]
-    
+
     bonds = atom.bonds
-    
+
     # change these during the loop
     bad = False
     saw_plus = saw_minus = False
@@ -177,12 +177,12 @@ def _kill_Pl_and_rebond_neighbors_0(atom):
         neighbors += [other]
         element = other.element
         direction = bond.bond_direction_from(atom)
-        
+
         if direction == 1:
             saw_plus = True
         elif direction == -1:
             saw_minus = True
-        
+
         if element is Singlet:
             num_bondpoints += 1
         elif element.symbol in ('Ss3', 'Ss5'):
@@ -201,11 +201,11 @@ def _kill_Pl_and_rebond_neighbors_0(atom):
         env.history.deferred_summary_message( redmsg(summary_format) ) # orange -> red [080408]
         return
 
-    del saw_plus, saw_minus, num_bondpoints, bad    
+    del saw_plus, saw_minus, num_bondpoints, bad
 
     # Now we know it is either Ss-Pl-Ss or X-Pl-Ss,
     # with fully set and consistent bond_directions.
-    
+
     # But we'd better make sure the neighbors are not already bonded!
     #
     # (This is weird enough to get its own summary message, which is red.
@@ -222,13 +222,13 @@ def _kill_Pl_and_rebond_neighbors_0(atom):
     b0, b1 = bonds
     del bonds # it might be mutable and we're changing it below,
         # so be sure not to use it again
-    
+
     if find_bond(n0, n1):
         summary_format = \
             "Error: dna updater noticed [N] Pl5 pseudoatom(s) whose neighbors are directly bonded"
         env.history.deferred_summary_message( redmsg(summary_format) )
         return
-        
+
     # Pull out the Pl5 and directly bond its neighbors,
     # reusing one of the bonds for efficiency.
     # (This doesn't preserve its bond_direction, so set that again.)
@@ -237,7 +237,7 @@ def _kill_Pl_and_rebond_neighbors_0(atom):
     # (since bond.bust on an open bond kills the bondpoint),
     # and fixing that would require inlining and modifying a
     # few Atom methods,
-    # so to avoid this case, reverse everything if needed.    
+    # so to avoid this case, reverse everything if needed.
     if n1.element is Singlet:
         direction = - direction
         n0, n1 = n1, n0
@@ -259,7 +259,7 @@ def _kill_Pl_and_rebond_neighbors_0(atom):
 
     old_nbonds_neighbor1 = len(n1.bonds) # for assert
     old_nbonds_neighbor0 = len(n0.bonds) # for assert
-    
+
     b1.bust(make_bondpoints = False) # n1 is now missing one bond; so is atom
         # note: if n1 was a Singlet, this would kill it (causing bugs);
         # see comment above, where we swap n1 and n0 if needed to prevent that.
@@ -276,18 +276,18 @@ def _kill_Pl_and_rebond_neighbors_0(atom):
 ##    # which is the overall direction from n0 thru b0 to atom thru b1 to n1,
 ##    # so use this to optimize recording the Pl info below.
 ##    # (Of course we really ought to just rewrite this whole conversion in Pyrex.)
-##    
+##
 ##    ## assert direction == b1.bond_direction_from(atom) # too slow to enable by default
 ##
 ##    # not needed, rebond preserves it:
 ##    ## b0.set_bond_direction_from(n0, direction)
 ##    ## assert b0.bond_direction_from(n0) == direction # too slow to enable by default
-##        
+##
 ##    # now save the info we'll need later (this uses direction left over from for-loop)
 ##
 ##    if n0.element is not Singlet:
 ##        _save_Pl_info( n0, direction, atom_posn)
-##    
+##
 ##    if n1.element is not Singlet:
 ##        _save_Pl_info( n1, - direction, atom_posn) # note the sign on direction
 
@@ -302,11 +302,11 @@ def _kill_Pl_and_rebond_neighbors_0(atom):
         # or condition it on a DEBUG_DNA_UPDATER flag ###
 
         debug_flags.DEBUG_DNA_UPDATER # for use later
-        
+
         summary_format = \
             "Note: dna updater removed [N] Pl5 pseudoatom(s) while converting to PAM3+5"
         env.history.deferred_summary_message( graymsg(summary_format) )
-    
+
     return
 
 # ==
@@ -317,7 +317,7 @@ def insert_Pl_between(s1, s2): #bruce 080409/080410
     be Ss3 or Ss5 (PAM strand sugar atoms) or bondpoints
     (but not both bondpoints -- impossible since such can never be
      directly bonded).
-    
+
     Insert a Pl5 between them (bonded to each of them, replacing
     their direct bond), set it to have non-definitive position,
     and return it.
@@ -339,7 +339,7 @@ def insert_Pl_between(s1, s2): #bruce 080409/080410
     assert _old != DNALADDER_INVAL_IS_OK # see comment for explanation
     try:
         return _insert_Pl_between_0(s1, s2)
-    finally:        
+    finally:
         restore_dnaladder_inval_policy( _old)
     pass
 
@@ -393,11 +393,11 @@ def _insert_Pl_between_0(s1, s2):
 
     # now it should be safe to break the old bond
     direct_bond.bust(make_bondpoints = False)
-    
+
     # set bond directions: s1->Pl->s2 same as s1->s2 was before
     b1.set_bond_direction_from(s1, direction)
     b2.set_bond_direction_from(Pl, direction)
-    
+
     return Pl # or None if error? caller assumes not possible, so do we
 
 def find_Pl_between(s1, s2): #bruce 080409
@@ -416,7 +416,7 @@ def find_Pl_between(s1, s2): #bruce 080409
         assert find_bond(s1, s2)
         return None
     pass
-    
+
 # ==
 
 def Gv_pos_from_neighbor_PAM3plus5_data(
@@ -439,14 +439,14 @@ def Gv_pos_from_neighbor_PAM3plus5_data(
     info would cause hard-to-notice bugs.
 
     @return: new absolute position, or None if we can't compute one (error).
-    
+
     @see: related method (stores data in the other direction),
           _f_Gv_store_position_into_Ss3plus5_data
 
     @see: analogous function for Pl: Pl_pos_from_neighbor_PAM3plus5_data
     """
     proposed_posns = []
-    
+
     for ss in neighbors:
         assert ss.element.role == 'strand'
             # (avoid bondpoints or (erroneous) non-PAM or axis atoms)
@@ -467,7 +467,7 @@ def Gv_pos_from_neighbor_PAM3plus5_data(
         # caller might have ways of handling this, but we don't...
         print "bug: Gv_pos_from_neighbor_PAM3plus5_data can't compute pos " \
               "for Gv between these neighbors:", neighbors
-        
+
         return None
 
     if len(proposed_posns) == 1:
@@ -487,7 +487,7 @@ def _f_find_new_ladder_location_of_baseatom(self):
     # then totally rewrote it to stop assuming wrongly
     # that atom.molecule.ladder can find fresh ladders
     # that didn't yet remake their chunks
-    
+
     locator = _f_atom_to_ladder_location_dict
     data = locator.get(self.key)
     if data:
@@ -526,7 +526,7 @@ def add_basepair_handles_to_atoms(atoms): #bruce 080515
         if atom.element is Gv5 and len(atom.strand_neighbors()) == 2:
 
             goodcount += 1
-            
+
             # Figure out the position from the Gv5 and its presumed-to-be Ss5
             # neighbors. [Fixed per Eric D spec, bruce 080516]
             sn = atom.strand_neighbors()
@@ -543,13 +543,13 @@ def add_basepair_handles_to_atoms(atoms): #bruce 080515
             newatom = Atom( 'Ah5', newpos, atom.molecule ) # PAM5-Axis-handle
             bond_atoms_faster( newatom, atom, V_SINGLE)
                 # note: no bondpoints need creation or removal
-            
+
             newatom.pick()
             pass
         else:
             badcount += 1
         continue
-    
+
     return goodcount, badcount
 
 # ==

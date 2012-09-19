@@ -30,7 +30,7 @@ def standardExclude(attr, obj):
     # to get these imports over with before turning on some sort of debug
     # output that occurred during subsequent imports).
     # [bruce 071107 comment]
-    
+
     ##from MWsemantics import MWsemantics
     ##from GLPane import GLPane
     # I am rarely interested in peeking inside these, and they create

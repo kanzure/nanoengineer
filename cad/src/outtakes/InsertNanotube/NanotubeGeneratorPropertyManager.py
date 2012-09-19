@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 
@@ -26,7 +26,7 @@ ntBondLengths = [CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH]
 
 class NanotubeGeneratorPropertyManager(PM_Dialog):
     """
-    The NanotubeGeneratorPropertyManager class provides a Property Manager 
+    The NanotubeGeneratorPropertyManager class provides a Property Manager
     for the "Build > Nanotube" command.
     """
     # The title that appears in the property manager header.
@@ -36,7 +36,7 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
     pmName = title
     # The relative path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Nanotube.png"
-    
+
     def __init__(self):
         """Construct the Graphene Property Manager.
         """
@@ -44,7 +44,7 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
         #@self.addGroupBoxes()
         #@self.add_whats_this_text()
         self.updateMessageGroupBox()
-        
+
     def updateMessageGroupBox(self):
         msg = ""
 
@@ -59,212 +59,212 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
 
         msg = msg + "Edit the Nanotube parameters and select <b>Preview</b> to \
         preview the structure. Click <b>Done</b> to insert it into the model."
-        
+
         # This causes the "Message" box to be displayed as well.
         # setAsDefault=True causes this message to be reset whenever
         # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
 
-        
+
     def _addGroupBoxes(self):
         """
         Add the 3 group boxes to the Nanotube Property Manager dialog.
         """
         self.pmGroupBox1 = \
-            PM_GroupBox( self, 
+            PM_GroupBox( self,
                          title          = "Nanotube Parameters" )
-                
+
         self.pmGroupBox2 = \
-            PM_GroupBox( self, 
+            PM_GroupBox( self,
                          title          = "Nanotube Distortion" )
-                
+
         self.pmGroupBox3 = \
-            PM_GroupBox( self, 
+            PM_GroupBox( self,
                          title          = "Multi-Walled Nanotubes" )
 
         # Add group box widgets.
         self._loadGroupBox1(self.pmGroupBox1)
         self._loadGroupBox2(self.pmGroupBox2)
         self._loadGroupBox3(self.pmGroupBox3)
-        
+
     def _loadGroupBox1(self, inPmGroupBox):
         """
         Load widgets in group box 1.
         """
-        
+
         memberChoices = ["Carbon", "Boron Nitride"]
         self.typeComboBox= \
             PM_ComboBox( inPmGroupBox,
-                         label        = "Type :", 
-                         choices      = memberChoices, 
-                         index        = 0, 
+                         label        = "Type :",
+                         choices      = memberChoices,
+                         index        = 0,
                          setAsDefault = True,
                          spanWidth    = False )
-        
+
         self.connect( self.typeComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.nt_type_changed)
-            
+
         self.lengthField = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "Length :", 
-                              value        = 20.0, 
+            PM_DoubleSpinBox( inPmGroupBox,
+                              label        = "Length :",
+                              value        = 20.0,
                               setAsDefault = True,
-                              minimum      = 1.0, 
-                              maximum      = 1000.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 3, 
+                              minimum      = 1.0,
+                              maximum      = 1000.0,
+                              singleStep   = 1.0,
+                              decimals     = 3,
                               suffix       = " Angstroms" )
-        
+
         self.n = 5
-        
+
         self.chiralityNSpinBox = \
-            PM_SpinBox( inPmGroupBox, 
-                        label        = "Chirality (n) :", 
-                        value        = self.n, 
+            PM_SpinBox( inPmGroupBox,
+                        label        = "Chirality (n) :",
+                        value        = self.n,
                         setAsDefault = True )
-        
+
         self.connect(self.chiralityNSpinBox,
                      SIGNAL("valueChanged(int)"),
                      self.chirality_fixup)
-        
+
         self.m = 5
-        
+
         self.chiralityMSpinBox = \
-            PM_SpinBox( inPmGroupBox, 
-                        label        = "Chirality (m) :", 
-                        value        = self.m, 
+            PM_SpinBox( inPmGroupBox,
+                        label        = "Chirality (m) :",
+                        value        = self.m,
                         setAsDefault = True )
-        
+
         self.connect(self.chiralityMSpinBox,
                      SIGNAL("valueChanged(int)"),
                      self.chirality_fixup)
-        
+
         self.bondLengthField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Bond Length :", 
-                              value        = CC_GRAPHITIC_BONDLENGTH, 
+                              label        = "Bond Length :",
+                              value        = CC_GRAPHITIC_BONDLENGTH,
                               setAsDefault = True,
-                              minimum      = 1.0, 
-                              maximum      = 3.0, 
-                              singleStep   = 0.1, 
-                              decimals     = 3, 
+                              minimum      = 1.0,
+                              maximum      = 3.0,
+                              singleStep   = 0.1,
+                              decimals     = 3,
                               suffix       = " Angstroms" )
-        
+
         endingChoices = ["None", "Hydrogen", "Nitrogen"]
-        
+
         self.endingsComboBox= \
             PM_ComboBox( inPmGroupBox,
-                         label        = "Endings :", 
-                         choices      = endingChoices, 
-                         index        = 0, 
+                         label        = "Endings :",
+                         choices      = endingChoices,
+                         index        = 0,
                          setAsDefault = True,
                          spanWidth    = False )
-        
+
     def _loadGroupBox2(self, inPmGroupBox):
         """
         Load widgets in group box 2.
         """
-        
+
         self.zDistortionField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Z-distortion :", 
-                              value        = 0.0, 
+                              label        = "Z-distortion :",
+                              value        = 0.0,
                               setAsDefault = True,
-                              minimum      = 0.0, 
-                              maximum      = 10.0, 
-                              singleStep   = 0.1, 
-                              decimals     = 3, 
+                              minimum      = 0.0,
+                              maximum      = 10.0,
+                              singleStep   = 0.1,
+                              decimals     = 3,
                               suffix       = " Angstroms" )
-        
+
         self.xyDistortionField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "XY-distortion :", 
-                              value        = 0.0, 
+                              label        = "XY-distortion :",
+                              value        = 0.0,
                               setAsDefault = True,
-                              minimum      = 0.0, 
-                              maximum      = 2.0, 
-                              singleStep   = 0.1, 
-                              decimals     = 3, 
+                              minimum      = 0.0,
+                              maximum      = 2.0,
+                              singleStep   = 0.1,
+                              decimals     = 3,
                               suffix       = " Angstroms" )
-        
-        
+
+
         self.twistSpinBox = \
-            PM_SpinBox( inPmGroupBox, 
-                        label        = "Twist :", 
-                        value        = 0, 
+            PM_SpinBox( inPmGroupBox,
+                        label        = "Twist :",
+                        value        = 0,
                         setAsDefault = True,
-                        minimum      = 0, 
+                        minimum      = 0,
                         maximum      = 100, # What should maximum be?
                         suffix       = " deg/A" )
-        
+
         self.bendSpinBox = \
-            PM_SpinBox( inPmGroupBox, 
-                        label        = "Bend :", 
-                        value        = 0, 
+            PM_SpinBox( inPmGroupBox,
+                        label        = "Bend :",
+                        value        = 0,
                         setAsDefault = True,
-                        minimum      = 0, 
+                        minimum      = 0,
                         maximum      = 360,
                         suffix       = " deg" )
-    
+
     def _loadGroupBox3(self, inPmGroupBox):
         """
         Load widgets in group box 3.
         """
-        
+
         # "Number of Nanotubes" SpinBox
         self.mwntCountSpinBox = \
-            PM_SpinBox( inPmGroupBox, 
-                        label        = "Number :", 
-                        value        = 1, 
+            PM_SpinBox( inPmGroupBox,
+                        label        = "Number :",
+                        value        = 1,
                         setAsDefault = True,
-                        minimum      = 1, 
+                        minimum      = 1,
                         maximum      = 10,
                         suffix       = " nanotubes" )
-        
+
         self.mwntCountSpinBox.setSpecialValueText("SWNT")
-            
+
         # "Spacing" lineedit.
         self.mwntSpacingField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Spacing :", 
-                              value        = 2.46, 
+                              label        = "Spacing :",
+                              value        = 2.46,
                               setAsDefault = True,
-                              minimum      = 1.0, 
-                              maximum      = 10.0, 
-                              singleStep   = 0.1, 
-                              decimals     = 3, 
+                              minimum      = 1.0,
+                              maximum      = 10.0,
+                              singleStep   = 0.1,
+                              decimals     = 3,
                               suffix       = " Angstroms" )
-    
+
     def _addWhatsThisText(self):
         """
-        What's This text for widgets in this Property Manager.  
+        What's This text for widgets in this Property Manager.
         """
         from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_NanotubeGeneratorPropertyManager
         whatsThis_NanotubeGeneratorPropertyManager(self)
-        
+
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in this Property Manager.  
+        Tool Tip text for widgets in this Property Manager.
         """
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_NanotubeGeneratorPropertyManager
         ToolTip_NanotubeGeneratorPropertyManager(self)
-        
+
     def chirality_fixup(self, spinBoxValueJunk = None):
         """
         Slot for several validators for different parameters.
-        This gets called each time a user types anything into a widget or 
+        This gets called each time a user types anything into a widget or
         changes a spinbox.
         @param spinBoxValueJunk: This is the Spinbox value from the valueChanged
                                  signal. It is not used. We just want to know
                                  that the spinbox value has changed.
-        @type  spinBoxValueJunk: double or None  
+        @type  spinBoxValueJunk: double or None
         """
-                
+
         if not hasattr(self, 'n'):
             print_compact_traceback("Bug: no attr 'n' ") # mark 2007-05-24
             return
-        
+
         n_previous = int(self.n)
         m_previous = int(self.m)
         n = self.chiralityNSpinBox.value()

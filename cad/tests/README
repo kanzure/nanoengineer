@@ -1,6 +1,6 @@
 $Id$
 
- Copyright 2005, 2007 Nanorex, Inc.  See LICENSE file for details. 
+ Copyright 2005, 2007 Nanorex, Inc.  See LICENSE file for details.
 __author__ = "Will Ware"
 
 
@@ -17,11 +17,11 @@ Bloggy ramblings about PyUnit:
 Run the unit tests from the cad/tests/ directory with the following bash shell
 command:
   $ ./runAllTests.sh
-  
+
 Run individual test suites with:
   $ PYTHONPATH=../src python TESTFILE.py -v
 
-  
+
 [WARNING: if this uses a different python executable than you normally run
 on atom.py to start nE-1, you might need to remove *.pyc before and after
 running these tests, to avoid any chance of incompatible .pyc files messing

@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 modelTreePrototype.py
 
@@ -476,7 +476,7 @@ class ModelTree(ModelTreeGUI_api):
         ###REVIEW: this is an update method, but ideally it would be an invalidation method
         # (like I think it was in Qt3, though I'm not sure). Certainly it might be pretty slow this way
         # since it might do more updates than needed. [bruce 070504 comment]
-        
+
         # save the list of which nodes are selected, we need them later
         selectedList = self.selectedList()
         # throw away all references to existing list items
@@ -574,7 +574,7 @@ class ModelTree(ModelTreeGUI_api):
 
             #bruce 070507 bring in some code from modelTreeGui.py
             alreadySelected = (thisnode in sellst)
-            
+
             item = index.internalPointer()
             rect = self.visualRect(index)
             if DEBUG2:
@@ -591,7 +591,7 @@ class ModelTree(ModelTreeGUI_api):
         else:
             thisnode = item = None
             alreadySelected = eventInRect = False
-        
+
         if not eventInRect:
             # nothing to drag, but [bruce 070507] let super handle it (for dragging over nodes to select)
             self.drag_is_not_DND = True ### not yet used

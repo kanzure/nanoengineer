@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 UpdateCopyright.py
@@ -201,7 +201,7 @@ def visitFilesRecursively(path, functionToApply):
                 continue
 
             filename = "%s%s%s" % (path, os.sep, file)
-            
+
             exclude = False
             for exclusion in pathsToExclude:
                 if (filename == exclusion):
@@ -210,7 +210,7 @@ def visitFilesRecursively(path, functionToApply):
                     break
             if (exclude):
                 continue
-            
+
             exclude = True
             for extension in extensionsToInclude:
                 if (filename.endswith(extension)):
@@ -341,7 +341,7 @@ def writeCopyrightLine(f, path, dateString):
 
 def processFile(path):
     newFilename = path + ".new"
-    
+
     years = determineModificationYears(path)
     finalDateRange = yearSetToYearRanges(years)
 
@@ -364,7 +364,7 @@ def processFile(path):
         if (firstLineOK):
             newFile.write(line)
             line = file.readline()
-    
+
     if (not re.search(copyrightRegex, line)):
         if (re.search(blankLineRegex, line)):
             newFile.write(line)
@@ -397,7 +397,7 @@ def processFile(path):
 
 def checkFile(path):
     newFilename = path + ".new"
-    
+
     file = open(path, 'r')
 
     line = file.readline()
@@ -414,7 +414,7 @@ def checkFile(path):
                 break
         if (firstLineOK):
             line = file.readline()
-    
+
     if (not re.search(copyrightRegex, line)):
         if (re.search(blankLineRegex, line)):
             line = file.readline()
@@ -448,7 +448,7 @@ def printFileSet(headerString, fileSet):
     for file in fileList:
         print " " + file + " \\"
     print ""
-    
+
 if (__name__ == '__main__'):
 
     ThisYear = time.strftime("%Y")
@@ -487,7 +487,7 @@ if (__name__ == '__main__'):
         FileSetNeedsInitialCopyright = set()
         FileSetHasEpydocCopyright = set()
         FileSetHasOtherCopyright = set()
-        
+
         visitFilesRecursively(".", checkFile)
 
         printFileSet("Excluded files:", FileSetExcluded)
@@ -496,6 +496,6 @@ if (__name__ == '__main__'):
         printFileSet("Needs initial copyright:", FileSetNeedsInitialCopyright)
         printFileSet("Has Epydoc copyright:", FileSetHasEpydocCopyright)
         printFileSet("Has other copyright:", FileSetHasOtherCopyright)
-        
+
     if (OptionModify or OptionDryRun):
         visitFilesRecursively(".", processFile)

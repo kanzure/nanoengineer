@@ -332,7 +332,7 @@ class DnaDisplayStyle_PropertyManager( Command_PropertyManager):
 
         _superclass.__init__(self, command)
 
-        
+
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         msg = "Modify the DNA display settings below."
@@ -447,13 +447,13 @@ class DnaDisplayStyle_PropertyManager( Command_PropertyManager):
                       SIGNAL("currentIndexChanged(int)"),
                       self.change_dnaStrandLabelsDisplay )
 
-    
+
     def show(self):
         """
         Shows the Property Manager. Extends superclass method
         """
         _superclass.show(self)
-        
+
         #@REVIEW: Is it safe to do the follwoing before calling superclass.show()?
         #-- Ninad 2008-10-02
 
@@ -467,13 +467,13 @@ class DnaDisplayStyle_PropertyManager( Command_PropertyManager):
         self.o.setGlobalDisplayStyle(diDNACYLINDER)
 
         # Update all PM widgets, .
-        # note: It is important to update the widgets by blocking the 
-        # 'signals'. If done in the reverse order, it will generate signals 
-        #when updating the PM widgets (via updateDnaDisplayStyleWidgets()), 
+        # note: It is important to update the widgets by blocking the
+        # 'signals'. If done in the reverse order, it will generate signals
+        #when updating the PM widgets (via updateDnaDisplayStyleWidgets()),
         #causing unneccessary repaints of the model view.
         self.updateDnaDisplayStyleWidgets(blockSignals = True)
-        
-        
+
+
     def close(self):
         """
         Closes the Property Manager. Extends superclass method.
@@ -820,63 +820,63 @@ class DnaDisplayStyle_PropertyManager( Command_PropertyManager):
         """
         Updates all the DNA Display style widgets based on the current pref keys
         values.
-        
-        @param blockSignals: If its set to True, the set* methods of the 
-                             the widgets (currently only PM_ Spinboxes and 
+
+        @param blockSignals: If its set to True, the set* methods of the
+                             the widgets (currently only PM_ Spinboxes and
                              ComboBoxes) won't emit a signal.
-        @type blockSignals: bool 
-        
-        @see: self.show() where this method is called. 
-        @see: PM_Spinbox.setValue() 
+        @type blockSignals: bool
+
+        @see: self.show() where this method is called.
+        @see: PM_Spinbox.setValue()
         @see: PM_ComboBox.setCurrentIndex()
 
         @note: This should be called each time the PM is displayed (see show()).
         """
-        
+
         self.dnaRenditionComboBox.setCurrentIndex(
-            env.prefs[dnaRendition_prefs_key], 
+            env.prefs[dnaRendition_prefs_key],
             blockSignals = blockSignals )
 
         self.axisShapeComboBox.setCurrentIndex(
             env.prefs[dnaStyleAxisShape_prefs_key], blockSignals = blockSignals)
-        
+
         self.axisScaleDoubleSpinBox.setValue(
             env.prefs[dnaStyleAxisScale_prefs_key], blockSignals = blockSignals)
-        
+
         self.axisColorComboBox.setCurrentIndex(
             env.prefs[dnaStyleAxisColor_prefs_key], blockSignals = blockSignals)
-        
+
         self.axisEndingStyleComboBox.setCurrentIndex(
             env.prefs[dnaStyleAxisEndingStyle_prefs_key], blockSignals = blockSignals)
 
         self.strandsShapeComboBox.setCurrentIndex(
             env.prefs[dnaStyleStrandsShape_prefs_key], blockSignals = blockSignals)
-        
+
         self.strandsScaleDoubleSpinBox.setValue(
             env.prefs[dnaStyleStrandsScale_prefs_key], blockSignals = blockSignals)
-        
+
         self.strandsColorComboBox.setCurrentIndex(
             env.prefs[dnaStyleStrandsColor_prefs_key], blockSignals = blockSignals)
-        
+
         self.strandsArrowsComboBox.setCurrentIndex(
             env.prefs[dnaStyleStrandsArrows_prefs_key], blockSignals = blockSignals)
-        
+
 
         self.strutsShapeComboBox.setCurrentIndex(
             env.prefs[dnaStyleStrutsShape_prefs_key], blockSignals = blockSignals)
-        
+
         self.strutsScaleDoubleSpinBox.setValue(
             env.prefs[dnaStyleStrutsScale_prefs_key], blockSignals = blockSignals)
-        
+
         self.strutsColorComboBox.setCurrentIndex(
             env.prefs[dnaStyleStrutsColor_prefs_key], blockSignals = blockSignals)
 
         self.nucleotidesShapeComboBox.setCurrentIndex(
             env.prefs[dnaStyleBasesShape_prefs_key], blockSignals = blockSignals)
-        
+
         self.nucleotidesScaleDoubleSpinBox.setValue(
             env.prefs[dnaStyleBasesScale_prefs_key], blockSignals = blockSignals)
-        
+
         self.nucleotidesColorComboBox.setCurrentIndex(
             env.prefs[dnaStyleBasesColor_prefs_key], blockSignals = blockSignals)
 

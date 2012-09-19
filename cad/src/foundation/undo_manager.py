@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 undo_manager.py - own and manage an UndoArchive, feeding it info about
 user-command events (such as when to make checkpoints and how to describe
@@ -83,7 +83,7 @@ class AssyUndoManager(UndoManager):
             # we do it here (not in caller) since its name and value are private to our API for model objects to report changes
 ##        self.archive.subscribe_to_checkpoints( self.remake_UI_menuitems )
 ##        self.remake_UI_menuitems() # so it runs for initial checkpoint and disables menu items, etc
-        if is_macintosh(): 
+        if is_macintosh():
             win = assy.w
             from PyQt4.Qt import Qt
             win.editRedoAction.setShortcut(Qt.CTRL+Qt.SHIFT+Qt.Key_Z) # set up incorrectly (for Mac) as "Ctrl+Y"
@@ -96,7 +96,7 @@ class AssyUndoManager(UndoManager):
         # now look at the official pref for initial state of autocheckpointing [060314]
         ## done later -- set_initial_AutoCheckpointing_enabled( ... )
         return
-    
+
     def _initial_checkpoint(self): #bruce 060223; not much happens until this is called (order is __init__, init1, _initial_checkpoint)
         """
         Only called from self.clear_undo_stack().
@@ -110,7 +110,7 @@ class AssyUndoManager(UndoManager):
         env.command_segment_subscribers.append( self._in_event_loop_changed )
         self._undo_manager_initialized = True
         ## redundant call (bug); i hope this is the right one to remove: self.archive.initial_checkpoint()
-        
+
         # make sure the UI reflects the current pref for auto-checkpointing [060314]
         # (in practice this happens at startup and after File->Open);
         # only emit history message if it's different than it was last time this session,
@@ -123,7 +123,7 @@ class AssyUndoManager(UndoManager):
         set_initial_AutoCheckpointing_enabled( autocp, update_UI = update_UI, print_to_history = print_to_history)
         _last_autocp = autocp # only print it if different, next time
         return
-    
+
     def deinit(self):
         self.active = False
 ##        self.connect_or_disconnect_menu_signals(False)
@@ -134,7 +134,7 @@ class AssyUndoManager(UndoManager):
         #e more??
         return
 
-# this is useless, since we have to keep them always up to date for sake of accel keys and toolbuttons [060126]    
+# this is useless, since we have to keep them always up to date for sake of accel keys and toolbuttons [060126]
 ##    def connect_or_disconnect_menu_signals(self, connectQ): # this is a noop as of 060126
 ##        win = self.assy.w
 ##        if connectQ:
@@ -154,14 +154,14 @@ class AssyUndoManager(UndoManager):
         This can be used by our client to complete our initialization
         and define the earliest state which an Undo can get back to.
         (It is the preferred way for external code to do that.)
-        
+
         And, it can be used later to redefine that point, making all earlier
         states inaccessible (as a user op for reducing RAM consumption).
 
         @note: calling this several times in the same user op is allowed,
                and leaves the state the same as if this had only been
                called the last of those times.
-               
+
         @warning: the first time this is called, it scans and copies all
                   currently reachable undoable state *twice*. All subsequent
                   times, it does this only once. This means it should be
@@ -178,7 +178,7 @@ class AssyUndoManager(UndoManager):
         if not self._undo_manager_initialized:
             self._initial_checkpoint() # have to do this here, not in archive.clear_undo_stack
         return self.archive.clear_undo_stack(*args, **kws)
-    
+
     def menu_cmd_checkpoint(self): # no longer callable from UI as of 060301, and not recently reviewed for safety [060301 comment]
         self.checkpoint( cptype = 'user_explicit' )
 
@@ -191,7 +191,7 @@ class AssyUndoManager(UndoManager):
         return
 
     __begin_retval = None ###k this will be used when we're created by a cmd like file open... i guess grabbing pref then is best...
-    
+
     def _in_event_loop_changed(self, beginflag, infodict, tracker): # 060127; 060321 added infodict to API
         "[this bound method will be added to env.command_segment_subscribers so as to be told when ..."
         # infodict is info about the nature of the stack change, passed from the tracker [bruce 060321 for bug 1440 et al]
@@ -253,7 +253,7 @@ class AssyUndoManager(UndoManager):
 ##        return debug_pref('undo: auto-checkpointing? (slow)', Choice_boolean_True, #bruce 060302 changed default to True, added ':'
 ##                        prefs_key = 'A7/undo/auto-checkpointing',
 ##                        non_debug = True)
-        
+
     def undo_checkpoint_before_command(self, cmdname = ""):
         """
         ###doc
@@ -319,13 +319,13 @@ class AssyUndoManager(UndoManager):
         return
 
     # ==
-    
+
     def current_command_info(self, *args, **kws):
         self.archive.current_command_info(*args, **kws)
-    
+
     def undo_redo_ops(self):
         # copied code below [dup code is in undo_manager_older.py, not in cvs]
-        
+
         # the following value for warn_when_change_indicators_seem_wrong is a kluge
         # (wrong in principle but probably safe, not entirely sure it's correct) [060309]
         # (note, same value was hardcoded inside that method before bruce 071025;
@@ -354,7 +354,7 @@ class AssyUndoManager(UndoManager):
                     print "obsolete redo:", obs_redo
                 pass #e discard it permanently? ####@@@@
         return undos, redos
-    
+
     def undo_cmds_menuspec(self, widget):
         # WARNING: this is not being maintained, it's just a development draft.
         # So far it lacks merging and history message and perhaps win_update and update_select_mode. [060227 comment]
@@ -376,7 +376,7 @@ class AssyUndoManager(UndoManager):
 
         undos, redos = self.undo_redo_ops()
         ###e sort each list by some sort of time order (maybe of most recent use of the op in either direction??), and limit lengths
-        
+
         # there are at most one per chunk per undoable attr... so for this test, show them all, don't bother with submenus
         if not undos:
             res.append(( "Nothing we can Undo", noop, 'disabled' ))
@@ -490,7 +490,7 @@ class AssyUndoManager(UndoManager):
         """
         #e first we supply our own defaults for flags
         return self.archive.wrap_op_with_merging_flags(op, flags = flags)
-    
+
     # main menu items (their slots in MWsemantics forward to assy which forwards to here)
     def editUndo(self):
         ## env.history.message(orangemsg("Undo: (prototype)"))
@@ -548,7 +548,7 @@ class AssyUndoManager(UndoManager):
             self.checkpoint( cptype = "postUndo" )
             _AutoCheckpointing_enabled = False # re-disable
         return
-    
+
     pass # end of class AssyUndoManager
 
 # ==
@@ -647,7 +647,7 @@ def set_initial_AutoCheckpointing_enabled( enabled, update_UI = False, print_to_
     else:
         # kluge: win is not needed in this case,
         # and I'm not sure it's not too early
-        win = None 
+        win = None
     editAutoCheckpointing(win, enabled, update_UI = update_UI, print_to_history = print_to_history)
         # we have the same API as this method except for the option default values
     return
@@ -669,7 +669,7 @@ def editAutoCheckpointing(win, enabled, update_UI = True, print_to_history = Tru
     # could move back to undo_UI if it could find the undo manager via win.
     # For that reason I might (later) put a version of it there which just
     # delegates to this one. [bruce 071026 comment]
-    # 
+    #
     # Note: the reason this doesn't need to call something in assy.undo_manager
     # (when used to implement the user change of the checkmark menu item for
     # this flag) is that it's called within a slot in the mainwindow,
@@ -693,7 +693,7 @@ def editAutoCheckpointing(win, enabled, update_UI = True, print_to_history = Tru
             msg_long  = "Autocheckpointing disabled -- only explicit Undo checkpoints are kept" #k length ok?
         env.history.statusbar_msg( msg_long)
         env.history.message( greenmsg(msg_short))
-    
+
     if update_UI:
         # Inserting/removing editMakeCheckpointAction from the standardToolBar
         # keeps the toolbar the correct length (i.e. no empty space at the end).
@@ -701,11 +701,11 @@ def editAutoCheckpointing(win, enabled, update_UI = True, print_to_history = Tru
         # in the toolbar. Mark 2008-03-01
         win.standardToolBar.removeAction(win.editMakeCheckpointAction)
         if not enabled:
-            win.standardToolBar.insertAction(win.editUndoAction, 
+            win.standardToolBar.insertAction(win.editUndoAction,
                                              win.editMakeCheckpointAction)
         # This is needed to hide/show editMakeCheckpointAction in the "Edit" menu.
         win.editMakeCheckpointAction.setVisible(not enabled)
-        
+
         # this is only needed when the preference changed, not when the menu item slot is used:
         _editAutoCheckpointing_recursing = True
         try:
@@ -741,7 +741,7 @@ def disable_undo_checkpoints(whycode, whymsg = ""):
     global _disable_checkpoints
     _disable_checkpoints = _do_whycode_disable( _disable_checkpoints, whycode, whymsg)
     return
-   
+
 def disable_UndoRedo(whycode, whymsg = ""):
     """
     Disable the Undo/Redo user commands from now until a corresponding reenable call (with the same whycode) is made.

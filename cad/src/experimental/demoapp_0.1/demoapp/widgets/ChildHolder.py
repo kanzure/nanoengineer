@@ -37,7 +37,7 @@ class EventDistributorToChildren(object):
         """
         Maintain self.child_with_mouse, and send enter/leave events to children
         when it changes.
-        
+
         @param child: the child with the last unpressed mouse position in it,
                       or None if that position is not in one of our children
 
@@ -73,7 +73,7 @@ class EventDistributorToChildren(object):
                                                 _ry(self.child_with_drag, y),
                                                 button, modifiers )
             self.on_mouse_enter(x, y) # seems correct, though perhaps a kluge
-                # REVIEW: what if x,y not in self, is this still correct?    
+                # REVIEW: what if x,y not in self, is this still correct?
             return EVENT_HANDLED
     def on_mouse_motion(self, x, y, dx, dy):
         child = self.find_child(x, y)
@@ -96,7 +96,7 @@ class EventDistributorToChildren(object):
         pass # even when we respond, in this case return None to let window respond too
     pass
 
-    
+
 class ChildHolder(object): # not yet used?
     "abstract class"
     pass

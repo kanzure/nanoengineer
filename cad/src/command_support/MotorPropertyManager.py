@@ -111,7 +111,7 @@ class MotorPropertyManager(EditCommand_PM):
                 print_compact_traceback("Ignored exception while disabling "\
                                         " an action.")
         return
-    
+
     def change_jig_color(self):
         """
         Slot method for the ColorComboBox.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
   FindPythonGlobals.py
 
@@ -32,7 +32,7 @@
   @author: Eric Messick
   @version: $Id$
   @copyright: 2007 Nanorex, Inc.
-  @license: GPL 
+  @license: GPL
 """
 
 import sys
@@ -202,7 +202,7 @@ def parsePythonFile(filename):
     if (verbose):
         printParseTree(parseTree, "")
     lookAt(parseTree)
-    
+
 if (__name__ == '__main__'):
     for s_fileName in sys.argv[1:]:
 #        print >>sys.stderr, "processing " + s_fileName

@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 packageData.py -- data about modules and packages, for PackageDependency.py
 
@@ -148,12 +148,12 @@ packageColors = { # needs geometry, platform, and whatever new classifications w
     "prototype"       : "#ffffff",
 ##    "examples"        : "#ff3030",
 ##    "test"            : "#ff3060",
-    
+
     "top_level"       : "#ff3090",
     "root"            : "#ff3090",
     "startup"         : "#ff3090",
     "top"             : "#ff3090",
-    
+
     }
 
 # ==
@@ -234,7 +234,7 @@ topic_mapping = {
 
     # expand topic abbrevs into actual pathnames
     "ESP"               : "analysis/ESP", # refactoring: maybe io part (if more general) would be processes/NanoHive
-    "GAMESS"            : "analysis/GAMESS",    
+    "GAMESS"            : "analysis/GAMESS",
     "GROMACS"           : "simulation/GROMACS",
     "DnaSequenceEditor"    : "dna/DnaSequenceEditor",
 
@@ -259,12 +259,12 @@ packageMapping_for_packages = {
 
 packageMapping_for_files = {
     # files presently at toplevel (except for a few that are already moved)
-    
+
     # Note: of these modules, platform.py is in the way of proposed new package names,
     # so it needs to be renamed, but it is listed here in the usual way.
     # We also want to rename main.py -> ne1_main.py, but that's not urgent.
     # For all other module renamings, we can wait a bit; see a wiki page about them.
-    
+
     "assembly"                         : "model", # (some foundation, but knows part.py which knows lots of ops & model constructors)
                                                   # (also: knows about selection, undo state, change counting, open file)
     "Assembly_API"                     : "model_api|foundation", # since not legit to be used below foundation
@@ -365,29 +365,29 @@ packageMapping_for_files = {
     "elements_data_PAM5"               : "model|dna/model",
     "EndUser"                          : "utilities",
     "env"                              : "foundation", # not utilities - only meant to be used from foundation or above
-    
+
     "ESPImage"                         : "model|ESP", # (but all ESPImage code should be refactored for more general images)
     "ESPImageProp"                     : "ui/dialog|ESP", # question: is this a property manager? are ui/dialog and ui/propmgr the same?
     "ESPImagePropDialog"               : "ui/dialog|ESP",
-    
+
     "example_expr_command"             : "command|prototype",
-    
+
     "ExecSubDir"                       : "top_level",
     "extrudeMode"                      : "unsplit_mode|commands/Extrude",
     "ExtrudePropertyManager"           : "ui/propmgr|commands/Extrude",
-    "files_gms"                        : "io|GAMESS", 
+    "files_gms"                        : "io|GAMESS",
     "files_mmp"                        : "io|files/mmp", # along with a sibling doc file, files_mmp_format_version.txt
     "files_mmp_registration"           : "foundation|files/mmp",
     "files_mmp_writing"                : "io|files/mmp",
-    "files_nh"                         : "io|ESP", 
+    "files_nh"                         : "io|ESP",
     "files_pdb"                        : "io|files/pdb",
     "Font3D"                           : "graphics_drawing",
-    
+
     "FuseChunks_Command"               : "command|commands/Fuse",
     "FuseChunks_GraphicsMode"          : "graphics_mode|commands/Fuse",
     "fusechunksMode"                   : "unsplit_mode|commands/Fuse",
     "FusePropertyManager"              : "ui/propmgr|commands/Fuse",
-    
+
     "GamessJob"                        : "operations|GAMESS", # contains operations and io
     "GamessProp"                       : "ui|GAMESS",
     "GamessPropDialog"                 : "ui|GAMESS",
@@ -399,11 +399,11 @@ packageMapping_for_files = {
     "geometry"                         : "geometry",
     "GlobalPreferences"                : "utilities", #? - imports debug_prefs & prefs_constants, dubious for utilities; or constants??
     "global_model_changedicts"         : "model",
-    
+
     "GLPane"                           : "graphics_widgets",
     "GLPane_minimal"                   : "graphics_widgets",
     "glselect_name_dict"               : "graphics_drawing", #bruce 080223; really an "OpenGL drawing utility"
-    
+
     "gpl_only"                         : "platform",
     "GrapheneGenerator"                : "command|commands/InsertGraphene",
     "GrapheneGeneratorPropertyManager" : "ui/propmgr|commands/InsertGraphene",
@@ -416,7 +416,7 @@ packageMapping_for_files = {
     "GroupButtonMixin"                 : "PM", # (deprecated, and its only callers should use things from PM instead)
     "GroupProp"                        : "ui/dialog|commands/GroupProperties?",
     "GroupPropDialog"                  : "ui/dialog|commands/GroupProperties?",
-    "Guides"                           : "graphics_drawing", # drawing code for rulers 
+    "Guides"                           : "graphics_drawing", # drawing code for rulers
     "handles"                          : "graphics_drawable", # graphical handles (for Extrude, but could be general)
     "help"                             : "ui/dialog|ne1_ui/help",
     "HelpDialog"                       : "ui/dialog|ne1_ui/help",
@@ -427,10 +427,10 @@ packageMapping_for_files = {
     "Initialize"                       : "utilities",
     "inval"                            : "foundation",
     "jigmakers_Mixin"                  : "operations", # tells Part how to create & edit various Jigs (some ui?)
-    
+
     "JigProp"                          : "ui/propmgr|command_support", # used directly for simple jigs, but clearest if treated as class
     "JigPropDialog"                    : "ui/propmgr|command_support", # (and pkg name/loc should not look like a command name)
-    
+
     "jigs"                             : "model", # class Jig, and a few subclasses
     "jigs_measurements"                : "model",
     "jigs_motors"                      : "model",
@@ -464,9 +464,9 @@ packageMapping_for_files = {
     "movieMode"                        : "unsplit_mode|commands/PlayMovie",
     "MoviePropertyManager"             : "ui/propmgr|commands/PlayMovie",
     "MWsemantics"                      : "ui|ne1_ui",
-    
+
     "NamedView"                        : "model", # was Csys
-    
+
     "NanoHive"                         : "ui|ESP", # ui/control/ops for running ESP (etc?) calcs using NanoHive. ui for now.
     "NanoHiveDialog"                   : "ui|ESP",
     "NanoHiveUtils"                    : "?|ESP", # Mostly control & io code. Some model & ui code (via assy arg & assy.w).
@@ -490,7 +490,7 @@ packageMapping_for_files = {
     "ops_display"                      : "operations",
     "ops_modify"                       : "operations",
     "op_select_doubly"                 : "operations",
-    
+
     "PanMode"                          : "temporary_command",
     "ParameterDialog"                  : "widget|command_support", #?
     "parse_utils"                      : "utilities",
@@ -502,7 +502,7 @@ packageMapping_for_files = {
     "pastables"                        : "operations", # supports pasting operations
     "PasteFromClipboard_Command"                        : "command|commands/Paste",
     "PastePropertyManager"             : "ui/propmgr|commands/Paste",
-    
+
     "pi_bond_sp_chain"                 : "model",
     "Plane"                            : "model",
     "Plane_EditCommand"                : "command|commands/PlaneProperties?",
@@ -512,13 +512,13 @@ packageMapping_for_files = {
     "PlotToolDialog"                   : "ui/dialog|commands/Plot?",
     "Plugins"                          : "ui|processes", # ui, operations or utility, and io;
         # relates to "external processes" - we might add a classification for that
-    
+
     "povheader"                        : "graphics_io|graphics/rendering/povray",
     "povray"                           : "graphics_io|graphics/rendering/povray", # also has ui code
     "PovrayScene"                      : "model", # for povray package, maybe
     "PovraySceneProp"                  : "ui/dialog|commands/PovraySceneProperties?", # for povray package, maybe
     "PovrayScenePropDialog"            : "ui/dialog|commands/PovraySceneProperties?", # for povray package, maybe
-    
+
     "preferences"                      : "foundation", # see module docstring for explanation
     "prefs_constants"                  : "utilities", # or constants? see module docstring for explanation
 
@@ -526,15 +526,15 @@ packageMapping_for_files = {
     "Process"                          : "io|processes",
     "ProteinChunks"                    : "graphics_view",
     "PyrexSimulator"                   : "io|simulation",
-    
+
     "qt4transition"                    : "utilities",
-    
+
     "qutemol"                          : "graphics_io|graphics/rendering/qutemol",
     "QuteMolPropertyManager"           : "ui/propmgr|commands/QuteMol?", # commandname? (or, for a qutemol package??)
         # it's a single-file Command, View->QuteMol, with a launch (external renderer) button and maybe some options...
         # but what is the VerbNoun form? Does it have a featurename now? Wiki & whatsthis say Feature:QuteMol, so I went with that.
-    
-    "ReferenceGeometry"                : "model", 
+
+    "ReferenceGeometry"                : "model",
     "reposition_baggage"               : "operations",
     "ResizeHandle"                     : "graphics_drawable", # (a DragHandler)
     "RotaryMotor_EditCommand"          : "command|commands/RotaryMotorProperties?", ###?? to fit VerbNoun, and not conflict with model class @@@
@@ -542,24 +542,24 @@ packageMapping_for_files = {
     "RotateMode"                       : "temporary_command",
     "RotationHandle"                   : "graphics_drawable",#? needs reclassification?
     "runSim"                           : "simulation", # includes perhaps ui, controller, io
-    
+
     "SelectAtoms_Command"              : "command|commands/SelectAtoms", # even though only used as a superclass now
     "SelectAtoms_GraphicsMode"         : "graphics_mode|commands/SelectAtoms",
-    
+
     "SelectChunks_Command"             : "command|commands/SelectChunks", # used directly, as well as as a superclass
     "SelectChunks_GraphicsMode"        : "graphics_mode|commands/SelectChunks",
     "SelectChunks_GraphicsMode"                   : "unsplit_mode|commands/SelectChunks",
-    
+
     "Select_Command"                   : "command|commands/Select",
     "Select_GraphicsMode"              : "graphics_mode|commands/Select",
     "Select_GraphicsMode_MouseHelpers_preMixin"    : "graphics_mode|commands/Select",
     "selectMode"                       : "unsplit_mode|commands/Select",
-    
+
     "Selobj"                           : "graphics_drawable", #bruce 080116/080202 revised this (would be _api if we had that)
-    
+
     "ServerManager"                    : "ui|processes", #? specific to GAMESS? maybe, but shouldn't. persistent db/UI for servers list
     "ServerManagerDialog"              : "ui|processes",
-        
+
     "shape"                            : "graphics_behavior", # tentative, maybe risky; see docstring
     "Slab"                             : "geometry",
 
@@ -571,30 +571,30 @@ packageMapping_for_files = {
 
     "state_constants"                  : "foundation",
     "state_utils"                      : "foundation", # note: utilities/Comparison.py and samevals.c might go with this too
-    
+
     "StatProp"                         : "ui/dialog|commands/ThermostatProperties?",
     "StatPropDialog"                   : "ui/dialog|commands/ThermostatProperties?",
     "StatusBar"                        : "widget", # used as a specific part of the NE1 main window, but general-purpose code
     "SurfaceChunks"                    : "graphics_view",
-    
+
     "TemporaryCommand"                 : "temporary_commands", # or command_support??
-    
+
     "testdraw"                         : "graphics_mode|exprs", # (mostly prototype, but also has some exprs framework code)
     "testmode"                         : "unsplit_mode|exprs", # (ditto)
-    
+
     "test_commands"                    : "command|prototype",
     "test_commands_init"               : "command|prototype",
     "test_command_PMs"                 : "ui/propmgr|prototype",
     "test_connectWithState"            : "command|prototype",
     "test_connectWithState_constants"  : "command|prototype",
     "test_connectWithState_PM"         : "ui/propmgr|prototype",
-    
+
     "texture_fonts"                    : "graphics_drawing",
     "texture_helpers"                  : "graphics_drawing", #? also graphics_io - split it?
-    
+
     "ThermoProp"                       : "ui/dialog|commands/ThermometerProperties?",
     "ThermoPropDialog"                 : "ui/dialog|commands/ThermometerProperties?",
-    
+
     "ThumbView"                        : "graphics_widgets",
     "Trackball"                        : "graphics_behavior",
     "TranslateChunks_Command"          : "command|commands/Translate",
@@ -612,7 +612,7 @@ packageMapping_for_files = {
     # The only exception is ne1_ui/help, which may not be complete,
     # but seems obvious enough and worth doing.
     # [bruce 080101]
-    
+
     "Ui_BuildAtomsPropertyManager"     : "ui/propmgr|commands/BuildAtoms",
     "Ui_BuildStructuresMenu"           : "ui/menu",
     "Ui_BuildStructuresToolBar"        : "ui/toolbar",
@@ -649,20 +649,20 @@ packageMapping_for_files = {
     "Ui_ViewMenu"                      : "ui/menu",
     "Ui_ViewOrientation"               : "ui|ne1_ui",
     "Ui_ViewToolBar"                   : "ui/toolbar",
-    
+
     "undo_internals"                   : "foundation",
     "undo_archive"                     : "foundation",
     "undo_manager"                     : "foundation",
     "undo_UI"                          : "operations", # or operations/undo?
-    
+
     "UserPrefs"                        : "ui|ne1_ui",
     "UserPrefsDialog"                  : "ui|ne1_ui",
     "Utility"                          : "foundation", # some model code?
-    
+
     "version"                          : "utilities", # or constants? see docstring for caveats
     "ViewOrientationWindow"            : "widget|ne1_ui",
     "VQT"                              : "geometry",
-    
+
     "whatsthis_utilities"              : "foundation", #? or utilities?
         # (imports of this file are foundation or above)
         # this file imports env (for win; could be refactored to not do so, eg use an arg), nothing else high up.
@@ -675,7 +675,7 @@ packageMapping_for_files = {
         # (Note: if we want a toplevel help package, we'd need to rename help.py first.
         #  Guess: for now just put this into foundation; probably "help" makes more sense
         #  as a subpackage of foundation than as something independent and toplevel, anyway.)
-    
+
     "ZoomToAreaMode"                   : "temporary_command",
     "ZoomInOutMode"                    : "temporary_command",
     }
@@ -850,7 +850,7 @@ listing_order = [ ### should be complete, but not yet properly ordered
     "dna",
     "simulation",
     "analysis",
-    
+
     # kinds of operations
     "model_updater",
     "operations",
@@ -858,7 +858,7 @@ listing_order = [ ### should be complete, but not yet properly ordered
     # other kinds of code (order?)
     "model",
     "graphics",
-    
+
     "widgets",
     "processes",
     "files",

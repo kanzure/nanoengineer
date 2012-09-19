@@ -1,4 +1,4 @@
-# Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLCylinderBuffer.py -- Subclass of GLPrimitiveBuffer for cylinder primitives.
 
@@ -50,7 +50,7 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
                                          self.nVertices, 4)
         self.endptRad1Hunks = HunkBuffer(shader, "endpt_rad_1",
                                          self.nVertices, 4)
-        self.hunkBuffers += [self.endptRad0Hunks, self.endptRad1Hunks] 
+        self.hunkBuffers += [self.endptRad0Hunks, self.endptRad1Hunks]
 
         return
 
@@ -94,7 +94,7 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
         else:
             radii = nCylinders * [radii]
             pass
-        
+
         if type(colors) == type([]):
             assert len(colors) == nCylinders
             colors = [self.color4(colors) for color in colors]
@@ -135,7 +135,7 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
                 self.transform_id_Hunks.setData(newID, transform_id)
             # Break the glname into RGBA pixel color components, 0.0 to 1.0 .
             # (Per-vertex attributes are all multiples (1-4) of Float32.)
-            ##rgba = [(glname >> bits & 0xff) / 255.0 for bits in range(24,-1,-8)] 
+            ##rgba = [(glname >> bits & 0xff) / 255.0 for bits in range(24,-1,-8)]
             ## Temp fix: Ignore the last byte, which always comes back 255 on Windows.
             rgba = [(glname >> bits & 0xff) / 255.0 for bits in range(16,-1,-8)]+[0.0]
             self.glname_color_Hunks.setData(newID, rgba)
@@ -154,7 +154,7 @@ class GLCylinderBuffer(GLPrimitiveBuffer):
         assert len(endptRad1) == 4, "len(endptRad1) should be 4: %r" % (endptRad1,)
         assert len(endptRad0[:3]) == 3, "len slice of 3 (in endptRad0) should be 3: %r" % (endptRad0[:3],)
         assert len(endptRad1[:3]) == 3, "len slice of 3 (in endptRad1) should be 3: %r" % (endptRad1[:3],)
-        
+
         return A(endptRad0[:3]), endptRad0[3], A(endptRad1[:3]), endptRad1[3]
 
     def store_transformed_primitive(self, primID, untransformed_data, transform):

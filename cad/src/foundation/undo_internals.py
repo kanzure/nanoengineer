@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 undo_internals.py - wrap our Qt slot methods with Undo checkpoints.
 
@@ -34,7 +34,7 @@ DEBUG_USE_GETARGSPEC_TypeError = False # print the few cases which args_info can
 USE_GETARGSPEC = True # bruce 071004
 
 _use_hcmi_hack = True # enable signal->slot call intercepting code, to check for bugs that mess up other things [bruce 050922]
-    # i suspect this now has to be true (undo won't work without it) -- if true, remove this [bruce 071003 comment] 
+    # i suspect this now has to be true (undo won't work without it) -- if true, remove this [bruce 071003 comment]
 
 if not EndUser.enableDeveloperFeatures():
     # end user case
@@ -54,12 +54,12 @@ else:
     # To fix the bugs this exposes, add the proper argument declarations to slot
     # methods which are raising TypeError due to being passed too many args by a
     # signal connection inside fbmethod_0args.
-    # 
+    #
     # Or to temporarily work around them, set this flag to False in your local
     # sources, in this case or below it (but be sure not to commit that change).
     #
     # Details:
-    # 
+    #
     #  When True, this simulates a proposed simplification
     # in which we only try calling slot methods with all the available args
     # passed to them by PyQt.
@@ -126,7 +126,7 @@ class wrappedslot:
     # default values of instance variables
     args_info_result = None # cached return value from args_info
     need_runtime_test = True # whether we need to test whether our signal passed too many args to our slot, at runtime
-    
+
     def __init__(self, slotboundmethod, sender = None, signal = ""):
         self.slotboundmethod = slotboundmethod
         if USE_GETARGSPEC:
@@ -690,7 +690,7 @@ def args_info(func1): #bruce 071004 revised implem and return value format
     and any_kws_ok says whether the function can accept arbitrary keyword arguments
     due to use of **kws in its argument declaration.
     If we can't determine any of those values, they are None; as of 071004 this can only
-    happen when success is True for maxargs (due to use of *args in the declaration).    
+    happen when success is True for maxargs (due to use of *args in the declaration).
     """
     DEFAULT_RETVAL = False, None, None, True
     if USE_GETARGSPEC:
@@ -739,7 +739,7 @@ def args_info(func1): #bruce 071004 revised implem and return value format
                     # first arg is missing (no args) or is not 'self'
                     if DEBUG_GETARGSPEC:
                         print "USE_GETARGSPEC sees first arg not self:", args # other info was already printed
-                    
+
                 # now use args, varargs, varkw, defaults to construct return values
                 success = True
                 maxargs = minargs = len(args)

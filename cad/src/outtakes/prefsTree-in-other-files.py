@@ -7,7 +7,7 @@ since then moved to outtakes
 
 from modelTree/TreeModel.py:
 
-    
+
 
 _DEBUG_PREFTREE = False # bruce 050602 experiment; do not commit with True
 
@@ -31,13 +31,13 @@ from end of get_topnodes in TreeModel
 
 
  from TreeModel.make_cmenuspec... just before copy, cut, delete
- 
+
         # Customize command [bruce 050602 experiment -- unfinished and commented out ###@@@]
         # [later comment, bruce 050704: I think this was intended to suggest PrefsNodes applicable to the selected item or items,
         #  and to make them and group them with it. Or (later) to put up a dialog whose end result might be to do that.]
         # Provide this when all items are in the same group? no, any items could be grouped...
         # so for initial experiments, always provide it. If it's a submenu, the selected items might affect
-        # what's in it, and some things in it might be already checkmarked if PrefsNodes are above them ... 
+        # what's in it, and some things in it might be already checkmarked if PrefsNodes are above them ...
         # for very initial experiment let's provide it only for single items.
         # Do we ask them what can be customized about them? I guess so.
 ##unfinished...
@@ -58,7 +58,7 @@ from model.prefsTree import MainPrefsGroupPart
 in class Assembly:
 
         prefs_node = None #bruce 050602; default value of instance variable; experimental
-    
+
 
 near end of topnode_partmaker_pairs:
 

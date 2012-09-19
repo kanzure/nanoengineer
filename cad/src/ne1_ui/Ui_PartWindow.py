@@ -70,7 +70,7 @@ class _pwProjectTabWidget(QTabWidget):
 class LeftFrame(QFrame):
     """
     The left area frame that contains the model tree and property manager.
-    
+
     This subclass of QFrame was written exclusively to deal with the undersired
     behavior of the spitter moving while resizing the part window.
     """
@@ -78,11 +78,11 @@ class LeftFrame(QFrame):
         QFrame.__init__(self, parent)
         self.parent = parent
         return
-    
+
     def resizeEvent(self, event):
         """
         Reimplementation of the resizeEvent handler. It determines if the
-        frame is being resized by the splitter (allowed) or programmably 
+        frame is being resized by the splitter (allowed) or programmably
         via a resize of the part window (not allowed).
         """
         if self.parent.resizeTimer.isActive():
@@ -90,9 +90,9 @@ class LeftFrame(QFrame):
             # as the user drags the resize handle.
             # We don't want that, so don't change the splitter position.
             return
-        
+
         # LeftFrame is most likely being resized by the user via the splitter,
-        # but it is also possible that the user clicked the maximize/restore 
+        # but it is also possible that the user clicked the maximize/restore
         # button. If the user did this, set the splitter position to the
         # "old" width (not the current width) since it has been changed
         # programmably (and we didn't want that).
@@ -109,7 +109,7 @@ class LeftFrame(QFrame):
                 print "Old Size: ", self.parent.splitterPosition
         QWidget.resizeEvent(self, event)
         return
-        
+
 class Ui_PartWindow(QWidget):
     """
     The Ui_PartWindow class provides a Part Window UI object composed of three
@@ -165,7 +165,7 @@ class Ui_PartWindow(QWidget):
             # [bruce 080216 comment]
         self.setWindowIcon(geticon("ui/border/Part.png"))
         self.updateWindowTitle()
-        
+
         # The main layout for the part window is a VBoxLayout <pwVBoxLayout>.
         self.pwVBoxLayout = QVBoxLayout(self)
         pwVBoxLayout = self.pwVBoxLayout
@@ -267,16 +267,16 @@ class Ui_PartWindow(QWidget):
             "")
 
         # Finally, add the "pwProjectTabWidget" to the left channel layout.
-        
+
         leftChannelVBoxLayout.addWidget(self.pwProjectTabWidget)
-       
+
 
         # Create the glpane and make it a child of the part splitter.
         self.glpane = GLPane(assy, self, 'glpane name', parent)
             # note: our owner (MWsemantics) assumes
             # there is just this one GLPane for assy, and stores it
             # into assy as assy.o and assy.glpane. [bruce 080216 comment]
-        
+
         # Add what's this text to self.glpane.
         # [bruce 080912 moved this here from part of a method in class GLPane.
         #  In this code's old location, Mark wrote [2007-06-01]: "Problem -
@@ -285,7 +285,7 @@ class Ui_PartWindow(QWidget):
         #  whether that's still true. ]
         from ne1_ui.WhatsThisText_for_MainWindow import whats_this_text_for_glpane
         self.glpane.setWhatsThis( whats_this_text_for_glpane() )
-        
+
         # update [re the above comment], bruce 081209:
         # I added the following explicit call of fix_whatsthis_text_and_links,
         # but it doesn't work to replace Ctrl with Cmd on Mac;
@@ -298,7 +298,7 @@ class Ui_PartWindow(QWidget):
         # or this class or the main window class.
         from foundation.whatsthis_utilities import fix_whatsthis_text_and_links
         fix_whatsthis_text_and_links(self.glpane) # doesn't yet work
-        
+
         self.pwProjectTabWidget.KLUGE_setGLPane(self.glpane)
             # help fix bug 2522 [bruce 070829]
         qt4warnDestruction(self.glpane, 'GLPane of PartWindow')
@@ -325,20 +325,20 @@ class Ui_PartWindow(QWidget):
         # Hide the bottom frame for now. Later this might be used for the
         # sequence editor.
         pwBottomArea.hide()
-        
+
         #This widget implementation is subject to heavy revision. The purpose
-        #is to implement a NFR that Mark urgently needs : The NFR is: Need a 
+        #is to implement a NFR that Mark urgently needs : The NFR is: Need a
         #way to quickly find a node in the MT by entering its name.
         #-- Ninad 2008-11-06
         self.pwSpecialDockWidgetInLeftChannel = SelectNodeByNameDockWidget(self.glpane.win)
         leftChannelVBoxLayout.addWidget(self.pwSpecialDockWidgetInLeftChannel)
-                
+
         # See the resizeEvent() docstring for more information about
         # resizeTimer.
         self.resizeTimer = QTimer(self)
         self.resizeTimer.setSingleShot(True)
         return
-    
+
     def getLeftChannelDockWidget(self):
         return self.pwSpecialDockWidgetInLeftChannel
 
@@ -391,7 +391,7 @@ class Ui_PartWindow(QWidget):
     def collapseLeftArea(self, hideLeftArea = True):
         """
         Make the left area collapsible (via the splitter). The left area
-        will be hidden (collapsed,actually) if I{hideLeftArea} is True 
+        will be hidden (collapsed,actually) if I{hideLeftArea} is True
         (the default).
         """
         self._previous_splitterPosition = self.pwLeftArea.width()
@@ -506,16 +506,16 @@ class Ui_PartWindow(QWidget):
     def dismiss(self):
         self.parent.removePartWindow(self)
         return
-    
-    def setSplitterPosition(self, pos = PM_DEFAULT_WIDTH, setDefault = True): 
+
+    def setSplitterPosition(self, pos = PM_DEFAULT_WIDTH, setDefault = True):
         """
         Set the position of the splitter between the left area and graphics area
-        so that the width of the container holding the model tree (and 
+        so that the width of the container holding the model tree (and
         property manager) is I{pos} pixels wide.
-        
+
         @param pos: The splitter position (in pixel units).
         @type  pos: int
-        
+
         @param setDefault: If True (the default), I{pos} becomes the new default
                            position.
         @type  setDefault: boolean
@@ -527,7 +527,7 @@ class Ui_PartWindow(QWidget):
         if setDefault:
             self.splitterPosition = pos
         return
-    
+
     def resizeEvent(self, event):
         """
         This reimplementation of QWidget.resizeEvent is here to deal with the
@@ -538,7 +538,7 @@ class Ui_PartWindow(QWidget):
         """
         # When self.resizeTimer.isActive() = True, the partwindow is being
         # resized. This is checked by the resizeEvent handler in LeftFrame
-        # to determine if the splitter is being moved by the user or 
+        # to determine if the splitter is being moved by the user or
         # programmably by self's resizeEvent.
         if self.resizeTimer.isActive():
             self.resizeTimer.stop() # Stop the timer.
@@ -546,4 +546,4 @@ class Ui_PartWindow(QWidget):
         self.setSplitterPosition(self.splitterPosition, setDefault = False)
         QWidget.resizeEvent(self, event)
         return
-        
+

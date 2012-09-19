@@ -984,14 +984,14 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         if debug_flags.atom_debug:
             self.assy.checkparts()
         return self.topnode
-    
+
     def get_topmost_subnodes_of_class(self, clas): #Ninad 2008-08-06, revised by bruce 080807
         """
         Return a list of the topmost (direct or indirect)
         children of self.topnode (Nodes or Groups), or
         self.topnode itself, which are instances of the
         given class (or of a subclass).
-        
+
         That is, scanning depth-first into self's tree of nodes,
         for each node we include in our return value, we won't
         include any of its children.
@@ -1017,7 +1017,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # ==
 
     # self.drawing_frame and related methods [bruce 090218/090219]
-    
+
     _drawing_frame = None # allocated on demand
 
     _drawing_frame_class = fake_Part_drawing_frame
@@ -1032,20 +1032,20 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def __get_drawing_frame(self):
         """
         get method for self.drawing_frame property:
-        
+
         Initialize self._drawing_frame if necessary, and return it.
         """
         if not self._drawing_frame:
             self._drawing_frame = self._drawing_frame_class()
             # note: self._drawing_frame_class changes dynamically
         return self._drawing_frame
-    
+
     def __set_drawing_frame(self):
         """
         set method for self.drawing_frame property; should never be called
         """
         assert 0
-    
+
     def __del_drawing_frame(self):
         """
         del method for self.drawing_frame property
@@ -1122,20 +1122,20 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         self's model in some other way. (For examples, see our other calls.)
 
         Specifically, the caller must do (in this order):
-        
+
         * call self.before_drawing_model()
-        
+
         * call node.draw() (with proper arguments, and exception protection)
           on some subset of the nodes of self (not drawing any node twice);
           during these calls, reference can be made to attributes of
           self.drawing_frame (which is allocated on demand if/when first used
           after this method is called)
-        
+
         * call self.after_drawing_model() (with proper arguments)
 
         Nesting of these pairs of before_drawing_model/after_drawing_model calls
         is not permitted and will cause bugs.
-        
+
         This API will need revision when the model can contain repeated parts,
         since each repetition will need to be bracketed by matched calls
         of before_drawing_model and after_drawing_model, but they will need

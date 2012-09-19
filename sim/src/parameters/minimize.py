@@ -30,27 +30,27 @@ inpname= re.compile("([^\.]+)\.inp")
 am1p = re.compile("GBASIS=AM1")
 
 preface=["""! Gamess control file
- $CONTRL SCFTYP=RHF MAXIT=200 RUNTYP=optimize MULT=1 ICHARG=0 
-ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END     
- $SCF NCONV=8 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END 
- $STATPT NSTEP=50 OPTTOL=0.0001 $END     
- $FORCE VIBANL=.f. PRTIFC=.f. METHOD=analytic $END 
- $SYSTEM TIMLIM=10000 MWORDS=250 $END                                       
+ $CONTRL SCFTYP=RHF MAXIT=200 RUNTYP=optimize MULT=1 ICHARG=0
+ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END
+ $SCF NCONV=8 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END
+ $STATPT NSTEP=50 OPTTOL=0.0001 $END
+ $FORCE VIBANL=.f. PRTIFC=.f. METHOD=analytic $END
+ $SYSTEM TIMLIM=10000 MWORDS=250 $END
 """,
         """! Gamess control file
- $CONTRL SCFTYP=RHF MAXIT=500 RUNTYP=energy MULT=1 ICHARG=0 
-ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END     
- $SCF NCONV=8 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END 
- $FORCE VIBANL=.f. PRTIFC=.f. METHOD=analytic $END 
- $SYSTEM TIMLIM=10000 MWORDS=250 $END                                       
+ $CONTRL SCFTYP=RHF MAXIT=500 RUNTYP=energy MULT=1 ICHARG=0
+ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END
+ $SCF NCONV=8 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END
+ $FORCE VIBANL=.f. PRTIFC=.f. METHOD=analytic $END
+ $SYSTEM TIMLIM=10000 MWORDS=250 $END
 """,
         """! Gamess control file
- $CONTRL SCFTYP=RHF MAXIT=500 RUNTYP=optimize MULT=1 ICHARG=0 
-ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END     
- $SCF NCONV=8 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END 
- $STATPT NSTEP=50 OPTTOL=0.0001 HSSEND=.true. $END     
- $FORCE VIBANL=.f. PRTIFC=.f. METHOD=seminum $END 
- $SYSTEM TIMLIM=10000 MWORDS=250 $END                                       
+ $CONTRL SCFTYP=RHF MAXIT=500 RUNTYP=optimize MULT=1 ICHARG=0
+ICUT=9 ITOL=20 INTTYP=best NPRINT=-5 $END
+ $SCF NCONV=8 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. SOSCF=.T. npunch=0 $END
+ $STATPT NSTEP=50 OPTTOL=0.0001 HSSEND=.true. $END
+ $FORCE VIBANL=.f. PRTIFC=.f. METHOD=seminum $END
+ $SYSTEM TIMLIM=10000 MWORDS=250 $END
 """]
 preface2=" $DATA\nGamess theory ladder: "
 preface3="\nC1\n"
@@ -65,16 +65,16 @@ levels=[" $BASIS GBASIS=AM1 $END\n",
         " $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=1 NPFUNC=1 DIFFSP=.t. $END\n",
         " $BASIS GBASIS=N311 NGAUSS=6 NDFUNC=2 NPFUNC=2 DIFFSP=.t. $END\n"
         ]
-schedule=[#[0, 0, 0, " am1, no dft"], 
-          [2, 0, 0, " am1, hessian"], 
+schedule=[#[0, 0, 0, " am1, no dft"],
+          [2, 0, 0, " am1, hessian"],
           [0, 1, 1, " 3-21G, b3lyp"]]
-##           [0, 2, 1, " 6-31G, b3lyp"], 
-##           [0, 3, 1, " 6-31G(d,p), b3lyp"], 
-##           [0, 3, 1, " 6-31G(d,p), b3lyp"], 
-##           [0, 4, 1, " 6-31+G(d,p), b3lyp"], 
-##           [1, 5, 1, " 6-31+G(2d,2p), b3lyp, single point energy"]] 
-          
-    
+##           [0, 2, 1, " 6-31G, b3lyp"],
+##           [0, 3, 1, " 6-31G(d,p), b3lyp"],
+##           [0, 3, 1, " 6-31G(d,p), b3lyp"],
+##           [0, 4, 1, " 6-31+G(d,p), b3lyp"],
+##           [1, 5, 1, " 6-31+G(2d,2p), b3lyp, single point energy"]]
+
+
 # distances are in angstroms, and delta T is 1e-16 seconds
 
 # gradients from Gamess are given in Hartrees/Bohr. To convert to N:
@@ -100,7 +100,7 @@ elmnts=[("H",   1,   1.6737),
         ("S",  16,  53.233),
         ("Cl", 17,  58.867),
         ("Ar", 18,  66.33),
-        
+
         ("K",  19,  64.9256),
         ("Ca", 20,  66.5495),
         ("Sc", 21,  74.646),
@@ -126,7 +126,7 @@ num2mass=[0]
 for (sym, num, mass) in elmnts:
     sym2num[sym] = num
     num2mass += [mass]
-    
+
 def datread(fname):
     f=open(fname,"r")
 
@@ -179,15 +179,15 @@ def inpread(fname):
     postface = card
     f.close()
     return elem, atoms, preface
-    
+
 def inpwrite(fname, elem, pos, pref=" $DATA\ncomment\nC1\n"):
     f=open(fname+'.inp',"w")
     f.write(pref)
 
     for i in range(len(elem)):
-        f.write(" %-10s %2d." % (elem[i], sym2num[elem[i]]) + 
+        f.write(" %-10s %2d." % (elem[i], sym2num[elem[i]]) +
                 " %12.7f %12.7f %12.7f" % tuple(pos[i]) + "\n")
-        
+
     f.write(" $END\n")
     f.close()
 
@@ -225,7 +225,7 @@ def logread(name):
 
     atoms = zeros((0,3),Float)
     elem = []
-    
+
     while 1:
         card = f.readline()
         if len(card)<10: break
@@ -274,8 +274,8 @@ def fexist(fname):
     try: os.stat(fname)
     except OSError: return False
     return True
-            
-    
+
+
 def dirsetup():
     print "making input files:"
     files = os.listdir('level0')
@@ -304,7 +304,7 @@ def dorunrun(n):
         if fexist(fname+'.log'): elem, atoms = logread(fname)
         if elem: rungms(tname, elem, atoms, header+pref)
 
-            
+
 
 if __name__ == "__main__":
     makexyz()
@@ -314,4 +314,4 @@ if __name__ == "__main__":
         dorunrun(n)
         n += 1
         if not fexist('level'+str(n)): break
-        
+

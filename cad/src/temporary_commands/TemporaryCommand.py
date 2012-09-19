@@ -73,21 +73,21 @@ class Overdrawing_GraphicsMode_preMixin(commonGraphicsMode):
     #bruce 090310 revised this
     def Draw_preparation(self):
         self.parentGraphicsMode.Draw_preparation()
-    
+
     def Draw_axes(self):
         self.parentGraphicsMode.Draw_axes()
-    
+
     def Draw_other_before_model(self):
         self.parentGraphicsMode.Draw_other_before_model()
-    
+
     def Draw_model(self):
         self.parentGraphicsMode.Draw_model()
-    
+
     def Draw_other(self):
         # doing this fixes the bug in which Pan etc doesn't show the right things
         # for BuildCrystal or Extrude modes (e.g. bond-offset spheres in Extrude)
         self.parentGraphicsMode.Draw_other()
-    
+
     def Draw_after_highlighting(self, pickCheckOnly = False):
         #bruce 090310 new feature (or bugfix) -- delegate this too
         self.parentGraphicsMode.Draw_after_highlighting(pickCheckOnly = pickCheckOnly)
@@ -118,7 +118,7 @@ class TemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
     a binding from the Escape key to the Done method,
     and a Draw method which delegates to the Draw method
     of the saved parentCommand.
-    
+
     In other respects, inherits behavior from Command
     and GraphicsMode.
     """
@@ -134,7 +134,7 @@ class TemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
         #  derived from it. [bruce 071227])
     pass
 
-    
+
 # keep this around for awhile, to show how to set it up when we want the
 # same thing while converting larger old modes:
 #

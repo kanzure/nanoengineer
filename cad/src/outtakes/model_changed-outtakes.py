@@ -9,7 +9,7 @@
 
     def something_changed(self): #bruce 071116 [not used outside this file as of 080731, except in comments]
         return
-    
+
 
 
 
@@ -38,7 +38,7 @@
     def selobj_changed(self):
         """
         Called whenever the glpane.selobj (object under mouse)
-        may have changed, so that self can do UI updates in response to that. 
+        may have changed, so that self can do UI updates in response to that.
         """
         if self.propMgr:
             if hasattr( self.propMgr, 'selobj_changed'):
@@ -67,12 +67,12 @@
             if hasattr( self.propMgr, 'something_changed'):
                 self.propMgr.something_changed()
         return
-    
+
     _last_model_change_counter = None
     _last_selection_change_counter = None
     _last_selobj = -1 # not None, since that's a legal value of selobj
     _last_view_change_counter = None
-    
+
     def state_may_have_changed_OBSOLETE(self): #bruce 070925 added this to command API; update 080731: WILL BE REVISED SOON
         """
         Call whichever we need to of the methods

@@ -322,7 +322,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
 
     ######Private or helper methods###############################
     def _setup(self):
-        """ 
+        """
         Setup widgets to initial (default or defined) values. Return True on error.
         """
         #To fix bug 684
@@ -394,7 +394,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         return 0
 
     def _reloadServerList(self):
-        """ 
+        """
         Load the server combo box
         """
         self.server_combox.clear()
@@ -427,7 +427,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
 
     def _update_gbasis_list(self, val):
         """
-        Add/remove AM1 and PM3 to/from the gbasis list. 
+        Add/remove AM1 and PM3 to/from the gbasis list.
         """
         citem = self.gbasis_combox.currentIndex()
         if val == DFT or val == MP2:
@@ -443,7 +443,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
 
     def _save_ui_settings(self):
         """
-        Save the UI settings in the Gamess jig pset.  
+        Save the UI settings in the Gamess jig pset.
         There is one setting for each pset.
         """
         self.pset.ui.comment = str(self.comment_linedit.text()) # Description
@@ -619,7 +619,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
 
     def run_job(self):
         """
-        Slot method for the 'Save and Run' button 
+        Slot method for the 'Save and Run' button
         """
         self.accept()
 

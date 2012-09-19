@@ -1,11 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 elements_data.py -- data for periodic table of elements
 (for chemical elements and Singlet -- see other files for PAM pseudoatoms)
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -86,7 +86,7 @@ _defaultRadiusAndColor = {
     "I" : (2.0,  [0.0, 0.5, 0.0]),
     "Xe" : (1.9,  [0.4, 0.45, 0.55]),
     }
-  
+
 _alternateRadiusAndColor = {
     "Al" : (2.050,),
     "As" : (2.050,),
@@ -120,7 +120,7 @@ _alternateRadiusAndColor = {
     "Si" :  ( 1.825, [0.4353, 0.3647, 0.5216]),
     "Ti" :  ( 2.300,)
     }
-                 
+
 # Format of _mendeleev:
 # Symbol, Element Name, NumberOfProtons, atomic mass in 10-27 kg,
 # then a list of atomtypes, each of which is described by

@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 __Symbols__.py -- support for "from __Symbols__ import xxx",
 to make a shared Symbol object within the exprs module.

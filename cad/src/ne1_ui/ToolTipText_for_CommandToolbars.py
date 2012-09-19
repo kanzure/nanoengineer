@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ToolTipText_for_CommandToolbars.py
 
@@ -17,8 +17,8 @@ for widgets (typically QActions) in the Command Toolbar.
 def toolTipTextForAtomsCommandToolbar(commandToolbar):
     """
     "ToolTip" text for widgets in the Build Atoms Command Toolbar.
-    
-    @note: This is a placeholder function. Currenly, all the tooltip text is 
+
+    @note: This is a placeholder function. Currenly, all the tooltip text is
            defined in BuildAtoms_Command.py.
     """
     return
@@ -34,7 +34,7 @@ def toolTipTextForDnaCommandToolbar(commandToolbar):
     commandToolbar.convertDnaAction.setToolTip("Convert DNA")
     commandToolbar.orderDnaAction.setToolTip("Order DNA")
     commandToolbar.editDnaDisplayStyleAction.setToolTip("Edit DNA Display Style")
-        
+
     return
 
 def toolTipTextForProteinCommandToolbar(commandToolbar):
@@ -43,11 +43,11 @@ def toolTipTextForProteinCommandToolbar(commandToolbar):
     """
     commandToolbar.modelProteinAction.setToolTip("Model Protein")
     commandToolbar.simulateProteinAction.setToolTip("Simulate Protein using Rosetta")
-    
+
     commandToolbar.buildPeptideAction.setToolTip("Insert Peptide")
     commandToolbar.compareProteinsAction.setToolTip("Compare Proteins")
     commandToolbar.displayProteinStyleAction.setToolTip("Edit Protein Display Style")
-    
+
     commandToolbar.rosetta_fixedbb_design_Action.setToolTip("Fixed Backbone Protein Sequence Design")
     commandToolbar.rosetta_backrub_Action.setToolTip("Backrub Motion")
     commandToolbar.editResiduesAction.setToolTip("Edit Residues")

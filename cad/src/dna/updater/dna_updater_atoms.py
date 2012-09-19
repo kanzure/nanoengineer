@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_atoms.py - enforce rules on newly changed PAM atoms and bonds
 
@@ -45,7 +45,7 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     @return: None
     """
     # ==
-    
+
     # fix atom & bond classes, and break locally-illegal bonds
 
     # (Note that the dna updater only records changed bonds
@@ -53,14 +53,14 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     #  list of "changed bonds" themselves.)
 
     # note: these fix_ functions are called again below, on new atoms.
-    
+
     fix_atom_classes( changed_atoms)
-    
+
     fix_bond_classes( changed_atoms)
         # Fixes (or breaks if locally-illegal) all bonds of those atoms.
         # ("Locally" means "just considering that bond and its two atoms,
         #  not worrying about other bonds on those atoms. ### REVIEW: true now? desired?)
-        
+
         # NOTE: new bondpoints must be given correct classes by bond.bust,
         # since we don't fix them in this outer method!
         # (Can this be done incrementally? ### REVIEW)
@@ -73,12 +73,12 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     ignore_new_changes( "from fixing atom & bond classes")
 
     # ==
-    
+
     # fix deprecated elements, and the classes of any new objects this creates
     # (covering all new atoms, and all their bonds)
 
     # (note: we might also extend this to do PAM 3/3+5/5 conversions. not sure.)
-    
+
     fix_deprecated_elements( changed_atoms) # changes more atoms;
         # implem is allowed to depend on atom & bond classes being correct
 
@@ -93,7 +93,7 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     new_atoms = get_changes_and_clear()
 
     if new_atoms:
-    
+
         fix_atom_classes( new_atoms)
             # must tolerate killed atoms
         fix_bond_classes( new_atoms)
@@ -108,9 +108,9 @@ def update_PAM_atoms_and_bonds(changed_atoms):
         # the same keys as old ones. Also note that none of this matters as of
         # 071120, since fixing classes doesn't make new objects in the present
         # implem.)
-        
+
         changed_atoms.update( new_atoms )
-        
+
         ignore_new_changes( "from fixing classes after fixing deprecated elements")
 
     # ==
@@ -134,8 +134,8 @@ def update_PAM_atoms_and_bonds(changed_atoms):
         new_atoms = get_changes_and_clear()
 
         if new_atoms:
-            if debug_flags.DEBUG_DNA_UPDATER:            
-                print "dna_updater: will scan %d new changes from delete_bare_atoms" % len(new_atoms)    
+            if debug_flags.DEBUG_DNA_UPDATER:
+                print "dna_updater: will scan %d new changes from delete_bare_atoms" % len(new_atoms)
             changed_atoms.update( new_atoms )
 
     # ==
@@ -148,7 +148,7 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     # The changes caused by these fixes include only:
     # - setting atom._dna_updater__error to a constant error code string on some atoms
     # - setting or unsetting bond direction on open bonds (changes from this could be ignored here)
-    
+
     # Tentative conclusion: no need to do anything to new changed atoms
     # except scan them later; need to ignore atoms with _dna_updater__error set
     # when encountered in changed_atoms (remove them now? or in that function?)
@@ -163,12 +163,12 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     new_atoms = get_changes_and_clear()
 
     if new_atoms:
-        if debug_flags.DEBUG_DNA_UPDATER:            
-            print "dna_updater: will scan %d new changes from fix_local_bond_directions" % len(new_atoms)    
+        if debug_flags.DEBUG_DNA_UPDATER:
+            print "dna_updater: will scan %d new changes from fix_local_bond_directions" % len(new_atoms)
         changed_atoms.update( new_atoms )
 
     # ==
-    
+
     remove_killed_atoms( changed_atoms)
 
     remove_error_atoms( changed_atoms)
@@ -190,7 +190,7 @@ def update_PAM_atoms_and_bonds(changed_atoms):
 ##    # This is not practical now, since errors or non-whole base pairs prevent
 ##    # conversion, and almost any operation can remove those errors or make the
 ##    # base pairs whole.
-##    
+##
 ##    convert_from_PAM5( changed_atoms)
 ##        # note: this replaces Pl5 with direct bonds, and may do more (undecided),
 ##        # but some conversion might be done later after ladders are constructed.
@@ -199,7 +199,7 @@ def update_PAM_atoms_and_bonds(changed_atoms):
 ##    ignore_new_changes( "from converting PAM5 to PAM3+5")
 ##
 ##    remove_killed_atoms( changed_atoms)
-    
+
     return # from update_PAM_atoms_and_bonds
 
 # end

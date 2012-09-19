@@ -33,7 +33,7 @@ def draw_Node(pos, radius, numedges = 0, highlight_color = None, color = None):
         glColor3f(*highlight_color)
         drawcircle2d(radius + 1, x, y)
         drawcircle2d(radius + 2, x, y)
-    return    
+    return
 
 class TrivalentGraph_HighlightGraphics( HighlightGraphics):
     def rubber_edge(self, node_or_pos_1, node_or_pos_2):

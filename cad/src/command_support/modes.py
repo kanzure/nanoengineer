@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 modes.py -- provides basicMode, the superclass for old modes
 which haven't yet been split into subclasses of Command and GraphicsMode.
@@ -76,7 +76,7 @@ class nullMode(nullCommand, nullGraphicsMode, anyMode):
     # see discussion in this module's docstring
 
     # duplicated properties in nullMode and basicMode, except for debug prints:
-    
+
     def __get_command(self):
         print "\n * * * nullMode.__get_command, should probably never happen\n"
             # happens?? never yet seen, should probably never happen
@@ -100,12 +100,12 @@ class basicMode(basicCommand, basicGraphicsMode, anyMode):
     """
     def __init__(self, commandSequencer):
         glpane = commandSequencer.assy.glpane #bruce 080813 revised this
-        
+
         basicCommand.__init__(self, commandSequencer)
-        
+
         basicGraphicsMode.__init__(self, glpane)
             # no need to pass self as command, due to property below
-        
+
         return
 
     # duplicated properties in nullMode and basicMode, except for debug prints:
@@ -121,7 +121,7 @@ class basicMode(basicCommand, basicGraphicsMode, anyMode):
         return self
 
     graphicsMode = property(__get_graphicsMode)
-    
+
     pass # end of class basicMode
 
 # end

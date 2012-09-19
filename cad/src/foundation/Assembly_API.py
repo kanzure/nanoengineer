@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Assembly_API.py -- API for class assembly, also useful for isinstance tests
 
@@ -7,7 +7,7 @@ relied on to remove some import cycles.
 
 @author: bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 class Assembly_API:

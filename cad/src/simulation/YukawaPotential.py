@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 YukawaPotential.py
@@ -8,7 +8,7 @@ mdrun.
 
 @author: Eric M
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 The table consists of 7 columns:
 
@@ -63,7 +63,7 @@ class YukawaPotential(object):
                                                          self.temperature)
         # (A^2 s^2) (A^-2 s^-4 kg m^3) (kg^-1 m^-2 s^2 K) K^-1 = m
         # about 0.7nm for default conditions
-        
+
         # Debye length (nm)
         Lambda_D = 1.0 / math.sqrt(4.0 * math.pi * L_B * self.molarity *
                                    self.charge * self.charge)

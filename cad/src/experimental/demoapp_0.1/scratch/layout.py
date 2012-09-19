@@ -30,7 +30,7 @@ def desired_size_data_for_view(min_size = (10,10), max_size = (4000,4000)):
                                                 max_size = max_size[i])
            for i in (0,1) ]
     return res
-           
+
 def desired_size_data_for_control(size = (20,20)):
     res = [desired_size_data([(ESSENTIAL_CONTROLS_NORMAL, size[i])])
            for i in (0,1) ]
@@ -137,7 +137,7 @@ def _allocate(summands, amount):
             amount -= total
         else:
             # Have to divy up the remainder, among requests for various numbers
-            # of pixels at the same price (and then break out of this loop). 
+            # of pixels at the same price (and then break out of this loop).
             #
             # Note: if price curve was truly piecewise constant as our math assumes,
             # we could divy it up arbitrary, but in fact, we assume the price
@@ -184,12 +184,12 @@ def _allocate(summands, amount):
 # == test code
 
 def _test():
-    
+
     lp1 = desired_size_data([(100, 3), (200, 4)])
     lp2 = desired_size_data([(100, 5), (150, 2), (250, 2)])
     print lp1
     print lp2
-    
+
     print "sum, in both directions, 2 should be same:"
     # should be: [(250, 2), (200, 4), (150, 2), (100, 8)];
     # is:        [(250, 2), (200, 4), (150, 2), (100, 8)] -- correct!
@@ -207,8 +207,8 @@ def _test():
 
     print _allocate([lp1, lp2], 4) # should be: [2, 2] -- correct!
     assert _allocate([lp1, lp2], 4) == [2, 2]
-    
+
     print "tests passed"
-    
+
 if __name__ == '__main__':
     _test()

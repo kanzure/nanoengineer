@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 BasePair.py - BasePair, StackedBasePairs flyweight objects
 
@@ -82,7 +82,7 @@ class BasePair(Flyweight):
             # have two strand atoms on it. So just look at see.
             self._find_second_strand_atom()
                 # this might leave it as None if only one is there,
-                # or raise a DnaStructureError exception            
+                # or raise a DnaStructureError exception
         self._validate()
         return
     def _find_both_strand_atoms(self):
@@ -121,7 +121,7 @@ class BasePair(Flyweight):
 
         @param other: another basepair. We modify self, not other, to do the alignment.
         @type other: BasePair (same class as self)
-        
+
         @param guess_from_geometry: If there is no backbone bonding, this option (when true, the default)
         permits us to use geometric info to
         guess strand correspondence for doing the alignment. Our return value will be True if we did that.
@@ -232,7 +232,7 @@ class StackedBasePairs(Flyweight):
         """
         assert 0 # nim
     pass
-            
+
 
 ## next_base_pair( base_pair_stacking, base_pair) # like bond, atom
 

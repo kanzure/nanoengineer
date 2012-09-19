@@ -43,18 +43,18 @@ from ne1_ui.toolbars.Ui_MoveFlyout import MoveFlyout
 class Move_Command(SelectChunks_Command):
     """
     """
-    
+
     _pointRequestCommand_pivotPoint = None
-    
+
     GraphicsMode_class = TranslateChunks_GraphicsMode
-    
-    #The class constant PM_class defines the class for the Property Manager of 
+
+    #The class constant PM_class defines the class for the Property Manager of
     #this command. See Command.py for more infor about this class constant
     PM_class = MovePropertyManager
-    
-    #Flyout Toolbar 
+
+    #Flyout Toolbar
     FlyoutToolbar_class = MoveFlyout
-    
+
     commandName = 'MODIFY'
     featurename = "Move Chunks Mode"
     from utilities.constants import CL_EDIT_GENERIC
@@ -64,41 +64,41 @@ class Move_Command(SelectChunks_Command):
 
     command_should_resume_prevMode = False
     command_has_its_own_PM = True
-    
+
     flyoutToolbar = None
-    
-    
+
+
     #START command API methods =============================================
-        
+
     def command_entered(self):
         """
-        Overrides superclass method. 
-        
+        Overrides superclass method.
+
         @see: baseCommand.command_enter_PM()  for documentation
         """
         super(Move_Command, self).command_entered()
-            
+
         self.propMgr.set_move_xyz(0, 0, 0) # Init X, Y, and Z to zero
         self.propMgr.set_move_delta_xyz(0,0,0) # Init DelX,DelY, DelZ to zero
-            
+
     def command_enter_misc_actions(self):
         """
-        Overrides superclass method. 
-        
+        Overrides superclass method.
+
         @see: baseCommand.command_enter_misc_actions()  for documentation
         """
         pass
-                
-            
+
+
     def command_exit_misc_actions(self):
         """
-        Overrides superclass method. 
-        
+        Overrides superclass method.
+
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
-        self.w.toolsMoveMoleculeAction.setChecked(False) 
-        self.w.rotateComponentsAction.setChecked(False)  
-    
+        self.w.toolsMoveMoleculeAction.setChecked(False)
+        self.w.rotateComponentsAction.setChecked(False)
+
     #END new command API methods ==============================================
 
 
@@ -112,10 +112,10 @@ class Move_Command(SelectChunks_Command):
         # and is always called regardless of how Line_Command exits
         #  and probably in the old other case as well).
         # [bruce 080904 comment]
-        
+
         (points,) = params
         del params
-        
+
         #Usually points will contain 2 items. But if user abruptly terminates
         #the temporary mode, this might not be true. So move the chunk by offset
         #only when you have got 2 points!  Ninad 2007-10-16
@@ -141,12 +141,12 @@ class Move_Command(SelectChunks_Command):
         del params
         self.propMgr.rotateAboutPointButton.setChecked(False)
         return
-    
+
     def _acceptPointRequestCommand_pivotPoint(self, params):
         self._pointRequestCommand_pivotPoint = params
-    
-    
-    def EXPERIMENTAL_rotateAboutPointTemporaryCommand(self, isChecked = False): 
+
+
+    def EXPERIMENTAL_rotateAboutPointTemporaryCommand(self, isChecked = False):
         #@ATTENTION: THIS IS NOT USED AS OF NOV 28, 2008 SCHEDULED FOR REMOVAL
         """
         @see: self.moveFromToTemporaryMode
@@ -172,38 +172,38 @@ class Move_Command(SelectChunks_Command):
                 "in the direction specified by that line"
 
             self.propMgr.updateMessage(msg)
-            
+
             cs = self.commandSequencer
             # following was revised by bruce 080801
             mouseClickLimit = 1
             planeAxis = None
             planePoint = None
-            
+
             cs.callRequestCommand( 'Point_RequestCommand',
                  arguments = (mouseClickLimit, planeAxis, planePoint), # number of mouse click points to accept
                  accept_results = self._acceptPointRequestCommand_pivotPoint
              )
-            
-            ###Next step: define reference vector 
+
+            ###Next step: define reference vector
             ##mouseClickLimit = 1
             ##planeAxis = self.glpane.lineOfSight
             ##planePoint = self._pointRequestCommand_pivotPoint
             ##print "**** planePoint = ", planePoint
-            
+
             ##cs.callRequestCommand( 'Point_RequestCommand',
                  ##arguments = (mouseClickLimit, planeAxis, planePoint), # number of mouse click points to accept
                  ##accept_results = self. _acceptRotateAboutPointResults
              ##)
-             
+
         else:
             # exit the RotateAboutPoint command
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == "RotateAboutPoint":
                 currentCommand.command_Cancel()
-                
+
             self.propMgr.rotateStartCoordLineEdit.setEnabled(False)
             self.propMgr.updateMessage()
-            
+
 
 
     def rotateAboutPointTemporaryCommand(self, isChecked = False):
@@ -232,7 +232,7 @@ class Move_Command(SelectChunks_Command):
                 "The <b>3rd</b> point is the ending angle."
 
             self.propMgr.updateMessage(msg)
-            
+
             # following was revised by bruce 080801
             self.commandSequencer.callRequestCommand( 'RotateAboutPoint',
                  arguments = (3,), # number of mouse click points to accept
@@ -243,7 +243,7 @@ class Move_Command(SelectChunks_Command):
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == "RotateAboutPoint":
                 currentCommand.command_Cancel()
-                
+
             self.propMgr.rotateStartCoordLineEdit.setEnabled(False)
             self.propMgr.updateMessage()
 
@@ -284,7 +284,7 @@ class Move_Command(SelectChunks_Command):
         if button:
             rotype = str(button.text())
         else:
-            env.history.message(redmsg("Rotate By Specified Angle:" 
+            env.history.message(redmsg("Rotate By Specified Angle:"
                                        "Please press the button "\
                                        "corresponding to the axis of rotation"))
             return

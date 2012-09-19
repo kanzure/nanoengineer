@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 icon_utilities.py - helper functions for finding icon and pixmap files
 in standard places, and caching them, and handling errors when they're
@@ -57,7 +57,7 @@ def initialize_icon_utilities():
     """
     if (Initialize.startInitialization(__name__)):
         return
-    
+
     # initialization code
     global _iconprefix
     _iconprefix = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -94,116 +94,116 @@ def image_directory(): #bruce 070604
 def get_image_path(name, print_errors = True):
     """
     Return the full path given an image/icon path name.
-    
-    @param name: The image path name provided by the user. The path should start 
+
+    @param name: The image path name provided by the user. The path should start
            with 'ui/' directory inside the src directory.
     @type  name: str
 
     @param print_errors: whether to report errors for missing icon files
                          when atom_debug is set. True by default.
     @type print_errors: boolean
-    
+
     @return: full path of the image.
     @rtype:  str
     """
-    
+
     root, ext = os.path.splitext(name)
-    
+
     if not ext:
         if name: # 'name' can be an empty string. See docstring for details.
             msg = "Warning: No '.png' extension passed to get_image_path for [%s]. " \
                 "\nPlease add the .png suffix in the source code to remove this warning.\n" % name
             print_compact_stack(msg)
         name = name + '.png'
-    
+
     iconPath = os.path.join(image_directory(), name)
-    iconPath = os.path.normpath(iconPath)      
-    
+    iconPath = os.path.normpath(iconPath)
+
     if not os.path.exists(iconPath):
         if debug_flags.atom_debug and print_errors:
             print "icon path %s doesn't exist." % (iconPath,)
-    
+
     return iconPath
 
 def geticon(name, print_errors = True):
     """
     Return the icon given an image path name.
-    
-    @param name: The image path name provided by the user. The path should start 
-           with 'ui/' directory inside the src directory. If name is an 
+
+    @param name: The image path name provided by the user. The path should start
+           with 'ui/' directory inside the src directory. If name is an
            empty string, a null icon is returned.
     @type  name: str
 
     @param print_errors: whether to report errors for missing icon files
                          when atom_debug is set. True by default.
     @type print_errors: boolean
-    
+
     @return: QIcon object for the given image path.
     @rtype:  QIcon object.
     """
-    
+
     iconPath = get_image_path(name, print_errors)
-    
-    # Always set the icon with the 'iconPath'. Don't set it as an empty string 
-    # like done in getPixmap. This is done on purpose. Right now there is an 
-    # apparent bug in Qt in the text alignment for a push button with style sheet. 
-    # @see L{PM_GroupBox._getTitleButton} which sets a non-existant 
+
+    # Always set the icon with the 'iconPath'. Don't set it as an empty string
+    # like done in getPixmap. This is done on purpose. Right now there is an
+    # apparent bug in Qt in the text alignment for a push button with style sheet.
+    # @see L{PM_GroupBox._getTitleButton} which sets a non-existant
     # 'Ghost Icon' for this button using 'geticon method'
-    # By setting such an icon, the button text left-aligns! If you create an icon 
-    # with iconPath = empty string (when the user supplied path doesn't exist) 
-    # the text in that title button center-aligns. So lets just always use the 
+    # By setting such an icon, the button text left-aligns! If you create an icon
+    # with iconPath = empty string (when the user supplied path doesn't exist)
+    # the text in that title button center-aligns. So lets just always use the
     # 'iconPath' even when the path doesn't exist. -- ninad 2007-08-22
-    
+
     icon = QtGui.QIcon(iconPath)
-            
+
     return icon
 
 def getCursorPixmap(png_filename):
     """
     Return the QPixmap for the given cursor PNG image file name.
-    
-    @param png_filename: The cursor image (PNG) file name provided by the user. 
+
+    @param png_filename: The cursor image (PNG) file name provided by the user.
                  The cursor file must live in the 'ui/cursors' directory
                  inside the src directory.
     @type  png_filename: str
-    
-    @return: QPixmap object for the given cursor image file name. 
+
+    @return: QPixmap object for the given cursor image file name.
              (could return a Null icon)
     @rtype:  QPixmap object.
     """
     return getpixmap(os.path.join("ui/cursors/", png_filename))
-    
+
 def getpixmap(name, print_errors = True):
     """
     Return the QPixmap for the given image path name.
-    
-    @param name: The image path name provided by the user. The path should start 
+
+    @param name: The image path name provided by the user. The path should start
            with 'ui/' directory inside the src directory.
     @type  name: str
 
     @param print_errors: whether to report errors for missing pixmap files
                          when atom_debug is set. True by default.
     @type print_errors: boolean
-    
+
     @return: QPixmap object for the given image path. (could return a Null icon)
     @rtype:  QPixmap object.
     """
     root, ext = os.path.splitext(name)
     if not ext:
         name = name + '.png'
-        
+
     pixmapPath = os.path.join(image_directory(), name)
     pixmapPath = os.path.normpath(pixmapPath)
-    
+
     if os.path.exists(pixmapPath):
-        pixmap = QtGui.QPixmap(pixmapPath)        
+        pixmap = QtGui.QPixmap(pixmapPath)
     else:
-        # return a null pixmap. Client code should do the necessary check 
-        # before setting the icon. 
+        # return a null pixmap. Client code should do the necessary check
+        # before setting the icon.
         # @see: L{PM_GroupBox.addPmWidget} for an example on how this is done
         pixmap = QtGui.QPixmap('')
         if debug_flags.atom_debug and print_errors:
-            # This could be a common case. As the client uses getpixmap function 
+            # This could be a common case. As the client uses getpixmap function
             # to see if a pixmap exists. So if its obscuring other debug messages,
             # the following print statement can be removed
             print "pixmap path %s doesn't exist." % pixmapPath
@@ -222,12 +222,12 @@ def imagename_to_pixmap(imagename): #bruce 050108
         return _pixmaps[imagename]
     except KeyError:
         if imagename[:3] == "ui/":
-            #If the imagename includes  "ui/" at the beginning, 
-            #remove it because we will prepend imagename with 
+            #If the imagename includes  "ui/" at the beginning,
+            #remove it because we will prepend imagename with
             #UI_SUBDIRECTORY_COMPONENT
-            imagename = imagename[3:]          
-        
-        pixmappath = os.path.join( image_directory(), 
+            imagename = imagename[3:]
+
+        pixmappath = os.path.join( image_directory(),
                                    UI_SUBDIRECTORY_COMPONENT,
                                    imagename)
         if not os.path.exists(pixmappath):

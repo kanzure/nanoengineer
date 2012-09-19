@@ -2,12 +2,12 @@
 """
 CompareProteins_PropertyManager.py
 
-The CompareProteins_PropertyManager class provides a Property Manager 
-for the B{Compare Proteins} command on the flyout toolbar in the 
-Build > Protein mode. 
+The CompareProteins_PropertyManager class provides a Property Manager
+for the B{Compare Proteins} command on the flyout toolbar in the
+Build > Protein mode.
 
 @author: Piotr
-@version: $Id$ 
+@version: $Id$
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 
 TODO:
@@ -40,8 +40,8 @@ from utilities.Log import redmsg
 _superclass = Command_PropertyManager
 class CompareProteins_PropertyManager(Command_PropertyManager):
     """
-    The CompareProteins_PropertyManager class provides a Property Manager 
-    for the B{Compare Proteins} command on the Build Protein flyout toolbar. 
+    The CompareProteins_PropertyManager class provides a Property Manager
+    for the B{Compare Proteins} command on the Build Protein flyout toolbar.
 
     @ivar title: The title that appears in the property manager header.
     @type title: str
@@ -53,10 +53,10 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
     @ivar iconPath: The relative path to the PNG file that contains a
                     22 x 22 icon image that appears in the PM header.
     @type iconPath: str
-    
+
     @ivar proteinChunk1: The first currently selected protein to be compared.
     @type proteinChunk1: protein chunk
-    
+
     @ivar proteinChunk2: The second currently selected protein to be compared.
     @type proteinChunk2: protein chunk
     """
@@ -66,13 +66,13 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
     iconPath       =  "ui/actions/Command Toolbar/BuildProtein/Compare.png"
     proteinChunk1  =  None
     proteinChunk2  =  None
-    
+
     def __init__( self, command ):
         """
         Constructor for the property manager.
-        """        
+        """
         self.threshold = 10.0
-        
+
         _superclass.__init__(self, command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
@@ -80,55 +80,55 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
         return
 
     def connect_or_disconnect_signals(self, isConnect = True):
-        
+
         if isConnect:
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect
-        
+
         change_connect(self.comparePushButton,
                        SIGNAL("clicked()"),
                        self._compareProteins)
-        
+
         change_connect(self.thresholdDoubleSpinBox,
                        SIGNAL("valueChanged(double)"),
                        self._thresholdChanged)
-        
+
         change_connect(self.hidePushButton,
                        SIGNAL("clicked()"),
                        self._hideDifferences)
         return
-    
+
     def close(self):
         """
         Closes the Property Manager. Overrides EditCommand_PM.close()
         """
-        
+
         env.history.statusbar_msg("")
         self._resetAminoAcids()
         _superclass.close(self)
-        
+
         # Restore the original global display style.
         self.o.setGlobalDisplayStyle(self.originalDisplayStyle)
         return
-    
+
     def show(self):
         """
         Show the PM. Extends superclass method.
-        
+
         @note: _update_UI_do_updates() gets called immediately after this and
                updates PM widgets with their correct values/settings.
         """
         _superclass.show(self)
         env.history.statusbar_msg("")
-        
+
         # Force the Global Display Style to "Protein" since this is the only way
         # to see comparisons. The global display style will be restored when leaving
-        # this command (via self.close()). 
+        # this command (via self.close()).
         self.originalDisplayStyle = self.o.displayMode
         self.o.setGlobalDisplayStyle(diPROTEIN)
         return
-    
+
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.
@@ -137,24 +137,24 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
                                          title = "Compare")
         self._loadGroupBox1( self._pmGroupBox1 )
         return
-        
+
     def _addWhatsThisText( self ):
         """
-        What's This text for widgets in this Property Manager.  
+        What's This text for widgets in this Property Manager.
         """
         pass
-    
+
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in this Property Manager.  
+        Tool Tip text for widgets in this Property Manager.
         """
         pass
-    
+
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box.
         """
-        
+
         self.structure1LineEdit = \
             PM_LineEdit( pmGroupBox,
                          label         =  "First structure:",
@@ -178,38 +178,38 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
                               singleStep    =  30.0,
                               suffix        = " deg",
                               spanWidth = False)
-        
+
         self.comparePushButton  = \
             PM_PushButton( pmGroupBox,
                          text         =  "Compare",
                          setAsDefault  =  True)
-        
+
         self.hidePushButton  = \
             PM_PushButton( pmGroupBox,
                          text         =  "Hide differences",
                          setAsDefault  =  True)
         return
-        
+
     def _compareProteins(self):
         """
         Slot for Compare button.
-        
+
         Compares two selected proteins of the same length.
-        Amino acids that differ greater than the "threshold" 
-        value are displayed in two colors (red for the first protein 
+        Amino acids that differ greater than the "threshold"
+        value are displayed in two colors (red for the first protein
         and yellow for the second protein) and are only visible when
         the two proteins are displayed in the
         reduced display style.
         """
         from utilities.constants import red, orange, green, cyan
-        
+
         if not self.proteinChunk1 or \
            not self.proteinChunk2:
             return
-        
+
         protein_1 = self.proteinChunk1.protein
         protein_2 = self.proteinChunk2.protein
-        
+
         if protein_1 and \
            protein_2:
             aa_list_1 = protein_1.get_amino_acids()
@@ -247,7 +247,7 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
                             aa1.expand()
                             aa2.set_color(cyan)
                             aa2.expand()
-                        
+
                 self.win.glpane.gl_update()
             else:
                 msg = "The lengths of compared proteins are not equal."
@@ -258,18 +258,18 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
     def _hideDifferences(self):
         """
         Slot for the "Hide differences" button.
-        
-        Hides amino acids that differ greater than the "threshold" value. 
-        
+
+        Hides amino acids that differ greater than the "threshold" value.
+
         @warning: Untested. Code looks suspicious.
         """
         if not self.proteinChunk1 or \
            not self.proteinChunk2:
             return
-        
+
         protein_1 = self.proteinChunk1.protein
         protein_2 = self.proteinChunk2.protein
-        
+
         if protein_1 and \
            protein_2:
             aa_list_1 = protein_1.get_amino_acids()
@@ -284,7 +284,7 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
                     aa2.collapse()
             self.win.glpane.gl_update()
         return
-    
+
     def _thresholdChanged(self, value):
         """
         Slot for Threshold spinbox.
@@ -292,44 +292,44 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
         self.threshold = value
         self._compareProteins()
         return
-    
+
     def _resetAminoAcids(self):
         """
         Resets the color and collapse all amino acids of all proteins.
         """
-        
+
         proteinChunkList = getAllProteinChunksInPart(self.win.assy)
-        
+
         for proteinChunk in proteinChunkList:
             proteinChunk.protein.collapse_all_rotamers()
             aa_list = proteinChunk.protein.get_amino_acids()
             for aa in aa_list:
                 aa.color = None
                 aa.collapse()
-                
+
         self.win.glpane.gl_update()
         return
-        
+
     def _update_UI_do_updates(self):
         """
-        Overrides superclass method. 
-        
+        Overrides superclass method.
+
         @see: Command_PropertyManager._update_UI_do_updates()
         """
-        
+
         self.proteinChunk1 = None
         self.proteinChunk2 = None
         self.comparePushButton.setEnabled(False)
         self.hidePushButton.setEnabled(False)
-        
+
         selectedProteinList = self.win.assy.getSelectedProteinChunks()
-        
+
         if len(selectedProteinList) == 0:
             self.structure1LineEdit.setText("")
             self.structure2LineEdit.setText("")
             msg = "Select two structures of the same length in the graphics area, "\
                 "then click the <b>Compare</b> button to compare them."
-        
+
         elif len(selectedProteinList) == 1:
             self.proteinChunk1 = selectedProteinList[0]
             aa1_count = " (%d)" % self.proteinChunk1.protein.count_amino_acids()
@@ -338,16 +338,16 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
             msg = "Select one more structure in the graphics area that is the same "\
                 "length as <b>" + self.proteinChunk1.name + "</b>. "\
                 "Then click the <b>Compare</b> button to compare them."
-        
+
         elif len(selectedProteinList) == 2:
             self.proteinChunk1 = selectedProteinList[0]
             aa1_count = " (%d)" % self.proteinChunk1.protein.count_amino_acids()
             self.structure1LineEdit.setText(self.proteinChunk1.name + aa1_count)
-            
+
             self.proteinChunk2 = selectedProteinList[1]
             aa2_count = " (%d)" % self.proteinChunk2.protein.count_amino_acids()
             self.structure2LineEdit.setText(self.proteinChunk2.name + aa2_count)
-            
+
             if aa1_count == aa2_count:
                 self.comparePushButton.setEnabled(True)
                 self.hidePushButton.setEnabled(True)
@@ -356,13 +356,13 @@ class CompareProteins_PropertyManager(Command_PropertyManager):
                 msg = "<b>%s</b> and <b>%s</b> are not the same length." % \
                     (self.proteinChunk1.name, self.proteinChunk2.name)
                 msg = redmsg(msg)
-                
+
         else:
             self.structure1LineEdit.setText("")
             self.structure2LineEdit.setText("")
             msg = redmsg("Too many proteins selected.")
-        
+
         self.updateMessage(msg)
         env.history.redmsg(msg)
         return
-    
+

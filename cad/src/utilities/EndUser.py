@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 EndUser.py
 
@@ -15,7 +15,7 @@ an end user run (but will print a bug warning if it's ever called then).
 @author: Eric Messick
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
-@license: GPL 
+@license: GPL
 """
 
 _developerFeatures = False
@@ -66,5 +66,5 @@ def setAlternateSourcePath(path):
     assert _alternateSourcePath is None
     _alternateSourcePath = path
     return
-    
+
 # end

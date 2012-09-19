@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 @author: Ninad
@@ -7,12 +7,12 @@
 
 History:
 2008-05-21 - 2008-06-01 Created and further refactored and modified
-@See: ListWidgetItems_Command_Mixin, 
+@See: ListWidgetItems_Command_Mixin,
       ListWidgetItems_GraphicsMode_Mixin
       ListWidgetItems_PM_Mixin,
       CrossoverSite_Marker
       MakeCrossovers_GraphicsMode
-      
+
 
 TODO  2008-06-01 :
 See class CrossoverSite_Marker for details
@@ -33,64 +33,64 @@ from dna.commands.MakeCrossovers.ListWidgetItems_Command_Mixin import ListWidget
 MAXIMUM_ALLOWED_DNA_SEGMENTS_FOR_CROSSOVER = 8
 
 _superclass = SelectChunks_Command
-class MakeCrossovers_Command(SelectChunks_Command, 
+class MakeCrossovers_Command(SelectChunks_Command,
                              ListWidgetItems_Command_Mixin
                              ):
     """
-    
+
     """
-    
+
     GraphicsMode_class = MakeCrossovers_Graphicsmode
-    
+
     PM_class = MakeCrossovers_PropertyManager
-    
-    # class constants    
+
+    # class constants
     commandName = 'MAKE_CROSSOVERS'
     featurename = "Make Crossovers"
     from utilities.constants import CL_SUBCOMMAND
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
-    
-    command_should_resume_prevMode = True 
+
+    command_should_resume_prevMode = True
     command_has_its_own_PM = True
-    
-    flyoutToolbar = None    
-    
-    
+
+    flyoutToolbar = None
+
+
     def _getFlyoutToolBarActionAndParentCommand(self):
         """
-        Overides superclass method. 
+        Overides superclass method.
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = 'makeCrossoversAction'
-        parentCommandName = None     
+        parentCommandName = None
         return flyoutActionToCheck, parentCommandName
 
     def command_entered(self):
         #Set the initial segment list. The segments within this segment list
-        #will be searched for the crossovers. 
-        ListWidgetItems_Command_Mixin.command_entered(self) 
-        
+        #will be searched for the crossovers.
+        ListWidgetItems_Command_Mixin.command_entered(self)
+
         _superclass.command_entered(self)
-        
-        selectedSegments = self.win.assy.getSelectedDnaSegments()        
-        self.ensureSegmentListItemsWithinLimit(selectedSegments)                     
-            
-    def logMessage(self, type = 'DEFAULT'): 
+
+        selectedSegments = self.win.assy.getSelectedDnaSegments()
+        self.ensureSegmentListItemsWithinLimit(selectedSegments)
+
+    def logMessage(self, type = 'DEFAULT'):
         """
-        Updates the PM message groupbox message with the one specified below. 
+        Updates the PM message groupbox message with the one specified below.
         """
         msg = ''
         if type == 'ADD_SEGMENTS_ACTIVATED':
             msg = """To add new PAM3 DNA segments to the list, click on the segment's
-             axis. Multiple segments can be added at once by doing a 
+             axis. Multiple segments can be added at once by doing a
             rectangular lasso selection in the 3D workspace."""
         elif type == 'REMOVE_SEGMENTS_ACTIVATED':
-            msg = """To remove segments from the list, click on the segment's 
-            axis. Multiple segments can be removed at once by doing a 
+            msg = """To remove segments from the list, click on the segment's
+            axis. Multiple segments can be removed at once by doing a
             rectangular lasso selection in the 3D workspace."""
         elif type == 'LEFT_DRAG_STARTED':
-            msg = """Transparent green spheres (if present) around the atoms indicate 
+            msg = """Transparent green spheres (if present) around the atoms indicate
             potential crossover sites."""
         elif type == 'LEFT_DRAG_FINISHED':
             msg = self.propMgr.defaultLogMessage
@@ -99,23 +99,23 @@ class MakeCrossovers_Command(SelectChunks_Command,
                 "crossover sites. Segments not added to the list"%self.itemLimitForSegmentListWidget()
             msg = orangemsg(msg)
         elif type == 'WARNING_PAM5_SEGMENT_FOUND':
-            msg = """Warning: One or more of the PAM5 DNA segments have been 
-            removed from the segment list.Make Crossovers command is only 
+            msg = """Warning: One or more of the PAM5 DNA segments have been
+            removed from the segment list.Make Crossovers command is only
             availble for PAM3 model."""
             msg = orangemsg(msg)
         else:
             msg = self.propMgr.defaultLogMessage
-        
+
         self.propMgr.updateMessage(msg)
-            
-            
+
+
     def itemLimitForSegmentListWidget(self):
         """
-        Maximum number of items allowed in the segment list widet.(For 
+        Maximum number of items allowed in the segment list widet.(For
         performance reasons)
         """
         return MAXIMUM_ALLOWED_DNA_SEGMENTS_FOR_CROSSOVER
-    
+
     def ensureSegmentListItemsWithinLimit(self, segments):
         """
         """
@@ -123,39 +123,39 @@ class MakeCrossovers_Command(SelectChunks_Command,
         if len(self._structList) > self.itemLimitForSegmentListWidget():
             self.logMessage('WARNING_LIMIT_EXCEEDED')
             return
-        
+
         #Optimization
         if len(self._structList) == 0 and \
            len(segments)<= self.itemLimitForSegmentListWidget():
             self.setSegmentList(segments)
             return
-        
+
         raw_number_of_segments =  len(self._structList) + len(segments)
         if raw_number_of_segments <= self.itemLimitForSegmentListWidget():
             for segment in segments:
                 self.addSegmentToSegmentList(segment)
             return
-        
-        #Check how many of the segments are already in self._structList. 
-        #Filter the ones that are *NOT* in self._structList. This filtered 
+
+        #Check how many of the segments are already in self._structList.
+        #Filter the ones that are *NOT* in self._structList. This filtered
         #segments are the segments to add to the list
-        
+
         def func(segment):
             if segment not in self._structList:
                 return True
             return False
-        
+
         segments_to_add = filter(lambda seg: func(seg), segments)
-        
+
         raw_number_of_segments = len(segments_to_add) + len(self._structList)
-        
+
         if raw_number_of_segments <= self.itemLimitForSegmentListWidget():
             for segment in segments:
                 self.addSegmentToSegmentList(segment)
             return
         else:
             self.logMessage('WARNING_LIMIT_EXCEEDED')
-            
+
 
     def makeAllCrossovers(self):
         """
@@ -165,32 +165,32 @@ class MakeCrossovers_Command(SelectChunks_Command,
         crossoverPairs = self.graphicsMode.get_final_crossover_pairs()
         if crossoverPairs:
             for pairs in crossoverPairs:
-                self.makeCrossover(pairs, 
-                                   suppress_post_crossover_updates = True)                
-                
+                self.makeCrossover(pairs,
+                                   suppress_post_crossover_updates = True)
+
         self.graphicsMode.clearDictionaries()
-        
-                    
-    def makeCrossover(self, 
-                      crossoverPairs, 
+
+
+    def makeCrossover(self,
+                      crossoverPairs,
                       suppress_post_crossover_updates = False):
         """
-        Make the crossover between the atoms of the crossover pairs. 
+        Make the crossover between the atoms of the crossover pairs.
         @param crossoverPairs: A tuple of 4 atoms between which the crossover
-               will be made. Note: As of 2008-06-03, this method assumes the 
-               following  form: (atom1, neighbor1, atom2, neighbor2) 
+               will be made. Note: As of 2008-06-03, this method assumes the
+               following  form: (atom1, neighbor1, atom2, neighbor2)
                Where all atoms are PAM3 atoms. pair of atoms atom1 and neighbor1
                are sugar atoms bonded to each other
                (same for pair atom2, neighbor2)
-               The bond between these atoms will be broken first and then the 
-               atoms are bonded to the opposite atoms. 
-               
+               The bond between these atoms will be broken first and then the
+               atoms are bonded to the opposite atoms.
+
         @type crossoverPair: tuple
-        @param suppress_post_crossover_updates: After making a crossover, this 
-        method calls its graphicsMode method to do some more updates (such 
-        as updating the atoms dictionaries etc.) But if its a batch process, 
-        (e.g. user is calling makeAllCrossovers, this update is not needed 
-        after making an individual crossover. The caller then sets this flag to 
+        @param suppress_post_crossover_updates: After making a crossover, this
+        method calls its graphicsMode method to do some more updates (such
+        as updating the atoms dictionaries etc.) But if its a batch process,
+        (e.g. user is calling makeAllCrossovers, this update is not needed
+        after making an individual crossover. The caller then sets this flag to
         true to tell this method to skip that update.
         @type suppress_post_crossover_updates: boolean
         @seE:self.makeAllCrossovers()
@@ -203,37 +203,37 @@ class MakeCrossovers_Command(SelectChunks_Command,
         bond1 = find_bond(atm1, neighbor1)
         if bond1:
             bond1.bust()
-        
+
         bond2 = find_bond(atm2, neighbor2)
         if bond2:
             bond2.bust()
-        #Do we need to check if these pairs are valid (i.e.a 5' end atom is 
-        #bonded to a 3' end atom.. I think its not needed as its done in 
-        #self._bond_two_strandAtoms. 
+        #Do we need to check if these pairs are valid (i.e.a 5' end atom is
+        #bonded to a 3' end atom.. I think its not needed as its done in
+        #self._bond_two_strandAtoms.
         self._bond_two_strandAtoms(atm1, neighbor2)
         self._bond_two_strandAtoms(atm2, neighbor1)
-        
+
         if not suppress_post_crossover_updates:
             self.graphicsMode.update_after_crossover_creation(crossoverPairs)
-                
-    
+
+
     def _bond_two_strandAtoms(self, atm1, atm2):
         """
-        Bonds the given strand atoms (sugar atoms) together. To bond these atoms, 
+        Bonds the given strand atoms (sugar atoms) together. To bond these atoms,
         it always makes sure that a 3' bondpoint on one atom is bonded to 5'
-        bondpoint on the other atom. 
-                
-        @param atm1: The first sugar atom of PAM3 (i.e. the strand atom) to be 
-                     bonded with atm2. 
+        bondpoint on the other atom.
+
+        @param atm1: The first sugar atom of PAM3 (i.e. the strand atom) to be
+                     bonded with atm2.
         @param atm2: Second sugar atom
         @Note: This method is copied from DnaDuplex.py
-        
+
         """
-        #Moved from B_Dna_PAM3_SingleStrand_Generator to here, to fix bugs like 
+        #Moved from B_Dna_PAM3_SingleStrand_Generator to here, to fix bugs like
         #2711 in segment resizing-- Ninad 2008-04-14
         assert atm1.element.role == 'strand' and atm2.element.role == 'strand'
         #Initialize all possible bond points to None
-                
+
         five_prime_bondPoint_atm1  = None
         three_prime_bondPoint_atm1 = None
         five_prime_bondPoint_atm2  = None
@@ -241,17 +241,17 @@ class MakeCrossovers_Command(SelectChunks_Command,
         #Initialize the final bondPoints we will use to create bonds
         bondPoint1 = None
         bondPoint2 = None
-        
-        #Find 5' and 3' bondpoints of atm1 (BTW, as of 2008-04-11, atm1 is 
+
+        #Find 5' and 3' bondpoints of atm1 (BTW, as of 2008-04-11, atm1 is
         #the new dna strandend atom See self._fuse_new_dna_with_original_duplex
-        #But it doesn't matter here. 
+        #But it doesn't matter here.
         for s1 in atm1.singNeighbors():
-            bnd = s1.bonds[0]            
+            bnd = s1.bonds[0]
             if bnd.isFivePrimeOpenBond():
-                five_prime_bondPoint_atm1 = s1                
+                five_prime_bondPoint_atm1 = s1
             if bnd.isThreePrimeOpenBond():
                 three_prime_bondPoint_atm1 = s1
-                
+
         #Find 5' and 3' bondpoints of atm2
         for s2 in atm2.singNeighbors():
             bnd = s2.bonds[0]
@@ -269,54 +269,54 @@ class MakeCrossovers_Command(SelectChunks_Command,
         if three_prime_bondPoint_atm1 and five_prime_bondPoint_atm2:
             bondPoint1 = three_prime_bondPoint_atm1
             bondPoint2 = five_prime_bondPoint_atm2
-            
+
         #Copied over from BuildAtoms_GraphicsMode._singletLeftUp_joinStrands()
-        #The following fixes bug 2770 
+        #The following fixes bug 2770
         #Set the color of the whole dna strandGroup to the color of the
-        #strand, whose bondpoint, is dropped over to the bondboint of the 
+        #strand, whose bondpoint, is dropped over to the bondboint of the
         #other strandchunk (thus joining the two strands together into
         #a single dna strand group) - Ninad 2008-04-09
-        color = atm1.molecule.color 
+        color = atm1.molecule.color
         if color is None:
             color = atm1.element.color
         strandGroup1 = atm1.molecule.parent_node_of_class(self.win.assy.DnaStrand)
-                   
+
         strandGroup2 = atm2.molecule.parent_node_of_class(
-            self.win.assy.DnaStrand)                
+            self.win.assy.DnaStrand)
         if strandGroup2 is not None:
-            #set the strand color of strandGroup2 to the one for 
-            #strandGroup1. 
+            #set the strand color of strandGroup2 to the one for
+            #strandGroup1.
             strandGroup2.setStrandColor(color)
             strandChunkList = strandGroup2.getStrandChunks()
             for c in strandChunkList:
                 if hasattr(c, 'invalidate_ladder'):
                     c.invalidate_ladder()
-        
-        #Do the actual bonding        
+
+        #Do the actual bonding
         if bondPoint1 and bondPoint2:
             try:
                 bond_at_singlets(bondPoint1, bondPoint2, move = False)
             except:
-                print_compact_traceback("Bug: unable to bond atoms %s and %s"%(atm1, 
+                print_compact_traceback("Bug: unable to bond atoms %s and %s"%(atm1,
                                                                            atm2))
-                
+
             if strandGroup1 is not None:
-                strandGroup1.setStrandColor(color) 
-                
+                strandGroup1.setStrandColor(color)
+
     def updateCrossoverSites(self):
         """
-        Calls the grraphics mode method that does the job of updating 
-        all the crossover sites in the 3D workspace. 
+        Calls the grraphics mode method that does the job of updating
+        all the crossover sites in the 3D workspace.
         """
         self.graphicsMode.updateCrossoverSites()
-           
-        
-    def updateExprsHandleDict(self): 
+
+
+    def updateExprsHandleDict(self):
         self.graphicsMode.updateExprsHandleDict()
-        
+
     def ensureValidSegmentList(self):
         """
-        Ensures that the segments within the segment list being searched for 
+        Ensures that the segments within the segment list being searched for
         crossover sites have all valid segments (even empty list is considered
         as valid as of 2008-06-04)
         @see: MakeCrossversPropertyManager.model_changed()
@@ -324,11 +324,11 @@ class MakeCrossovers_Command(SelectChunks_Command,
         pam5_segment_found = False
         for segment in self._structList:
             if not segment.is_PAM3_DnaSegment():
-                pam5_segment_found = True                
+                pam5_segment_found = True
                 self._structList.remove(segment)
         if pam5_segment_found:
             self.logMessage('WARNING_PAM5_SEGMENT_FOUND')
-            
+
         return pam5_segment_found
- 
-  
+
+

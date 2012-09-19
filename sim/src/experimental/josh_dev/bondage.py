@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-# Copyright 2005 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005 Nanorex, Inc.  See LICENSE file for details.
 from Numeric import *
 from VQT import *
 from string import *
@@ -107,7 +107,7 @@ for lin in f.readlines():
     m = parmpat.match(lin)
     which = m.group(1)+m.group(2)+m.group(3)
     which1 = m.group(3)+m.group(2)+m.group(1)
-    
+
     ks,r0,de = [float(m.group(p)) for p in [4,5,6]]
 
     bt=sqrt(ks/(2.0*de))/10.0
@@ -124,7 +124,7 @@ for lin in f.readlines():
     m = bendpat.match(lin)
     which = m.group(1)+m.group(2)+m.group(3)+m.group(4)+m.group(5)
     which1 = m.group(5)+m.group(4)+m.group(3)+m.group(2)+m.group(1)
-    
+
     th0, kth = [float(m.group(p)) for p in [6,7]]
     kth *= 100.0
     bendtable[which] = (th0, kth)
@@ -138,9 +138,9 @@ def bondsetup(bonds):
     global bbsorta, bbmasha, bbputa
     global bbsortb, bbmashb, bbputb
     global bbsortc, bbmashc, bbputc
-    
+
     n = atnum+1
-    
+
     bond0 = bonds[:,0]
     bond1 = bonds[:,1]
 
@@ -169,7 +169,7 @@ def bondsetup(bonds):
     KS[0]=0.0
     R0 = array([stretchtable[x][1] for x in btlis])
     R0[0]=0.0
-    
+
     bondict = {}
     bends = []
     for (a,b,o) in bonds[1:]:
@@ -220,7 +220,7 @@ def bondsetup(bonds):
 # aa means stretch bond (atom-atom)
 # bb means bend (bond-bond)
 # bba, bbb, bbc are the three atoms in a bend, bbc the center
-# 
+#
 #globals: bond0, bond1: atom #'s; R0s; KSs
 def force(pos):
     aavx = take(pos,bond0,1) - take(pos,bond1,1)

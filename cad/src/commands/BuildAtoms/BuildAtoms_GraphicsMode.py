@@ -1,29 +1,29 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
-BuildAtoms_GraphicsMode.py 
+BuildAtoms_GraphicsMode.py
 
-The GraphicsMode part of the BuildAtoms_Command. It provides the  graphicsMode 
+The GraphicsMode part of the BuildAtoms_Command. It provides the  graphicsMode
 object for its Command class. The GraphicsMode class defines anything related to
-the *3D Graphics Area* -- 
-For example: 
-- Anything related to graphics (Draw method), 
+the *3D Graphics Area* --
+For example:
+- Anything related to graphics (Draw method),
 - Mouse events
-- Cursors, 
-- Key bindings or context menu 
+- Cursors,
+- Key bindings or context menu
 
-                        
+
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 TODO: [as of 2008-01-04]
-- Items mentioned in Select_GraphicsMode.py 
-- Some items mentioned in BuildAtoms_Command.py 
+- Items mentioned in Select_GraphicsMode.py
+- Some items mentioned in BuildAtoms_Command.py
 
 History:
-Originally as 'depositMode.py' by Josh Hall and then significantly modified by 
-several developers. 
-In January 2008, the old depositMode class was split into new Command and 
-GraphicsMode parts and the these classes were moved into their own module 
+Originally as 'depositMode.py' by Josh Hall and then significantly modified by
+several developers.
+In January 2008, the old depositMode class was split into new Command and
+GraphicsMode parts and the these classes were moved into their own module
 [ See BuildAtoms_Command.py and BuildAtoms_GraphicsMode.py]
 """
 
@@ -102,27 +102,27 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
     """
     bondclick_v6 = None
     gridColor = 74/255.0, 186/255.0, 226/255.0
-    
-    #Command will be set in BuildAtoms_GraphicsMode.__init__ . 
+
+    #Command will be set in BuildAtoms_GraphicsMode.__init__ .
     command = None
-        
+
     def reset_drag_vars(self):
         # called in Enter and at start of (super's) leftDown
         _superclass.reset_drag_vars(self)
-        
+
         self.pivot = None
         self.pivax = None
         self.line = None
-            # endpoints of the white line drawn between the cursor and a bondpoint when 
+            # endpoints of the white line drawn between the cursor and a bondpoint when
             # dragging a singlet.
         self.transdepositing = False
-            # used to suppress multiple win_updates and history msgs when 
+            # used to suppress multiple win_updates and history msgs when
             #trans-depositing.
-    
+
     def getCoords(self, event):
         """
         Retrieve the object coordinates of the point on the screen
-        with window coordinates(int x, int y) 
+        with window coordinates(int x, int y)
         """
         # bruce 041207 comment: only called for BuildAtoms_GraphicsMode leftDown in empty
         # space, to decide where to place a newly deposited chunk.
@@ -136,7 +136,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         # bruce 041214: it turns out it's intended, but only for atoms nearer
         # than the water! Awaiting another reply from Josh for details.
         # Until then, no changes and no reviews/bugfixes (eg for invisibles).
-        # BTW this is now the only remaining call of findpick 
+        # BTW this is now the only remaining call of findpick
         # [still true 060316].
         # Best guess: this should ignore invisibles and be limited by water
         # and near clipping; but still use 2.0 radius. ###@@@
@@ -160,15 +160,15 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
              dot(self.o.lineOfSight, p2 - p1))
 
         return p1+k*(p2-p1) # always return a point on the line from p1 to p2
-    
+
     # == LMB event handling methods ====================================
-        
+
     def leftDouble(self, event): # mark 060126.
         """
-        Double click event handler for the left mouse button. 
+        Double click event handler for the left mouse button.
         """
         self.ignore_next_leftUp_event = True # Fixes bug 1467. mark 060307.
-        
+
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             if self.o.tripleClick: # Fixes bug 2568. mark 2007-10-21
                 return
@@ -177,51 +177,51 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 if deposited_obj:
                     self.set_cmdname('Deposit ' + deposited_obj)
             return
-            
+
         _superclass.leftDouble(self, event)
-        
+
         return
-        
+
     # == end of LMB event handler methods
-    
+
     #====KeyPress =================
-    
+
     def keyPress(self, key):
-        for sym, code, num in elemKeyTab: 
+        for sym, code, num in elemKeyTab:
             # Set the atom type in the MMKit and combobox.
             if key == code:
                 self.command.setElement(num)
-                # = REVIEW: should we add a 'return' here, to prevent the 
+                # = REVIEW: should we add a 'return' here, to prevent the
                 # superclass from taking more actions from the same keyPress?
                 #[bruce question 071012]
-        
+
         # Pressing Escape does the following:
-        # 1. If a Bond Tool or the Atom Selection Filter is enabled, 
+        # 1. If a Bond Tool or the Atom Selection Filter is enabled,
         #  pressing Escape will activate the Atom Tool
-        # and disable the Atom Selection Filter. The current selection remains 
+        # and disable the Atom Selection Filter. The current selection remains
         #unchanged, however.
-        # 2. If the Atom Tool is enabled and the Atom Selection Filter is 
-        #    disabled, Escape will clear the 
-        #    current selection (when it's handled by our superclass's 
+        # 2. If the Atom Tool is enabled and the Atom Selection Filter is
+        #    disabled, Escape will clear the
+        #    current selection (when it's handled by our superclass's
         #    keyPress method).
         # Fixes bug (nfr) 1770. mark 060402
         if key == Qt.Key_Escape and self.w.selection_filter_enabled:
             if hasattr(self.command, 'disable_selection_filter'):
                 self.command.disable_selection_filter()
                 return
-      
+
         _superclass.keyPress(self, key)
-        
+
         return
-    
-    
-    def bond_change_type(self, 
-                         b, 
+
+
+    def bond_change_type(self,
+                         b,
                          allow_remake_bondpoints = True,
-                         suppress_history_message = False): 
+                         suppress_history_message = False):
         #bruce 050727; revised 060703
         """
-        Change bondtype of bond <b> to new bondtype determined by the dashboard 
+        Change bondtype of bond <b> to new bondtype determined by the dashboard
         (if allowed).
         @see: BuildAtoms_Command._convert_bonds_bet_selected_atoms()
         """
@@ -229,7 +229,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         #the caller of this function can then use this further to determine
         #various things.
         #@see: BuildAtoms_Command._convert_bonds_bet_selected_atoms()
-        
+
         bond_type_changed = True
         # renamed from clicked_on_bond() mark 060204.
         v6 = self.bondclick_v6
@@ -237,27 +237,27 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             self.set_cmdname('Change Bond')
             btype = btype_from_v6( v6)
             from operations.bond_utils import apply_btype_to_bond
-            
-            bond_type_changed = apply_btype_to_bond( 
-                btype, 
-                b, 
+
+            bond_type_changed = apply_btype_to_bond(
+                btype,
+                b,
                 allow_remake_bondpoints = allow_remake_bondpoints,
                 suppress_history_message = suppress_history_message
             )
-                # checks whether btype is ok, and if so, new; emits history 
+                # checks whether btype is ok, and if so, new; emits history
                 #message; does [#e or should do] needed invals/updates
             ###k not sure if that subr does gl_update when needed... this method
             ##does it, but not sure how
             # [or maybe only its caller does?]
         return bond_type_changed
-    
+
     def bond_singlets(self, s1, s2):
         """
         Bond singlets <s1> and <s2> unless they are the same singlet.
         """
-        #bruce 050429: it'd be nice to highlight the involved bonds and atoms, 
+        #bruce 050429: it'd be nice to highlight the involved bonds and atoms,
         # too...
-        # incl any existing bond between same atoms. (by overdraw, for speed, 
+        # incl any existing bond between same atoms. (by overdraw, for speed,
         #or by more lines) ####@@@@ tryit
         #bruce 041119 split this out and added checks to fix bugs #203
         # (for bonding atom to itself) and #121 (atoms already bonded).
@@ -272,25 +272,25 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # since we think we caught them all before calling it
             print_error_details = 1
         flag, status = bond_at_singlets(s1, s2, move = False, \
-                         print_error_details = print_error_details, 
+                         print_error_details = print_error_details,
                          increase_bond_order = True)
 
         # we ignore flag, which says whether it's ok, warning, or error
         env.history.message("%s: %s" % (self.command.get_featurename(), status))
         return
-           
+
     def setBond1(self, state):
         "Slot for Bond Tool Single button."
         self.setBond(V_SINGLE, state)
-        
+
     def setBond2(self, state):
         "Slot for Bond Tool Double button."
         self.setBond(V_DOUBLE, state)
-    
+
     def setBond3(self, state):
         "Slot for Bond Tool Triple button."
         self.setBond(V_TRIPLE, state )
-        
+
     def setBonda(self, state):
         "Slot for Bond Tool Aromatic button."
         self.setBond(V_AROMATIC, state)
@@ -298,7 +298,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
     def setBondg(self, state): #mark 050831
         "Slot for Bond Tool Graphitic button."
         self.setBond(V_GRAPHITE, state)
-        
+
     def setBond(self, v6, state, button = None):
         """
         #doc; v6 might be None, I guess, though this is not yet used
@@ -316,33 +316,33 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 env.history.statusbar_msg("click bonds to make them %s" % name)
                 if self.command.propMgr:
                     self.command.propMgr.updateMessage() # Mark 2007-06-01
-                  
+
             else:
                 # this never happens (as explained above)
-                #####@@@@@ see also setAtom, which runs when Atom Tool is 
+                #####@@@@@ see also setAtom, which runs when Atom Tool is
                 ##clicked (ideally this might run as well, but it doesn't)
-                # (I'm guessing that self.bondclick_v6 is not relied on for 
+                # (I'm guessing that self.bondclick_v6 is not relied on for
                 # action effects -- maybe the button states are??)
                 # [bruce 060702 comment]
                 env.history.statusbar_msg(" ") # clicking bonds now does nothing
                 ## print "turned it off"
         else:
-            pass # print "toggled(false) for",btype_from_v6(v6) 
+            pass # print "toggled(false) for",btype_from_v6(v6)
                  # happens for the one that was just on,unless you click sameone
-        
+
         self.update_cursor()
-        
+
         return
-    
+
 
     #== Draw methods
-    
+
     def Draw_other(self):
         """
         @see: Draw_after_highlighting (draws water surface)
         """
         _superclass.Draw_other(self)
-        
+
         if self.line:
             color = get_selCurve_color(0, self.o.backgroundColor)
                 # Make sure line color has good contrast with bg. [mark 060305]
@@ -353,23 +353,23 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             drawline(color, self.line[0], self.line[1])
             # todo: if this is for a higher-order bond, draw differently
             pass
-        
+
         return
 
     def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
         # added pickCheckOnly arg.  mark 060207.
         """
-        Do more drawing, after the main drawing code has completed its 
+        Do more drawing, after the main drawing code has completed its
         highlighting/stenciling for selobj.Caller will leave glstate in standard
         form for Draw. Implems are free to turn off depth buffer read or write.
         Warning: anything implems do to depth or stencil buffers will affect the
         standard selobj-check in bareMotion.
         [New method in mode API as of bruce 050610. General form not yet defined
-        -- just a hack for Build mode's water surface. Could be used for 
+        -- just a hack for Build mode's water surface. Could be used for
         transparent drawing in general.]
         """
         res = _superclass.Draw_after_highlighting(self, pickCheckOnly) #Draw possible other translucent objects. [huaicai 9/28/05]
-        
+
         glDepthMask(GL_FALSE)
             # disable writing the depth buffer, so bareMotion selobj check measures depths behind it,
             # so it can more reliably compare them to water's constant depth. (This way, roundoff errors
@@ -377,10 +377,10 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # water surface.)
             # (Note: before bruce 050608, depth buffer remained writable here -- untypical for transparent drawing,
             #  but ok then, since water was drawn last and bareMotion had no depth-buffer pixel check.)
-        self.surface() 
+        self.surface()
         glDepthMask(GL_TRUE)
         return res
-        
+
     def surface(self):
         """
         Draw the water's surface -- a sketch plane to indicate where the new atoms will sit by default,
@@ -388,7 +388,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         """
         if not env.prefs[buildModeWaterEnabled_prefs_key]:
             return
-            
+
         glDisable(GL_LIGHTING)
         glColor4fv(self.gridColor + (0.6,))
             ##e bruce 050615 comment: if this equalled bgcolor, some bugs would go away;
@@ -398,7 +398,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # concentrated into a single plane.
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        
+
         # the grid is in eyespace
         glPushMatrix()
         q = self.o.quat
@@ -414,9 +414,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 ##      # ... but for Alpha let's just do a quick fix by replacing 1.5 by 4.0.
 ##      # This should work except for very wide (or tall??) windows.
 ##      # [bruce 050120]
-##      
+##
 ##        ## x = y = 4.0 * self.o.scale # was 1.5 before bruce 050120; still a kluge
-        
+
         #bruce 050615 to fix bug 264 (finally! but it will only last until someone changes what self.o.scale means...):
         # here are presumably correct values for the screen boundaries in this "plane of center of view":
         y = self.o.scale # always fits height, regardless of aspect ratio (as of 050615 anyway)
@@ -439,7 +439,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         glDisable(GL_BLEND)
         glEnable(GL_LIGHTING)
         return
-    
+
     # == Singlet helper methods
 
     def singletLeftDown(self, s, event):
@@ -456,14 +456,14 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         """
         self.objectSetup(a)
         self.only_highlight_singlets = True
-        
+
         self.singlet_list = self.o.assy.getConnectedSinglets([a])
             # get list of all singlets that we can reach from any sequence of bonds to <a>.
             # used in doubleLeft() if the user clicks on
 
             # note: it appears that self.singlet_list is never used, tho another routine computes it
             # locally under the same name and uses that. [bruce 070411 comment, examining Qt3 branch]
-        
+
         pivatom = a.neighbors()[0]
         self.baggage, self.nonbaggage = pivatom.baggage_and_other_neighbors() #bruce 051209
         neigh = self.nonbaggage
@@ -493,12 +493,12 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 
         @param bondpoint: a bondpoint to drag
         @type bondpoint: some instances of class Atom
-        
+
         @param event: a drag event
         """
         if bondpoint.element is not Singlet:
             return
-         
+
         apos0 = bondpoint.posn()
 
         px = self.dragto_with_offset(bondpoint.posn(),
@@ -507,7 +507,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             #bruce 060316 attempt to fix bug 1474 analogue;
             # untested and incomplete since nothing is setting drag_offset
             # when this is called (except to its default value V(0,0,0))!
-        
+
         if self.pivax:
             # continue pivoting around an axis
             quat = twistor(self.pivax,
@@ -515,7 +515,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                            px - self.pivot)
             for at in [bondpoint] + self.baggage:
                 at.setposn(quat.rot(at.posn() - self.pivot) + self.pivot)
-        
+
         elif self.pivot:
             # continue pivoting around a point
             quat = Q(bondpoint.posn() - self.pivot, px - self.pivot)
@@ -534,7 +534,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # [bruce 071025 rewrote that comment for its new context and for
             #  clarity, inferring meaning from other code & comments here;
             #  also rewrote the old comments below, in this method]
-        
+
             #bruce 060726 question: why does trying singOnly = False here
             # have no visible effect? The only highlightings during drag
             # are the singlets, and real atoms that have singlets.
@@ -557,21 +557,21 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 
         # update the endpoints of the white rubberband line
         self.line = [bondpoint.posn(), px]
-        
+
         apos1 = bondpoint.posn()
         if apos1 - apos0:
-            msg = "pulling bondpoint %r to %s" % (bondpoint, 
+            msg = "pulling bondpoint %r to %s" % (bondpoint,
                                                   self.posn_str(bondpoint))
-            this_drag_id = (self.current_obj_start, 
+            this_drag_id = (self.current_obj_start,
                             self.__class__.leftDrag)
             env.history.message(msg, transient_id = this_drag_id)
-            
+
         self.o.gl_update()
         return
-        
+
     def singletLeftUp(self, s1, event):
         """
-        Finish operation on singlet <s1> based on where the cursor is when the 
+        Finish operation on singlet <s1> based on where the cursor is when the
         LMB was released:
         - If the cursor is still on <s1>, deposit an object from the MMKit on it
           [or as of 060702, use a bond type changing tool if one is active, to
@@ -581,8 +581,8 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         <event> is a LMB release event.
         @see:self._singletLeftUp_joinDnaStrands()
         """
-        self.line = None 
-        # required to erase white rubberband line on next 
+        self.line = None
+        # required to erase white rubberband line on next
         # gl_update. [bruce 070413 moved this before tests]
 
         if not s1.is_singlet():
@@ -594,48 +594,48 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         neighbor = s1.singlet_neighbor()
 
         s2 = self.get_singlet_under_cursor(
-            event, 
+            event,
             reaction_from = neighbor.element.symbol,
             desired_open_bond_direction = s1.bonds[0].bond_direction_from(s1) #bruce 080403 bugfix
             )
-            ####@@@@ POSSIBLE BUG: s2 is not deterministic if cursor is over a 
+            ####@@@@ POSSIBLE BUG: s2 is not deterministic if cursor is over a
             ##real atom w/ >1 singlets (see its docstring);
-            # this may lead to bond type changer on singlet sometimes but not 
-            # always working, if cursor goes up over its base atom; or it may 
+            # this may lead to bond type changer on singlet sometimes but not
+            # always working, if cursor goes up over its base atom; or it may
             #lead to nondeterministic remaining bondpoint
             # position or bondorder when bonding s1 to another atom.
-            #   When it doesn't work (for bond type changer), it'll try to 
-            #  create a bond between singlets on the same base atom; the code 
-            #  below indicates it won't really do it, but may erroneously 
-            # set_cmdname then (but if nothing changes this may not cause a bug 
+            #   When it doesn't work (for bond type changer), it'll try to
+            #  create a bond between singlets on the same base atom; the code
+            #  below indicates it won't really do it, but may erroneously
+            # set_cmdname then (but if nothing changes this may not cause a bug
             # in Undo menu text).
-            # I tried to demo the basic bug (sometime-failure of bond type 
+            # I tried to demo the basic bug (sometime-failure of bond type
             # changer) but forgot to activate that tool.
-            # But I found that debug prints and behavior make it look like 
+            # But I found that debug prints and behavior make it look like
             # something prevents highlighting s1's base atom,
             # [later: presumably that was the only_highlight_singlets feature]
-            # but permits highlighting of other real atoms, during s1's drag. 
+            # but permits highlighting of other real atoms, during s1's drag.
             # Even if that means this bug can't happen, the code needs to be
             # clarified. [bruce 060721 comment]
             #update 080403: see also new desired_open_bond_direction code in
             # get_singlet_under_cursor.
-        
+
         if s2:
             if s2 is s1: # If the same singlet is highlighted...
                 if self.command.isBondsToolActive():
                     #bruce 060702 fix bug 833 item 1 (see also bondLeftUp)
                     b = s1.bonds[0]
-                    self.bond_change_type(b, allow_remake_bondpoints = False) 
+                    self.bond_change_type(b, allow_remake_bondpoints = False)
                     # does set_cmdname
-                    self.o.gl_update() # (probably good for highlighting, even 
+                    self.o.gl_update() # (probably good for highlighting, even
                     # if bond_change_type refused)
-                    # REVIEW (possible optim): can we use gl_update_highlight 
+                    # REVIEW (possible optim): can we use gl_update_highlight
                     # when only highlighting was changed? [bruce 070626]
                 else:
-                    # ...deposit an object (atom, chunk or library part) from 
+                    # ...deposit an object (atom, chunk or library part) from
                     # MMKit on the singlet <s1>.
                     if self.mouse_within_stickiness_limit(
-                        event, 
+                        event,
                         DRAG_STICKINESS_LIMIT): # Fixes bug 1448. mark 060301.
                         deposited_obj = self.deposit_from_MMKit(s1)
                             # does its own win_update().
@@ -646,49 +646,49 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 # of DNA strands, merge their strand chunks...
                 open_bond1 = s1.bonds[0]
                 open_bond2 = s2.bonds[0]
-                
-                # Cannot DND 3' open bonds onto 3' open bonds.  
+
+                # Cannot DND 3' open bonds onto 3' open bonds.
                 if open_bond1.isThreePrimeOpenBond() and \
                    open_bond2.isThreePrimeOpenBond():
                     if self.command.propMgr:
                         msg = redmsg("Cannot join strands on 3' ends.")
                         self.command.propMgr.updateMessage(msg)
                     return
-                # Cannot DND 5' open bonds onto 5' open bonds. 
+                # Cannot DND 5' open bonds onto 5' open bonds.
                 if open_bond1.isFivePrimeOpenBond() and \
                    open_bond2.isFivePrimeOpenBond():
                     if self.command.propMgr:
-                        msg = redmsg("Cannot join strands on 5' ends.")                    
-                        self.command.propMgr.updateMessage(msg) 
+                        msg = redmsg("Cannot join strands on 5' ends.")
+                        self.command.propMgr.updateMessage(msg)
                     return
                 # Ok to DND 3' onto 5' or 5' onto 3'.
-                
+
                 if (open_bond1.isThreePrimeOpenBond() and \
                     open_bond2.isFivePrimeOpenBond()) or \
                    (open_bond1.isFivePrimeOpenBond()  and \
                     open_bond2.isThreePrimeOpenBond()):
-                    
+
                     self._singletLeftUp_joinDnaStrands(s1,s2,
                                                    open_bond1, open_bond2)
                     return #don't proceed further
-                                
-                # ... now bond the highlighted singlet <s2> to the first 
+
+                # ... now bond the highlighted singlet <s2> to the first
                 # singlet <s1>
                 self.bond_singlets(s1, s2)
                 self.set_cmdname('Create Bond')
                 self.o.gl_update()
                 if self.command.propMgr:
-                    self.command.propMgr.updateMessage() 
+                    self.command.propMgr.updateMessage()
         else: # cursor on empty space
             self.o.gl_update() # get rid of white rubber band line.
-            # REVIEW (possible optim): can we make 
+            # REVIEW (possible optim): can we make
             # gl_update_highlight cover this? [bruce 070626]
-            
+
         self.only_highlight_singlets = False
-        
-    def _singletLeftUp_joinDnaStrands(self, 
-                                      s1, 
-                                      s2, 
+
+    def _singletLeftUp_joinDnaStrands(self,
+                                      s1,
+                                      s2,
                                       open_bond1,
                                       open_bond2
                                       ):
@@ -696,10 +696,10 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         Only to be called from self.singletLeftUp
         """
         #This was split out of self.singletLeftUp()
-        
-        # Ok to DND 3' onto 5' or 5' onto 3' . We already check the 
+
+        # Ok to DND 3' onto 5' or 5' onto 3' . We already check the
         #if condition in self
-        
+
         if (open_bond1.isThreePrimeOpenBond() and \
             open_bond2.isFivePrimeOpenBond()) or \
            (open_bond1.isFivePrimeOpenBond()  and \
@@ -708,71 +708,71 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             a2 = open_bond2.other(s2)
             # We rely on merge() to check that mols are not the same.
             # merge also results in making the strand colors the same.
-            
+
             #The following fixes bug 2770
             #Set the color of the whole dna strandGroup to the color of the
-            #strand, whose bondpoint, is dropped over to the bondboint of the 
+            #strand, whose bondpoint, is dropped over to the bondboint of the
             #other strandchunk (thus joining the two strands together into
             #a single dna strand group) - Ninad 2008-04-09
-            color = a1.molecule.color 
+            color = a1.molecule.color
             if color is None:
                 color = a1.element.color
             strandGroup1 = a1.molecule.parent_node_of_class(self.win.assy.DnaStrand)
-            
-            #Temporary fix for bug 2829 that Damian reported. 
-            #Bruce is planning to fix the underlying bug in the dna updater 
-            #code. Once its fixed, The following block of code under 
+
+            #Temporary fix for bug 2829 that Damian reported.
+            #Bruce is planning to fix the underlying bug in the dna updater
+            #code. Once its fixed, The following block of code under
             #"if DEBUG_BUG_2829" can be deleted -- Ninad 2008-05-01
-            
+
             DEBUG_BUG_2829 = True
-            
-            if DEBUG_BUG_2829:            
+
+            if DEBUG_BUG_2829:
                 strandGroup2 = a2.molecule.parent_node_of_class(
-                    self.win.assy.DnaStrand)                
+                    self.win.assy.DnaStrand)
                 if strandGroup2 is not None:
-                    #set the strand color of strandGroup2 to the one for 
-                    #strandGroup1. 
+                    #set the strand color of strandGroup2 to the one for
+                    #strandGroup1.
                     strandGroup2.setStrandColor(color)
                     strandChunkList = strandGroup2.getStrandChunks()
                     for c in strandChunkList:
                         if hasattr(c, 'invalidate_ladder'):
                             c.invalidate_ladder()
-                            
-            if not DEBUG_BUG_2829:    
+
+            if not DEBUG_BUG_2829:
                 #merging molecules is not required if you invalidate the ladders
                 #in DEBUG_BUG_2829 block
-                a1.molecule.merge(a2.molecule)   
-                
-            # ... now bond the highlighted singlet <s2> to the first 
+                a1.molecule.merge(a2.molecule)
+
+            # ... now bond the highlighted singlet <s2> to the first
             # singlet <s1>
             self.bond_singlets(s1, s2)
-            
+
             if not DEBUG_BUG_2829:
-                #No need to call update_parts() if you invalidate ladders 
+                #No need to call update_parts() if you invalidate ladders
                 #of strandGroup2 as done in DEBUG_BUG_2829 fix (Tested)
-                
+
                 #Run the dna updater -- important to do it otherwise it won't update
                 #the whole strand group color
-                self.win.assy.update_parts()  
-                
+                self.win.assy.update_parts()
+
             self.set_cmdname('Create Bond')
-            
+
             if strandGroup1 is not None:
-                strandGroup1.setStrandColor(color) 
-            
+                strandGroup1.setStrandColor(color)
+
             self.o.gl_update()
             if self.command.propMgr:
-                self.command.propMgr.updateMessage() 
-                
+                self.command.propMgr.updateMessage()
+
             self.only_highlight_singlets = False
-            
+
             return
-        
+
     def get_singlet_under_cursor(self, event,
                                  reaction_from = None,
                                  desired_open_bond_direction = 0 ):
         """
-        If the object under the cursor is a singlet, return it.  
+        If the object under the cursor is a singlet, return it.
         If the object under the cursor is a real atom with one or more singlets,
         return one of its singlets, preferring one with the
         desired_open_bond_direction (measured from base atom to singlet)
@@ -827,9 +827,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 ##                        print "debug warning: get_singlet_under_cursor returning an arbitrary bondpoint of %r" % (atom,)
 ##                return atom.singNeighbors()[0]
         return None
-    
+
     #==========
-    
+
     def _createBond(self, s1, a1, s2, a2):
         """
         Create bond between atom <a1> and atom <a2>, <s1> and <s2>
@@ -841,7 +841,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         # in the same way, or (better) common helper code factored out and used.
         # Not urgent, but keep in mind if this code might have any bugs.
         # [bruce 080320 comment]
-        
+
         try: # use old code until new code works and unless new code is needed;
             # CHANGE THIS SOON #####@@@@@
             v1, v2 = s1.singlet_v6(), s2.singlet_v6() # new code available
@@ -852,7 +852,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             s2.kill()
             bond_atoms(a1,a2)
             return
-        
+
         vnew = min(v1, v2)
         bond = bond_atoms(a1, a2, vnew, s1, s2) # tell it the singlets to replace or
             # reduce; let this do everything now, incl updates
@@ -861,73 +861,73 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 
     def transdepositPreviewedItem(self, singlet):
         """
-        Trans-deposit the current object in the preview groupbox of the 
-        property manager  on all singlets reachable through 
+        Trans-deposit the current object in the preview groupbox of the
+        property manager  on all singlets reachable through
         any sequence of bonds to the singlet <singlet>.
         """
-        
-        if not singlet.is_singlet(): 
+
+        if not singlet.is_singlet():
             return
-        
+
         singlet_list = self.o.assy.getConnectedSinglets([singlet])
-        
+
         modkeys = self.o.modkeys # save the modkeys state
         if self.o.modkeys is None and \
            env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key]:
-            # Needed when 'Select Atoms of Deposited Object' pref is enabled. 
+            # Needed when 'Select Atoms of Deposited Object' pref is enabled.
             # mark 060314.
-            self.o.modkeys = 'Shift'    
-            self.o.assy.unpickall_in_GLPane() 
-            # [was unpickatoms; this (including Nodes) might be an 
+            self.o.modkeys = 'Shift'
+            self.o.assy.unpickall_in_GLPane()
+            # [was unpickatoms; this (including Nodes) might be an
             #  undesirable change -- bruce 060721]
-        
+
         self.transdepositing = True
         nobjs = 0
-        ntried = 0 
+        ntried = 0
         msg_deposited_obj = None
-        for s in singlet_list: 
-            # singlet_list built in singletSetup() 
+        for s in singlet_list:
+            # singlet_list built in singletSetup()
             #[not true; is that a bug?? bruce 060412 question]
             if not s.killed(): # takes care of self.obj_doubleclicked, too.
                 deposited_obj = self.deposit_from_MMKit(s)
                 ntried += 1
                 if deposited_obj is not None:
-                    #bruce 060412 -- fix part of bug 1677 
+                    #bruce 060412 -- fix part of bug 1677
                     # -- wrong histmsg 'Nothing Transdeposited' and lack of
                     # mt_update
-                    msg_deposited_obj = deposited_obj 
-                    # I think these will all be the same, so we just use the 
+                    msg_deposited_obj = deposited_obj
+                    # I think these will all be the same, so we just use the
                     # last one
                     nobjs += 1
         self.transdepositing = False
         self.o.modkeys = modkeys # restore the modkeys state to real state.
 
         del deposited_obj
-        
-        if msg_deposited_obj is None: 
+
+        if msg_deposited_obj is None:
             # Let user know nothing was trandeposited. Fixes bug 1678.
             # mark 060314.
             # (This was incorrect in bug 1677 since it assumed all deposited_obj
             # return values were the same,
-            #  but in that bug (as one of several problems in it) the first 
-            #  retval was not None but the last one was,so this caused a wrong 
-            #  message and a failure to update the MT. Fixed those parts of 
-            #  bug 1677 by introducing msg_deposited_obj and using that here 
+            #  but in that bug (as one of several problems in it) the first
+            #  retval was not None but the last one was,so this caused a wrong
+            #  message and a failure to update the MT. Fixed those parts of
+            #  bug 1677 by introducing msg_deposited_obj and using that here
             #  instead of deposited_obj. Fixed other parts of it
             #  in MMKit and elsewhere in this method. [bruce 060412])
             env.history.message('Nothing Transdeposited')
             return
-            
+
         self.set_cmdname('Transdeposit ' + msg_deposited_obj)
         msg_deposited_obj += '(s)'
-        
+
         info = fix_plurals( "%d %s deposited." % (nobjs, msg_deposited_obj) )
         if ntried > nobjs:
             # Note 1: this will be true in bug 1677 (until it's entirely fixed)
             # [bruce 060412]
-            # Note 2: this code was tested and worked, before I fully fixed 
+            # Note 2: this code was tested and worked, before I fully fixed
             # bug 1677;
-            # now that bug is fully fixed above (in the same commit as this 
+            # now that bug is fully fixed above (in the same commit as this
             # code),
             # so this code is not known to ever run,
             # but I'll leave it in in case it mitigates any undiscovered bugs.
@@ -935,128 +935,128 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             info = orangemsg(info)
         env.history.message(info)
         self.w.win_update()
-        
-        
-    #=======Deposit Atom helper methods 
+
+
+    #=======Deposit Atom helper methods
     def deposit_from_MMKit(self, atom_or_pos): #mark circa 051200; revised by bruce 051227
         """
-        Deposit a new object based on the current selection in the 
-        MMKit/dashboard,  which is either an atom, a chunk on the clipboard, or 
+        Deposit a new object based on the current selection in the
+        MMKit/dashboard,  which is either an atom, a chunk on the clipboard, or
         a part from the library.
-        
-        If 'atom_or_pos' is a singlet, then it will bond the object to that 
-        singlet if it can.        
-        If 'atom_or_pos' is a position, then it will deposit the object at that 
+
+        If 'atom_or_pos' is a singlet, then it will bond the object to that
+        singlet if it can.
+        If 'atom_or_pos' is a position, then it will deposit the object at that
         coordinate.
-        
+
         Return string <deposited_obj>, where:
             'Atoms' - an atom from the Atoms page was deposited.
             'Chunk' - a chunk from the Clipboard page was deposited.
             'Part' - a library part from the Library page was deposited.
 
-        Note: 
+        Note:
         This is overridden in some subclasses (e.g. PasteFromClipboard_Command, PartLibrary_Command),
         but the default implementation is also still used [as of 071025].
         """
-        
-        deposited_obj = None 
-            #& deposited_obj is probably misnamed, since it is a string, not an object.  
+
+        deposited_obj = None
+            #& deposited_obj is probably misnamed, since it is a string, not an object.
             #& Would be nice if this could be an object. Problem is that clipboard and library
             #& both deposit chunks. mark 060314.
-        
-        # no Shift or Ctrl modifier key , also make sure that 'selection lock' 
+
+        # no Shift or Ctrl modifier key , also make sure that 'selection lock'
         #is not ON.
-        if self.o.modkeys is None and not self.selection_locked(): 
+        if self.o.modkeys is None and not self.selection_locked():
             self.o.assy.unpickall_in_GLPane() # Clear selection. [was unpickatoms -- bruce 060721]
-        
+
         if self.w.depositState == 'Atoms':
             deposited_stuff, status = self.deposit_from_Atoms_page(atom_or_pos) # deposited_stuff is a chunk
-            deposited_obj = 'Atom'            
-            
+            deposited_obj = 'Atom'
+
         else:
             print_compact_stack('Invalid depositState = "' + str(self.w.depositState) + '" ')
             return
-            
+
         self.o.selatom = None ##k could this be moved earlier, or does one of those submethods use it? [bruce 051227 question]
-            
+
         # now fix bug 229 part B (as called in comment #2),
-        # by making this new chunk (or perhaps multiple chunks, in 
+        # by making this new chunk (or perhaps multiple chunks, in
         # deposited_stuff) visible if it otherwise would not be.
         # [bruce 051227 is extending this fix to depositing Library parts, whose
         # initial implementation reinstated the bug.
         #  Note, Mark says the following comment is in 2 places but I can't find
         # the other place, so not removing it yet.]
-        ## We now have bug 229 again when we deposit a library part while in 
+        ## We now have bug 229 again when we deposit a library part while in
         ##"invisible" display mode.
-        ## Ninad is reopening bug 229 and assigning it to me.  This comment is 
+        ## Ninad is reopening bug 229 and assigning it to me.  This comment is
         ##in 2 places. Mark 051214.
-        ##if not library_part_deposited:  
-        ##Added the condition [Huaicai 8/26/05] [bruce 051227 removed it, 
+        ##if not library_part_deposited:
+        ##Added the condition [Huaicai 8/26/05] [bruce 051227 removed it,
         ##added a different one]
 
         if self.transdepositing:
             if not deposited_stuff:
-                # Nothing was transdeposited.  Needed to fix bug 1678. 
+                # Nothing was transdeposited.  Needed to fix bug 1678.
                 #mark 060314.
                 return None
             return deposited_obj
-        
+
         if deposited_stuff:
-            self.w.win_update() 
+            self.w.win_update()
                 #& should we differentimate b/w win_update (when deposited_stuff
-                #is a new chunk added) vs. 
-                #& gl_update (when deposited_stuff is added to existing chunk). 
+                #is a new chunk added) vs.
+                #& gl_update (when deposited_stuff is added to existing chunk).
                 #Discuss with Bruce. mark 060210.
             status = self.ensure_visible( deposited_stuff, status) #bruce 041207
             env.history.message(status)
         else:
             env.history.message(orangemsg(status)) # nothing deposited
-        
+
         return deposited_obj
 
     def deposit_from_Atoms_page(self, atom_or_pos):
         """
         Deposits an atom of the selected atom type from the MMKit Atoms page, or
-        the Clipboard (atom and hybridtype) comboboxes on the dashboard, 
+        the Clipboard (atom and hybridtype) comboboxes on the dashboard,
         which are the same atom.
         If 'atom_or_pos' is a singlet, bond the atom to the singlet.
-        Otherwise, set up the atom at position 'atom_or_pos' to be dragged 
+        Otherwise, set up the atom at position 'atom_or_pos' to be dragged
         around.
         Returns (chunk, status)
         """
-        
+
         assert hasattr(self.command, 'pastable_atomtype')
-        
+
         atype = self.command.pastable_atomtype() # Type of atom to deposit
-        
+
         if isinstance(atom_or_pos, Atom):
             a = atom_or_pos
             if a.element is Singlet: # bond an atom of type atype to the singlet
-                a0 = a.singlet_neighbor() # do this before <a> (the singlet) 
+                a0 = a.singlet_neighbor() # do this before <a> (the singlet)
                 #is killed!(revised by bruce 050511)
                 # if 1: # during devel, at least
-                
+
                 from commands.BuildAtoms.build_utils import AtomTypeDepositionTool
                 deptool = AtomTypeDepositionTool( atype)
-                
+
                 if hasattr(self.command, 'isAutoBondingEnabled'):
                     autobond = self.command.isAutoBondingEnabled()
                 else:
                     # we're presumably a subclass with no propMgr or
                     # a different one
                     autobond = True
-                    
+
                 a1, desc = deptool.attach_to(a, autobond = autobond)
-                        #e this might need to take over the generation of the 
+                        #e this might need to take over the generation of the
                         #following status msg...
                 ## a1, desc = self.attach(el, a)
                 if a1 is not None:
-                    if self.pickit(): 
+                    if self.pickit():
                         a1.pick()
-                    #self.o.gl_update() #bruce 050510 moved this here from 
-                    #inside what's now deptool. The only callers, 
+                    #self.o.gl_update() #bruce 050510 moved this here from
+                    #inside what's now deptool. The only callers,
                     # deposit_from_MMKit() and transdepositPreviewedItem() are
-                    #responsible for callinggl_update()/win_update(). 
+                    #responsible for callinggl_update()/win_update().
                     #mark 060314.
                     status = "replaced bondpoint on %r with new atom %s at %s" % (a0, desc, self.posn_str(a1))
                     chunk = a1.molecule #bruce 041207
@@ -1067,57 +1067,57 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 
         else: # Deposit atom at the cursor position and prep it for dragging
             cursorPos = atom_or_pos
-            a = self.o.assy.make_Atom_and_bondpoints(atype.element, 
-                                                     cursorPos, 
+            a = self.o.assy.make_Atom_and_bondpoints(atype.element,
+                                                     cursorPos,
                                                      atomtype = atype )
             self.o.selatom = a
             self.objectSetup(a)
             self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
-            if self.pickit(): 
+            if self.pickit():
                 self.o.selatom.pick()
-            status = "made new atom %r at %s" % (self.o.selatom, 
+            status = "made new atom %r at %s" % (self.o.selatom,
                                                  self.posn_str(self.o.selatom))
             chunk = self.o.selatom.molecule #bruce 041207
-        
+
         return chunk, status
-        
+
     def ensure_visible(self, stuff, status):
         """
-        If any chunk in stuff (a node, or a list of nodes) is not visible now, 
+        If any chunk in stuff (a node, or a list of nodes) is not visible now,
         make it visible by changing its display mode, and append a warning about
         this to the given status message, which is returned whether or not it's
         modified.
 
-        Suggested revision: if some chunks in a library part are explicitly 
-        invisible and some are visible, I suspect this behavior is wrong and it 
+        Suggested revision: if some chunks in a library part are explicitly
+        invisible and some are visible, I suspect this behavior is wrong and it
         might be better to require only that some of them are visible, and/or to
         only do this when overall display mode was visible. [bruce 051227]
 
-        Suggested revision: maybe the default display mode for deposited stuff 
+        Suggested revision: maybe the default display mode for deposited stuff
         should also be user-settable. [bruce 051227]
         """
         # By bruce 041207, to fix bug 229 part B (as called in comment #2),
         # by making each deposited chunk visible if it otherwise would not be.
-        # Note that the chunk is now (usually?) the entire newly deposited 
-        # thing, but after future planned changes to the code, it might instead 
+        # Note that the chunk is now (usually?) the entire newly deposited
+        # thing, but after future planned changes to the code, it might instead
         # be a preexisting chunk which was extended. Either way, we'll make the
         # entire chunk visible if it's not.
-        #bruce 051227 revising this to handle more general deposited_stuff, 
+        #bruce 051227 revising this to handle more general deposited_stuff,
         #for deposited library parts.
         n = self.ensure_visible_0( stuff)
         if n:
             status += " (warning: gave it Tubes display mode)"
-            #k is "it" correct even for library parts? even when not all 
+            #k is "it" correct even for library parts? even when not all
             #deposited chunks were changed?
         return status
 
-    def ensure_visible_0(self, stuff): 
+    def ensure_visible_0(self, stuff):
         """
         [private recursive worker method for ensure_visible;
         returns number of things whose display mode was modified]
         """
         if not stuff:
-            return 0 #k can this happen? I think so, 
+            return 0 #k can this happen? I think so,
                     #since old code could handle it. [bruce]
         if isinstance(stuff, Chunk):
             chunk = stuff
@@ -1135,18 +1135,18 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             return res
         else:
             assert isinstance(stuff, Node) # presumably Jig
-            ##e not sure how to handle this or whether we need to 
+            ##e not sure how to handle this or whether we need to
             ##[bruce 051227]; leave it out and await bug report?
-            # [this will definitely occur once there's a partlib part which 
+            # [this will definitely occur once there's a partlib part which
             # deposits a Jig or Comment or Named View;
-            #  for Jigs should it Unhide them? For that matter, what about for 
-            # Chunks? What if the hiddenness or invisibility came from the 
+            #  for Jigs should it Unhide them? For that matter, what about for
+            # Chunks? What if the hiddenness or invisibility came from the
             #partlib?]
             if debug_flags.atom_debug:
                 print "atom_debug: ignoring object of unhandled type (Jig? Comment? Named View?) in ensure_visible_0", stuff
             return 0
         pass
-    
+
     def pickit(self):
         """
         Determines if the a deposited object should have its atoms automatically
@@ -1156,10 +1156,10 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         """
         if self.selection_locked():
             return False
-        
+
         if self.o.modkeys is None:
-            self.o.assy.unpickall_in_GLPane() 
-            # [was unpickatoms; this is a guess, 
+            self.o.assy.unpickall_in_GLPane()
+            # [was unpickatoms; this is a guess,
             #I didn't review the calls -- bruce 060721]
             if env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key]:
                 # Added NFR 1504.  mark 060304.
@@ -1171,10 +1171,10 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             return False
         else: # Delete
             return False
-        
+
     #===HotSpot related methods
-    
-    def setHotSpot_clipitem(self): 
+
+    def setHotSpot_clipitem(self):
         #bruce 050416; duplicates some code from setHotSpot_mainPart
         """
         Set or change hotspot of a chunk in the clipboard
@@ -1182,44 +1182,44 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         selatom = self.o.selatom
         if selatom and selatom.element is Singlet:
             selatom.molecule.set_hotspot( selatom) ###e add history message??
-            self.o.set_selobj(None)  #bruce 050614-b: fix bug703-related older 
+            self.o.set_selobj(None)  #bruce 050614-b: fix bug703-related older
             #bug (need to move mouse to see new-hotspot color)
-            self.o.gl_update() 
-            #bruce 050614-a: fix bug 703 (also required 
+            self.o.gl_update()
+            #bruce 050614-a: fix bug 703 (also required
             #having hotspot-drawing code in chunk.py ignore selatom)
-            # REVIEW (possible optim): can gl_update_highlight cover this? 
+            # REVIEW (possible optim): can gl_update_highlight cover this?
             # It doesn't now cover chunk.selatom drawing,
-            # but (1) it could be made to do so, and (2) we're not always 
+            # but (1) it could be made to do so, and (2) we're not always
             #drawing chunk.selatom anyway. [bruce 070626]
         ###e also set this as the pastable??
-        return        
-        
-    def setHotSpot_mainPart(self): 
+        return
+
+    def setHotSpot_mainPart(self):
         """
-        Set hotspot on a main part chunk and copy it (with that hotspot) 
+        Set hotspot on a main part chunk and copy it (with that hotspot)
         into clipboard
         """
         # revised 041124 to fix bug 169, by mark and then by bruce
         selatom = self.o.selatom
         if selatom and selatom.element is Singlet:
             selatom.molecule.set_hotspot( selatom)
-            
+
             new = selatom.molecule.copy_single_chunk(None) # None means no dad yet
             #bruce 050531 removing centering:
             ## new.move(-new.center) # perhaps no longer needed [bruce 041206]
-            
+
             # now add new to the clipboard
-            
+
             # bruce 041124 change: add new after the other members, not before.
-            # [bruce 050121 adds: see cvs for history (removed today from this 
-            #  code)of how this code changed as the storage order of 
+            # [bruce 050121 adds: see cvs for history (removed today from this
+            #  code)of how this code changed as the storage order of
             # Group.members changed(but out of sync,so that bugs often existed)]
-            
+
             self.o.assy.shelf.addchild(new) # adds at the end
-            self.o.assy.update_parts() 
+            self.o.assy.update_parts()
             # bruce 050316; needed when adding clipboard items.
-                    
-            # bruce 050121 don't change selection anymore; it causes too many 
+
+            # bruce 050121 don't change selection anymore; it causes too many
             # bugs to have clipboard items selected. Once my new model tree code
             # is committed, we could do this again and/or highlight the pastable
             # there in some other way.
@@ -1227,46 +1227,46 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             ##new.pick()
 
             #Keep the depositState to 'Atoms'. Earlier the depositState was
-            #changed to 'Clipboard' because  'Set hotspot and copy' used to 
-            #open the clipboard tab in the 'MMKit'. This implementation has 
-            #been replaced with a separate 'Paste Mode' to handle Pasting 
-            #components. So always keep depositState to Atoms while in 
+            #changed to 'Clipboard' because  'Set hotspot and copy' used to
+            #open the clipboard tab in the 'MMKit'. This implementation has
+            #been replaced with a separate 'Paste Mode' to handle Pasting
+            #components. So always keep depositState to Atoms while in
             #BuildAtoms_GraphicsMode.  (this needs further cleanup) -- ninad 2007-09-04
             self.w.depositState = 'Atoms'
-            
-            
+
+
             self.w.mt.mt_update() # since clipboard changed
-            #bruce 050614 comment: in spite of bug 703 
+            #bruce 050614 comment: in spite of bug 703
             # (fixed in setHotSpot_mainPart),
             # I don't think we need gl_update now in this method,
             # since I don't think main glpane shows hotspots and since the
             # user's intention here is mainly to make one in the clipboard copy,
-            #  not in the main model; and in case it's slow, we shouldn't 
+            #  not in the main model; and in case it's slow, we shouldn't
             #  repaint if we don't need to.Evidently I thought the same thing in
             #  this prior comment, when I removed a glpane update
-            # (this might date from before hotspots were ever visible 
+            # (this might date from before hotspots were ever visible
             # -- not sure):
             ## also update glpane if we show pastable someday; not needed now
             ## [and removed by bruce 050121]
-                            
+
         return
-    
+
     # cursor update methods
-    
+
     def update_cursor_for_no_MB_selection_filter_disabled(self):
         """
-        Update the cursor for 'Build Atoms' mode, when no mouse button is 
+        Update the cursor for 'Build Atoms' mode, when no mouse button is
         pressed.
         """
-        
+
         cursor_id = 0
         if hasattr(self.w, "current_bondtool_button") and \
            self.w.current_bondtool_button is not None:
             cursor_id = self.w.current_bondtool_button.index
-        
+
         if hasattr(self.command, 'get_cursor_id_for_active_tool' ):
-            cursor_id = self.command.get_cursor_id_for_active_tool() 
-        if self.o.modkeys is None:             
+            cursor_id = self.command.get_cursor_id_for_active_tool()
+        if self.o.modkeys is None:
             self.o.setCursor(self.w.BondToolCursor[cursor_id])
         elif self.o.modkeys == 'Shift':
             self.o.setCursor(self.w.BondToolAddCursor[cursor_id])
@@ -1283,17 +1283,17 @@ class BuildAtoms_GraphicsMode(BuildAtoms_basicGraphicsMode):
     """
     @see: SelectAtoms_GraphicsMode
     """
-    ##### START of code copied from SelectAtoms_GraphicsMode (except that the 
-    ##### superclass name is different. 
-    
+    ##### START of code copied from SelectAtoms_GraphicsMode (except that the
+    ##### superclass name is different.
+
     def __init__(self, command):
         self.command = command
-        glpane = self.command.glpane 
+        glpane = self.command.glpane
         BuildAtoms_basicGraphicsMode.__init__(self, glpane)
         return
-        
+
     # (the rest would come from GraphicsMode if post-inheriting it worked,
-    #  or we could split it out of GraphicsMode as a post-mixin to use there 
+    #  or we could split it out of GraphicsMode as a post-mixin to use there
     #  and here)
 
     def _get_commandSequencer(self):
@@ -1304,18 +1304,18 @@ class BuildAtoms_GraphicsMode(BuildAtoms_basicGraphicsMode):
     def set_cmdname(self, name):
         self.command.set_cmdname(name)
         return
-  
-    
+
+
     def _get_highlight_singlets(self):
         return self.command.highlight_singlets
 
     def _set_highlight_singlets(self, val):
         self.command.highlight_singlets = val
 
-    highlight_singlets = property(_get_highlight_singlets, 
+    highlight_singlets = property(_get_highlight_singlets,
                                           _set_highlight_singlets)
-    
-    ##### END of code copied from SelectAtoms_GraphicsCommand
-    
 
-    
+    ##### END of code copied from SelectAtoms_GraphicsCommand
+
+
+

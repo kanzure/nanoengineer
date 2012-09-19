@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 ExprsMeta.py -- one metaclass, to take care of whatever is best handled using a metaclass,
 and intended to be used for all or most classes in this module.
@@ -21,7 +21,7 @@ with corresponding instance attribute accesses resulting in constants, bound met
 
 We want to add a few specific ways of our own:
 
-- class attributes which are formulas in _self, 
+- class attributes which are formulas in _self,
   for which instance.attr should be a read-only per-instance memoized invalidatable/recomputable value
   computed by the formula
 
@@ -32,12 +32,12 @@ it was assigned to (which ordinary ones don't know):
   defined by a method or formula on the key, extensible as new keys are used,
   with the permitted keys either unlimited, fitting some type or pattern, or listed explicitly by a
   once-computable method or formula
-  
+
   [###e (details unclear -- does this mean all exprs include details of what gets memoized, at what level inside??)]
 
 - specially-named methods, assigned to _prefix_attr rather than directly to attr, which nonetheless control what
 instance.attr does (similarly to one of the ways mentioned above), with subclasses able to override superclasses
-about attr even if they define its behavior by assigning to different class attributes (one to attr itself, 
+about attr even if they define its behavior by assigning to different class attributes (one to attr itself,
 one to _prefix1_attr, one to _prefix2_attr). (This way is most convenient when you want to express the behavior using
 Python code rather than as formulas.)
 
@@ -58,17 +58,17 @@ something as klugy as comparing line numbers found inside function code objects 
 
   - We could solve this just by recording the class and attr of each def, as we'll do to solve the prior problem...
   ### could we really use that info to solve this? should we?
-  
-  - But what we actually do is have the metaclass create something directly on the attr, 
-  which says how it's supposed to be 
-  defined in that class (and is a descriptor which causes that to actually happen in the right way). 
-  
+
+  - But what we actually do is have the metaclass create something directly on the attr,
+  which says how it's supposed to be
+  defined in that class (and is a descriptor which causes that to actually happen in the right way).
+
   This scheme has the advantage of dispensing with any need for __getattr__ (I think).
-  
+
   (Note, it could also do it by creating a special prefix attr saying
    which other prefix attr controls the def. Should it?? ####)
 
-The actual creation of the class/attr-specific descriptor for runtime use is best done lazily, 
+The actual creation of the class/attr-specific descriptor for runtime use is best done lazily,
 on first use of that attr in an instance. This lets it more safely import code, more easily
 access inherited class attrs, etc... and lets most of the system be more similar to non-metaclass-based code.
 
@@ -333,7 +333,7 @@ class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
     like our superclass has in __get__, so in practice such overriding is not yet supported --
     to support it, we'd want to add that sort of code to this class (perhaps sharing common code
     with our superclass's __get__).
-    
+
     [FYI about when to use a data or non-data descriptor:
      - If a Python descriptor (of any kind, not just the kind created by one of these classes)
      wants to store info of its own in instance.__dict__[attr], it has to be a data descriptor,
@@ -393,7 +393,7 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
     def get_for_our_cls(self, instance):
         # make sure cls-specific info is present -- we might have some, in the form of _TYPE_ decls around compute rule?? not sure. ##e
         # (none for now)
-        
+
         # now find instance-specific info --
         # namely an Lval object for instance.attr, which we store in instance.__dict__[attr]
         # (though in theory, we could store it anywhere, as long as we'd find a
@@ -416,7 +416,7 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
 ##                #k when we do know prefix here, should we decide _DEFAULT_ is special here, or pass to above method to ask instance??
             if not compute_method:
                 compute_method = self.make_compute_method_for_instance(instance)
-            # make a new Lval object from the compute_method 
+            # make a new Lval object from the compute_method
             lval = instance.__dict__[attr] = Lval(compute_method)
         return lval.get_value() # this does usage tracking, validation-checking, recompute if needed
             # Notes:
@@ -526,7 +526,7 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
         print "make_lval_for_instance",(self, instance)#####@@@@@
         #e not sure what to do if this formula turns out to be time-dependent... what should be invalidated if it does?? ####
         # for now, just be safe and discard tracked usage, tho it might be better to replace the lval with a new one if it invals.#e
-        index = '$' + self.attr # guess, 061117      
+        index = '$' + self.attr # guess, 061117
         lval = eval_and_discard_tracked_usage( self.lval_formula, instance, index)
         return lval
     def get_for_our_cls(self, instance):
@@ -560,7 +560,7 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
             lval = instance.__dict__[attr]
         except KeyError:
             # (this happens at most once per attr per instance, iff the attr is set before it's ever been gotten-from, in this instance)
-            lval = instance.__dict__[attr] = self.make_lval_for_instance(instance)            
+            lval = instance.__dict__[attr] = self.make_lval_for_instance(instance)
         # note: that lval's initval_expr is never evaluated, if it's not needed since we set it before getting from it;
         # (that's not just an optim -- it's legal for initval_expr to be an error to eval in cases where we won't eval it)
         # (note that just because set-before-get happened in this instance doesn't mean it happened overall --
@@ -568,7 +568,7 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
         #  [those points are related, but i am a bit too tired to explain (or see exactly) how])
         lval.set_constant_value(val)
             ###e probably set_constant_value should be renamed set_value, to fit with StateRefInterface [070312]
-        return        
+        return
 ##    def __repr__(self):
 ##        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.lval_formula -> self.attr
     pass # end of class C_rule_for_lval_formula
@@ -637,7 +637,7 @@ class CV_rule(ClassAttrSpecific_NonDataDescriptor):
                 compute_methodK = getattr(self.cls, self.prefixK + attr, None)
                 #e process it if it's a formula or constant sequence
                 self.compute_methodK = compute_methodK
-        
+
         # Now find instance-specific info --
         # which is a RecomputableDict object for our attr in instance, and our bound V and K methods.
         # (Formulas or constants for them are not yet supported. ###e nim)
@@ -648,7 +648,7 @@ class CV_rule(ClassAttrSpecific_NonDataDescriptor):
             # make a new object from the compute_methods (happens once per attr per instance)
             rdobj = instance.__dict__[attr] = self.make_rdobj_for_instance(instance)
         return rdobj # this object is exactly what instance.attr retrieves (directly, from now on, or warning above gets printed)
-    
+
     def make_rdobj_for_instance(self, instance):
         #e refile into a subclass?? (so some other subclass can use formulas)
         #e actually, splitting rhs types into subclasses would not work,
@@ -677,7 +677,7 @@ class CV_rule(ClassAttrSpecific_NonDataDescriptor):
     # without going through __get__. We print a warning above if that fails.
 
     # Note: similar comments about memory leaks apply, as for C_rule.
-    
+
     pass # end of class CV_rule
 
 class CV_rule_for_val(CV_rule):pass ####k guess off top of head, much later than the code was written [061103]
@@ -766,7 +766,7 @@ def attr_prefix(attr): # needn't be fast
             return prefix
     return ''
 
-def needs_wrap_by_ExprsMeta(val, msg_info = ''): # renamed from val_is_special, and revised, 061203 
+def needs_wrap_by_ExprsMeta(val, msg_info = ''): # renamed from val_is_special, and revised, 061203
     """
     #doc
     val needs_wrap_by_ExprsMeta if it's an Expr pyinstance (for now)
@@ -777,7 +777,7 @@ def needs_wrap_by_ExprsMeta(val, msg_info = ''): # renamed from val_is_special, 
 ##    if not val._e_free_in('_self'):###WRONG I think, re State... changed now
 ##        if msg_info:
 ##            msg_info = " (%r)" % (msg_info,)
-##        print "weird val%s: an Expr that is not free in _self" % msg_info, val 
+##        print "weird val%s: an Expr that is not free in _self" % msg_info, val
 ##        return True ## was False until 061203 1009p
         # and what it printed for was:
         ##weird val (('open_icon', 'ToggleShow')): an Expr that is not free in _self <Overlay#3945(a)>
@@ -819,7 +819,7 @@ def is_attr_equals_self_attr_assignment(attr, val, classname = "?"): #070324 spl
     return False
 
 # ==
-    
+
 class ExprsMeta(type):
     # follows 'MyMeta' metaclass example from http://starship.python.net/crew/mwh/hacks/oop-after-python22-1.txt
     def __new__(cls, name, bases, ns):
@@ -864,7 +864,7 @@ class ExprsMeta(type):
                 if is_attr_equals_self_attr_assignment(attr, val):
                     del ns[attr]
             continue
-                    
+
         # look for special vals, or vals assigned to special prefixes, in the new class object's original namespace
         # (since we will modify these in the namespace we'll actually use to create it)
         for attr, val in ns.iteritems():
@@ -873,8 +873,8 @@ class ExprsMeta(type):
             #  introduced 070104 but still nim, since it seems simpler and good enough
             #  just to filter all kid-draw-calls thru a new method IorE.drawkid(kid).
             #  (last here in cvs rev 1.66)]
-            
-            # The desired transform is something like 
+
+            # The desired transform is something like
             # If attr has a special prefix, or val has a special value, run attr-prefix-specific code
             # for defining what value to actually store on attr-without-its-prefix. Error if we are told
             # to store more than one value on attr.
@@ -976,7 +976,7 @@ class ExprsMeta(type):
 ##        if 'debugging' 'kluge061103':
 ##            print "newitems for class %s:" % name
 ##            for junk, prefix, attr0, val in newitems:
-##                print prefix, attr0, expr_serno(val), val.__class__ 
+##                print prefix, attr0, expr_serno(val), val.__class__
         # process the vals assigned to certain attrs, and assign them to the correct attrs even if they were prefixed
         scanner = FormulaScanner( debug_name = name) #070321 added debug_name
             # this processes formulas by fixing them up where their source refers directly to an attr
@@ -1102,10 +1102,10 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
                 ##e to fix, use a scheme we need anyway -- a thing in the expr which runs code when we scan it, to get its replace-val.
                 # (Can that be an effect of doing constant-folding if replace-vals are constants, incl funcs being called on args??)
             printnim("should test that above kluge (del at _E_ATTR) detects thing = thing2 = Option(...) even if not Arg()")##e
-            
+
             # current status by test 061103 8pm - for bright = width, and bheight = top, that warning gets printed,
             # but nothing else seems to detect the error (if it is an error, I forget, but I think it is). #####@@@@@
-            
+
         res = self.replacement_subexpr(formula)
         # register formula to be replaced if found later in the same class definition [#e only if it's the right type??]
         if formula in self.replacements:
@@ -1126,7 +1126,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         if subexpr in self.replacements: # looked up by id(), I hope ###k
             res = self.replacements[subexpr]
 ##            print "replacing %r by %r" % (subexpr,res)
-            return res 
+            return res
         elif hasattr(subexpr, '_e_override_replace') and is_Expr_pyinstance(subexpr):
             # It wants to do it itself, perhaps using private knowledge about the methods & internal attrs in this scanner.
             # (This is used by special subexprs which call self.argpos in order to allocate argument positions.)
@@ -1145,7 +1145,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # Instance(expr) might immediately return something like
             # _self._i_instance( expr, relindex-incl-attr-and-formula-subexpr-index )
             # or maybe that relindex can itself just be a symbol, so it can be put in easily and replaced later in a simple way.
-            
+
         # otherwise assume it's a formula
         ###e special case for a formula headed by Arg or Option etc? just ask the expr if it wants to know attr,
         # ie if it's a macro which wants that, and if so, copy it with a new keyword or so, before replacing it as below.
@@ -1176,7 +1176,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # (It might also happen in a more unavoidable way, if we implemented inheritance of argpos from superclass someday,
             #  tho the need for the recent kluge to permit attr = _self.attr (elsewhere in this file) suggests that might
             #  not be possible after all -- allocated argpos could be inherited, but probably not the initial defns desired
-            #  in the class namespace, unless we added some sort of kluge to bring them in, which seems like a bad idea.) [070321]            
+            #  in the class namespace, unless we added some sort of kluge to bring them in, which seems like a bad idea.) [070321]
             return res
         except KeyError:
             # new argument -- allocate an arglist position for it
@@ -1202,7 +1202,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # (do we also need to record their names? well, we're doing that. Do we need to record whether their names are public? #e)
             return pos
     pass # end of class FormulaScanner
-            
+
 # ==
 
 # helpers for CV_rule
@@ -1230,7 +1230,7 @@ class ConstantComputeMethodMixin:
         setattr(self, attr, val)
         return val
     pass
-        
+
 class DictFromKeysAndFunction(ConstantComputeMethodMixin):
     """
     Act like a read-only dict with a fixed set of keys (computed from a supplied function when first needed;

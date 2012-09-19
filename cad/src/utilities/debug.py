@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 debug.py -- various debugging utilities and debug-related UI code
 
@@ -27,8 +27,8 @@ History:
 Created by Bruce. Added to by various developers, especially Will.
 
 Bruce 071107 split out two modules by Will:
-- objectBrowse.py 
-- scratch/api_enforcement.py 
+- objectBrowse.py
+- scratch/api_enforcement.py
 
 """
 
@@ -486,7 +486,7 @@ class menu_cmd: #bruce 050923 [committed 051006]. #e maybe the maker option shou
         """
         for doc of args see register_debug_menu_command
         """
-        # public attrs: 
+        # public attrs:
         self.name = name # self.name is used for replacement of previous same-named commands in client-maintained sets
             # (but the name arg is also used as default value for some other attrs, below)
         self.func = func
@@ -512,7 +512,7 @@ class menu_cmd: #bruce 050923 [committed 051006]. #e maybe the maker option shou
             #e should also protect caller from badly formatted value... or maybe menu spec processor should do that?
             return res
         text, func = self.text, self.func
-        return [ (text, lambda func = func, widget = widget: func(widget)) ]    
+        return [ (text, lambda func = func, widget = widget: func(widget)) ]
             # (the func = func was apparently necessary, otherwise the wrong func got called,
             #  always the last one processed here)
             # [that comment is from before revision of 050923 but probably still applies]
@@ -625,7 +625,7 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
         old = module.__redraw_counter_when_reloaded__
     except AttributeError:
         old = -1
-    if old == now: 
+    if old == now:
         return
     # after this, if debug_reload_once_per_event, print something every time
     if debug_reload_once_per_event:
@@ -660,7 +660,7 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
             if debug_reload_once_per_event:
                 print "old_mtime %s, our_mtime %s, want_reload = %s" % \
                       (time.asctime(time.localtime(old_mtime)), time.asctime(time.localtime(our_mtime)), want_reload)
-            pass 
+            pass
         else:
             want_reload = not never_again
             if debug_reload_once_per_event:
@@ -678,7 +678,7 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
         reloading = "reloading"
     else:
         def doit(module):
-            pass 
+            pass
         reloading = "NOT reloading (since module._reload_ok = False)"
     del _reload_ok
     # now we will definitely try to reload it (or not, due to _reload_ok), and in some cases print what we're doing
@@ -728,7 +728,7 @@ def _call_profile_function():
 def profile_single_call_if_enabled(func, *args, **keywordArgs):
     """
     helper function:
-    
+
     Profile a function call, if enabled (see set_enabled_for_profile_single_call).
 
     This creates a profile.output file on each use
@@ -747,13 +747,13 @@ def profile_single_call_if_enabled(func, *args, **keywordArgs):
     profile_single_call_if_enabled(o.f, a).
 
     Profiling by this helper function is enabled by calling
-    
+
       utilities.debug.set_enabled_for_profile_single_call(True)
-      
+
     and disabled by calling
-    
+
       utilities.debug.set_enabled_for_profile_single_call(False)
-    
+
     @see: print_profile_output()
 
     @see: atom_debug_profile_filename in main_startup.py, for profiling
@@ -768,7 +768,7 @@ def profile_single_call_if_enabled(func, *args, **keywordArgs):
     global _profile_args
     global _profile_keywordArgs
     global _profile_single_call_ENABLED
-    
+
     _profile_function = func
     _profile_args = args
     _profile_keywordArgs = keywordArgs
@@ -780,9 +780,9 @@ def profile_single_call_if_enabled(func, *args, **keywordArgs):
             print "Unable to import cProfile. Using profile module instead."
             import profile as py_Profile
             pass
-        
+
         filePath = os.path.dirname(os.path.abspath(sys.argv[0])) + "/" + _profile_output_file
-        filePath = os.path.normpath(filePath) 
+        filePath = os.path.normpath(filePath)
         print "Capturing profile..."
         print "Profile output file: %s" % (filePath,)
         py_Profile.run('from utilities.debug import _call_profile_function; _call_profile_function()', _profile_output_file)
@@ -791,7 +791,7 @@ def profile_single_call_if_enabled(func, *args, **keywordArgs):
 
         # Uncomment this to print the profile output in a human readable form:
         ## print_profile_output(_profile_output_file)
-        
+
     else:
         _call_profile_function()
 
@@ -800,17 +800,17 @@ def profile_single_call_if_enabled(func, *args, **keywordArgs):
     _profile_keywordArgs = None
 
     return
-    
-    
+
+
 def print_profile_output(raw_profile_result_file = _profile_output_file):
     """
     Print the profile output collected by profile_single_call_if_enabled
     in the console in a human readable form.
-    
+
     @param raw_profile_result_file: name of the file generated by running cProfile
                                     or profile
     @type raw_profile_result_file: string (pathname)
-    
+
     @see: profile_single_call_if_enabled()
 
     @note: it's often more convenient to run the following commands in an

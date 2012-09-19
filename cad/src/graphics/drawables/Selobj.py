@@ -1,4 +1,4 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Selobj.py -- provides class Selobj_API, [### WHICH WILL BE RENAMED, ALONG WITH THIS FILE]
 which documents the interface from the GLPane to drawable objects which need
@@ -14,8 +14,8 @@ mouse).
 Current status [bruce 080116]:
 
 This partly formalizes an informal API used by GLPane and some
-Commands and GraphicsModes to handle hover-highlightable 
-drawable objects, which has optional methods for some optional 
+Commands and GraphicsModes to handle hover-highlightable
+drawable objects, which has optional methods for some optional
 abilities they can have, like a different highlight appearance,
 an ability to provide a context menu, or an ability to
 provide a DragHandler.
@@ -27,12 +27,12 @@ different arg signatures in different class hierarchies.
 
 The Selobj_API is not a general "drawable API" but covers
 most ways in which a drawable object might interact
-with the mouse. As currently constructed it's unideal in 
-several ways, e.g. its methods have no consistent naming 
-convention, and the semantics for "using the default behavior" 
-is often "don't provide the method", which means we can't 
-provide a default or stub implementation in class Selobj_API 
-itself (effectively an "interface class") or we'd break code. 
+with the mouse. As currently constructed it's unideal in
+several ways, e.g. its methods have no consistent naming
+convention, and the semantics for "using the default behavior"
+is often "don't provide the method", which means we can't
+provide a default or stub implementation in class Selobj_API
+itself (effectively an "interface class") or we'd break code.
 
 And, in reality it's probably at least two APIs mushed
 together. And certainly it's unclearly named.
@@ -40,7 +40,7 @@ together. And certainly it's unclearly named.
 The confusion apparent in the docstring and comments of
 Selobj.py (class Selobj_API) reflects all this.
 
-This can and should all be cleaned up, but we're unlikely 
+This can and should all be cleaned up, but we're unlikely
 to do much of that before FNANO '08. In the meantime, making
 the classes that provide the existing "selobj interface"
 say they do so is at least a start, since the set of things
@@ -116,7 +116,7 @@ Seems most like graphics_behavior_api, but revisit when it's done.
 
 # possible names for this class:
 # - class MouseSensor_interface (in file MouseSensor.py? or MouseSensor_interface.py?)
-# - class MouseSensitive -- maybe that grammar (adjective) means _interface can be 
+# - class MouseSensitive -- maybe that grammar (adjective) means _interface can be
 #   implied? not sure.
 # And should the methods start with a prefix like MouseSensor_ ?
 
@@ -131,7 +131,7 @@ class Selobj_API:
     # some *new* api methods and attrs can safely be added here:
 
     _selobj_colorsorter_safe = False #bruce 090311
-    
+
     def nodes_containing_selobj(self): #bruce 080507
         """
         Return a list (not a tuple) of all nodes that contain self,
@@ -142,7 +142,7 @@ class Selobj_API:
         and whether the result might contain some nodes twice is undefined.
         """
         return []
-    
+
     pass
 
 # comment moved from exprs/Highlightable.py, edited here :

@@ -117,13 +117,13 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
                        SIGNAL('stateChanged(int)'),
                        self._update_state_of_cursorTextGroupBox)
 
-    
+
     def show(self):
         _superclass.show(self)
         self.updateMessage("Specify the nanotube parameters below, then click "\
                            "two endpoints in the graphics area to insert a nanotube.")
-    
-    
+
+
     def _update_widgets_in_PM_before_show(self):
         """
         Update various widgets in this Property manager.
@@ -499,18 +499,18 @@ class InsertNanotube_PropertyManager( DnaOrCnt_PropertyManager):
                                  signal. It is not used. We just want to know
                                  that the spinbox value has changed.
         @type  spinBoxValueJunk: double or None
-        @see: PM_SpinBox.setValue() for a note about blockSignals. 
+        @see: PM_SpinBox.setValue() for a note about blockSignals.
         """
         _n, _m = self.nanotube.setChirality(self.chiralityNSpinBox.value(),
                                             self.chiralityMSpinBox.value())
 
         #self.n, self.m = self.nanotube.getChirality()
-        
-        #QSpinBox.setValue emits valueChanged signal. We don't want that here. 
-        #so temporarily blockSignal by passing the blockSignals flag. 
+
+        #QSpinBox.setValue emits valueChanged signal. We don't want that here.
+        #so temporarily blockSignal by passing the blockSignals flag.
         self.chiralityNSpinBox.setValue(_n, blockSignals = True)
         self.chiralityMSpinBox.setValue(_m, blockSignals = True)
-        
+
         self.updateNanotubeDiameter()
 
     def updateNanotubeDiameter(self):

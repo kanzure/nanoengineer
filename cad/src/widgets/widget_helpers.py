@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 widgets.py - helpers related to widgets, and some simple custom widgets.
 
@@ -50,7 +50,7 @@ def double_fixup(validator, text, prevtext):
         return prevtext
     else:
         return text
-        
+
 # ==
 
 # bruce 050614 [comment revised 050805] found colorchoose as a method in MWsemantics.py, nowhere used,
@@ -100,12 +100,12 @@ def get_widget_with_color_palette(frame, color):
     Return the widget <frame> after setting its palette based on <color>
     (a QColor provided by the user).
     """
-    #ninad070502: This is used in many dialogs which show a colored frame 
-    #that represents the current color of the object in the glpane. 
-    #Example, in Rotary motor prop dialog, you will find a colored frame 
-    #that shows the present color of the rotary motor. 
+    #ninad070502: This is used in many dialogs which show a colored frame
+    #that represents the current color of the object in the glpane.
+    #Example, in Rotary motor prop dialog, you will find a colored frame
+    #that shows the present color of the rotary motor.
     frame.setAutoFillBackground(True)
-    plt = QtGui.QPalette()      
+    plt = QtGui.QPalette()
     plt.setColor(QtGui.QPalette.Active,   QtGui.QPalette.Window, color)
     plt.setColor(QtGui.QPalette.Inactive, QtGui.QPalette.Window, color)
     plt.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Window, color)
@@ -116,11 +116,11 @@ def get_widget_with_color_palette(frame, color):
 
 class TextMessageBox(QDialog):
     """
-    The TextMessageBox class provides a modal dialog with a textedit widget 
-    and a close button.  It is used as an option to QMessageBox when displaying 
-    a large amount of text.  It also has the benefit of allowing the user to copy and 
+    The TextMessageBox class provides a modal dialog with a textedit widget
+    and a close button.  It is used as an option to QMessageBox when displaying
+    a large amount of text.  It also has the benefit of allowing the user to copy and
     paste the text from the textedit widget.
-    
+
     Call the setText() method to insert text into the textedit widget.
     """
     def __init__(self, parent = None, name = None, modal = 1, fl = 0):
@@ -136,7 +136,7 @@ class TextMessageBox(QDialog):
         TextMessageLayout = QVBoxLayout(self)
         TextMessageLayout.setMargin(5)
         TextMessageLayout.setSpacing(1)
-        
+
         self.text_edit = QTextEdit(self)
 
         TextMessageLayout.addWidget(self.text_edit)
@@ -145,13 +145,13 @@ class TextMessageBox(QDialog):
         self.close_button.setText("Close")
         TextMessageLayout.addWidget(self.close_button)
 
-        self.resize(QSize(350, 300).expandedTo(self.minimumSizeHint())) 
+        self.resize(QSize(350, 300).expandedTo(self.minimumSizeHint()))
             # Width changed from 300 to 350. Now hscrollbar doesn't appear in
             # Help > Graphics Info textbox. mark 060322
         qt4todo('self.clearWState(Qt.WState_Polished)') # what is this?
 
         self.connect(self.close_button, SIGNAL("clicked()"),self.close)
-        
+
     def setText(self, txt):
         """
         Sets the textedit's text to txt
@@ -166,7 +166,7 @@ def PleaseConfirmMsgBox(text = 'Please Confirm.'): # mark 060302.
     """
     Prompts the user to confirm/cancel by pressing a 'Confirm' or 'Cancel' button in a QMessageBox.
     <text> is the confirmation string to explain what the user is confirming.
-    
+
     Returns:
         True - if the user pressed the Confirm button
         False - if the user pressed the Cancel button (or Enter, Return or Escape)
@@ -174,14 +174,14 @@ def PleaseConfirmMsgBox(text = 'Please Confirm.'): # mark 060302.
     ret = QMessageBox.warning( None, "Please Confirm",
             str(text) + "\n",
             "Confirm",
-            "Cancel", 
+            "Cancel",
             "",
             1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
             1)  # Escape (1= Cancel)
-          
-    if ret == 0: 
+
+    if ret == 0:
         return True # Confirmed
     else:
         return False # Cancelled
-            
+
 # end

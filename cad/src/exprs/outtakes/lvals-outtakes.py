@@ -1,5 +1,5 @@
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 $Id$
 
 
@@ -21,7 +21,7 @@ this file won't be in cvs for long -- but it might be there temporarily, since i
             # - Note that what I often call a formula is just an expr, and a formula instance is an expr instance, class InstanceOrExpr,
             # even if it's an OpExpr. That thing has its own memo, implemented by this class Lval. So all it provides us is a
             # compute method. This is suggesting that our _formula should be merely a compute method. Does that fit in displist case??
-            # 
+            #
             # ###
 
 # ==
@@ -76,7 +76,7 @@ def _compile_compute_rule( clas, attr, prefix, propclass ):
     prop = propclass( clas, attr, unbound_method, prefix ) # on error, this can raise an exception; or it can return None
     if prop is None:
         return False
-    # assume prop is a suitable property object for use in a new-style class    
+    # assume prop is a suitable property object for use in a new-style class
     setattr( clas, attr, prop)
     ###e improved design: propclass should instead be an object which can store a list of new properties (descriptors)
     # on a list of corresponding attrs;
@@ -164,7 +164,7 @@ class _CV_rule(object):
             obj = instance.__dict__[attr]
             print "warning: obj was not found directly, but it should have been, since this is a non-data descriptor", self #e more?
         except KeyError:
-            # make a new object from the compute_methods (happens once per attr per instance) 
+            # make a new object from the compute_methods (happens once per attr per instance)
             compute_methodV = getattr(instance, self.prefixV + attr) # should always work
             compute_methodV = bound_compute_method_to_callable( compute_methodV,
                                                                   formula_symbols = (_self, _i), ###IMPLEM _i
@@ -185,7 +185,7 @@ class _CV_rule(object):
     # without going through __get__. We print a warning above if that fails.
 
     # Note: similar comments about memory leaks apply, as for _C_rule.
-    
+
     pass # end of class _CV_rule
 
 

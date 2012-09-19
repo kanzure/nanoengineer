@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 povray.py - routines to support POV-Ray rendering in nE-1.
 
@@ -46,7 +46,7 @@ def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 0607
                    "  Warning: Mac GUI versions of POV-Ray or MegaPOV won't work,\n"\
                    "but the Unix command-line versions can be compiled on the Mac\n"\
                    "and should work. Contact support@nanorex.com for more info."
-    ret = QMessageBox.warning( win, caption, text + macwarning, 
+    ret = QMessageBox.warning( win, caption, text + macwarning,
                                "&OK", "Cancel", "",
                                0, 1 )
     if ret == 0: # OK
@@ -69,7 +69,7 @@ def fix_plugin_problem(win, name, errortext, macwarning_ok):
 def decode_povray_prefs(win, ask_for_help, greencmd = None): #bruce 060710 ###@@@ review docstring
     """
     Look at the current state of Plugin Prefs (about POV-Ray and MegaPOV) to determine:
-    - whether the user wants us to launch MegaPOV, POV-Ray, or neither [see below for retval format] 
+    - whether the user wants us to launch MegaPOV, POV-Ray, or neither [see below for retval format]
     - whether we can do what they ask
     Assume it's an error if we can't launch one of them, and return errorcode, errortext as appropriate.
     If <ask_for_help> is true, and we can't launch the one the user wants, offer to get them into the prefs dialog
@@ -135,7 +135,7 @@ def decode_povray_prefs_0(win, greencmd): #bruce 060710
     message = verifyExecutable(wantpath)
     if (message):
         return 1, message
-    
+
     ##e should check version of plugin, if we know how
 
     # Figure out include dir to use.
@@ -193,7 +193,7 @@ def default_include_dir(): #bruce 060710 split out and revised Mark's & Will's c
         return 0, include_dir
     except:
         if env.debug() and this_platform_can_guess_include_dir_from_povray_path():
-            print_compact_traceback("debug fyi: this is the exception inside default_include_dir: ") 
+            print_compact_traceback("debug fyi: this is the exception inside default_include_dir: ")
         msg = "Unable to guess POV include directory from\nPOV-Ray executable path; please set it explicitly"
         return 1, msg
     pass
@@ -233,7 +233,7 @@ def write_povray_ini_file(ini, pov, out, info, width, height, output_type = 'png
     (I don't know whether the rendering programs require that <output_type> matches
      the file extension of <out>. As currently called, it supposedly does.)
     """
-    # Should this become a method of PovrayScene? I think so, but ask Bruce. Mark 060626. 
+    # Should this become a method of PovrayScene? I think so, but ask Bruce. Mark 060626.
 
     dir_ini, rel_ini = os.path.split(ini)
     dir_pov, rel_pov = os.path.split(pov)
@@ -322,7 +322,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
             # unless it matters that it reads and discards stdout/stderr
             # (eg so large output would not block -- unlikely that this matters).
             # It doesn't echo stdout/stderr. See also blabout/blaberr in other files. Maybe fix this? ###@@@
-        p.setWorkingDirectory(workdir)	
+        p.setWorkingDirectory(workdir)
         p.start(program, arguments)
 
         # Put up hourglass cursor to indicate we are busy. Restore the cursor below. Mark 060621.
@@ -336,7 +336,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
             # Display a message on the status bar that POV-Ray/MegaPOV is rendering.
             # I'd much rather display a progressbar and stop button by monitoring the size of the output file.
             # This would require the output file to be written in PPM or BMP format, but not PNG format, since
-            # I don't believe a PNG's final filesize can be predicted. 
+            # I don't believe a PNG's final filesize can be predicted.
             # Check out monitor_progress_by_file_growth() in runSim.py, which does this. [mark]
             time.sleep(0.25)
             env.history.statusbar_msg(msg)
@@ -394,7 +394,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
 def verify_povray_program(): # not yet used, not yet correctly implemented
     """
     Returns 0 if povray_path_prefs_key is the path to the POV-Ray 3.6 executable.
-    Otherwise, returns 1. 
+    Otherwise, returns 1.
     Always return 0 for now until I figure out a way to verify POV-Ray. Mark 060527.
     """
     vstring = "POV-Ray 3.6" # or somthing like this.os

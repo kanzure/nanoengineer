@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 import os, sys, threading, time, types, jobqueue
 
 bitrate = 6.0e6
@@ -121,10 +121,10 @@ class MotionBlurJob(jobqueue.Job):
 params = """MPEG-2 Test Sequence, 30 frames/sec
 %(sourcefileformat)s    /* name of source files */
 -         /* name of reconstructed images ("-": don't store) */
--         /* name of intra quant matrix file     ("-": default matrix) */ 
+-         /* name of intra quant matrix file     ("-": default matrix) */
 -         /* name of non intra quant matrix file ("-": default matrix) */
 stat.out  /* name of statistics file ("-": stdout ) */
-1         /* input picture file format: 0=*.Y,*.U,*.V, 1=*.yuv, 2=*.ppm */ 
+1         /* input picture file format: 0=*.Y,*.U,*.V, 1=*.yuv, 2=*.ppm */
 %(frames)d       /* number of frames */
 0         /* number of first frame */
 00:00:00:00 /* timecode of first frame */

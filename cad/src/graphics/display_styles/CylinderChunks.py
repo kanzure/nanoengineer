@@ -1,11 +1,11 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 CylinderChunks.py -- define a new whole-chunk display mode,
 which shows a chunk as a single opaque bounding cylinder of the chunk's color.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 This is mainly intended as an example of how to use class ChunkDisplayMode,
 though it might be useful as a fast-rendering display mode too.
@@ -30,7 +30,7 @@ class CylinderChunks(ChunkDisplayMode):
     example chunk display mode, which draws the chunk as a cylinder,
     aligned to the chunk's axes, of the chunk's color
     """
-    # mmp_code must be a unique 3-letter code, distinct from the values in 
+    # mmp_code must be a unique 3-letter code, distinct from the values in
     # constants.dispNames or in other display modes
     mmp_code = 'cyl'
     disp_label = 'Cylinder' # label for statusbar fields, menu text, etc.
@@ -88,7 +88,7 @@ class CylinderChunks(ChunkDisplayMode):
         """
         Draws the chunk style that may depend on a current view.
         piotr 080321
-        """        
+        """
         return
     def compute_memo(self, chunk):
         """

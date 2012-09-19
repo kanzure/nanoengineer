@@ -155,7 +155,7 @@ Part Properties dialog), so no harm is caused by changing it.
 """
 
 # ==
- 
+
 # comment about status for NE1 1.0.0, to be released soon: [bruce 080410]
 
 """
@@ -320,13 +320,13 @@ def parse_mmpformat(mmpformat): #bruce 080328
     """
     Parse an mmpformat value string of the syntax which can presently be used
     in an mmpformat mmp record, or any syntax which has been used previously.
-    
+
     @return: a tuple of (ok, required_date, preferred_date)
              (containing types boolean, string (if ok), string (if ok),
               where the dates are raw date strings from the mmpformat record,
               understandable only to functions in this module, namely
               mmp_date_newer)
-    
+
     @note: never raises exceptions for syntax errors, just returns ok == false
     """
     mmpformat = mmpformat.strip()
@@ -368,7 +368,7 @@ def mmp_date_newer(date1, date2): #bruce 080328
 def _normalize_mmp_date(date): #bruce 080328
     """
     [private helper for mmp_date_newer]
-    
+
     @note: raises exceptions for some mmp file syntax errors
     """
     assert type(date) == type('080328') and date.isdigit()
@@ -396,7 +396,7 @@ def _test():
     """
     last_version = None
     last_version_data = None
-    
+
     for version in KNOWN_MMPFORMAT_VERSIONS:
         ok, required, preferred = parse_mmpformat(version)
         assert ok, "parse failure or error in %r" % (version,)

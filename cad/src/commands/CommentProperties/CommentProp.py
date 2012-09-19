@@ -1,6 +1,6 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-CommentProp.py - 
+CommentProp.py -
 
 @author: Mark
 @version: $Id$
@@ -43,42 +43,42 @@ class CommentProp(QDialog, Ui_CommentPropDialog):
             #   analyzed re external files), should change initial value to "".
             # - if not used in external files, should make private.
             # [bruce 080717 comment]
-    
+
     def setup(self, comment = None):
         """
         Show Comment dialog with current Comment text, for editing
         properties of an existing Comment node or creating a new one.
-        
+
         @param comment: the comment node to edit, or None to create a new one.
         """
         self.comment = comment
-        
+
         if self.comment:
             self.comment_textedit.setPlainText(self.comment.get_text())
                 # Load comment text.
             qt4todo("self.comment_textedit.moveCursor(QTextEdit.MoveEnd, False)")
                 # Sets cursor position to the end of the textedit document.
-        
+
         QDialog.exec_(self)
 
     ###### Private methods ###############################
-    
+
     def _create_comment(self):
         comment_text = self.comment_textedit.toPlainText()
         if not self.comment:
             self.comment = Comment(self.win.assy, None, comment_text)
             self.win.assy.addnode(self.comment)
             self.action = 'added'
-        else: 
+        else:
             self.comment.set_text(comment_text)
             self.action = 'updated'
-            
+
     def _remove_comment(self):
         if self.comment:
             self.comment.kill()
             self.win.mt.mt_update()
             self.comment = None
-            
+
     def insert_date_time_stamp(self):
         """
         Insert a date/time stamp in the comment at the current position.
@@ -87,11 +87,11 @@ class CommentProp(QDialog, Ui_CommentPropDialog):
         """
         timestr = "%s " % time.strftime("%m/%d/%Y %I:%M %p")
         self.comment_textedit.insertPlainText(timestr)
-        
+
     def _done_history_msg(self):
         env.history.message(cmd + quote_html("%s %s." % (self.comment.name, self.action)))
                 #bruce Qt4 070502 precaution: use quote_html
-    
+
     #################
     # Cancel Button
     #################

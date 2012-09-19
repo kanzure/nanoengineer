@@ -19,14 +19,14 @@ class EditCommand_PM(Command_PropertyManager):
     This is a superclass for the property managers of various objects that use
     EditCommand for generating the object. e.g. PlanePropertyManager
     inherits from this class to use common methods
-    """ 
-        
+    """
+
     def show(self):
         """
         Shows the Property Manager. Extends superclass method.
         """
         self._update_widgets_in_PM_before_show()
-        _superclass.show(self)                  
+        _superclass.show(self)
 
     def _update_widgets_in_PM_before_show(self):
         """
@@ -78,4 +78,3 @@ class EditCommand_PM(Command_PropertyManager):
         Implements Restore defaults button
         """
         pass
-    

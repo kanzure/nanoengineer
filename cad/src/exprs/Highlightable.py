@@ -1,4 +1,4 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Highlightable.py - general-purpose expr for mouse-responsive drawable objects
 
@@ -178,7 +178,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         # needs to save coordinates (to fix other bugs that I think still exist,
         # as well as for speed), in ways described elsewhere long ago. Alternatively,
         # maybe I could figure out in exactly which instances this needs to be True.
-    
+
     def _init_instance(self):
         super(_CoordsysHolder, self)._init_instance()
         # == per_frame_state
@@ -266,7 +266,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
             # print "_DEBUG_SAVED_COORDS type(old) = %r" % (type(old),) # NoneType or numpy.ndarray
             if not same_vals(old, new):
                 print "_DEBUG_SAVED_COORDS: %r changes saved coords" % self
-        
+
         # the following comments are about the implem of save_coords --
         # need review -- which are obs and which should be moved? ###
         #
@@ -292,14 +292,14 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         """
         if not self.env.glpane.current_glselect:
             # when that cond is false, we have a nonstandard projection matrix
-            
+
             # REVIEW: does the jig-select code in Select_GraphicsMode.py
             # also set it to indicate that? if not, does that cause any bugs
             # due to this condition not turning off save_coords then?
             # [bruce 081204 question]
-            
+
             self.save_coords()
-            
+
             # Historical note: using this cond apparently fixes the
             # projection = True bug (even when used in DrawInCorner_projection),
             # based on tests and debug prints of 070405. The cond itself was
@@ -321,7 +321,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
             # is nonstandard when this cond is false, so saving it then
             # basically saves a nonsense value.
         return
-        
+
     def begin_using_saved_coords(self):
         # fyi: examples of glLoadMatrix (and thus hopefully the glGet for that)
         # can be found in these places on bruce's G4:
@@ -372,14 +372,14 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         ##    return
         glLoadMatrixd(matrix) # crashes Python if matrix has wrong type or shape, it seems [guess for now]
         return
-        
+
     def end_using_saved_coords(self):
         if self.projection:
             glMatrixMode(GL_PROJECTION)
             glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
-        
+
     def current_event_mousepoint(self, center = None, radius = None, plane = None, depth = None, _wXY = None):
         #061206; 070203 added 'plane' and revised docstring; 070226 added _wXY; 070314 added depth
         #e rename? #e add variant to get the drag-startpoint too #e cache the result
@@ -533,7 +533,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         assert ran_already_flag
         x,y,z = funcres
         return V(x,y,z)
-    
+
     def screenrect(self, point = ORIGIN):#070226 ##e rename? btw what interface are this and current_event_mousepoint part of?
         """
         Return the 4 corners (in local model coords) of a screen rectangle, projected to the same depth as point
@@ -608,11 +608,11 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
     """
     # WARNING: the abstract methods in superclass DragHandler_API will be inherited (if not overridden),
     # even if they are defined in the delegate. [in theory; unconfirmed.] This is good in this case. [061127 comment]
-    
+
     #060722;
     # revised for exprs module, 061115 [not done]
     # note: uses super InstanceOrExpr rather than Widget2D so as not to prevent delegation of lbox attrs (like in Overlay)
-    
+
     # args (which specify what it looks like in various states)
     plain = ArgOrOption(Widget2D) # Arg -> ArgOrOption 070304 -- but is it still required? it ought to be... but it's not.... ###e
     delegate = _self.plain # always use this one for lbox attrs, etc
@@ -655,12 +655,12 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         # But my guess is, most on_drag methods will fail in that case! ####FIX, here or in testmode or in selectMode
     cmenu_maker = Option(ModelObject) # object which should make a context menu, by our calling obj.make_selobj_cmenu_items if it exists
     # note: inherits projection Option from superclass _CoordsysHolder
-    
+
     def _init_instance(self):
         super(Highlightable, self)._init_instance()
 
         # == transient_state
-        
+
         set_default_attrs( self.transient_state, in_drag = False) # doc = "whether mouse is currently down (after a mousedown on self)"
             # Q 070210: would in_drag = State(...) be equivalent?
             # Guess: yes (but with more general access syntax) -- this is just an old form; not sure! ##k
@@ -668,12 +668,12 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
             # note 070210: sometimes I've mistakenly thought that meant in_bareMotion [not a serious name-suggestion],
             # i.e. whether mouse is over self or not. We might need that, and/or action options to run when it changes,
             # perhaps called on_enter and on_leave. Right now I don't think we get notified about those events! ###e
-            
+
             # note: set_default_attrs sets only the attrs which are not yet defined
             ###e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
             ###e should add an accessible tracked attr for detecting whether we're over self, too. What to call it?
             # [061212 comments, also paraphrased near testexpr_9fx4]
-        
+
         # some comments from pre-exprs-module, not reviewed:
             ## in_drag = False # necessary (hope this is soon enough)
         # some comments from now, 061115:
@@ -686,7 +686,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
             #  it could be a call_Expr to eval!)
 
         # == glpane_state
-        
+
         set_default_attrs( self.glpane_state, glname = None) # glname, if we have one
 
         # allocate glname if necessary, and register self (or a new obj we make for that purpose #e) under glname
@@ -714,9 +714,9 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
 
         assert is_expr_Instance_or_None( self.plain ), "%r.plain must be an Instance or None, not %r" % (self, self.plain)
             # catch bugs in subclasses which override our formula for self.plain [070326]
-        
+
         return # from _init_instance in Highlightable
-    
+
     def draw(self):
         glpane = self.env.glpane
         self.save_coords_if_safe()
@@ -742,7 +742,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
                 draw_this = self.plain
             self.drawkid( draw_this) ## draw_this.draw() # split out draw_this, 070104
         except: ##k someday this try/except might be unneeded due to drawkid
-            print_compact_traceback("exception during pressed_out or plain draw, ignored: ")#061120 
+            print_compact_traceback("exception during pressed_out or plain draw, ignored: ")#061120
             print "fyi: the object we wanted to draw when we got that exception was:",
             print "%r" % (draw_this,)
             pass # make sure we run the PopName
@@ -767,7 +767,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         # but mousing around over it does cause repeated draws, unlike when it works. Both as if it drew in wrong place.
 
         # Note: I'm guessing it's better to not call kid.draw() via self.drawkid( kid), in this method -- not sure. ###k [070210]
-        
+
         self.begin_using_saved_coords()
         try:
             if self.transient_state.in_drag:
@@ -793,7 +793,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
             sbar_text = " %r" % sbar_text
         return "<%s%s at %#x>" % (self.__class__.__name__, sbar_text, id(self)) ##e improve by merging in a super version ##e zap %#x
         ## [Highlightable.py:260] [ExprsMeta.py:250] [ExprsMeta.py:318] [ExprsMeta.py:366] [Exprs.py:184] [Highlightable.py:260] ...
-    
+
     def mouseover_statusbar_message(self): # called in GLPane.set_selobj
         """
         #doc
@@ -818,9 +818,9 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
             # KLUGE: The specific color we return doesn't matter, but it matters that it's not None, to GLPane --
             # otherwise it sets selobj to None and draws no highlight for it.
             # (This color will be received by draw_in_abs_coords, but our implem of that ignores it.)
-    
+
     ###@@@ got to here, roughly, in a complete review of porting this code from the old system into the exprs module
-        
+
     def selobj_still_ok(self, glpane):
         ###e needs to compare glpane.part to something in selobj [i.e. self, i guess? 061120 Q],
         # and worry whether selobj is killed, current, etc
@@ -854,14 +854,14 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
             print "debug: selobj_still_ok is false for %r" % self ###@@@
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
             # Caller now prints a warning if it's None.
-    
+
     ### [probably obs cmt:] grabbed from Button, maybe not yet fixed for here
-            
+
     altkey = False # [070224] a new public Instance attr, boolean, meaningful only during press/drag/release --
-        # True iff alt/option/middlebutton was down when drag started. WARNING: NOT CHANGE TRACKED. 
+        # True iff alt/option/middlebutton was down when drag started. WARNING: NOT CHANGE TRACKED.
         # (Note: the code here does not enforce its not changing during a drag,
         #  but I think glpane.fix_buttons does.)
-    
+
     _glpane_button = None # private helper attr for altkey
 
     def _update_altkey(self):
@@ -871,7 +871,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         self._glpane_button = self.env.glpane.button or self._glpane_button # persistence needed to handle None in ReleasedOn
         self.altkey = (self._glpane_button == 'MMB')
         return
-    
+
     def leftClick(self, point, event, mode):
         # print "HL leftClick: glpane.button = %r" % (self.env.glpane.button,) # 'MMB' or 'LMB'
         self._update_altkey()
@@ -894,7 +894,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         mode.update_selobj(event) #061120 to see if it fixes bugs (see discussion in comments)
         self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
         return self # in role of drag_handler
-    
+
     def DraggedOn(self, event, mode):
         # print "HL DraggedOn: glpane.button = %r" % (self.env.glpane.button,) # 'MMB' or 'LMB'
         self._update_altkey()
@@ -916,7 +916,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         # call back to the env, to do highlighting of the kind it wants [do, or provide code to do as needed??],
         # since only this object knows what kind that is.
         return
-    
+
     def ReleasedOn(self, selobj, event, mode): ### may need better args
         # print "HL ReleasedOn: glpane.button = %r" % (self.env.glpane.button,) # always None.
         self._update_altkey()
@@ -950,7 +950,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         except:
             print_compact_traceback( "bug: exception in ReleasedOn ignored: ")
             pass
-        if selobj is our_selobj: 
+        if selobj is our_selobj:
             self._do_action('on_release_in')
         else:
             self._do_action('on_release_out')
@@ -973,7 +973,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         # But if that something is the contents of on_doubleclick, how is that possible?!?
         # The only solution I can think of is for on_drag and on_release to get replaced by on_double_drag and
         # on_double_release in those cases (and to rename on_doubleclick to on_double_click).Hmm.... ###REVIEW SOON
-        # 
+        #
         # Note: this is called on the press of the 2nd click in a double click (when self is the drag_handler),
         # not on the release.
         #
@@ -982,7 +982,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         #  or to a widget being hidden or shown).
         self._do_action('on_doubleclick') #k is this all we need?? what about update_selobj? inval/gl_update?
         return
-    
+
     def _do_action(self, name, motion = False, glpane_bindings = {}):
         """
         [private, should only be called with one of our action-option names,
@@ -1059,7 +1059,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         # the fact that it comes before the side effect routines in its callers
         # ought to be ok unless they do recursive event processing. still, why not do it after instead? not sure... ##e
         # plan: try doing it after as last resort bugfix; otoh if bugs gone, try never doing it.
-        
+
         ## exprs_globals.havelist = False
         ## mode.o.gl_update()
         self.KLUGE_gl_update()
@@ -1089,7 +1089,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
                 print "bah" ###e traceback
                 print_compact_traceback("exception seen by selobj %r in %r.make_selobj_cmenu_items(): " % (self, obj) )
         else:
-            # remove soon, or improve -- classname??        
+            # remove soon, or improve -- classname??
             item = ('no cmenu provided by this selobj', noop, 'disabled')
             menu_spec.append(item)
         return
@@ -1100,7 +1100,7 @@ Button = Highlightable # [maybe this should be deprecated, but it's still in use
 
 # ==
 
-class _UNKNOWN_SELOBJ_class(Selobj_API): #061218 
+class _UNKNOWN_SELOBJ_class(Selobj_API): #061218
     """
     [private helper, for a kluge]
     """
@@ -1159,7 +1159,7 @@ def _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode): #061218, revised 071010
     # bruce 071028 reinstating it in a harmless form:
     from command_support.GraphicsMode_API import GraphicsMode_interface
     assert isinstance(graphicsMode, GraphicsMode_interface)
-    
+
     if not hasattr(graphicsMode, 'UNKNOWN_SELOBJ'):
         # note: this means each graphicsMode ends up with a unique UNKNOWN_SELOBJ,
         # which is considered still ok only within the same graphicsMode, due to the

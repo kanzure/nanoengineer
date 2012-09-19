@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """Try to do all the OpenGL stuff in Python, on the theory that
 C extensions are hard to debug.
 """
@@ -142,7 +142,7 @@ class Craft(CruftDialog.CruftDialog):
             glLoadIdentity()
             glOrtho (0.0, w, 0.0, h, -1.0, 1.0)
             glMatrixMode(GL_MODELVIEW)
-            
+
     def pushButton1_clicked(self):
         self.app.quit()
 

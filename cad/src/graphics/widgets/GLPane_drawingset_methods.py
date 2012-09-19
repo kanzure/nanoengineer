@@ -1,4 +1,4 @@
-# Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLPane_drawingset_methods.py -- DrawingSet/CSDL helpers for GLPane_minimal
 
@@ -39,7 +39,7 @@ class GLPane_drawingset_methods(object):
     # separate modules to avoid an import cycle. We can't inherit
     # GLPane_minimal itself -- that is not only an import cycle
     # but a superclass-cycle! [bruce 090227 comment]
-    
+
     _csdl_collector = None # allocated on demand
 
     _csdl_collector_class = fake_GLPane_csdl_collector
@@ -58,7 +58,7 @@ class GLPane_drawingset_methods(object):
     def __get_csdl_collector(self):
         """
         get method for self.csdl_collector property:
-        
+
         Initialize self._csdl_collector if necessary, and return it.
         """
         try:
@@ -80,13 +80,13 @@ class GLPane_drawingset_methods(object):
             print
             raise
         pass
-    
+
     def __set_csdl_collector(self):
         """
         set method for self.csdl_collector property; should never be called
         """
         assert 0
-    
+
     def __del_csdl_collector(self):
         """
         del method for self.csdl_collector property
@@ -106,13 +106,13 @@ class GLPane_drawingset_methods(object):
         return self._csdl_collector is not None
 
     _current_drawingset_cache_policy = None # or a tuple of (temporary, cachename)
-    
+
     def _before_drawing_csdls(self,
                              bare_primitives = False,
                              dset_change_indicator = None ):
         """
         [private submethod of _call_func_that_draws_model]
-        
+
         Whenever some CSDLs are going to be drawn (or more precisely,
         collected for drawing, since they might be redrawn again later
         due to reuse_cached_drawingsets) by self.draw_csdl,
@@ -148,7 +148,7 @@ class GLPane_drawingset_methods(object):
         # some other files have comments about it which will need revision then
 
         # someday we might take other args, e.g. an "intent map"
-        del self.csdl_collector 
+        del self.csdl_collector
         self._csdl_collector_class = GLPane_csdl_collector
             # instantiated the first time self.csdl_collector is accessed
             # (which might be just below, depending on prefs and options)
@@ -159,10 +159,10 @@ class GLPane_drawingset_methods(object):
         res = False # return value, modified below
 
         cache = None # set to actual DrawingSetCache if we find or make one
-        
+
         cache_began_usage_tracking = False # modified if it did that
             # [not yet fully implemented or used as of 090317, but should cause no harm]
-        
+
         if debug_pref("GLPane: use DrawingSets to draw model?",
                       Choice_boolean_True, #bruce 090225 revised
                       non_debug = True,
@@ -287,7 +287,7 @@ class GLPane_drawingset_methods(object):
         # as of 090317, called in many drawing methods elsewhere (and one here),
         # defined only here; calls and API won't change in planned upcoming
         # refactoring, but implem might.
-        
+
         # future: to optimize rigid drag, options (aka "drawing intent")
         # will also include which dynamic transform (if any) to draw it inside.
         csdl_collector = self.csdl_collector
@@ -313,7 +313,7 @@ class GLPane_drawingset_methods(object):
         # as of 090317, defined and used only in this class,
         # but logically, could be overridden in subclasses;
         # will probably not be changed during planned upcoming refactoring
-        
+
         selected, highlight_color = intent # must match the code in draw_csdl
         if highlight_color is None:
             return dict(selected = selected)
@@ -322,7 +322,7 @@ class GLPane_drawingset_methods(object):
                         highlighted = True,
                         highlight_color = highlight_color )
         pass
-    
+
     def _after_drawing_csdls(self,
                             error = False,
                             reuse_cached_dsets_unchanged = False,
@@ -346,9 +346,9 @@ class GLPane_drawingset_methods(object):
             (whether found or made, modified or not) as .saved_change_indicator.
         """
         # as of 090317, defined and used only in this class; will be refactored
-        
+
         self._remake_display_lists = self._compute_remake_display_lists_now()
-        
+
         if not error:
             if self.csdl_collector.bare_primitives:
                 # this must come before the _draw_drawingsets below
@@ -377,9 +377,9 @@ class GLPane_drawingset_methods(object):
         # as of 090317, overridden in one subclass, called only in this class
         # (in _call_func_that_draws_model); might remain unchanged after
         # planned upcoming refactoring
-        
+
         return None # disable this optim by default
-    
+
     def _call_func_that_draws_model(self,
                                     func,
                                     prefunc = None,
@@ -390,7 +390,7 @@ class GLPane_drawingset_methods(object):
                                    ):
         """
         If whole_model is False (*not* the default):
-        
+
         Call func() between calls of self._before_drawing_csdls(**kws)
         and self._after_drawing_csdls(). Return whatever func() returns
         (or raise whatever exception it raises, but call
@@ -414,7 +414,7 @@ class GLPane_drawingset_methods(object):
         Those calls participate in the effect of our exception-protection
         and drawing_phase behaviors, but they stay out of the whole_model-
         related optimizations (so they are called even if func is not).
-        
+
         @warning: prefunc and postfunc are not called between
         _before_drawing_csdls and _after_drawing_csdls, so they
         should not use csdls for drawing. (If we need to revise this,
@@ -569,7 +569,7 @@ class GLPane_drawingset_methods(object):
         # todo: delete this when deleting an assy, or next using a new one
         # (not very important -- could reduce VRAM in some cases,
         #  but won't matter after loading a new similar file)
-    
+
     def _draw_drawingsets(self,
                           reuse_cached_dsets_unchanged = False,
                           dset_change_indicator = None ):
@@ -659,14 +659,14 @@ class GLPane_drawingset_methods(object):
                              # due to relations between
                              # dset_cache.temporary and incremental?
                        )
-        
+
         if dset_cache.temporary:
             #### REVIEW: do this in dset_cache.draw when destroy_as_drawn is true,
             # or when some other option is passed?
-        
+
             # note: dset_cache is guaranteed not to be in any dict we have
             dset_cache.destroy()
-        
+
         return
 
     def _find_or_make_dset_cache_to_use(self, policy, make = True):

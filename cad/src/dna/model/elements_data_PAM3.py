@@ -1,10 +1,10 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 elements_data_PAM3.py -- data for PAM3 pseudoatom elements
 
 @author: Mark
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -33,9 +33,9 @@ _defaultRadiusAndColor = {
     "Ux3" : (2.3, [0.428, 0.812, 0.808]), #bruce 080410 stub
     "Uy3" : (2.3, [0.812, 0.428, 0.808]), #bruce 080410 stub
     }
-  
+
 _alternateRadiusAndColor = {}
-                 
+
 # Format of _mendeleev: see elements_data.py
 
 _mendeleev = [
@@ -71,7 +71,7 @@ _mendeleev = [
     # with no PAM3 analogue.
 
     # unpaired base elements:
-    
+
     # one-atom (besides backbone) unpaired base -- might be used, don't know yet
     ("Ub3", "PAM3-Unpaired-base",  310, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')),
 
@@ -88,7 +88,7 @@ _mendeleev = [
 
     # note: 313 won't be used unless we decide we want a PAM3-Axis-handle,
     # which is unlikely.
-    
+
  ]
 
 # Since these are not real chemical bonds, the electron accounting

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """Arbitrary 2D surfaces in 3D space can be represented as:
 
     f(v) = 0
@@ -309,7 +309,7 @@ class Tiling:
                 x2 = u + v
                 for i in range(10):
                     x2 = newtonsMethodStep(f, x2)
-                    x2 = newtonsMethodStep(dist, x2) 
+                    x2 = newtonsMethodStep(dist, x2)
                 x2 = Atom(x2)
                 return [ x2 ]
             else:
@@ -415,7 +415,7 @@ def growAtom(f, atm):
         x2 = u + v
         for i in range(10):
             x2 = newtonsMethodStep(f, x2)
-            x2 = newtonsMethodStep(dist, x2) 
+            x2 = newtonsMethodStep(dist, x2)
         x2 = Atom(x2)
         return [ x2 ]
     else:

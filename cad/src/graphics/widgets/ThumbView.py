@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 ThumbView.py - a simpler OpenGL widget, similar to GLPane
 (which unfortunately has a lot of duplicated but partly modified
@@ -6,7 +6,7 @@ code copied from GLPane)
 
 @author: Huaicai
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from Numeric import dot
@@ -85,7 +85,7 @@ from platform_dependent.PlatformDependent import fix_event_helper
 class ThumbView(GLPane_minimal):
     """
     A simple version of OpenGL widget, which can be used to show a simple
-    thumb view of models when loading models or color changing. 
+    thumb view of models when loading models or color changing.
     General rules for multiple QGLWidget uses: make sure the rendering context
     is current. Remember makeCurrent() will be called implicitly before any
     initializeGL, resizeGL, paintGL virtual functions call. Ideally, this class
@@ -101,7 +101,7 @@ class ThumbView(GLPane_minimal):
     SIZE_FOR_glSelectBuffer = 500
         # different value from that in GLPane_minimal
         # [I don't know whether this matters -- bruce 071003 comment]
-    
+
     shareWidget = None #bruce 051212
     always_draw_hotspot = False #bruce 060627
 
@@ -117,47 +117,47 @@ class ThumbView(GLPane_minimal):
         """
 
         useStencilBuffer = False
-        
+
         GLPane_minimal.__init__(self, parent, shareWidget, useStencilBuffer)
-        
+
         self.elementMode = None
-        
-        #@@@Add the QGLWidget to the parentwidget's grid layout. This is done 
-        #here for improving the loading speed. Needs further optimization and 
-        #a better place to put this code if possible. -- Ninad 20070827        
+
+        #@@@Add the QGLWidget to the parentwidget's grid layout. This is done
+        #here for improving the loading speed. Needs further optimization and
+        #a better place to put this code if possible. -- Ninad 20070827
         try:
-            parent.gridLayout.addWidget(self, 0, 0, 1, 1)   
+            parent.gridLayout.addWidget(self, 0, 0, 1, 1)
         except:
             print_compact_traceback("bug: Preview Pane's parent widget doesn't" \
             " have a layout. Preview Pane not added to the layout.")
             pass
-        
+
         self.picking = False
 
         self.selectedObj = None
-        
+
         #This enables the mouse bareMotion() event
         self.setMouseTracking(True)
-        
+
         # clipping planes, as percentage of distance from the eye
         self.near = 0.66
-        self.far = 2.0  
+        self.far = 2.0
         # start in perspective mode
         self.ortho = False #True
 
         self.scale # make sure superclass set this [bruce 080219]
-        
+
         # default color and gradient values.
         self.backgroundColor = env.prefs[backgroundColor_prefs_key]
         self.backgroundGradient = env.prefs[ backgroundGradient_prefs_key ]
-                        
+
 
     def drawModel(self):
         """
         This is an abstract method for drawing self's "model".
 
         [subclasses which need to draw anything must override this method]
-        """        
+        """
         pass
 
     def _drawModel_using_DrawingSets(self): #bruce 090219
@@ -168,11 +168,11 @@ class ThumbView(GLPane_minimal):
         self._call_func_that_draws_model( func,
                                           drawing_phase = 'main' )
         return
-    
+
     def drawSelected(self, obj):
         """
         Draw the selected object.
-        
+
         [subclasses can override this method]
         """
         pass
@@ -191,7 +191,7 @@ class ThumbView(GLPane_minimal):
             # in all cases. Guess: this is desirable, but not yet essential.
             # [bruce 090219 comment]
         return
-    
+
     def _get_assy(self): #bruce 080220
         """
         Return the assy which contains all objects we are drawing
@@ -207,7 +207,7 @@ class ThumbView(GLPane_minimal):
         return self._get_assy()
 
     assy = property(__get_assy) #bruce 080220, for per-assy glname dict
-    
+
     def _setup_lighting(self):
         """
         [private method]
@@ -218,7 +218,7 @@ class ThumbView(GLPane_minimal):
         # in GLPane_lighting_methods (has more comments) and ThumbView,
         # but also significant differences. Should refactor sometime.
         # [bruce 060415/080912 comment]
-        
+
         glEnable(GL_NORMALIZE)
 
         glMatrixMode(GL_PROJECTION)
@@ -237,28 +237,28 @@ class ThumbView(GLPane_minimal):
                 ###@@@ will this fix some bugs about common lighting prefs??
         except:
             lights = _default_lights
-        
+
         setup_standard_lights( lights, self.glprefs)
         return
-        
+
     def resetView(self):
         """
         Reset the view.
-        
-        Subclass can override this method with different <scale>, so call 
+
+        Subclass can override this method with different <scale>, so call
         this version in the overridden version.
         """
         self.pov = V(0.0, 0.0, 0.0)
         self.quat = Q(1, 0, 0, 0)
-        
+
     def setBackgroundColor(self, color, gradient):
         """
         Set the background  to 'color' or 'gradient' (Sky Blue).
         """
         self.backgroundColor = color
-        
+
         # Ninad and I discussed this and decided that the background should always be set to skyblue.
-        # This issue has to do with Build mode's water surface introducing inconsistencies 
+        # This issue has to do with Build mode's water surface introducing inconsistencies
         # with the thumbview background color whenever Build mode's bg color is solid.
         # Change to "if 0:" to have the thubview background match the current mode background.
         # This fixes bug 1229.  Mark 060116
@@ -266,57 +266,57 @@ class ThumbView(GLPane_minimal):
             self.backgroundGradient = env.prefs[ backgroundGradient_prefs_key ]
         else:
             self.backgroundGradient = gradient
-                
-    def paintGL(self):        
+
+    def paintGL(self):
         """
-        Called by QtGL when redrawing is needed. For every redraw, color & 
+        Called by QtGL when redrawing is needed. For every redraw, color &
         depth butter are cleared, view projection are reset, view location &
-        orientation are also reset. 
+        orientation are also reset.
         """
         if not self.initialised:
             return
-        
+
         self._call_whatever_waits_for_gl_context_current() #bruce 071103
-        
+
         glDepthFunc( GL_LEQUAL)
 
         self.setDepthRange_setup_from_debug_pref()
         self.setDepthRange_Normal()
-        
+
         from utilities.debug_prefs import debug_pref, Choice_boolean_False
         if debug_pref("always setup_lighting?", Choice_boolean_False):
             #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
             # see comments in GLPane_lighting_methods
             self._setup_lighting() #bruce 060415 added this call
-            
+
         self.backgroundColor = env.prefs[backgroundColor_prefs_key]
         c = self.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         del c
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        
+
         self.backgroundGradient = env.prefs[ backgroundGradient_prefs_key ]
         if self.backgroundGradient:
-            
+
             glMatrixMode(GL_PROJECTION)
             glLoadIdentity()
             glMatrixMode(GL_MODELVIEW)
             glLoadIdentity()
-            
+
             # Setting to blue sky (default), but might change to something else
             _bgGradient = bluesky
             if self.backgroundGradient == bgEVENING_SKY:
                 _bgGradient = eveningsky
             if self.backgroundGradient == bgSEAGREEN:
                 _bgGradient = bg_seagreen
-                
+
             drawFullWindow(_bgGradient)# gradient color
-        
+
         self._setup_projection()
 
         self._setup_modelview()
 ##        glMatrixMode(GL_MODELVIEW)
-##        glLoadIdentity()    
+##        glLoadIdentity()
 ##        glTranslatef(0.0, 0.0, - self.vdist)
 ##        q = self.quat
 ##        glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
@@ -337,7 +337,7 @@ class ThumbView(GLPane_minimal):
             # drawing (e.g. for highlighting, which btw is called "selection"
             # in some method names and comments in this file). [bruce 080220]
             self._drawModel_using_DrawingSets()
-   
+
     def mousePressEvent(self, event):
         """
         Dispatches mouse press events depending on shift and
@@ -346,7 +346,7 @@ class ThumbView(GLPane_minimal):
         ## Huaicai 2/25/05. This is to fix item 2 of bug 400: make this rendering context
         ## as current, otherwise, the first event will get wrong coordinates
         self.makeCurrent()
-        
+
         buttons, modifiers = event.buttons(), event.modifiers()
         #print "Button pressed: ", but
 
@@ -355,7 +355,7 @@ class ThumbView(GLPane_minimal):
             import foundation.undo_manager as undo_manager
             main_assy = env.mainwindow().assy
             self.__begin_retval = undo_manager.external_begin_cmd_checkpoint(main_assy, cmdname = "(mmkit)")
-        
+
         if buttons & Qt.LeftButton:
             if modifiers & Qt.ShiftModifier:
                 pass # self.graphicsMode.leftShiftDown(event)
@@ -378,18 +378,18 @@ class ThumbView(GLPane_minimal):
             elif modifiers & Qt.ControlModifier:
                 pass # self.graphicsMode.rightCntlDown(event)
             else:
-                pass # self.rightDown(event)         
+                pass # self.rightDown(event)
 
     __begin_retval = None
-    
+
     def mouseReleaseEvent(self, event):
         """
         Only used to detect the end of a freehand selection curve.
         """
         buttons, modifiers = event.buttons(), event.modifiers()
-        
+
         #print "Button released: ", but
-        
+
         if buttons & Qt.LeftButton:
             if modifiers & Qt.ShiftModifier:
                 pass # self.leftShiftUp(event)
@@ -426,10 +426,10 @@ class ThumbView(GLPane_minimal):
         """
         Dispatches mouse motion events depending on shift and
         control key state.
-        """        
+        """
         ##self.debug_event(event, 'mouseMoveEvent')
         buttons, modifiers = event.buttons(), event.modifiers()
-        
+
         if buttons & Qt.LeftButton:
             if modifiers & Qt.ShiftModifier:
                 pass # self.leftShiftDrag(event)
@@ -478,7 +478,7 @@ class ThumbView(GLPane_minimal):
         # turn off. So if we decide to make ThumbView zoom compatible with that of the main graphics area,
         # the easiest quick way is just to copy and modify rescale_around_point_re_user_prefs and basicMode.Wheel
         # into this class.
-        
+
         dScale = 1.0/1200.0
         if modifiers & Qt.ShiftModifier:
             dScale *= 0.5
@@ -498,25 +498,25 @@ class ThumbView(GLPane_minimal):
     def bareMotion(self, event):
         wX = event.pos().x()
         wY = self.height - event.pos().y()
-        
+
         if self.selectedObj is not None:
             stencilbit = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
             if stencilbit: # If it's the same highlighting object, no display change needed.
-                return   
-        
+                return
+
         self.updateGL()
-        
+
         self.selectedObj = self.select(wX, wY)
         self.highlightSelected(self.selectedObj)
 
-        return False # russ 080527        
-        
+        return False # russ 080527
+
     def leftDown(self, event):
         pass
 
     def leftUp(self, event):
         pass
-    
+
     def middleDown(self, event):
         pos = event.pos()
         self.trackball.start(pos.x(), pos.y())
@@ -524,21 +524,21 @@ class ThumbView(GLPane_minimal):
         return
 
     def middleDrag(self, event):
-        if self.picking:        
+        if self.picking:
             pos = event.pos()
             q = self.trackball.update(pos.x(), pos.y())
             self.quat += q
             self.updateGL()
         return
-    
+
     def middleUp(self, event):
         self.picking = False
         return
-        
+
     def select(self, wX, wY):
         """
         Use the OpenGL picking/selection to select any object. Return the
-        selected object, otherwise, return None. Restore projection and 
+        selected object, otherwise, return None. Restore projection and
         modelview matrices before returning.
         """
         ### NOTE: this code is similar to (and was copied and modified from)
@@ -549,10 +549,10 @@ class ThumbView(GLPane_minimal):
         # [bruce 060721/080917 comment]
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         gz = wZ[0][0]
-        
+
         if gz >= GL_FAR_Z: # Empty space was clicked
             return None
-        
+
         pxyz = A(gluUnProject(wX, wY, gz))
         pn = self.out
         pxyz -= 0.0002 * pn
@@ -570,14 +570,14 @@ class ThumbView(GLPane_minimal):
             # already done, but I didn't check). See also the comments
             # in def wheelEvent.) [bruce 080220 comment]
         dp = - dot(pxyz, pn)
-        
+
         # Save projection matrix before it's changed.
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
-        
-        current_glselect = (wX, wY, 1, 1) 
-        self._setup_projection(glselect = current_glselect) 
-        
+
+        current_glselect = (wX, wY, 1, 1)
+        self._setup_projection(glselect = current_glselect)
+
         glSelectBuffer(self.SIZE_FOR_glSelectBuffer)
         glRenderMode(GL_SELECT)
         glInitNames()
@@ -585,7 +585,7 @@ class ThumbView(GLPane_minimal):
         # Save model view matrix before it's changed.
         glPushMatrix()
 
-        # Draw model using glRenderMode(GL_SELECT) as set up above 
+        # Draw model using glRenderMode(GL_SELECT) as set up above
         try:
             glClipPlane(GL_CLIP_PLANE0, (pn[0], pn[1], pn[2], dp))
             glEnable(GL_CLIP_PLANE0)
@@ -604,14 +604,14 @@ class ThumbView(GLPane_minimal):
             glDisable(GL_CLIP_PLANE0)
             # Restore model/view matrix
             glPopMatrix()
-        
+
         # Restore projection matrix and set matrix mode to Model/View
         glMatrixMode(GL_PROJECTION)
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
-        
+
         glFlush()
-        
+
         hit_records = list(glRenderMode(GL_RENDER))
         ## print "%d hits" % len(hit_records)
         for (near, far, names) in hit_records:
@@ -637,7 +637,7 @@ class ThumbView(GLPane_minimal):
     def highlightSelected(self, obj):
         # TODO: merge with GLPane (from which this was copied and modified)
         """
-        Highlight the selected object <obj>. In the mean time, we do stencil test to 
+        Highlight the selected object <obj>. In the mean time, we do stencil test to
         update stencil buffer, so it can be used to quickly test if pick is still
         on the same <obj> as last test.
         """
@@ -645,13 +645,13 @@ class ThumbView(GLPane_minimal):
             return
         if not isinstance(obj, Atom) or (obj.element is not Singlet):
             return
-        
+
         self._preHighlight()
-        
+
         self._drawSelected_using_DrawingSets(obj)
-        
+
         self._endHighlight()
-        
+
         glFlush()
         self.swapBuffers()
         return
@@ -662,7 +662,7 @@ class ThumbView(GLPane_minimal):
         """
         self.makeCurrent()
         glClear(GL_STENCIL_BUFFER_BIT)
-        
+
         glDepthMask(GL_FALSE) # turn off depth writing (but not depth test)
         ## glDisable(GL_DEPTH_TEST)
         glStencilFunc(GL_ALWAYS, 1, 1)
@@ -673,7 +673,7 @@ class ThumbView(GLPane_minimal):
 
         glMatrixMode(GL_MODELVIEW)
         return
-        
+
     def _endHighlight(self):
         """
         Restore OpenGL settings changed by _preHighlight to standard values.
@@ -682,12 +682,12 @@ class ThumbView(GLPane_minimal):
         ## glEnable(GL_DEPTH_TEST)
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
         glDisable(GL_STENCIL_TEST)
-        
+
         self.setDepthRange_Normal()
 
         glMatrixMode(GL_MODELVIEW)
         return
-    
+
     def saveLastView(self): #bruce 060627 for compatibility with GLPane (for sake of assy.update_parts)
         pass
 
@@ -695,7 +695,7 @@ class ThumbView(GLPane_minimal):
         pass
 
     pass # end of class ThumbView
-    
+
 # ==
 
 class ElementView(ThumbView):
@@ -708,19 +708,19 @@ class ElementView(ThumbView):
         self.scale = 2.0 #5.0 ## the possible largest rvdw of all elements
         self.pos = V(0.0, 0.0, 0.0)
         self.mol = None
-        
+
         ## Dummy attributes. A kludge, just try to make other code
         ##  think it looks like a glpane object.
-        self.displayMode = 0  
+        self.displayMode = 0
         self.selatom = None
-    
+
     def resetView(self, scale = 2.0):
         """
         Reset current view.
         """
         ThumbView.resetView(self)
         self.scale = scale
-        
+
     def drawModel(self):
         """
         The method for element drawing.
@@ -740,36 +740,36 @@ class ElementView(ThumbView):
         [overrides ThumbView method]
         """
         return self.mol and self.mol.assy
-    
+
     def refreshDisplay(self, elm, dispMode = diTrueCPK):
         """
         Display the new element or the same element but new display mode.
-        """   
+        """
         self.makeCurrent()
-        self.mol = self.constructModel(elm, self.pos, dispMode) 
+        self.mol = self.constructModel(elm, self.pos, dispMode)
         self.updateGL()
-    
+
     def updateColorDisplay(self, elm, dispMode = diTrueCPK):
         """
         Display the new element or the same element but new display mode.
-        """   
+        """
         self.makeCurrent()
-        self.mol = self.constructModel(elm, self.pos, dispMode) 
+        self.mol = self.constructModel(elm, self.pos, dispMode)
         self.updateGL()
-    
-    
+
+
     def constructModel(self, elm, pos, dispMode):
         """
         This is to try to repeat what 'make_Atom_and_bondpoints()' method does,
         but hope to remove some stuff not needed here.
         The main purpose is to build the geometry model for element display.
-        
+
         @param elm: An object of class Elem
         @param elm: L{Elem}
-        
+
         @param dispMode: the display mode of the atom
         @type  dispMode: int
-        
+
         @return: the Chunk which contains the geometry model.
         @rtype: L{Chunk}
         """
@@ -784,7 +784,7 @@ class ElementView(ThumbView):
         ## (which can be passed to set_atomtype_but_dont_revise_singlets)
         atm.make_bondpoints_when_no_bonds()
         return mol
-    
+
     def drawSelected(self, obj):
         """
         Override the parent version. Specific drawing code for the object.
@@ -815,18 +815,18 @@ class MMKitView(ThumbView):
         self.scale = 2.0
         self.pos = V(0.0, 0.0, 0.0)
         self.model = None
-        
+
         ## Dummy attributes. A kludge, just try to make other code
         ##  think it looks like a glpane object.
-        self.displayMode = 0  
+        self.displayMode = 0
         self.selatom = None
 
         self.hotspotAtom = None #The current hotspot singlet for the part
         self.lastHotspotChunk = None # The previous chunk of the hotspot for the part
-        
+
         hybrid_type_name = None
         elementMode = True  #Used to differentiate elment page versus clipboard/part page
-    
+
     def drawModel(self):
         """
         The method for element drawing.
@@ -869,25 +869,25 @@ class MMKitView(ThumbView):
             else: ## self.model is an Assembly
                 return self.model
         return None
-    
+
     def refreshDisplay(self, elm, dispMode = diTrueCPK):
         """
         Display the new element or the same element but new display mode.
-        """   
+        """
         self.makeCurrent()
         self.model = self.constructModel(elm, self.pos, dispMode)
         self.updateGL()
-        
+
     def changeHybridType(self, name):
         self.hybrid_type_name = name
-    
+
     def resetView(self):
         """
         Reset current view.
         """
         ThumbView.resetView(self)
         self.scale = 2.0
-    
+
     def drawSelected(self, obj):
         """
         Override the parent version. Specific drawing code for the object.
@@ -895,25 +895,25 @@ class MMKitView(ThumbView):
         if isinstance(obj, Atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])
         return
-            
+
     def constructModel(self, elm, pos, dispMode):
         """
         This is to try to repeat what 'make_Atom_and_bondpoints()' method does,
         but hope to remove some stuff not needed here.
-        The main purpose is to build the geometry model for element display. 
+        The main purpose is to build the geometry model for element display.
 
         @param elm: An object of class Elem
         @param elm: L{Elem}
-        
+
         @param dispMode: the display mode of the atom
         @type  dispMode: int
-        
+
         @return: the Chunk which contains the geometry model.
         @rtype: L{Chunk}
         """
         assy = Assembly(None, run_updaters = False)
         assy.set_glpane(self) # sets .o and .glpane
-        mol = Chunk(assy, 'dummy') 
+        mol = Chunk(assy, 'dummy')
         atm = Atom(elm.symbol, pos, mol)
         atm.display = dispMode
         ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom:
@@ -922,7 +922,7 @@ class MMKitView(ThumbView):
         ## see also atm.element.atomtypes -> a list of available atomtype objects for that element
         ## (which can be passed to set_atomtype_but_dont_revise_singlets)
         atm.make_bondpoints_when_no_bonds()
-        
+
         self.elementMode = True
         return mol
 
@@ -931,7 +931,7 @@ class MMKitView(ThumbView):
         When in clipboard mode, set hotspot if a Singlet is highlighted.
         """
         if self.elementMode: return
-        
+
         obj = self.selectedObj
         if isinstance(obj, Atom) and (obj.element is Singlet):
             mol = obj.molecule
@@ -961,7 +961,7 @@ class MMKitView(ThumbView):
                         pass
                 self.lastHotspotChunk = mol
                     # [as of 060629, the only purpose of this is to permit the above code to unset it in some cases]
-                       
+
             mol.set_hotspot(obj)
 
             if 1:
@@ -969,10 +969,10 @@ class MMKitView(ThumbView):
                 main_glpane = env.mainwindow().glpane
                 if mol.part is main_glpane.part:
                     main_glpane.gl_update()
-            
+
             self.hotspotAtom = obj
             self.updateGL()
-        return         
+        return
 
     def gl_update(self): #bruce 070502 bugfix (can be called when ESPImage jigs appear in a partlib part)
         self.updateGL() #k guess at correct/safe thing to do
@@ -985,7 +985,7 @@ class MMKitView(ThumbView):
     def gl_update_for_glselect(self): #bruce 070626 precaution (not sure if any code will call this)
         self.gl_update()
         return
-    
+
     def updateModel(self, newObj):
         """
         Set new chunk or Assembly for display.
@@ -995,30 +995,30 @@ class MMKitView(ThumbView):
         #Reset hotspot related stuff for a new Assembly
         if isinstance(newObj, Assembly):
             self._find_and_set_hotSpotAtom_in_new_model(newObj)
-                    
+
         self._fitInWindow()
         self.elementMode = False
         self.updateGL()
-    
+
     def _find_and_set_hotSpotAtom_in_new_model(self, newModel):
         """
         If the model being viewed in the thumbView window already has a hotspot,
-        set it as self.hotSpotAtom (which then will be used by client code) 
-        
+        set it as self.hotSpotAtom (which then will be used by client code)
+
         @see: self.updateModel
-        @Note that , in self.leftDown, we can actually temporarily change the 
+        @Note that , in self.leftDown, we can actually temporarily change the
         the hotspot for the partlib model. But then if you view another part and
-        go back to this model, the hotspot will be reset to the one that already 
-        exists in the model (or None if one doesn't exist)        
+        go back to this model, the hotspot will be reset to the one that already
+        exists in the model (or None if one doesn't exist)
         """
         assert isinstance(newModel, Assembly)
         chunkList = []
         def func(node):
             if isinstance(node, Chunk):
-                chunkList.append(node)                    
+                chunkList.append(node)
         newModel.part.topnode.apply2all(func)
-                 
-        
+
+
         ok = False
         if len(chunkList) == 1:
             ok, hotspot_or_whynot = find_hotspot_for_pasting(chunkList[0])
@@ -1031,20 +1031,20 @@ class MMKitView(ThumbView):
             self.hotspotAtom = hotspot_or_whynot
             self.lastHotspotChunk = self.hotspotAtom.molecule
         else:
-            self.hotspotAtom = None                
+            self.hotspotAtom = None
             self.lastHotspotChunk = None
         return
-    
+
     def setDisplay(self, disp):
         self.displayMode = disp
         return
-    
+
     def _fitInWindow(self):
         if not self.model:
             return
-        
+
         self.quat = Q(1, 0, 0, 0)
-        
+
         if isinstance(self.model, Chunk):
             self.model._recompute_bbox()
             bbox = self.model.bbox
@@ -1060,17 +1060,17 @@ class MMKitView(ThumbView):
         # sets them -- maybe this can be called before that ever is??
         # [bruce 080912 comment]
         if isinstance(self.width, int):
-            width = self.width 
+            width = self.width
         else:
             width = float(self.width())
         if isinstance(self.height, int):
             height = self.height
         else:
-            height = float(self.height()) 
-            
+            height = float(self.height())
+
         aspect = width / height
             # REVIEW: likely bug: integer division is possible [bruce 080912 comment]
-        
+
         ##aspect = float(self.width) / self.height
         if aspect < 1.0:
             self.scale /= aspect
@@ -1078,5 +1078,5 @@ class MMKitView(ThumbView):
         self.pov = V(-center[0], -center[1], -center[2])
 
     pass # end of class MMKitView
-    
+
 # end

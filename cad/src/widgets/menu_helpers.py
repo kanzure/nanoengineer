@@ -142,14 +142,14 @@ def makemenu_helper(widget, menu_spec, menu = None):
 
 # ==
 
-def insert_command_into_menu(menu, menutext, command, options = (), position = -1, raw_command = False, undo_cmdname = None): 
+def insert_command_into_menu(menu, menutext, command, options = (), position = -1, raw_command = False, undo_cmdname = None):
     """
     [This was part of makemenu_helper in the Qt3 version; in Qt4 it's only
      used for the disabled case, presumably for some good reason but not one
      which has been documented. It's also used independently of makemenu_helper.]
-    
+
     Insert a new item into menu (a QMenu), whose menutext, command, and options are as given,
-    with undo_cmdname defaulting to menutext (used only if raw_command is false), 
+    with undo_cmdname defaulting to menutext (used only if raw_command is false),
     where options is a list or tuple in the same form as used in "menu_spec" lists
     such as are passed to makemenu_helper (which this function helps implement).
        The caller should have already translated/localized menutext if desired.

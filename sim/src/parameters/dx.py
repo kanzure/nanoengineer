@@ -16,7 +16,7 @@ while 1:
     if len(card)<3: break
     m=recpat.match(card)
     w=array(map(float,(m.group(1),m.group(2), m.group(3))))
-    print (w-v)[0], (w-v)[1], (w-v)[2] 
+    print (w-v)[0], (w-v)[1], (w-v)[2]
     v=w
 
 

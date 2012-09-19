@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 CommandToolbar.py - controls the main hierarchical toolbar for giving commands
 
@@ -69,14 +69,14 @@ History:
 
 ninad 20070109: created this in QT4 branch and subsequently modified it.
 ninad 20070125: moved ui generation code to a new file Ui_CommandManager
-ninad 20070403: implemented 'Subcontrol Area'  in the command toolbar, related 
-             changes (mainly revised _updateFlyoutToolBar,_setFlyoutDictionary) 
-             and added/modified several docstrings  
+ninad 20070403: implemented 'Subcontrol Area'  in the command toolbar, related
+             changes (mainly revised _updateFlyoutToolBar,_setFlyoutDictionary)
+             and added/modified several docstrings
 ninad 20070623: Moved _createFlyoutToolbar from modes to here and related changes
 mark 20071226: Renamed CommandManager to CommandToolbar.
 
 ninad 20080715: a) Workaround for Qt4.3 bug 2916 (disabled 'extension indicator'
- button ">>" in the flyout toolbar.  b) some refactoring to  move common code 
+ button ">>" in the flyout toolbar.  b) some refactoring to  move common code
  in classes FlyoutToolbar and NE1_QWidgetAction.
 """
 
@@ -95,58 +95,58 @@ from utilities.debug import print_compact_traceback, print_compact_stack
 class CommandToolbar(Ui_CommandToolbar):
     """
     Command Toolbar is the big toolbar above the 3D graphics area and
-    the model tree. It is divided into the B{Control Area} and the 
+    the model tree. It is divided into the B{Control Area} and the
     B{Flyout Toolbar Area}.
 
     The  B{Control Area} is a fixed toolbar on the left hand side with a
-    purple background color and contains buttons with drop down menus. 
+    purple background color and contains buttons with drop down menus.
     When you click on a button in the Control Area, the Flyout Toolbar Area
-    is updated and displays the menu of that button (in most cases). 
+    is updated and displays the menu of that button (in most cases).
 
-    The B{Flyout Toolbar Area} is divided into two areas, the 
-    B{Subcontrol Area} (light olive background color) and the 
-    B{Command Area} (light gray background color). 
-    The Command Area shows commands based on the checked 
+    The B{Flyout Toolbar Area} is divided into two areas, the
+    B{Subcontrol Area} (light olive background color) and the
+    B{Command Area} (light gray background color).
+    The Command Area shows commands based on the checked
     SubControl Area button.  Thus it could be empty in some situations.
     """
-    
+
     _f_current_flyoutToolbar = None
-        #CommandToolbar._f_current_flyoutToolbar is the current flyout toolbar 
-        #that is displayed in the 'flyout area' of the command toolbar. 
-        #This attr value usually changes when the command stack changes or 
-        #when user clicks on a control button (exceptions apply). 
-        #Example: When Build > Dna command is entered, it sets this attr on the 
-        #commandToolbar class to the 'BuildDnaFlyout' object. 
-        #When that command is exited, BuildDnaFlyout is first 'deactivated' and 
-        #the self._f_current_flyoutToolbar is assigned a new value (The flyout 
-        #object of the next command entered. This can even be 'None' if the 
+        #CommandToolbar._f_current_flyoutToolbar is the current flyout toolbar
+        #that is displayed in the 'flyout area' of the command toolbar.
+        #This attr value usually changes when the command stack changes or
+        #when user clicks on a control button (exceptions apply).
+        #Example: When Build > Dna command is entered, it sets this attr on the
+        #commandToolbar class to the 'BuildDnaFlyout' object.
+        #When that command is exited, BuildDnaFlyout is first 'deactivated' and
+        #the self._f_current_flyoutToolbar is assigned a new value (The flyout
+        #object of the next command entered. This can even be 'None' if the
         #next command doesn't have a flyoutToolbar)
         #@see: self._setControlButtonMenu_in_flyoutToolbar()
-        #@see: self.resetToDefaultState()        
+        #@see: self.resetToDefaultState()
         #In the above methods, this attr value is changed.
-        #@see: AbstractFlyout.deActivateFlyoutToolbar()        
+        #@see: AbstractFlyout.deActivateFlyoutToolbar()
         #@see: bug 2937
         #@see: self.command_update_flyout()
-        
-        
-       
+
+
+
     _f_previous_flyoutToolbar = None
-        #Suppose user is in a command whose custom flyout toolbar is shown. 
-        #Now user clicks on another control button in the Command Toolbar, 
-        #so, that control button menu is shown in the flyout area (instead of 
-        #command specific custom flyout). When this happens, the 
-        #self._f_current_flyoutToolbar is set to None. But, the present value 
+        #Suppose user is in a command whose custom flyout toolbar is shown.
+        #Now user clicks on another control button in the Command Toolbar,
+        #so, that control button menu is shown in the flyout area (instead of
+        #command specific custom flyout). When this happens, the
+        #self._f_current_flyoutToolbar is set to None. But, the present value
         #of self._f_current_flyoutToolbar must be stored so as to 'deactivate'
         #that flyout toolbar properly when user leaves the command for which
         #that custom flyout is meant for. This is done by using the above
-        #class attr. 
+        #class attr.
         #@see: self._setControlButtonMenu_in_flyoutToolbar()
-        #@see: self.resetToDefaultState()        
+        #@see: self.resetToDefaultState()
         #In the above methods, this attr value is changed.
-        #@see: AbstractFlyout.deActivateFlyoutToolbar()        
+        #@see: AbstractFlyout.deActivateFlyoutToolbar()
         #@see: bug 2937
         #@see: self.command_update_flyout()
-        
+
 
     def __init__(self, win):
         """
@@ -154,36 +154,36 @@ class CommandToolbar(Ui_CommandToolbar):
 
         @param win: Mainwindow object
         @type  win: L{MWsemantics}
-        """        
+        """
         self.flyoutDictionary = None
-                
-        Ui_CommandToolbar.__init__(self, win)       
 
-        self.setupUi()          
+        Ui_CommandToolbar.__init__(self, win)
 
-        self._makeConnections() 
+        self.setupUi()
+
+        self._makeConnections()
 
         if not self.cmdButtonGroup.checkedButton():
             self.cmdButtonGroup.button(0).setChecked(True)
 
         self.in_a_mode = None
         self.currentAction = None
-        self._updateFlyoutToolBar(self.cmdButtonGroup.checkedId())      
+        self._updateFlyoutToolBar(self.cmdButtonGroup.checkedId())
 
     def _makeConnections(self):
         """
         Connect signals to slots.
         """
-        self.win.connect(self.cmdButtonGroup, SIGNAL("buttonClicked(int)"), 
-                         self.controlButtonChecked)  
+        self.win.connect(self.cmdButtonGroup, SIGNAL("buttonClicked(int)"),
+                         self.controlButtonChecked)
 
-        
+
 
     def controlButtonChecked(self, btnId):
         """
-        Updates the flyout toolbar based on the button checked in the 
+        Updates the flyout toolbar based on the button checked in the
         control area.
-        """ 
+        """
         self._updateFlyoutToolBar(btnId, self.in_a_mode)
 
     def resetToDefaultState(self):
@@ -194,62 +194,62 @@ class CommandToolbar(Ui_CommandToolbar):
         shows the sub-menu items of the build control area.
         @see: baseCommand.command_update_flyout() which calls this while entering
         the NE1 default command 'SelectChunks_Command(fixes bugs like 2682, 2937)
-        
+
         @see: self._setControlButtonMenu_in_flyoutToolbar()
         """
-        #First deactivate all the flyouts (i.e current flyout and previous 
-        #flyout if any) This fixes bugs like bug 2937. This ensures that 
-        #all the 'custom' flyouts (seen while in a command) are always 
-        #deactivated if the current command dosesn't have a flyout toolbar 
-        #Thus, clicking on a 'Control Ara button' in the command toolbar 
-        #will always ensure that it will display that control button's menu 
-        #in the flyout area instead of a command specific custom flyout. 
+        #First deactivate all the flyouts (i.e current flyout and previous
+        #flyout if any) This fixes bugs like bug 2937. This ensures that
+        #all the 'custom' flyouts (seen while in a command) are always
+        #deactivated if the current command dosesn't have a flyout toolbar
+        #Thus, clicking on a 'Control Ara button' in the command toolbar
+        #will always ensure that it will display that control button's menu
+        #in the flyout area instead of a command specific custom flyout.
         #See bug 2937 and self._setControlButtonMenu_in_flyoutToolbar()
-        for flyout in (self._f_current_flyoutToolbar, 
+        for flyout in (self._f_current_flyoutToolbar,
                        self._f_previous_flyoutToolbar):
             if flyout:
                 flyout.deActivateFlyoutToolbar()
-            
-        
+
+
         self._f_current_flyoutToolbar = None
         self._f_previous_flyoutToolbar = None
-                    
+
         self.cmdButtonGroup.button(0).setChecked(True)
-        #Now update the command toolbar (flyout area) such that it shows 
+        #Now update the command toolbar (flyout area) such that it shows
         #the sub-menu items of the control  button
         self._setControlButtonMenu_in_flyoutToolbar(self.cmdButtonGroup.checkedId())
 
-        ##FYI Same effect can be acheived by using the following commented out 
-        ##code. But its not obvious so not using it. 
+        ##FYI Same effect can be acheived by using the following commented out
+        ##code. But its not obvious so not using it.
         ###self.updateCommandToolbar(None, None, entering = False)
 
     def _updateFlyoutToolBar(self, btnId =0, in_a_mode = False):
         """
-        Update the Flyout toolbar commands based on the checked button 
-        in the control area and the checked action in the 'subcontrol' area 
+        Update the Flyout toolbar commands based on the checked button
+        in the control area and the checked action in the 'subcontrol' area
         of the flyout toolbar.
         """
-        ##in_a_mode : inside a mode or while editing a feature etc. 
+        ##in_a_mode : inside a mode or while editing a feature etc.
 
-        if self.currentAction:      
+        if self.currentAction:
             action = self.currentAction
         else:
             action = None
 
         if in_a_mode:
-            self._showFlyoutToolBar(True)  
-            self.flyoutToolBar.clear()  
-            #Menu of the checked button in the Control Area of the 
+            self._showFlyoutToolBar(True)
+            self.flyoutToolBar.clear()
+            #Menu of the checked button in the Control Area of the
             #command toolbar
             menu = self.cmdButtonGroup.checkedButton().menu()
 
             if menu:
                 for a in menu.actions():
-                    # 'action' is self.currentAction which is obtained 
+                    # 'action' is self.currentAction which is obtained
                     #when the 'updateCommandToolbar method is called
                     #while entering a mode , for instance.
                     if a is action :
-                        flyoutActionList = []                   
+                        flyoutActionList = []
                         flyoutDictionary = self._getFlyoutDictonary()
 
                         if not flyoutDictionary:
@@ -257,43 +257,43 @@ class CommandToolbar(Ui_CommandToolbar):
                                 "bug: Flyout toolbar not" \
                                 "created as flyoutDictionary doesn't exist")
                             return
-                        #Dictonary object randomly orders key:value pairs. 
-                        #The following ensures that the keys 
+                        #Dictonary object randomly orders key:value pairs.
+                        #The following ensures that the keys
                         #(i.e. subcontrol area actions) are properly ordered
-                        #This key order while adding these actions to the 
-                        # the flyout toolbar subcontrol area. 
+                        #This key order while adding these actions to the
+                        # the flyout toolbar subcontrol area.
                         keyList = self.getOrderedKeyList(flyoutDictionary)
 
-                        flyoutActionList.extend(keyList)                        
-                        #Now append commands corresponding to 
+                        flyoutActionList.extend(keyList)
+                        #Now append commands corresponding to
                         #the checked action in sub-control area
                         for k in keyList:
                             if k.isChecked():
                                 #ordered_key is a list that contains a tuple
                                 #i.e. ordered_key = [(counter, key)]
                                 #so order_key[0] = (counter, key)
-                                #This is required because our flyoutDictinary 
-                                #has keys of type:[ (counter1, key1), 
+                                #This is required because our flyoutDictinary
+                                #has keys of type:[ (counter1, key1),
                                 #                          (counter2, key2), ..]
-                                ordered_key = [(counter, key) 
-                                               for (counter, key) 
+                                ordered_key = [(counter, key)
+                                               for (counter, key)
                                                in flyoutDictionary.keys()
                                                if key is k]
                                 #Values corresponding to the ordered_key
                                 commands = flyoutDictionary[ordered_key[0]]
-                                #Add these commands after the subcontrol area. 
-                                flyoutActionList.extend(commands)       
-                        #Now add all actions collected in 'flyoutActionList 
+                                #Add these commands after the subcontrol area.
+                                flyoutActionList.extend(commands)
+                        #Now add all actions collected in 'flyoutActionList
                         #to the flyout toolbar.
-                        
+
                         self.flyoutToolBar.addActions(flyoutActionList)
 
-                        return      
+                        return
                 self._setControlButtonMenu_in_flyoutToolbar(
                     self.cmdButtonGroup.checkedId())
-        else:       
+        else:
             self._showFlyoutToolBar(True)
-            try:            
+            try:
                 if self.cmdButtonGroup.button(btnId).isChecked():
                     self._setControlButtonMenu_in_flyoutToolbar(
                         self.cmdButtonGroup.checkedId())
@@ -306,60 +306,60 @@ class CommandToolbar(Ui_CommandToolbar):
 
     def _setControlButtonMenu_in_flyoutToolbar(self, btnId):
         """
-        Sets the menu of a control area button in the flyout toolbar 
+        Sets the menu of a control area button in the flyout toolbar
         on the right.
-        @param btnId: The index of the toolbutton in the control area, 
-                      that user clicked on. 
+        @param btnId: The index of the toolbutton in the control area,
+                      that user clicked on.
         @type  btnId: int
-        @see: AbstractFlyout.activateFlyoutToolbar() , another place 
-        where the self._f_current_flyoutToolbar value is changed. 
+        @see: AbstractFlyout.activateFlyoutToolbar() , another place
+        where the self._f_current_flyoutToolbar value is changed.
         @see: self.resetToDefaultState()
         """
-        
-        #When the menu in the Control button is set in the flyout toolbar, 
+
+        #When the menu in the Control button is set in the flyout toolbar,
         #make sure to reset the self._f_current_flyoutToolbar value to 'None'
         #This value may change again when baseCommand.command_update_flyout()
         #is called (when command stack changes)
-        
-        #First store the _f_current_flyoutToolbar to _f_previous_flyoutToolbar. 
-        #before setting _f_current_flyoutToolbar to None. Note that when command 
+
+        #First store the _f_current_flyoutToolbar to _f_previous_flyoutToolbar.
+        #before setting _f_current_flyoutToolbar to None. Note that when command
         #stack changes, both current flyout and previous flyout will be 'deactivated'
-        # if, the new command doesn't have a flyout toolbar of its own. 
+        # if, the new command doesn't have a flyout toolbar of its own.
         #see baseCommand.command_update_flyout()
         #@see: self.resetToDefaultState() which actually deactivates the current
-        #and previous flyouts.        
-        
-        #Why do we need to the value of current flyout to previous flyout? 
+        #and previous flyouts.
+
+        #Why do we need to the value of current flyout to previous flyout?
         #-- consider steps in bug 2937. When user does step 2, two things happen
-        #a) We store the current flyout value to previous flyout and b) then 
-        #the current flyout is set to None. If we don't do (a), the Move flyout 
+        #a) We store the current flyout value to previous flyout and b) then
+        #the current flyout is set to None. If we don't do (a), the Move flyout
         #will never be deactivated by the current command and cause bug 2937
         if self._f_current_flyoutToolbar:
             self._f_previous_flyoutToolbar = self._f_current_flyoutToolbar
-        
+
         self._f_current_flyoutToolbar = None
-        
+
         self.flyoutToolBar.clear()
         menu = self.cmdButtonGroup.button(btnId).menu()
         self.flyoutToolBar.addActions(menu.actions())
 
     def check_controlAreaButton_containing_action(self, action = None):
         """
-        This method is called once while entering a command. It makes 
+        This method is called once while entering a command. It makes
         sure to check the control area button which lists <action> as its
         menu item. (not true for BuildAtoms subclasses such as partlib mode)
 
         This ensures that when you enter a command, the flyout toolbar is set
         to show the Exit command etc buttons specific to that command. (The user
-        can then always click on some other control button to display some 
-        different flyout toolbar. But by default, we ensure to show the flyout 
-        toolbar that the user will obviously expect to see after entering a 
+        can then always click on some other control button to display some
+        different flyout toolbar. But by default, we ensure to show the flyout
+        toolbar that the user will obviously expect to see after entering a
         command
 
         @see: bug 2600, 2801 (this method fixes these bugs)
-        @TODO: Ater more testing, deprecate code in 
-               Ui_DnaFlyout.activateFlyoutToolbar and some other files that fixes 
-               bug 2600. 
+        @TODO: Ater more testing, deprecate code in
+               Ui_DnaFlyout.activateFlyoutToolbar and some other files that fixes
+               bug 2600.
         """
         buttonToCheck = None
 
@@ -368,7 +368,7 @@ class CommandToolbar(Ui_CommandToolbar):
                 if buttonToCheck:
                     break
 
-                menu = controlAreaButton.menu()            
+                menu = controlAreaButton.menu()
                 if menu:
                     for a in menu.actions():
                         if a is action:
@@ -376,21 +376,21 @@ class CommandToolbar(Ui_CommandToolbar):
                             break
 
         if buttonToCheck:
-            buttonToCheck.setChecked(True)       
+            buttonToCheck.setChecked(True)
 
     def updateCommandToolbar(self, action, obj, entering = True): #Ninad 070125
         """
-        Update the command toolbar (i.e. show the appropriate toolbar) 
-        depending upon, the command button pressed . 
-        It calls a private method that updates the SubcontrolArea and flyout 
-        toolbar based on the ControlArea button checked and also based on the 
-        SubcontrolArea button checked. 
+        Update the command toolbar (i.e. show the appropriate toolbar)
+        depending upon, the command button pressed .
+        It calls a private method that updates the SubcontrolArea and flyout
+        toolbar based on the ControlArea button checked and also based on the
+        SubcontrolArea button checked.
 
         @param obj: Object that requests its own Command Manager flyout toolbar
-                    This can be a B{mode} or a B{generator}. 
-        """     
-        if entering:    
-            self._createFlyoutToolBar(obj)          
+                    This can be a B{mode} or a B{generator}.
+        """
+        if entering:
+            self._createFlyoutToolBar(obj)
             self.in_a_mode = entering
             #This fixes bugs like 2600, 2801
             self.check_controlAreaButton_containing_action(action)
@@ -398,15 +398,15 @@ class CommandToolbar(Ui_CommandToolbar):
             self._updateFlyoutToolBar(in_a_mode = self.in_a_mode)
         else:
             self.in_a_mode = False
-            self._updateFlyoutToolBar(self.cmdButtonGroup.checkedId(), 
+            self._updateFlyoutToolBar(self.cmdButtonGroup.checkedId(),
                                       in_a_mode = self.in_a_mode )
 
     def _createFlyoutDictionary(self, params):
         """
-        Create the dictonary objet with subcontrol area actions as its 
-        'keys' and corresponding command actions as the key 'values'. 
+        Create the dictonary objet with subcontrol area actions as its
+        'keys' and corresponding command actions as the key 'values'.
 
-        @param params: A tuple that contains 3 lists: 
+        @param params: A tuple that contains 3 lists:
         (subControlAreaActionList, commandActionLists, allActionsList)
 
         @return: flyoutDictionary (dictionary object)
@@ -419,17 +419,17 @@ class CommandToolbar(Ui_CommandToolbar):
 
         counter = 0
         for k in subControlAreaActionList:
-            # counter is used to sort the keys in the order in which they 
+            # counter is used to sort the keys in the order in which they
             #were added
-            key = (counter, k) 
+            key = (counter, k)
             flyoutDictionary[key] = commandActionLists[counter]
             #Also add command actions to the 'allActionsList'
-            allActionsList.extend(commandActionLists[counter]) 
+            allActionsList.extend(commandActionLists[counter])
             counter += 1
 
         return flyoutDictionary
 
-   
+
 
     def _createFlyoutToolBar(self, obj):
         """
@@ -441,31 +441,31 @@ class CommandToolbar(Ui_CommandToolbar):
         # XXXXXXXXXXXXXXXX The semantics of these lists need to be clearly defined!
         subControlAreaActionList, commandActionLists, allActionsList = params
 
-        flyoutDictionary = self._createFlyoutDictionary(params) 
+        flyoutDictionary = self._createFlyoutDictionary(params)
 
         #Following counts the total number of actions in the 'command area'
-        # if this is zero, that means our subcontrol area itself is a command 
+        # if this is zero, that means our subcontrol area itself is a command
         #area, In this case, no special rendering is needed for this subcontrol
-        #area, and so its buttons are rendered as if they were command area 
+        #area, and so its buttons are rendered as if they were command area
         #buttons (but internally its still the 'subcontrol area'.--ninad20070622
         cmdActionCount = 0
         for l in commandActionLists:
-            cmdActionCount += len(l)    
+            cmdActionCount += len(l)
 
-        widgetActions = filter(lambda act: 
-                               isinstance(act, QtGui.QWidgetAction), 
+        widgetActions = filter(lambda act:
+                               isinstance(act, QtGui.QWidgetAction),
                                allActionsList)
-        
-                
-        self.flyoutToolBar.clear()  
+
+
+        self.flyoutToolBar.clear()
         #========
-        #Do this customization BEFORE adding actions to the toolbar. 
-        #Reason: custom properties for the button that appears 
+        #Do this customization BEFORE adding actions to the toolbar.
+        #Reason: custom properties for the button that appears
         #can not be set AFTER the actions are added to the QToolBar given that
-        #the NE1_QWidgetAction.createWidget() method is implemented. (This 
+        #the NE1_QWidgetAction.createWidget() method is implemented. (This
         #method gets called when we do toolbar.addAction()
-        
-        #Example: The commented out code below won't change the toolbutton 
+
+        #Example: The commented out code below won't change the toolbutton
         #properties -- a leaset in Qt4.3
         ##for widget in action.createdWidgets():
                     ##if isinstance(widget, QToolButton):
@@ -475,49 +475,49 @@ class CommandToolbar(Ui_CommandToolbar):
                     ##btn.setText('someText')
         # [Ninad 2008-07-15 comment]
         #=========
-        
-                
+
+
         for action in widgetActions:
-            #Set a different color palette for the 'SubControl' buttons in 
-            #the command toolbar. 
-            if [key for (counter, key) in flyoutDictionary.keys() 
+            #Set a different color palette for the 'SubControl' buttons in
+            #the command toolbar.
+            if [key for (counter, key) in flyoutDictionary.keys()
                 if key is action]:
-                    
-    
+
+
                 if cmdActionCount > 0:
                     subControlPalette = self.getCmdMgrSubCtrlAreaPalette()
                     action.setToolButtonPalette(subControlPalette)
-                    
+
                 else:
-                    cmdPalette = self.getCmdMgrCommandAreaPalette()  
+                    cmdPalette = self.getCmdMgrCommandAreaPalette()
                     action.setToolButtonPalette(cmdPalette)
-                    
-        
-        
+
+
+
         self.flyoutToolBar.addActions(allActionsList)
-        
-        ##for action in allActionsList:       
-            ##if isinstance(action, QtGui.QWidgetAction):                
-                ##btn = None                
+
+        ##for action in allActionsList:
+            ##if isinstance(action, QtGui.QWidgetAction):
+                ##btn = None
                 ####for widget in action.associatedWidgets():
                 ##for widget in action.createdWidgets():
                     ##if isinstance(widget, QToolButton):
                         ##btn = widget
                         ##break
-                    
+
                 ##if btn is None:
                     ##print_compact_stack("bug: Action to be added to the flyout toolbar has no"\
                           ##"ToolButton associated with it")
                     ##continue
-  
-                    
+
+
         self._setFlyoutDictionary(flyoutDictionary)
 
-    
+
     def _showFlyoutToolBar(self, bool_show):
         """
-        Hide or show flyout toolbar depending upon what is requested. 
-        At the same time toggle the display of the spacer item 
+        Hide or show flyout toolbar depending upon what is requested.
+        At the same time toggle the display of the spacer item
         (show it when the toolbar is hidden).
         """
         if bool_show:
@@ -530,42 +530,42 @@ class CommandToolbar(Ui_CommandToolbar):
     def _setFlyoutDictionary(self, dictionary):
         """
         Set the flyout dictionary that stores subcontrol area buttons in the
-        flyout toolbar as the keys and their corresponding command buttons 
+        flyout toolbar as the keys and their corresponding command buttons
         as values
-        @param dictionary: dictionary object. 
-        Its key is of the type (counter, subcontrolAreaAction). The counter is 
-        used to sort the keys in the order in which they were created. 
-        and value is the 'list of commands'  corresponding to the 
+        @param dictionary: dictionary object.
+        Its key is of the type (counter, subcontrolAreaAction). The counter is
+        used to sort the keys in the order in which they were created.
+        and value is the 'list of commands'  corresponding to the
         sub control button.
-        """           
+        """
         if isinstance(dictionary, dict):
             self.flyoutDictionary = dictionary
         else:
-            assert isinstance(dictionary, dict) 
+            assert isinstance(dictionary, dict)
             self.flyoutDictionary = None
 
     def _getFlyoutDictonary(self):
         """
-        Returns the flyout dictonary object. 
+        Returns the flyout dictonary object.
         @return: self.flyoutDictionary whose
-        key : is of the type (counter, subcontrolAreaAction). The counter is 
-        used to sort the keys in the order in which they were created. 
-        and value is the 'list of commands'  corresponding to the 
+        key : is of the type (counter, subcontrolAreaAction). The counter is
+        used to sort the keys in the order in which they were created.
+        and value is the 'list of commands'  corresponding to the
         sub control button.
         """
         if self.flyoutDictionary:
             return self.flyoutDictionary
         else:
-            print "fyi: flyoutDictionary doesn't exist. Returning None" 
+            print "fyi: flyoutDictionary doesn't exist. Returning None"
             return self.flyoutDictionary
 
     def getOrderedKeyList(self, dictionary):
         """
-        Orders the keys of a dictionary and returns it as a list. 
-        Effective only when the dictonary key is a tuple of format 
+        Orders the keys of a dictionary and returns it as a list.
+        Effective only when the dictonary key is a tuple of format
         (counter, key)
-        @param: dictinary object 
-        @return: a list object which contains ordered keys of the dictionary 
+        @param: dictinary object
+        @return: a list object which contains ordered keys of the dictionary
         object.
         """
         keyList = dictionary.keys()
@@ -579,6 +579,6 @@ class CommandToolbar(Ui_CommandToolbar):
         rect = self.flyoutToolBar.visibleRegion().boundingRect()
         visibleWidth = rect.width()
         numOfVisibletoolbuttons = int(visibleWidth)/ 75
-        return numOfVisibletoolbuttons     
+        return numOfVisibletoolbuttons
 
 

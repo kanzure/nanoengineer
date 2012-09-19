@@ -77,58 +77,58 @@ PYFILES0 = $(UIFILES:.ui=.py)
 DOC_MODULES = $(wildcard *.py) exprs/
 
 # bruce 051202 added this target
-all : 
-	@echo "Nothing is remade by default -- use one of the explicit make targets."
+all :
+    @echo "Nothing is remade by default -- use one of the explicit make targets."
 
-build : $(PYFILES0) 
+build : $(PYFILES0)
 $(PYFILES0) : %.py : %.ui
-	pyuic $< -o $@ 
+    pyuic $< -o $@
 
 doc:
-	epydoc $(DOC_MODULES)
+    epydoc $(DOC_MODULES)
 
 cleanpyc:
-	find . -name \*.pyc -delete
-	find . -name \*.pyo -delete
+    find . -name \*.pyc -delete
+    find . -name \*.pyo -delete
 
 pyclean: cleanpyc
-	rm -f $(PYFILES0) *~
+    rm -f $(PYFILES0) *~
 
 clean: cleanpyc
-	rm -f *~ *.o *.so *.a *.dll *.def core
-	rm -f atombase.c samevals.c pyrex_test.c
-	@echo
-	@echo "Warning: make clean has removed C-coded shared libraries."
-	@echo "To remake them, use 'make shared' ."
+    rm -f *~ *.o *.so *.a *.dll *.def core
+    rm -f atombase.c samevals.c pyrex_test.c
+    @echo
+    @echo "Warning: make clean has removed C-coded shared libraries."
+    @echo "To remake them, use 'make shared' ."
 
 pyrex: $(PYREXTARGET)
 
 abt: $(PYREXTARGET) atombasetests.py
-	python atombasetests.py
+    python atombasetests.py
 
 atombase.c: atombasehelp.c atombase.pyx
-	$(PYREXC) atombase.pyx
+    $(PYREXC) atombase.pyx
 
 samevals.c: samevalshelp.c samevals.pyx
-	$(PYREXC) samevals.pyx
+    $(PYREXC) samevals.pyx
 
 libpython$(PYVER).a: libpython$(PYVER).a.gz
-	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
+    gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
 
 shared: $(SHARED_LIBRARIES)
 
 # On Windows, use "make atombase.dll"
 atombase.dll: atombase.o libpython$(PYVER).a
-	gcc -shared -I"C:/Python$(PYVER)/include" -o atombase.dll atombase.o \
-		-Wl,--output-def,atombase.def -L. -lpython$(PYVER) -lopengl32
+    gcc -shared -I"C:/Python$(PYVER)/include" -o atombase.dll atombase.o \
+        -Wl,--output-def,atombase.def -L. -lpython$(PYVER) -lopengl32
 
 samevals.dll: samevals.o libpython$(PYVER).a
-	gcc -shared -I"C:/Python$(PYVER)/include" -o samevals.dll samevals.o \
-		-Wl,--output-def,samevals.def -L. -lpython$(PYVER)
+    gcc -shared -I"C:/Python$(PYVER)/include" -o samevals.dll samevals.o \
+        -Wl,--output-def,samevals.def -L. -lpython$(PYVER)
 
 # On Mac and Linux, use "make atombase.so"
 atombase.so: atombase.o
-	$(LDSHARED) atombase.o -o atombase.so $(LDFLAGS)
+    $(LDSHARED) atombase.o -o atombase.so $(LDFLAGS)
 
 samevals.so: samevals.o
-	$(LDSHARED) samevals.o -o samevals.so $(LDFLAGS)
+    $(LDSHARED) samevals.o -o samevals.so $(LDFLAGS)

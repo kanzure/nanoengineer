@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 draggable.py
 
@@ -35,14 +35,14 @@ Draggable( thing):
     and then not! This happens for the above Draggable idea, between an object's native system
     (used in its own displist) and the one maintained by Draggable during a drag.
 
-Note, that's for a Draggable wrapper, 
+Note, that's for a Draggable wrapper,
 but there is also a Draggable interface (in comments and stub code),
 which is for any object that can accept standard drag events,
-regardless of what it uses them for 
+regardless of what it uses them for
 (which could be anything that varies with mousepos while it's down).
 
 In theory wrapper and interface are implementationally independent namespaces (AFAIK so far)
-so this overloading would be tolerable. But would it be misleading? Would all methods of 
+so this overloading would be tolerable. But would it be misleading? Would all methods of
 the wrapper be assumed to be part of the interface? Quite possibly. So one of them should be renamed.
 
 Note that Draggability of a visible object will tend to go along with selectability...
@@ -101,7 +101,7 @@ class WarpColors(DelegatingInstanceOrExpr):
         #e temporarily push warpfunc onto the front of a sequence of functions in a composition
         # which forms the glpane's overall color-warping function
         # (front means first run by fix_color, when it turns specified colors into drawn colors)
-        # 
+        #
         # (this assumes there are no GL state variables that do good-enough color-warping --
         #  if there are, it would be much better & more efficient to use them --
         #  but other things will end up needing this scheme)
@@ -159,7 +159,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # and preferably error-detected. ###FIX (if we do require that)
     # experimental kluge 070314
     _kluge_drag_handler = Option(Anything, _self, doc = "object to receive our on_press/on_drag/on_release events, in place of _self")
-    
+
     # state
     selected = State(bool, False) ###KLUGE test stub, only set when debug070209
     translation = Option(Vector, V(0,0,0), #070404
@@ -198,7 +198,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
       # update 070209 late: try doing this in Translate below, with the other involved exprs delegating as usual... ####k
       center = obj.center + motion
       # following comments are from when the above was 'if 1' a day or two ago -- still relevant since general [##e refile??]:
-        
+
         # Problem: won't work for objs with no center! Solution for now: don't try to eval the self attr then.
         # Not perfect, since what ought to be AttributeError will turn into some other exception.
         ##e One better solution would involve declared interfaces for obj, and delegation of all attrs in interfaces
@@ -213,7 +213,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
 
         # Note: can't we delegate center (& other geometry) through the display delegate below, if Highlightable passes it through
         # and Translate does the coordinate transformation? ###e
-    
+
     # appearance
 
     obj_name = call_Expr( node_name, obj) #070216
@@ -310,7 +310,7 @@ class DraggableObject(DelegatingInstanceOrExpr):
         # and let the caller supply the binding to our internal "cmd" drag_from_to?? ###e
 
     # has Draggable interface (see demo_polygon.py for explan) for changing self.motion
-        
+
     def _cmd_drag_from_to( self, p1, p2): #e rename drag_hitpoint_from_to? (in the Draggable Interface)
         """[part of the Draggable Interface; but this interface
         is not general enough if it only has this method -- some objects need more info eg a moving mouseray, screenrect, etc.
@@ -330,18 +330,18 @@ class DraggableObject(DelegatingInstanceOrExpr):
 ##            ###KLUGE: assume DZ is toward screen and scale is standard....
 ##            # wait, ###BUG, we don't even have enough info to do this right, or not simply, starting from p1, rather than startpoint...
 ##            dx,dy,dz = p2 - p1
-##            rotby = Q(p1,p2) ###WRONG but ought to be legal and visible and might even pretend to be a trackball in some cases and ways 
+##            rotby = Q(p1,p2) ###WRONG but ought to be legal and visible and might even pretend to be a trackball in some cases and ways
 ##            self.rotation = self.rotation + rotby
 ##            # print "%r motion = %r rotation = %r" % (self, self.motion, self.rotation)
         else:
             ## self.motion = self.motion + (p2 - p1)
             self.delta_stateref.value = self.delta_stateref.value + (p2 - p1)
         return
-    
+
     ##e something to start & end the drag? that could include flush if desired...
 
     # can push changes into the object
-    
+
     def flush(self, newmotion = V(0,0,0)):
         self.delegate.move(self.use_motion + newmotion) ###k ASSUMES ModelObject always supports move (even if it's a noop) ###IMPLEM
             # note, nothing wrong with modelobjects usually having one coordsys state which this affects
@@ -350,17 +350,17 @@ class DraggableObject(DelegatingInstanceOrExpr):
         self.delta_stateref.value = V(0,0,0)
 
     # if told to move, flush at the same time
-    
+
     def move(self, motion):
         self.flush(motion)
         return
-    
+
     # on_press etc methods are modified from demo_polygon.py class typical_DragCommand
 
     #e note: it may happen that we add an option to pass something other than self to supply these methods.
     # then these methods would be just the default for when that was not passed
     # (or we might move them into a helper class, one of which can be made to delegate to self and be the default obj). [070313]
-    
+
     def on_press(self):
         point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
             # (this method is defined in the Highlightable which is self.delegate)
@@ -491,7 +491,7 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
     rectframe_h = Instance( Highlightable(
         ## rectframe(bordercolor=green),####### cust is just to see if it works -- it doesn't, i guess i sort of know why
         ##bug: __call__ of <getattr_Expr#8243: (S._self, <constant_Expr#8242: 'rectframe'>)> with: () {'bordercolor': (0.0, 1.0, 0.0)}
-        ##AssertionError: getattr exprs are not callable 
+        ##AssertionError: getattr exprs are not callable
         TopLeft(rectframe),
         #e different colored hover-highlighted version?? for now, just use sbar_text to know you're there.
         sbar_text = "draggable box frame", # this disappears on press -- is that intended? ###k

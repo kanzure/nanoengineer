@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 update_select_mode.py - change currentCommand or assy.selwhat or selection
 to make them consistent
@@ -36,7 +36,7 @@ from utilities import debug_flags
 def update_select_mode(win):
     """
     Warning: this docstring is partly obsolete.
-    
+
     This should be called at the end of event handlers which might have
     changed the current internal selection mode (atoms vs chunks),
     to resolve disagreements between that and the visible selection mode
@@ -59,9 +59,9 @@ def update_select_mode(win):
     """
     if permit_atom_chunk_coselection(): #bruce 060721, experimental
         return
-    
+
     from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command # todo: move to toplevel
-    
+
     #bruce 050519 revised docstring and totally rewrote code.
     assy = win.assy
     commandSequencer = win.commandSequencer #bruce 071008
@@ -79,7 +79,7 @@ def update_select_mode(win):
     # 0b. What does current mode think it needs to be?
     # (Someday we might distinguish modes that constrain this,
     #  vs modes that change to fit it or to fit the actual selection.
-    #  For now we only handle modes that change to fit the actual selection.) 
+    #  For now we only handle modes that change to fit the actual selection.)
     selwhat_from_mode = None # most modes don't care
     if isinstance( mode, SelectChunks_Command):
         # TODO: replace this by a method call or getattr on mode
@@ -130,7 +130,7 @@ def update_select_mode(win):
                 # right after it gets initiated (almost too fast to see).
                 if selwhat == SELWHAT_CHUNKS:
                     win.toolsSelectMolecules()
-                    print "fyi: forced mode to Select Chunks" # should no longer ever happen as of 060403 
+                    print "fyi: forced mode to Select Chunks" # should no longer ever happen as of 060403
                 elif selwhat == SELWHAT_ATOMS:
                     win.toolsBuildAtoms() #bruce 060403 change: toolsSelectAtoms -> toolsBuildAtoms
                     ## win.toolsSelectAtoms() #bruce 050504 making use of this case for the first time; seems to work

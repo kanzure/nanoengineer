@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Node_api.py - API of Nodes, as assumed by modelTree code
 
@@ -23,7 +23,7 @@ class Node_api(Api):
     Note that this is not the Node API for use by most of NE1, or even
     by TreeModel -- just for
     use specifically by ModelTreeGUI for nodes returned by its treemodel.
-    
+
     Providing a node type can be done by extending this class, or implementing
     it yourself.
 
@@ -45,7 +45,7 @@ class Node_api(Api):
     # - in Qt3 there *is* a Node API call to support renaming ("try_rename"
     #   or so). Why isn't it used or listed here?
 
-    
+
     # New proposed policy relating open, openable, MT_kids, members
     # (see also their docstrings herein, revised when this comment was added):
     #
@@ -70,23 +70,23 @@ class Node_api(Api):
     #
     # [bruce 081217]
 
-    
+
     # see MT_kids and __init__ docstrings for documentation of open and members
-    open = False 
+    open = False
     members = ()
-    
+
     def __init__(self):
         """
         self.name MUST be a string instance variable.
-        
+
         self.hidden MUST be a boolean instance variable.
-        
+
         self.open MUST be a boolean instance variable.
-        
+
         self.members is not part of this API since ModelTreeGUI doesn't
         care about it; however, current implem of TreeModel (its client)
         *does* care about it.
-        
+
         There is no API requirement about arguments for __init__.
         """
         raise Exception("overload me")
@@ -108,7 +108,7 @@ class Node_api(Api):
         also happen in several other ways).
         """
         pass
-    
+
     def unpick(self):
         """
         unselect the object, and all its ancestor nodes.
@@ -188,7 +188,7 @@ class Node_api(Api):
         @note: even when openable returns false, self.open is permitted
                to be true, but self is still considered to be closed then.
         """
-        raise Exception("overload me")        
+        raise Exception("overload me")
     pass
 
 # end

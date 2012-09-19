@@ -1,4 +1,4 @@
-# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 DnaLadderRailChunk.py - Chunk subclasses for axis and strand rails of a DnaLadder
 
@@ -54,12 +54,12 @@ class DnaLadderRailChunk(Chunk):
     """
 
     # initial values of instance variables:
-    
+
     wholechain = None # will be a WholeChain once dna_updater is done;
         # set by update_PAM_chunks in the updater run that made self,
         # and again in each updater run that made a new wholechain
         # running through self. Can be set to None by Undo.
-    
+
     ladder = None # will be a DnaLadder in finished instances;
         # can be set to None by Undo;
         # can be set to a new value (after self is modified or unmodified)
@@ -67,16 +67,16 @@ class DnaLadderRailChunk(Chunk):
 
     _num_old_atoms_hidden = 0
     _num_old_atoms_not_hidden = 0
-    
+
     # review: undo, copy for those attrs? as of 080227 I think that is not needed
     # except for resetting some of them in _undo_update.
-    
+
     # default value of variable used to return info from __init__:
 
     _please_reuse_this_chunk = None
-    
+
     # == init methods
-    
+
     def __init__(self, assy, name = None, chain = None, reuse_old_chunk_if_possible = False):
         """
         @note: init method signature is compatible with _superclass.__init__,
@@ -155,15 +155,15 @@ class DnaLadderRailChunk(Chunk):
             if old_chunk is not None:
                 if _DEBUG_REUSE_CHUNKS():
                     print "dna updater will reuse %r rather than new %r" % \
-                          (old_chunk, self) 
+                          (old_chunk, self)
                 # to do this, set a flag and return early from __init__
                 # (we have no atoms; caller must kill us, and call
                 #  _f_set_new_ladder on the old chunk it's reusing).
                 assert not self.atoms
                 self._please_reuse_this_chunk = old_chunk
-                
+
                 return
-            
+
             if _DEBUG_REUSE_CHUNKS():
                 print "not reusing an old chunk for %r (will grab %d atoms)" % (self, self._counted_atoms)
                 print " data: atoms were in these old chunks: %r" % (self._counted_chunks.values(),)
@@ -187,12 +187,12 @@ class DnaLadderRailChunk(Chunk):
                 # Optimize for a single old chunk or a small number of them
                 # (so have only one loop over them).
                 other_old_chunks = old_chunks
-                
+
                 use_disp = one_old_chunk.display
                 use_picked = one_old_chunk.picked
                 use_display_as_pam = one_old_chunk.display_as_pam
                 use_save_as_pam = one_old_chunk.save_as_pam
-                
+
                 for chunk in other_old_chunks:
                     # todo: make a helper method to do this loop over each attr;
                     # make decent error messages by knowing whether use_xxx was reset yet
@@ -215,7 +215,7 @@ class DnaLadderRailChunk(Chunk):
                         # should never happen, since DnaLadder merging should be disallowed then
                         # (simplifies mmp save conversion)
                         use_save_as_pam = ""
-                    continue                
+                    continue
                 # review:
                 # - what about being (or containing) glpane.selobj?
 
@@ -229,7 +229,7 @@ class DnaLadderRailChunk(Chunk):
 
         if use_picked:
             assert self.part is not None # see comment near inherit_part call
-            
+
         self._grab_atoms_from_chain(chain, False) #e we might change when we call this, if we implem copy for this class
 
         if reuse_old_chunk_if_possible:
@@ -241,13 +241,13 @@ class DnaLadderRailChunk(Chunk):
                    ( self._counted_atoms, len(self.atoms) )
                 # should print the missing atoms if we can, but for now print the present atoms:
                 print " present atoms are", self.atoms.values()
-        
+
         self.ladder = rail_end_atom_to_ladder( chain.baseatoms[0] )
         self._set_properties_from_grab_atom_info( use_disp, use_picked,
                                                   use_display_as_pam, use_save_as_pam)
             # uses args and self attrs to set self.display and self.hidden
             # and possibly call self.pick()
-        
+
         return # from _init_atoms_from_chain
 
     def _f_set_new_ladder(self, ladder):
@@ -266,12 +266,12 @@ class DnaLadderRailChunk(Chunk):
 
     _counted_chunks = () # kluge, so len is always legal,
         # but adding an element is an error unless it's initialized
-    
+
     def _old_chunk_we_could_reuse(self, chain): #bruce 080228
         """
         [it's only ok to call this during __init__, and early enough,
          i.e. before _grab_atoms_from_chain with justcount == False]
-        
+
         If there is an old chunk we could reuse, find it and return it.
         (If we "just miss", debug print.)
         """
@@ -340,7 +340,7 @@ class DnaLadderRailChunk(Chunk):
         # maybe: self._old_chunks[id(old_chunk)] = old_chunk
 
         # could assert old_chunk is not None or _nullMol
-        
+
         if old_chunk and old_chunk.hidden:
             self._num_old_atoms_hidden += 1
             if _DEBUG_HIDDEN:
@@ -355,7 +355,7 @@ class DnaLadderRailChunk(Chunk):
 ##            # (condition is optim; otherwise it's easy)
 ##            if atom.display == diDEFAULT and old_chunk:
 ##                # usually true; if this is too slow, just do it from chunks alone
-            
+
         # then grab the atom
         if _DEBUG_HIDDEN:
             have = len(self.atoms)
@@ -369,7 +369,7 @@ class DnaLadderRailChunk(Chunk):
     def _count_atom(self, atom): #bruce 080312 revised to fix PAM5 bug
         """
         [private helper for _grab_atom when just_count is true]
-        
+
         count atom and its bondpoints and their chunk
         """
         chunk = atom.molecule
@@ -383,14 +383,14 @@ class DnaLadderRailChunk(Chunk):
         bondpoints = atom.singNeighbors()
 
         self._counted_atoms += (1 + len(bondpoints))
-        
+
         if 0 and bondpoints: ### slow & verbose debug code
             print "counted bondpoints", bondpoints
             print "their base atom lists are", [bp.neighbors() for bp in bondpoints]
             for bp in bondpoints:
                 assert len(bp.neighbors()) == 1 and bp.neighbors()[0] is atom and bp.molecule is chunk
         return
-    
+
     def _set_properties_from_grab_atom_info(self, use_disp, use_picked,
                                                   use_display_as_pam, use_save_as_pam): # 080201
         """
@@ -456,11 +456,11 @@ class DnaLadderRailChunk(Chunk):
             self.display_as_pam = use_display_as_pam
         if use_save_as_pam:
             self.save_as_pam = use_save_as_pam
-        
+
         return # from _set_properties_from_grab_atom_info
 
     # ==
-    
+
     def set_wholechain(self, wholechain):
         """
         [to be called by dna updater]
@@ -565,13 +565,13 @@ class DnaLadderRailChunk(Chunk):
         if self.ladder and self.ladder.valid:
             self.ladder.ladder_invalidate_if_not_disabled() # 080120 10pm bugfix
         return _superclass.invalidate_atom_lists(self)
-        
+
     # == other invalidation-related methods
-    
+
     def forget_wholechain(self, wholechain):
         """
         Remove any references we have to wholechain.
-        
+
         @param wholechain: a WholeChain which refs us and is being destroyed
         """
         assert wholechain is not None
@@ -657,9 +657,9 @@ class DnaLadderRailChunk(Chunk):
         else:
             direction = - LADDER_STRAND1_BOND_DIRECTION
         return direction
-    
+
     # == graphics methods
-    
+
     def modify_color_for_error(self, color):
         """
         Given the drawing color for this chunk, or None if element colors
@@ -695,7 +695,7 @@ class DnaLadderRailChunk(Chunk):
                       Choice_boolean_False,
                       prefs_key = True):
             font = QFont( QString("Helvetica"), 9)
-                # WARNING: Anything smaller than 9 pt on Mac OS X results in 
+                # WARNING: Anything smaller than 9 pt on Mac OS X results in
                 # un-rendered text.
             out = glpane.out * 3 # bug: 3 is too large
             baseatoms = self.get_baseatoms()
@@ -718,7 +718,7 @@ class DnaLadderRailChunk(Chunk):
         # see also: self._ladder_is_fully_ok()
         ladder = self.ladder
         return ladder and ladder.valid # ok even if ladder.error
-    
+
     # == mmp methods
 
     def atoms_in_mmp_file_order(self, mapping = None): #bruce 080321
@@ -754,10 +754,10 @@ class DnaLadderRailChunk(Chunk):
             # to interleave the Pl atoms into the best order for writing
             # (one that permits an upcoming mmp format optimization).
             mapping = writemmp_mapping(self.assy)
-        
+
         initial_atoms = self.indexed_atoms_in_order(mapping = mapping)
             # (implem is per-subclass; should be fast for repeated calls ###CHECK)
-            
+
         # the initial_atoms need to be written in a definite order,
         # and (nim, elsewhere) we might also need to know their mmp encodings
         # for use in info records. (If we do, no need to worry
@@ -772,7 +772,7 @@ class DnaLadderRailChunk(Chunk):
             # (when no open bonds are present),
             # and for DnaStrandChunk when not doing PAM3 -> PAM5 conversion
             return initial_atoms
-        
+
         all_real_atoms = _superclass.atoms_in_mmp_file_order(self, mapping)
             # preserve this "standard order" for non-initial atoms (all are real).
 
@@ -786,7 +786,7 @@ class DnaLadderRailChunk(Chunk):
 ##            print "self.atoms.values()", self.atoms.values()
 ##            print "initial_atoms", initial_atoms
 ##            print "all_atoms", all_atoms
-        
+
         dict1 = {} # helps return each atom exactly once
         some_atom_occurred_twice = False
         for atom in initial_atoms:
@@ -823,7 +823,7 @@ class DnaLadderRailChunk(Chunk):
         if not ( len(res) == number_of_atoms ):
             print "\n*** BUG in atoms_in_mmp_file_order for %r: " % self, \
                "len(res) %r != number_of_atoms %r" % \
-               (len(res), number_of_atoms) 
+               (len(res), number_of_atoms)
         return res
 
     def indexed_atoms_in_order(self, mapping): #bruce 080321
@@ -848,7 +848,7 @@ class DnaLadderRailChunk(Chunk):
         if not self._ladder_is_fully_ok():
             # self.idealized_strand_direction might differ from actual
             # bond directions, so we can't abbreviate them this way
-            return {} 
+            return {}
         atoms = self.indexed_atoms_in_order(mapping)
         return dict([(atom.key, atom) for atom in atoms])
 
@@ -856,7 +856,7 @@ class DnaLadderRailChunk(Chunk):
         # see also: self.__ok()
         ladder = self.ladder
         return ladder and ladder.valid and not ladder.error
-    
+
     def write_bonds_compactly(self, mapping): #bruce 080328
         """
         [overrides superclass method]
@@ -897,7 +897,7 @@ class DnaLadderRailChunk(Chunk):
         res = mapping.encode_atom_written(atoms[0]), \
               mapping.encode_atom_written(atoms[-1]) # ok if same atom, can happen
         return res
-    
+
     def number_of_conversion_atoms(self, mapping): #bruce 080321
         """
         [abstract method of DnaLadderRailChunk]
@@ -918,7 +918,7 @@ class DnaLadderRailChunk(Chunk):
         """
         # note: same code in some other classes that implement this method
         return self._class_for_writemmp_mapping_memo(mapping, self)
-    
+
     def save_as_what_PAM_model(self, mapping): #bruce 080326
         """
         Return None or an element of PAM_MODELS
@@ -931,13 +931,13 @@ class DnaLadderRailChunk(Chunk):
         assert mapping
         def doit():
             res = self._f_requested_pam_model_for_save(mapping)
-            
+
             if not res:
                 # optimize a simple case (though not the usual case);
                 # only correct since self.ladder will return None
                 # for its analogous decision if any of its chunks do.
                 return None
-            
+
             # memoize the rest in mapping, not for speed but to
             # prevent repeated error messages for same self and mapping
             # (and to enforce constant behavior as bug precaution)
@@ -948,7 +948,7 @@ class DnaLadderRailChunk(Chunk):
         res = doit()
 ##        print "save_as_what_PAM_model(%r,...) -> %r" % (self, res)
         return res
-    
+
     def _f_requested_pam_model_for_save(self, mapping):
         """
         Return whatever the mapping and self options are asking for
@@ -965,7 +965,7 @@ class DnaLadderRailChunk(Chunk):
         if not res:
             res = None
         return res
-        
+
     pass # end of class DnaLadderRailChunk
 
 # ==
@@ -997,7 +997,7 @@ class DnaAxisChunk(DnaLadderRailChunk):
         [overrides Chunk method]
         """
         return True
-    
+
     def isStrandChunk(self):
         """
         [overrides Chunk method]
@@ -1017,14 +1017,14 @@ class DnaAxisChunk(DnaLadderRailChunk):
             # [bruce 080411 added this check]
             return []
         return self.get_baseatoms()
-    
+
     def number_of_conversion_atoms(self, mapping): #bruce 080321
         """
         [implements abstract method of DnaLadderRailChunk]
         """
         del mapping
         return 0
-        
+
     def write_bonds_compactly(self, mapping): #bruce 080328
         """
         [overrides superclass method]
@@ -1041,14 +1041,14 @@ class DnaAxisChunk(DnaLadderRailChunk):
         # Not urgent, since rare and doesn't affect mmp reading code or mmpformat version.
         # I don't think the same issue affects the dna_rung_bonds record, but review.
         # [bruce 080328]
-        
+
         # write the new bond_chain record
         code_start, code_end = \
             self._compute_atom_range_for_write_bonds_compactly(mapping)
         record = "bond_chain %s %s\n" % (code_start, code_end)
         mapping.write(record)
         # write compact rung bonds to previously-written strand chunks
-        ladder_memo = mapping.get_memo_for(self.ladder) 
+        ladder_memo = mapping.get_memo_for(self.ladder)
         for chunk in ladder_memo.wrote_strand_chunks:
             ladder_memo.write_rung_bonds(chunk, self)
         # make sure not-yet-written strand chunks can do the same with us
@@ -1083,13 +1083,13 @@ class DnaStrandChunk(DnaLadderRailChunk):
         [overrides Chunk method]
         """
         return False
-    
+
     def isStrandChunk(self):
         """
         [overrides Chunk method]
         """
         return True
-    
+
     def _grab_atoms_from_chain(self, chain, just_count): # misnamed, doesn't take them out of chain
         """
         [extends superclass version]
@@ -1175,10 +1175,10 @@ class DnaStrandChunk(DnaLadderRailChunk):
                 if i < len(seq2):
                     yield seq2[i]
                 continue
-            return            
+            return
         interleaved = interleave(Pl_atoms, baseatoms)
         return [atom for atom in interleaved if atom is not None]
-    
+
     def number_of_conversion_atoms(self, mapping): #bruce 080321
         """
         [implements abstract method of DnaLadderRailChunk]
@@ -1192,7 +1192,7 @@ class DnaStrandChunk(DnaLadderRailChunk):
 
         ### REVIEW: if not self._ladder_is_fully_ok(), should we return 0 here
         # and refuse to convert in other places? [bruce 080411 Q]
-        
+
         # Our conversion atoms are whatever Pl atoms we are going to write
         # which are not in self.atoms (internally they are Fake_Pl objects).
         # For efficiency and simplicity we'll cache the answer in our chunk memo.
@@ -1202,7 +1202,7 @@ class DnaStrandChunk(DnaLadderRailChunk):
     def _Pl_atoms_to_interleave(self, mapping):
         """
         [private helper for mmp write methods]
-        
+
         Assuming (not checked) that this chunk should be saved in PAM5
         (and allowing it to presently be in either PAM3 or PAM3+5 or PAM5),
         return a list of Pl atoms to interleave before/between/after our
@@ -1227,11 +1227,11 @@ class DnaStrandChunk(DnaLadderRailChunk):
         assert mapping # needed for the memo... too hard to let it be None here
         memo = mapping.get_memo_for(self)
         return memo.Pl_atoms
-        
+
     def write_bonds_compactly(self, mapping): #bruce 080328
         """
         Note: this also writes all dnaBaseName (sequence) info for our atoms.
-        
+
         [overrides superclass method]
         """
         # write the new directional_bond_chain record
@@ -1249,7 +1249,7 @@ class DnaStrandChunk(DnaLadderRailChunk):
                      (code_start, code_end, bond_direction)
         mapping.write(record)
         # write compact rung bonds to previously-written axis chunk, if any
-        ladder_memo = mapping.get_memo_for(self.ladder) 
+        ladder_memo = mapping.get_memo_for(self.ladder)
         for chunk in ladder_memo.wrote_axis_chunks:
             ladder_memo.write_rung_bonds(chunk, self)
         # make sure not-yet-written axis chunk (if any) can do the same with us
@@ -1275,7 +1275,7 @@ class DnaStrandChunk(DnaLadderRailChunk):
         if not n:
             return "" # common optimization
         return "".join([atom.getDnaBaseName() for atom in baseatoms[:n]])
-    
+
     pass # end of class DnaStrandChunk
 
 def make_or_reuse_DnaStrandChunk(assy, chain, ladder):

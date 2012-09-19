@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 WholeChain.py - a complete chain or ring of PAM atoms, made of one or more
 smaller chains (or 1 smaller ring) often known as rails (short for ladder rails,
@@ -24,7 +24,7 @@ class WholeChain(object):
     A WholeChain knows a sequence of 1 or more rails, i.e. smaller chains
     (of DNA PAM atoms) which are linked into a single longer chain or ring
     (or which were so linked when it was constructed).
-    
+
     (If it's not a ring, then it is required to be a maximal chain,
     i.e. to not be able to be extended with more atoms at the ends,
     at the time it's constructed.)
@@ -68,11 +68,11 @@ class WholeChain(object):
     via their controlling markers.
 
     - Just after any dna updater run, each WholeChain knows about the DnaMarkers
-    on its atoms, of which there are one or more, with exactly one being a 
+    on its atoms, of which there are one or more, with exactly one being a
     "controlling marker", which determines the identity of the
     DnaSegment and DnaStrand object which own the wholechain's atoms,
     and determines the base indexing scheme they use (origin and direction).
-    
+
     - When things change (i.e. when user operations make wholechains invalid),
     and the dna updater runs again (always before the next undo checkpoint
     takes its snapshot of the model state), the dna updater
@@ -91,7 +91,7 @@ class WholeChain(object):
     the wholechain's one "controlling marker".)
 
     State:
-    
+
     - A WholeChain contains no state for undo/copy/save; that's in the associated
     DnaSegment and DnaStrand objects and their DnaMarkers. (The set of DnaMarkers
     belonging to a DnaSegment and DnaStrand object is the same as the set of
@@ -100,21 +100,21 @@ class WholeChain(object):
 
     # default values of subclass-specific constants
     _DnaMarker_class = None # class of DnaMarker to make
-    
+
     # default values of instance variables
     _strand_or_segment = None
     _controlling_marker = None
     _num_bases = -1 # unknown, to start with (used in __repr__ and __len__)
     _all_markers = () # in instances, will be a mutable dict
         # (len is used in __repr__; could be needed before __init__ done)
-    
+
     def __init__(self, dict_of_rails): # fyi: called by update_PAM_chunks
         """
         Construct self, own our chunks (and therefore our atoms).
 
         @note: this does not choose or make a marker or own our markers.
         For that see own_markers.
-        
+
         @param dict_of_rails: maps id(rail) -> rail for all rails in wholechain
 
         @note: we can assume that rail._f_update_neighbor_baseatoms() has
@@ -136,7 +136,7 @@ class WholeChain(object):
         # (E.g. we might find one with one atom on self and the other on some
         #  other wholechain.) For each marker we find, figure out whether it's
         # still valid, record its position if so, kill it if not.
-        
+
         markers_1 = {} # collects markers from all our atoms during loop, maps them to (rail, baseindex) for their marked_atom
         markers_2 = {} # same, but for their next_atom (helps check whether they're still valid, and compute new position)
         num_bases = 0
@@ -176,10 +176,10 @@ class WholeChain(object):
         # or that are not on adjacent atoms in self,
         # and determine and record position for the others
         # [revised 080311]
-        
+
         markers = {} # maps markers found on both atoms to (atom1info, atom2info),
             # but values are later replaced with PositionInWholeChains or discarded
-        
+
         for marker in markers_1.iterkeys():
             if not marker in markers_2:
                 marker._f_kill_during_move(self, "different wholechains")
@@ -208,7 +208,7 @@ class WholeChain(object):
                 del markers[marker]
 
         self._all_markers = markers
-        
+
         return # from __init__
 
     def __len__(self):
@@ -230,7 +230,7 @@ class WholeChain(object):
         return True # needed for safety & efficiency, now that we have __len__! @@@@  TODO: same in other things with __len__; __eq__ too?
 
     destroyed = False #bruce 080403
-    
+
     def destroy(self): # 080120 7pm untested
         # note: this can be called from chunk._undo_update from one
         # of our chunks; it needs to be ok to call it multiple times.
@@ -254,7 +254,7 @@ class WholeChain(object):
             continue
         self._dict_of_rails = {}
         return
-    
+
     def rails(self):
         """
         Return all our rails, IN ARBITRARY ORDER (that might be revised)
@@ -298,12 +298,12 @@ class WholeChain(object):
         assert len(res) in (0, 2), "impossible set of %r.end_baseatoms(): %r" % \
                (self, res)
         return res
-    
+
     def get_all_baseatoms(self):
         """
         @return: a list of all baseatoms within self, IN ARBITRARY ORDER
         @rtype: list
-        
+
         @see: self.get_all_baseatoms_in_order() which returns the base atoms
               in a fixed order
         """
@@ -311,7 +311,7 @@ class WholeChain(object):
         for rail in self.rails():
             baseAtomList.extend(rail.baseatoms)
         return baseAtomList
-    
+
     def get_all_baseatoms_in_order(self): #Ninad 2008-08-06
         """
         @return: a list of all baseatoms within self, in a fixed
@@ -319,28 +319,28 @@ class WholeChain(object):
                  last base atom of last rail, in same order as
                  wholechain_baseindex indices.
         @rtype: list
-        
+
         @see: self.get_rails_in_order()
         """
-        rails = self.get_rails_in_order()   
+        rails = self.get_rails_in_order()
         atomList = []
-        for rail in rails:            
+        for rail in rails:
             baseatoms = list(rail.baseatoms)
             first_index = self.wholechain_baseindex(rail, 0)
             last_index = self.wholechain_baseindex(rail, len(baseatoms) - 1)
             if first_index > last_index:
                 baseatoms.reverse()
-            
+
             atomList.extend(baseatoms)
-            
+
         return atomList
-        
+
     def __repr__(self):
         classname = self.__class__.__name__.split('.')[-1]
         res = "<%s (%d bases, %d markers) at %#x>" % \
               (classname, self._num_bases, len(self._all_markers), id(self))
         return res
-    
+
     def all_markers(self):
         """
         Assuming we still own all our atoms (not checked),
@@ -354,7 +354,7 @@ class WholeChain(object):
         then tell them all that you own them and whether
         they're controlling (which might kill some of them).
         (But don't move them in the model tree, not even the newly made ones.)
-        
+
         Also cache whatever base-indexing info is needed
         (in self, our rails/chunks, and/or their atoms).
         [As of 080116 this part is not yet needed or done.]
@@ -389,9 +389,9 @@ class WholeChain(object):
                     "marker %r died without telling %r" % (marker, self)
                 self._f_marker_killed(marker)
             continue
-        
+
         # todo: use controlling marker to work out base indexing per rail...
-        
+
         return
 
     def _f_marker_killed(self, marker):
@@ -410,7 +410,7 @@ class WholeChain(object):
         return
 
     # ==
-    
+
     def find_strand_or_segment(self):
         """
         Return our associated DnaStrandOrSegment, which is required
@@ -449,7 +449,7 @@ class WholeChain(object):
             marker = self._make_new_controlling_marker()
         assert marker
         return marker
-    
+
     def _choose_controlling_marker(self):
         """
         [private]
@@ -523,7 +523,7 @@ class WholeChain(object):
             # todo: include info to help find next_atom?
         candidates.sort() # lowest key means first-made basepair by Dna Generator
         atom = candidates[0][1]
-        
+
         # now pick the best next_atom
 
         rail, index, direction_into_chain = self._find_end_atom_chain_and_index( atom)
@@ -531,11 +531,11 @@ class WholeChain(object):
             # A. positive (or 0 for length-1 rail), but following code doesn't care.
             # Q. does best next_atom come from same rail if possible?
             # A. (guess yes, doing that for now)
-            
+
             # WARNING: if len(rail) == 1, then direction_into_chain is arbitrary.
             # the following code doesn't use it in that case.
             # [bruce 080422 comment]
-                    
+
         if len(rail.baseatoms) > 1:
             next_atom = rail.baseatoms[index + direction_into_chain]
             position = (rail, index, direction_into_chain)
@@ -568,9 +568,9 @@ class WholeChain(object):
         # now make the marker on those atoms
         # (todo: in future, we might give it some user settings too)
         assert atom.molecule, "%r has no .molecule" % atom
-        
+
         assy = atom.molecule.assy
-        
+
         assert assy
         assert atom.molecule.part, "%r has no .part; .molecule is %r" % (atom, atom.molecule)
         assert next_atom.molecule, "%r has no .molecule" % next_atom
@@ -578,7 +578,7 @@ class WholeChain(object):
         assert atom.molecule.part is next_atom.molecule.part, \
                "%r in part %r, %r in part %r, should be same" % \
                (atom, atom.molecule.part, next_atom, next_atom.molecule.part)
-        
+
         marker_class = self._DnaMarker_class # subclass-specific constant
         marker = marker_class(assy, [atom, next_atom]) # doesn't give it a wholechain yet
 
@@ -591,17 +591,17 @@ class WholeChain(object):
         part.place_new_jig(marker)
             # (overkill in runtime, but should be correct, since both marker's
             #  atoms should be in the same group)
-        
+
         # and remember it's on our atoms, and where on them it is
         self._append_marker(marker, *position)
-        
+
         return marker
 
     def _append_marker(self, marker, rail, baseindex, direction): # 080306
         assert not marker in self._all_markers
         self._all_markers[marker] = PositionInWholeChain(self, rail, baseindex, direction)
         return
-    
+
     def _find_end_atom_chain_and_index(self, atom, next_atom = None):
         # REVIEW: rename chain -> rail, in this method name? (and all local vars in file)
         """
@@ -648,9 +648,9 @@ class WholeChain(object):
                 pass
             pass
         return rail, index_in_rail, direction_into_rail
-        
+
     # todo: methods related to base indexing
-    
+
     def yield_rail_index_direction_counter(self,  # in class WholeChain
                                            pos,
                                            counter = 0,
@@ -746,7 +746,7 @@ class WholeChain(object):
 
         @note: this function is expensive on the first call for self,
                and cheap thereafter.
-               
+
         @note: if self is a ring, the baseindex origin and direction
                is determined by self's controlling marker.
                (WARNING: in initial implem this origin might be arbitrary, instead)
@@ -791,30 +791,30 @@ class WholeChain(object):
         first = self.wholechain_baseindex(rail, 0)
         last  = self.wholechain_baseindex(rail, len(rail) - 1)
         return first, last
-    
+
     def get_rails_in_order(self): #Ninad 2008-08-06
         """
         @return: a list containing self's rails, in increasing
                  order of the index of each rail's baseatoms,
                  according to wholechain_baseindex_range_for_rail.
         @rtype: list
-        
+
         @see: self.get_all_baseatoms_in_order()
         @see: self.rails() (much faster when order doesn't matter)
         """
         rails = self.rails()
         lst = []
-        
+
         for rail in rails:
             first_baseindex, last_baseindex = self.wholechain_baseindex_range_for_rail(rail)
             lst.append( (first_baseindex, rail) )
-        
-        # Sort the list so that the rails are arranged in increasing order 
+
+        # Sort the list so that the rails are arranged in increasing order
         # of the baseindex of the first (or any) baseatom of each rail.
         # (Which baseatom is used in each rail doesn't matter, since within
         #  any single rail the indices are contiguous.)
-        lst.sort()            
-        
+        lst.sort()
+
         return [rail for (baseindex, rail) in lst]
 
     def _compute_wholechain_baseindices(self): #bruce 080421 (not in rc2)
@@ -854,7 +854,7 @@ class WholeChain(object):
                     # start there, and we could save it from when we go to the
                     # right, but there's no need.
             last_rail = None
-            for pos in pos_generator: 
+            for pos in pos_generator:
                 rail, index, direction, counter = pos
                 atom = rail.baseatoms[index]
                 if _check_atoms:
@@ -888,7 +888,7 @@ class WholeChain(object):
             continue # next direction_of_slide
         self._wholechain_baseindex_range = ( min_so_far, max_so_far )
         return # from _compute_wholechain_baseindices
-    
+
     pass # end of class WholeChain
 
 # ==
@@ -908,7 +908,7 @@ class PositionInWholeChain(object):
             # note: our direction in each rail is unrelated
         self.pos = (rail, index, direction)
         return
-        
+
     def yield_rail_index_direction_counter(self, **options): # in class PositionInWholeChain
         return self.wholechain.yield_rail_index_direction_counter( self.pos, **options )
 
@@ -916,7 +916,7 @@ class PositionInWholeChain(object):
     # (for now, our main caller does that itself)
 
     pass
-    
+
 # ==
 
 class Axis_WholeChain(WholeChain):
@@ -944,5 +944,5 @@ def new_Group_around_Node(node, group_class): #e refile, might use in other ways
     node.addsibling(group)
     group.addchild(node)
     return group
-    
+
 # end

@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 master_model_updater.py - do the post-event (or pre-checkpoint) updates
 necessary for all of NE1's model types, in an appropriate order (which may
@@ -144,7 +144,7 @@ def _run_dna_updater(): #bruce 080210 split this out
             msg2 = "Error: exception in dna updater (see console for details); will attempt to continue"
             env.history.message(redmsg(msg2))
         else:
-            global_model_changedicts.status_of_last_dna_updater_run = LAST_RUN_SUCCEEDED            
+            global_model_changedicts.status_of_last_dna_updater_run = LAST_RUN_SUCCEEDED
         pass
     else:
         global_model_changedicts.status_of_last_dna_updater_run = LAST_RUN_DIDNT_HAPPEN
@@ -153,14 +153,14 @@ def _run_dna_updater(): #bruce 080210 split this out
 # ==
 
 def _run_bond_updater(warn_if_needed = False): #bruce 080210 split this out
-    
+
     if not (changed_structure_atoms or changed_bond_types):
         # Note: this will be generalized to:
         # if no changes of any kind, since the last call
         # Note: the dna updater processes changes in other dicts,
         # but we don't need to check those in this function.
         return
-    
+
     # some changes occurred, so this function needed to be called
     # (even if they turn out to be trivial)
     if warn_if_needed and env.debug():
@@ -171,7 +171,7 @@ def _run_bond_updater(warn_if_needed = False): #bruce 080210 split this out
               "before this call (since the most recent model changes), " \
               "but wasn't!" #e use print_compact_stack??
         pass # (other than printing this, we handle unreported changes normally)
-    
+
     # handle and clear all changes since the last call
     # (in the proper order, when there might be more than one kind of change)
 
@@ -191,7 +191,7 @@ def _run_bond_updater(warn_if_needed = False): #bruce 080210 split this out
             # that one might be a bit silly (so we could pass none, or all
             # affected ones)
         changed_structure_atoms.clear()
-    
+
     if changed_bond_types:
         # WARNING: this dict may have been modified by the above loop
         # which processes changed_structure_atoms...
@@ -200,7 +200,7 @@ def _run_bond_updater(warn_if_needed = False): #bruce 080210 split this out
             # recursively add bonds to this dict -- if so, it should .clear,
             # not us!
         changed_bond_types.clear()
-    
+
     return # from _run_bond_updater
 
 # ==
@@ -224,7 +224,7 @@ def _autodelete_empty_groups(assy): #bruce 080305
             pass
         pass
     return
-        
+
 # ==
 
 # temporary code for use while developing dna_updater
@@ -234,15 +234,15 @@ def debug_pref_autodelete_empty_groups():
     res = debug_pref("autodelete empty Dna-related groups?", #bruce 080317 revised text
                      ##Choice_boolean_False,
                      #autodelete empty groups by default. This looks safe so far
-                     #and soon, we will make it mainstream (not just a debug 
+                     #and soon, we will make it mainstream (not just a debug
                      #option) -- Ninad 2008-03-07
-                     Choice_boolean_True, 
+                     Choice_boolean_True,
                      ## non_debug = True, #bruce 080317 disabled
-                     prefs_key = True 
+                     prefs_key = True
                      )
     return res
 
-    
+
 _initialized_dna_updater_yet = False
 
 def _ensure_ok_to_call_dna_updater():

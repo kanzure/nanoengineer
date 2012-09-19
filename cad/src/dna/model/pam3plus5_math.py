@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 pam3plus5_math.py -- mathematical helper functions for PAM3+5 <-> PAM5 conversion
 
@@ -121,7 +121,7 @@ if (__USE_OLD_VALUES__):
 
 if (not __USE_OLD_VALUES__):
     # (x_a', y_m) is the location of the PAM3 Ax, relative to a PAM5 Ss.
-    X_APRIME =  2.512 # x_a' 
+    X_APRIME =  2.512 # x_a'
 
     X_SPRIME = -0.957 # x_s'
     Y_SPRIME = -2.601 # y_s'
@@ -174,15 +174,15 @@ def baseframe_from_pam5_data(ss1, gv, ss2):
     # base plane orientation comes from the other atom, Gv
 
     # so get x and z axis around that line
-    
+
     origin = ss1
 
     y_vector = ss2 - ss1
     y_length = vlen(y_vector)
-    
+
     ## y_direction = norm(ss2 - ss1)
     y_direction = y_vector / y_length # optimization
-    
+
     z_direction = norm(cross(gv - ss1, y_direction))
         # BUG: nothing checks for cross product being too small
 
@@ -203,9 +203,9 @@ def baseframe_from_pam3_data(ss1, ax, ss2):
     """
     yprime_vector = ss2 - ss1
     yprime_length = vlen(yprime_vector)
-    
+
     y_direction = yprime_vector / yprime_length # optimization of norm
-    
+
     z_direction = norm(cross(ax - ss1, y_direction))
         # BUG: nothing checks for cross product being too small
 
@@ -242,7 +242,7 @@ def other_baseframe_data( origin, rel_to_abs_quat, y_m): # bruce 080402
     #
     # note: if this needs debugging, turn most of it into a helper function
     # and assert that doing it twice gets values close to starting values.
-    direction_x = rel_to_abs_quat.rot(X_AXIS) 
+    direction_x = rel_to_abs_quat.rot(X_AXIS)
     direction_y = rel_to_abs_quat.rot(Y_AXIS)
     direction_z = rel_to_abs_quat.rot(Z_AXIS)
         # todo: optim: extract these more directly from the quat
@@ -281,7 +281,7 @@ def default_Pl_relative_position(direction): # revised to principled values (tho
     """
     # print "stub for default_Pl_relative_position" ####
     ## return V(X_SPRIME, Y_SPRIME, - direction) # stub
-    
+
     # use direction to choose one of two different values)
     if direction == 1:
         return DEFAULT_Ss_plus_to_Pl5_RELPOS

@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 """
@@ -127,7 +127,7 @@ class Ui_ChunkPropDialog(object):
         self.vboxlayout.addLayout(self.hboxlayout2)
 
         self.retranslateUi(ChunkPropDialog)
-        
+
         ChunkPropDialog.setTabOrder(self.nameLineEdit,self.atomsTextBrowser)
         ChunkPropDialog.setTabOrder(self.atomsTextBrowser,self.choose_color_btn)
         ChunkPropDialog.setTabOrder(self.choose_color_btn,self.reset_color_btn)

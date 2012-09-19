@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 demo_polygon.py [recently renamed from demo_dna.py]
 
@@ -69,7 +69,7 @@ class newerBoxed(DelegatingInstanceOrExpr):
 
 ##class ResizableBox(DelegatingWidgetExpr): # compare to Boxed
 ##    Overlay(RectFrame(),
-##            
+##
 
 
 class resizablyBoxed(DelegatingInstanceOrExpr):
@@ -141,7 +141,7 @@ class Resizer(DelegatingInstanceOrExpr):
         #e do we ask for this interface by name, when giving any of these commands?? ####k
         #e as if IorE had a rule, _cmd_drag_from_to = _self.draggable_commands._cmd_drag_from_to ?
         # overridable of course by a specific def of _cmd_drag_from_to.
-        
+
         #  (But if we override _cmd_drag_from_to, has that overridden something else asking us for self.draggable_commands?
         #   Only if the specific methodname is effectively an alias (even for redef and inheritance, at least by deleg) for the
         #   one in self.draggable_commands. That can be done somehow, *if* we can figure out the exact desired rules. ###e)
@@ -184,7 +184,7 @@ class CornerResizer(Resizer):
 #     (i.e. the attrs were defined, then we decided later they were all part of an interface)
 
 class Corner(Interface):
-            # why call it Interface, even if it is one? 
+            # why call it Interface, even if it is one?
             # It's many things: a constructor for a thing which follows that interface,
             # a data type we could use in other things and save...
             # nothing prevents other things from acting like this, and saying they can act like it, and how...
@@ -343,7 +343,7 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
                         if v in analyzers:
                             analyzers[v] = "invalid" # >1 analyzers were found; this means v will end up in extra_dragverts, so no analyzer for v will be used
                         else:
-                            analyzers[v] = analyzer 
+                            analyzers[v] = analyzer
                         # Note: in principle we should index analyzers by both v and dv, in case v is found from both sides;
                         # but if that happens, we know we'll never use them, since v will end up in extra_verts.
                         #    Another solution (more general since it better supports general graphs)
@@ -361,7 +361,7 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
                         nim ###IMPLEM the use
                     pass
                 continue
-            return                        
+            return
         def collect_allneighbors(v,dict1): ###e this could be removed since they're in analyzers
             for v2 in v.neighbors:
                     dict1[v2] = v2

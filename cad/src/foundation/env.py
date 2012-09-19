@@ -1,11 +1,11 @@
-# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 env.py - for global variables and functions treated as "part of the
 environment".
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 This module is for various global or "dynamic" variables,
 which can be considered to be part of the environment of the code
@@ -30,7 +30,7 @@ used, but is here in this docstring so that a search for 'import env' will
 find it.
 
    ... use env.xxx as needed ...
-   
+
    # Don't say "from env import xxx" since env.xxx might be reassigned
    # dynamically. Variables that never change (and are importable when the
    # program is starting up) can be put into constants.py.
@@ -74,9 +74,9 @@ _mainWindow = None
 
 
 # Initialize the 'prefs' value. It is redefined in preference.py
-# see preferences.init_prefs_table for details. 
-# Initializing it here, should fix this error that pylint output shows in  
-# a number of files -- " 'Module 'env' has no 'prefs' member"  
+# see preferences.init_prefs_table for details.
+# Initializing it here, should fix this error that pylint output shows in
+# a number of files -- " 'Module 'env' has no 'prefs' member"
 prefs = None
 
 def setMainWindow(window):
@@ -101,7 +101,7 @@ def mainwindow(): #bruce 051209
     # sanity check, and makes sure it's not too early for these things
     # to have been set up
     assert not _mainWindow is None, "setMainWindow not called yet"
-    assert _mainWindow.assy.w is _mainWindow 
+    assert _mainWindow.assy.w is _mainWindow
 
     return _mainWindow
 
@@ -112,14 +112,14 @@ def debug(): #bruce 060222
     """
     Should debug checks be run, and debug messages be printed, and debug
     options offered in menus?
-    
+
     @note: This just returns the current value of debug_flags.atom_debug,
     which is this code's conventional flag for "general debugging messages and
     checks". Someday we might move that flag itself into env, but that's
     harder since we'd have to edit lots of code that looks for it in platform,
     or synchronize changes to two flags.
     """
-    from utilities import debug_flags # don't do this at toplevel in this 
+    from utilities import debug_flags # don't do this at toplevel in this
         # module, in case we don't want it imported so early
         # (review: can we move it to toplevel now?)
     return debug_flags.atom_debug
@@ -127,9 +127,9 @@ def debug(): #bruce 060222
 # ==
 
 try:
-    _things_seen_before 
-    # don't reset this on reload 
-    # (not important yet, since env.py doesn't support reload) 
+    _things_seen_before
+    # don't reset this on reload
+    # (not important yet, since env.py doesn't support reload)
 except:
     _things_seen_before = {}
 
@@ -137,7 +137,7 @@ def seen_before(thing): #bruce 060317
     """
     Return True if and only if thing has never been seen before (as an
     argument passed to this function).
-    
+
     Useful for helping callers do things only once per session.
     """
     res = _things_seen_before.get(thing, False)
@@ -151,7 +151,7 @@ try:
 except:
     _once_per_event_memo = {}
 
-def once_per_event(*args, **kws): 
+def once_per_event(*args, **kws):
     """
     Return True only once per user event (actually, per glpane redraw),
     for the given exact combination of args and keyword args.
@@ -169,7 +169,7 @@ def once_per_event(*args, **kws):
         # (it should be ok that this can, in theory, overlap the kws case,
         #  since callers ought to be each passing distinct strings anyway)
         key1 = args
-    # this version (untested) would work, but might accumulate so much 
+    # this version (untested) would work, but might accumulate so much
     # memo data as to be a memory leak:
     ## key2 = ("once_per_event", redraw_counter, key1)
     ## return not seen_before( key2)
@@ -247,12 +247,12 @@ def call_qApp_processEvents(*args): #bruce 050908
         res = qApp.processEvents(*args)
         # Qt doc says: Processes pending events, for 3 seconds or until there
         # are no more events to process, whichever is shorter.
-        # (Or it can take one arg, int maxtime (in milliseconds), 
+        # (Or it can take one arg, int maxtime (in milliseconds),
         #  to change the timing.)
     finally:
         end_recursive_event_processing(mc)
     return res
-    
+
 # ==
 
 class pre_init_fake_history_widget:
@@ -389,7 +389,7 @@ def register_post_event_model_updater(function):
         # Rationale: since order matters, permitting transparent multiple inits
         # would be inviting bugs. If we ever need to support reload for
         # developers, we should let each added function handle that internally,
-        # or provide a way of clearing the list or replacing a function 
+        # or provide a way of clearing the list or replacing a function
         # in-place.
         #  (Note: it's possible in theory that one update function would need
         # to be called in two places within the list. If that ever happens,
@@ -419,21 +419,21 @@ def register_post_event_ui_updater(function):
 def do_post_event_updates( warn_if_needed = False ):
     """
     [public function]
-    
+
     This should be called at the end of every user event which changes model
     or selection state.
-    
+
     WARNING: In present code (070925), it is very likely not called that
     often, but this is mitigated by the precautionary calls mentioned below.
-    
+
     This can also be called at the beginning of user events, such as redraws
     or saves, which want to protect themselves from event-processors which
     should have called this at the end, but forgot to.
-    
+
     Those callers should pass warn_if_needed = True, to permit a debug-only
     warning to be emitted if the call was necessary (but there is no guarantee
     that such a warning is always emitted).
-    
+
     (The updaters registered to be called by this function should be designed
     to be fast when called more times than necessary.)
 
@@ -450,13 +450,13 @@ def do_post_event_updates( warn_if_needed = False ):
     # reasons not yet analyzed). Or it may be that those bugs were *already*
     # infinite recursions, since at least one such case is known (though it's
     # not testable in current code, since Ninad fixed it thismorning).
-    
+
     # To reproduce that bug, this might work (untested):
     # - remove def setComplementSequence from DnaSequenceEditor
     #   (what was tested was having a ProteinSequenceEditor erroneously residing
     #    in the private win attr meant for the DnaSequenceEditor)
     # - edit a dna strand using the PM button of that name in Build DNA.
-    # 
+    #
     # [bruce 080725 comment]
 
     # note: importing from utilities.debug here adds an import cycle.
@@ -477,7 +477,7 @@ def do_post_event_updates( warn_if_needed = False ):
     #  and not depend on undo checkpointing, but needs testing for
     #  unanticipated bugs or performance impact]
     change_counter_checkpoint()
-    
+
     return
 
 # ==
@@ -492,7 +492,7 @@ def node_departing_assy(node, assy): #bruce 060315 for Undo
     except AttributeError:
         # for assy is None or a certain string constant
         assert assy is None or \
-               type(assy) == type("") and "assembly" in assy 
+               type(assy) == type("") and "assembly" in assy
             # todo: assert could be more specific (or, refactor)
         return
     if um is not None:

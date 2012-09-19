@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 ColorCube.py -- a cube of all RGB colors (though only the surface is visible)
 
@@ -33,13 +33,13 @@ X = V(1,0,0)
 Y = V(0,1,0)
 Z = V(0,0,1)
 
-# faces are an axis and a sign, and orientation directions 
+# faces are an axis and a sign, and orientation directions
 # (pay attention to positive area in direction of normal)
-faces = [(X,  1,  Y, Z), 
-         (X, -1, -Y, Z), 
-         (Y,  1,  Z, X), 
-         (Y, -1, -Z, X), 
-         (Z,  1,  X, Y), 
+faces = [(X,  1,  Y, Z),
+         (X, -1, -Y, Z),
+         (Y,  1,  Z, X),
+         (Y, -1, -Z, X),
+         (Z,  1,  X, Y),
          (Z, -1, -X, Y)
         ]
 

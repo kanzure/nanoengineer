@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 >... anything I'm doing wrong?
 
@@ -50,24 +50,24 @@ class MyGLWidget(QGLWidget):
             if not self.isSharing():
                 print "Request of display list sharing is failed."
                 return
-        else:  
-            QGLWidget.__init__(self, parent, name)  
-        
+        else:
+            QGLWidget.__init__(self, parent, name)
+
         # point of view, and half-height of window in Angstroms
         self.pov = Numeric.array((0.0, 0.0, 0.0))
         self.scale = 10.0
         #self.quat = Q(1, 0, 0, 0)
 
         self.selectedObj = None
-        
+
         # clipping planes, as percentage of distance from the eye
         self.near = 0.66
-        self.far = 2.0  
+        self.far = 2.0
         # start in perspective mode
         self.ortho = False #True
         self.initialised = False
         self.backgroundColor = (0.5, 0.5, 0.5)  # gray
-    
+
     def initializeGL(self):
         glShadeModel(GL_SMOOTH)
         glEnable(GL_DEPTH_TEST)
@@ -75,21 +75,21 @@ class MyGLWidget(QGLWidget):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         return
-    
+
     def resetView(self):
         '''Subclass can override this method with different <scale>, so call this version in the overridden
            version. '''
         self.pov = Numeric.array((0.0, 0.0, 0.0))
         #self.quat = Q(1, 0, 0, 0)
-        
+
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
         """
         self.width = width
         self.height = height
-           
+
         glViewport(0, 0, self.width, self.height)
-        
+
         if not self.initialised:
             self.initialised = True
 
@@ -112,7 +112,7 @@ class MyGLWidget(QGLWidget):
                     w,h,
                     glGetIntegerv( GL_VIEWPORT ) #k is this arg needed? it might be the default...
             )
-         
+
         if self.ortho:
             glOrtho( - scale * self.aspect, scale * self.aspect,
                      - scale,          scale,
@@ -122,31 +122,31 @@ class MyGLWidget(QGLWidget):
                        - scale * near,          scale * near,
                          self.vdist * near, self.vdist * far)
         return
-    
-    
-    def paintGL(self):        
+
+
+    def paintGL(self):
         """Called by QtGL when redrawing is needed.
-            For every redraw, color & depth butter are cleared, view projection are reset, view location & orientation are also reset. 
+            For every redraw, color & depth butter are cleared, view projection are reset, view location & orientation are also reset.
         """
         if not self.initialised: return
 
         c = self.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        
+
         self.aspect = (self.width + 0.0)/(self.height + 0.0)
         self.vdist = 6.0 * self.scale
         self._setup_projection()
-        
+
         glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()    
+        glLoadIdentity()
         glTranslatef(0.0, 0.0, -self.vdist)
-       
+
         #q = self.quat
-        
+
         #glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
         glTranslatef(self.pov[0], self.pov[1], self.pov[2])
-        
+
         #self.drawModel()
         foo.foo()
 

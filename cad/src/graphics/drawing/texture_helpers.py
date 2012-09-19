@@ -1,4 +1,4 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 texture_helpers.py -- helper functions for using OpenGL textures
 
@@ -75,7 +75,7 @@ def setup_to_draw_texture_name(have_mipmaps, tex_name):
     ##hw = self.width/2.0
     ##corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0),
     ##               V(hw, -hw, 0.0), V(hw, hw, 0.0)]
-    ##drawLineLoop(color, corners_pos)  
+    ##drawLineLoop(color, corners_pos)
     return
 
 # ==
@@ -104,7 +104,7 @@ def loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
     """
     # note: some of this code has been copied into exprs/images.py, class
     # texture_holder [bruce 061125]
-    ix, iy, image = image_obj.getTextureData() 
+    ix, iy, image = image_obj.getTextureData()
 
     # allocate texture object if necessary
     if not tex_name:
@@ -117,7 +117,7 @@ def loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
         # a list of longs. We depend on this behavior here. [bruce 060207]
         tex_name = int(tex_name) # make sure it worked as expected
         assert tex_name != 0
-    
+
     # initialize texture data
     glBindTexture(GL_TEXTURE_2D, tex_name)   # 2d texture (x and y size)
 
@@ -126,7 +126,7 @@ def loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
     ##want_mipmaps = debug_pref("smoother tiny textures",
     ##                          Choice_boolean_False, prefs_key = True)
     want_mipmaps = True
-    if want_mipmaps: 
+    if want_mipmaps:
         gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ix, iy, GL_RGBA,
                           GL_UNSIGNED_BYTE, image)
         have_mipmaps = True

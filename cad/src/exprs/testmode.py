@@ -1,4 +1,4 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 testmode.py -- Command/GraphicsMode for testing graphical exprs
 (implemented in the exprs module).
@@ -71,18 +71,18 @@ class testmode_GM(_superclass_for_GM):
         # [bruce 081211]
 
     # unclassified (Command vs GraphicsMode) [guessing for GraphicsMode -- bruce 080825]
-    
+
     backgroundColor = 103/256.0, 124/256.0, 53/256.0
 
-    compass_moved_in_from_corner = True # only works when compassPosition == UPPER_RIGHT; should set False in basicMode [revised 070110] 
+    compass_moved_in_from_corner = True # only works when compassPosition == UPPER_RIGHT; should set False in basicMode [revised 070110]
 
     _defeat_update_selobj_MMB_specialcase = True # 070224; overridden at runtime in some methods below
-    
+
     ## UNKNOWN_SELOBJ = something... this is actually not set here (necessary for now) but a bit later in exprs/test.py [061218 kluge]
 
 ##    # work around some of our superclass depositMode's dependence on having its particular PM
 ##    # [now taken care of in depositMode itself]
-##    
+##
 ##    def pastable_element(self): # bruce 070921
 ##        "[overrides superclass method]"
 ##        ## return self.propMgr.elementChooser.getElement()
@@ -90,7 +90,7 @@ class testmode_GM(_superclass_for_GM):
 ##        return Carbon
 
     # ==
-    
+
     def render_scene(self, glpane):
         # This is always called, and modifying it would let us revise the entire rendering algorithm however needed.
         # This encompasses almost everything done within a single paintGL call -- even the framebuffer clear!
@@ -113,7 +113,7 @@ class testmode_GM(_superclass_for_GM):
             # set during Draw is only active for event handlers
             # when it was set during the most recent call of Draw
             # before they run. [bruce 090310 clarified old comment]
-        
+
         import exprs.testdraw as testdraw
         try:
             testdraw.Draw_preparation(self, self.o, _superclass_for_GM)
@@ -121,7 +121,7 @@ class testmode_GM(_superclass_for_GM):
             #e history message?
             print_compact_traceback("exception in testdraw.Draw_preparation ignored: ")
         return
-    
+
     def Draw_model(self):
         import exprs.testdraw as testdraw
         try:
@@ -130,7 +130,7 @@ class testmode_GM(_superclass_for_GM):
             #e history message?
             print_compact_traceback("exception in testdraw.Draw_model ignored: ")
         return
-        
+
     def Draw_other(self):
         import exprs.testdraw as testdraw
         try:
@@ -161,7 +161,7 @@ class testmode_GM(_superclass_for_GM):
         except:
             #e history message?
             print_compact_traceback("exception in testdraw.Draw_after_highlighting ignored: ")
-        return        
+        return
 
     def leftDown(self, event):
         import exprs.testdraw as testdraw
@@ -239,7 +239,7 @@ class testmode_GM(_superclass_for_GM):
                 if not hasattr(res, 'leftClick'):
                     print "bug: testmode._background_object %r has no leftClick, will be ineffective" % (res,)
         return res
-    
+
     def emptySpaceLeftDown(self, event):
         #e note: if we override self.get_obj_under_cursor(event) to return a bg object rather than None,
         # i.e. if something sets self.command._background_object to something other than None,
@@ -257,7 +257,7 @@ class testmode_GM(_superclass_for_GM):
 ##
 ##    def leftUp(self, event):
 ##        pass
-    
+
     # middle* event methods, defined here to permit "New motion UI" to be prototyped in testmode [bruce 070224].
     #
     # Notes: there are 12 "middle" methods in all (4 key combos, and Down Drag Up),
@@ -311,7 +311,7 @@ class testmode_GM(_superclass_for_GM):
             method = getattr(_superclass_for_GM, methodname)
             method(self, event)
         return
-        
+
     def middleDown(self, event):
         self._middle_anything( event, 'middleDown')
     def middleShiftDown(self, event):
@@ -320,7 +320,7 @@ class testmode_GM(_superclass_for_GM):
         self._middle_anything( event, 'middleCntlDown')
     def middleShiftCntlDown(self, event):
         self._middle_anything( event, 'middleShiftCntlDown')
-        
+
     def middleDrag(self, event):
         self._middle_anything( event, 'middleDrag')
     def middleShiftDrag(self, event):
@@ -329,7 +329,7 @@ class testmode_GM(_superclass_for_GM):
         self._middle_anything( event, 'middleCntlDrag')
     def middleShiftCntlDrag(self, event):
         self._middle_anything( event, 'middleShiftCntlDrag')
-        
+
     def middleUp(self, event):
         self._middle_anything( event, 'middleUp')
     def middleShiftUp(self, event):
@@ -351,7 +351,7 @@ class testmode_GM(_superclass_for_GM):
         else:
             _superclass_for_GM.keyPressEvent(self, event) #060429 try to get ',' and '.' binding #bruce 070122 basicMode->superclass
         return
-    
+
     def keyReleaseEvent(self, event):
         _superclass_for_GM.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->superclass
 
@@ -369,9 +369,9 @@ class testmode(_superclass_C):
     Command for testing graphical exprs
     """
     # class constants for Command
-    
+
     GraphicsMode_class = testmode_GM
-    
+
     commandName = 'testmode' # must be same as module basename, for 'custom mode'
     featurename = "Test Command: Exprs Package"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
@@ -385,7 +385,7 @@ class testmode(_superclass_C):
         except ImportError:
             pass # print "testdraw reload ImportError, ignoring"
         return
-        
+
     _background_object = None #070322 new feature: can be set during Draw
         # to something to handle clicks on background
         # Note: this is stored in the Command instance, but usually accessed
@@ -449,14 +449,14 @@ class testmode(_superclass_C):
         # and later we may also decide to not ditch them if the selobj's make_selobj_cmenu_items returns nothing.
         # DANGER: if this copied code got changed for Qt4, we're introducing a Qt4 porting problem into testmode.
         # [bruce 070228]
-    
+
         selatom, selobj = self.graphicsMode.update_selatom_and_selobj( None)
 
         # not doing:
         ## superclass.makeMenus(self) # this makes standard items for selobj if it's atom or bond or Highlightable, and a few more
-        
+
         self.Menu_spec = []
-        
+
         # Local minimize [now called Adjust Atoms in history/Undo, Adjust <what> here and in selectMode -- mark & bruce 060705]
         # WARNING: This code is duplicated in depositMode.makeMenus(). mark 060314.
         if selatom is not None and not selatom.is_singlet() and self.w.simSetupAction.isEnabled():
@@ -464,7 +464,7 @@ class testmode(_superclass_C):
             self.Menu_spec.append(( 'Adjust atom %s' % selatom, lambda e1 = None, a = selatom: self.localmin(a,0) ))
             self.Menu_spec.append(( 'Adjust 1 layer', lambda e1 = None, a = selatom: self.localmin(a,1) ))
             self.Menu_spec.append(( 'Adjust 2 layers', lambda e1 = None, a = selatom: self.localmin(a,2) ))
-            
+
         # selobj-specific menu items. [revised by bruce 060405; for more info see the same code in depositMode]
         if selobj is not None and hasattr(selobj, 'make_selobj_cmenu_items'):
             try:

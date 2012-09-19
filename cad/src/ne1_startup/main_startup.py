@@ -1,9 +1,9 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 main_startup.py -- provides the startup_script function called by main.py
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -57,7 +57,7 @@ def startup_script( main_globals):
     # more named functions or methods. The biggest split should be between
     # functions that need to be careful to do very few or no imports,
     # and functions that are free to do any imports.
-    
+
     # Windows machines spawn and remove the shell, so no info is normally
     # captured.  This is a first attempt to try to capture some of the console
     # prints that would normally be lost.  The default for this code is that
@@ -82,7 +82,7 @@ def startup_script( main_globals):
             if not os.path.exists(tmpFilePath): #If it doesn't exist
                 try:
                     os.mkdir(tmpFilePath) #Try making one
-                    capture_console = True 
+                    capture_console = True
                 except:
                     pass
                     # we tried, but there's no easy way to capture the console
@@ -108,7 +108,7 @@ def startup_script( main_globals):
                 print "on path: " + sys.executable
             except:
                 pass
-            
+
 
     # print the version information including official release candidate if it
     # is not 0 (false)
@@ -118,18 +118,18 @@ def startup_script( main_globals):
                NE1_Build_Constants.NE1_OFFICIAL_RELEASE_CANDIDATE)
     else:
         print "Version: NanoEngineer-1 v%s" % \
-              NE1_Build_Constants.NE1_RELEASE_VERSION 
-    
+              NE1_Build_Constants.NE1_RELEASE_VERSION
+
     # "Do things that should be done before most imports occur."
-    
+
     startup_before_most_imports.before_most_imports( main_globals )
-    
-    
+
+
     from PyQt4.Qt import QApplication, QSplashScreen
-    
-    
+
+
     # "Do things that should be done before creating the application object."
-    
+
     startup_before_most_imports.before_creating_app()
         ### TODO: this imports undo, env, debug, and it got moved earlier
         # in the startup process at some point. Those imports are probably not
@@ -138,7 +138,7 @@ def startup_script( main_globals):
         # how to do that. The point of this function is mostly to wrap every signal->slot
         # connection -- maybe it's sufficient to do that before creating the main
         # window rather than before creating the app? [bruce 071008 comment]
-    
+
 
     # do some imports used for putting up splashscreen
 
@@ -155,7 +155,7 @@ def startup_script( main_globals):
 
 
     # Put up the splashscreen (if its image file can be found in cad/images).
-    #    
+    #
     # Note for developers:
     # If you don't want the splashscreen, just rename the splash image file.
 
@@ -164,7 +164,7 @@ def startup_script( main_globals):
     if not splash_pixmap.isNull():
         splash = QSplashScreen(splash_pixmap) # create the splashscreen
         splash.show()
-        MINIMUM_SPLASH_TIME = 3.0 
+        MINIMUM_SPLASH_TIME = 3.0
             # I intend to add a user pref for MINIMUM_SPLASH_TIME for A7. mark 060131.
         splash_start = time.time()
     else:
@@ -172,7 +172,7 @@ def startup_script( main_globals):
 
 
     # connect the lastWindowClosed signal
-    
+
     from PyQt4.Qt import SIGNAL
     app.connect(app, SIGNAL("lastWindowClosed ()"), app.quit)
 
@@ -182,11 +182,11 @@ def startup_script( main_globals):
 
 
     # import MWsemantics.
-    
+
     # An old comment (I don't know if it's still true -- bruce 071008):
     # this might have side effects other than defining things.
 
-    from ne1_ui.MWsemantics import MWsemantics 
+    from ne1_ui.MWsemantics import MWsemantics
 
 
     # initialize modules and data structures
@@ -194,14 +194,14 @@ def startup_script( main_globals):
     from ne1_startup import startup_misc
         # do this here, not earlier, so it's free to do whatever toplevel imports it wants
         # [bruce 071008 change]
-    
+
     startup_misc.call_module_init_functions()
-    
+
     startup_misc.register_MMP_RecordParsers()
         # do this before reading any mmp files
 
     # create the single main window object
-    
+
     foo = MWsemantics() # This does a lot of initialization (in MainWindow.__init__)
 
     import __main__
@@ -211,10 +211,10 @@ def startup_script( main_globals):
 
 
     # initialize CoNTubGenerator
-    # TODO: move this into one of the other initialization functions   
-    #Disabling the following code that initializes the ConTub plugin 
-    #(in UI it is called Heterojunction.) The Heterojunction generator or 
-    #ConTubGenerator was never ported to Qt4 platform. The plugin generator 
+    # TODO: move this into one of the other initialization functions
+    #Disabling the following code that initializes the ConTub plugin
+    #(in UI it is called Heterojunction.) The Heterojunction generator or
+    #ConTubGenerator was never ported to Qt4 platform. The plugin generator
     #needs a code cleanup  -- ninad 2007-11-16
     ##import CoNTubGenerator
     ##CoNTubGenerator.initialize()
@@ -223,7 +223,7 @@ def startup_script( main_globals):
     # for developers: run a hook function that .atom-debug-rc might have defined
     # in this module's global namespace, for doing things *before* showing the
     # main window.
-    
+
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
         func = atom_debug_pre_main_show
@@ -234,11 +234,11 @@ def startup_script( main_globals):
 
 
     # Do other things that should be done just before showing the main window
-    
+
     startup_misc.pre_main_show(foo) # this sets foo's geometry, among other things
-    
+
     foo._init_after_geometry_is_set()
-    
+
     if not splash_pixmap.isNull():
         # If the MINIMUM_SPLASH_TIME duration has not expired, sleep for a moment.
         while time.time() - splash_start < MINIMUM_SPLASH_TIME:
@@ -247,8 +247,8 @@ def startup_script( main_globals):
 
 
     # show the main window
-    
-    foo.show() 
+
+    foo.show()
 
     # for developers: run a hook function that .atom-debug-rc might have defined
     # in this module's global namespace, for doing things *after* showing the
@@ -256,7 +256,7 @@ def startup_script( main_globals):
 
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
-        func = atom_debug_post_main_show 
+        func = atom_debug_post_main_show
     except NameError:
         pass
     else:
@@ -309,7 +309,7 @@ def startup_script( main_globals):
     # profiling command and into what file. Set local variables
     # to record the decision, which are used later when running
     # the Qt event loop.
-    
+
     # If the user's .atom-debug-rc specifies PROFILE_WITH_HOTSHOT = True,
     # use hotshot, otherwise fall back to vanilla Python profiler.
     # (Note: to work, it probably has to import this module
@@ -318,7 +318,7 @@ def startup_script( main_globals):
         PROFILE_WITH_HOTSHOT
     except NameError:
         PROFILE_WITH_HOTSHOT = False
-    
+
     try:
         # user can set atom_debug_profile_filename to a filename in .atom-debug-rc,
         # to enable profiling into that file. For example:
@@ -374,7 +374,7 @@ def startup_script( main_globals):
 
 
     # Handle a mmp file passed to it via the command line.  The mmp file
-    # must be the first argument (after the program name) found on the 
+    # must be the first argument (after the program name) found on the
     # command line.  All other arguments are currently ignored and only
     # one mmp file can be loaded from the command line.
     # old revision with --initial-file is at: svn rev 12759
@@ -385,13 +385,13 @@ def startup_script( main_globals):
     # Do other post-startup, pre-event-loop, non-profiled things, if any
     # (such as run optional startup commands for debugging).
     startup_misc.just_before_event_loop()
-    
+
     if os.environ.has_key('WINGDB_ACTIVE'):
         # Hack to burn some Python bytecode periodically so Wing's
         # debugger can remain responsive while free-running
         # [from http://wingware.com/doc/howtos/pyqt; added by bruce 081227]
         # Addendum [bruce 090107]: this timer doesn't noticeably slow down NE1,
-        # but with or without it, NE1 is about 4x slower in Wing than running 
+        # but with or without it, NE1 is about 4x slower in Wing than running
         # alone, at least when running test_selection_redraw.py.
         print "running under Wing IDE debugger; setting up timer"
         from PyQt4 import QtCore
@@ -402,11 +402,11 @@ def startup_script( main_globals):
                 x += i
         timer.connect(timer, QtCore.SIGNAL("timeout()"), donothing)
         timer.start(200)
-            
+
     # Finally, run the main Qt event loop --
     # perhaps with profiling, depending on local variables set above.
     # This does not normally return until the user asks NE1 to exit.
-    
+
     # Note that there are three copies of the statement which runs that loop,
     # two inside string literals, all of which presumably should be the same.
 
@@ -421,11 +421,11 @@ def startup_script( main_globals):
                (atom_debug_profile_filename,))
     else:
         # if you change this code, also change both string literals just above
-        app.exec_() 
+        app.exec_()
 
 
     # Now return to the caller in order to do a normal immediate exit of NE1.
-    
+
     return # from startup_script
 
 # end

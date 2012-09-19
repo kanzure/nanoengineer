@@ -145,7 +145,7 @@ def _verifyGromppAndMdrunExecutables(gromacs_plugin_path):
 
 class GromacsProcess(Process):
     verboseGromacsOutput = False
-    
+
     def standardOutputLine(self, line):
         Process.standardOutputLine(self, line)
         if (self.verboseGromacsOutput):
@@ -172,7 +172,7 @@ class GromacsProcess(Process):
     def prepareForMdrun(self):
         self.runningGrompp = False
         self.runningMdrun = True
-    
+
 class SimRunner:
     """
     Class for running the simulator.
@@ -197,7 +197,7 @@ class SimRunner:
     PREPARE_TO_CLOSE = False
 
     used_atoms = None
-    
+
     def __init__(self, part, mflag,
                  simaspect = None,
                  use_dylib_sim = _USE_PYREX_SIM,
@@ -248,18 +248,18 @@ class SimRunner:
             msg = "Using the standalone simulator (not the pyrex simulator)"
             env.history.message(greenmsg(msg))
         return
-    
+
     def verifyNanoVision1Plugin(self):
         """
         Verify NanoVision-1 plugin.
-        
+
         @return: True if NanoVision-1 is properly enabled.
         @rtype: boolean
         """
-        
+
         plugin_name = "NanoVision-1"
         plugin_prefs_keys = (nv1_enabled_prefs_key, nv1_path_prefs_key)
-            
+
         errorcode, errortext_or_path = \
                  checkPluginPreferences(plugin_name, plugin_prefs_keys,
                                         insure_executable = True)
@@ -267,22 +267,22 @@ class SimRunner:
             msg = redmsg("Verify Plugin: %s (code %d)" % (errortext_or_path, errorcode))
             env.history.message(msg)
             return False
-        
+
         self.nv1_executable_path = errortext_or_path
-        
+
         return True
 
     def verifyGromacsPlugin(self):
         """
         Verify GROMACS plugin.
-        
+
         @return: True if GROMACS is properly enabled.
         @rtype: boolean
         """
-        
+
         plugin_name = "GROMACS"
         plugin_prefs_keys = (gromacs_enabled_prefs_key, gromacs_path_prefs_key)
-            
+
         errorcode, errortext_or_path = \
                  checkPluginPreferences(plugin_name, plugin_prefs_keys,
                                         extra_check = _verifyGromppAndMdrunExecutables)
@@ -290,14 +290,14 @@ class SimRunner:
             msg = redmsg("Verify Plugin: %s (code %d)" % (errortext_or_path, errorcode))
             env.history.message(msg)
             return False
-        
+
         program_path = errortext_or_path
-        
+
         self.gromacs_bin_dir, junk_exe = os.path.split(program_path)
-        
+
         plugin_name = "CPP"
         plugin_prefs_keys = (cpp_enabled_prefs_key, cpp_path_prefs_key)
-            
+
         errorcode, errortext_or_path = \
                  checkPluginPreferences(plugin_name, plugin_prefs_keys,
                                         insure_executable = True)
@@ -305,9 +305,9 @@ class SimRunner:
             msg = redmsg("Verify Plugin: %s (code %d)" % (errortext_or_path, errorcode))
             env.history.message(msg)
             return False
-        
+
         self.cpp_executable_path = errortext_or_path
-        
+
         return True
 
     def mdrunPollFunction(self):
@@ -346,7 +346,7 @@ class SimRunner:
             return
         self.sim_input_file = self.sim_input_filename()
             # might get name from options or make up a temporary filename
-            
+
         launchNV1 = debug_pref("GROMACS: Launch NV1", Choice_boolean_False)
         if (self.mflag == 1 and self.useGromacs):
             if (not self.verifyGromacsPlugin()):
@@ -370,7 +370,7 @@ class SimRunner:
             sp = SimulatorParameters()
             self.yukawaRCutoff = sp.getYukawaRCutoff()
             self.spawn_process()
-                # spawn_process is misnamed since it can go thru either 
+                # spawn_process is misnamed since it can go thru either
                 # interface (pyrex or exec OS process), since it also monitors
                 # progress and waits until it's done, and insert results back
                 # into part, either in real time or when done.
@@ -393,16 +393,16 @@ class SimRunner:
                 grompp = \
                     os.path.join(self.gromacs_bin_dir, "grompp%s" % dot_exe)
                 mdrun = os.path.join(self.gromacs_bin_dir, "mdrun%s" % dot_exe)
-                
+
                 gromacsFullBaseFileName = self._movie.filename
                 gromacsFullBaseFileInfo = QFileInfo(gromacsFullBaseFileName)
                 gromacsWorkingDir = gromacsFullBaseFileInfo.dir().absolutePath()
                 gromacsBaseFileName = gromacsFullBaseFileInfo.fileName()
-                
+
                 env.history.message("%s: GROMACS files at %s%s%s.*" %
                     (self.cmdname, gromacsWorkingDir, os.sep,
                      gromacsFullBaseFileInfo.completeBaseName()))
-                     
+
                 gromacsProcess = GromacsProcess()
                 gromacsProcess.setProcessName("grompp")
                 gromacsProcess.prepareForGrompp()
@@ -418,9 +418,9 @@ class SimRunner:
                     "-o", "%s.tpr" % gromacsBaseFileName,
                     "-po", "%s-out.mdp" % gromacsBaseFileName,
                     ]
-                    
+
                 gromacsProcess.setWorkingDirectory(gromacsWorkingDir)
-                
+
                 gromacs_topo_dir = \
                     self.gromacs_bin_dir[0:len(self.gromacs_bin_dir) - 4]
                 gromacs_topo_dir = \
@@ -441,7 +441,7 @@ class SimRunner:
                     progressBar.reset()
                     gromacsProcess.setProcessName("mdrun")
                     gromacsProcess.prepareForMdrun()
-                        
+
                     trajectoryOutputFile = None
                     if (self.background and launchNV1):
                         trajectoryOutputFile = "%s/%s.%s" % \
@@ -456,7 +456,7 @@ class SimRunner:
                                                                    gromacsFullBaseFileName)
                         trajectoryOutputFile = \
                             "%s.%s" % (gromacsFullBaseFileName, "trr")
-                        
+
                     mdrunArgs = None
                     if (self.background):
                         fullBaseFilename = gromacsFullBaseFileName
@@ -490,7 +490,7 @@ class SimRunner:
 
                         mdrunArgs += [ "-table", tableFile,
                                        "-tablep", tableFile ]
-                        
+
                     if (self.background):
                         abortHandler = None
                         scriptSuffix = None
@@ -523,9 +523,9 @@ class SimRunner:
                                 gromacsWorkingDir + os.sep + \
                                 gromacsFullBaseFileInfo.completeBaseName()
                             os.mkdir(hdf5DataStoreDir)
-                            
+
                         sleep(1) # Give GMX/HDF5 a chance to write basic info
-						
+
                         # Determine the GMX process id (pid) for passing to nv1.
                         #
                         # (Py)QProcess.pid() doesn't return anything useable
@@ -546,12 +546,12 @@ class SimRunner:
                                         break
                                 logFile.close()
                                 fileOpenAttemptIndex = 99
-                                
+
                             except:
                                 fileOpenAttemptIndex += 1
                                 env.history.message(self.cmdname + ": Waiting for GROMACS process identifier availability...")
                                 sleep(1)
-                        
+
                         # Write the input file into the HDF5 data store
                         # directory. (It is part of data store.)
                         if (launchNV1):
@@ -560,7 +560,7 @@ class SimRunner:
                             all_atoms = {}
                             self.part.writemmpfile(inputFileName,
                                                    add_atomids_to_dict = all_atoms)
-						
+
                         # Write a file that maps the ids of the atoms actually
                         # used for simulation to the atom ids of the complete
                         # structure stored in the MMP file above.
@@ -572,7 +572,7 @@ class SimRunner:
                                 hdf5DataStoreDir + os.sep + "trajAtomIdMap.txt"
                             self.writeTrajectoryAtomIdMapFile(mapFilename,
                                                               used_atoms, all_atoms)
-                        
+
                         # Launch the NV1 process
                         if (launchNV1):
                             nv1 = self.nv1_executable_path
@@ -606,7 +606,7 @@ class SimRunner:
             if self.simProcess: #bruce 051231 added condition (since won't be there when use_dylib)
                 ##Tries to terminate the process the nice way first, so the process
                 ## can do whatever clean up it requires. If the process
-                ## is still running after 2 seconds (a kludge). it terminates the 
+                ## is still running after 2 seconds (a kludge). it terminates the
                 ## process the hard way.
                 #self.simProcess.tryTerminate()
                 #QTimer.singleShot( 2000, self.simProcess, SLOT('kill()') )
@@ -627,7 +627,7 @@ class SimRunner:
             # since saying we aborted or had an error is good enough...
             ###e revise if kill can take time.
         return # caller should look at self.errcode
-        
+
         # semi-obs comment? [by bruce few days before 050404, partly expresses an intention]
         # results themselves are a separate object (or more than one?) stored in attrs... (I guess ###k)
         # ... at this point the caller probably extracts the results object and uses it separately
@@ -746,8 +746,8 @@ class SimRunner:
                 # fix this, or is it not removed until after this point?? bruce question 060102]
 
         if not self.use_dylib_sim:
-            # "program" is the full path to the simulator executable. 
-            if sys.platform == 'win32': 
+            # "program" is the full path to the simulator executable.
+            if sys.platform == 'win32':
                 program = os.path.join(bin_dir, 'simulator.exe')
             else:
                 program = os.path.join(bin_dir, 'simulator')
@@ -825,7 +825,7 @@ class SimRunner:
                 print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
             movie.filename = self.tmp_file_prefix + ".dpb"  ## "sim-%d.dpb" % pid
 
-        if movie.filename: 
+        if movie.filename:
             moviefile = movie.filename
         else:
             msg = redmsg("Can't create movie.  Empty filename.")
@@ -875,7 +875,7 @@ class SimRunner:
          if not, make up a suitable temp name)
         and return it; don't record it (caller does that),
         and no need to be deterministic (only called once if that matters).
-        """         
+        """
         # We always save the current part to an MMP file before starting
         # the simulator.  In the future, we may want to check if assy.filename
         # is an MMP file and use it if not assy.has_changed().
@@ -964,7 +964,7 @@ class SimRunner:
         """
         if DEBUG_SIM:
             #bruce 051115 confirmed this is always called for any use of sim (Minimize or Run Sim)
-            print "calling spawn_process" 
+            print "calling spawn_process"
         # First figure out process arguments
         # [bruce 050401 doing this later than before, used to come before writing sim-input file]
         self.setup_sim_args() # stores them in an attribute, whose name and value depends on self.use_dylib_sim
@@ -1020,7 +1020,7 @@ class SimRunner:
         # the use_dylib code for formarg is farther below
 
         self._simopts = self._simobj = self._arguments = None # appropriate subset of these is set below
-        
+
         use_timestep_arg = False
         if 1: ##@@ bruce 060503: add debug_pref to let user vary simulator timestep
             # (we also read the value on import, in separate code above, to make sure it gets into the debug menu right away)
@@ -1039,7 +1039,7 @@ class SimRunner:
                 else:
                     electrostaticFlag = self.getElectrostaticPrefValueForMinimize()
 
-##		electrostaticArg.append(str(electrostaticFlag))
+##              electrostaticArg.append(str(electrostaticFlag))
                 electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 
                 if (self.useGromacs):
@@ -1060,20 +1060,20 @@ class SimRunner:
                 # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
                 # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
                 # [later, bruce 051231: I think only one of the two true mflag values is presently supported.]
-                args = [program, '-m', str(formarg), 
+                args = [program, '-m', str(formarg),
                         traceFileArg, outfileArg,
                         electrostaticArg,
                         infile] + gromacsArgs #SIMOPT
-            else: 
+            else:
                 # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
                 # The timestep argument "-s + (movie.timestep)" is not supported for Alpha. #SIMOPT
 
-                electrostaticArg = '--enable-electrostatic='		
+                electrostaticArg = '--enable-electrostatic='
                 electrostaticFlag = self.getElectrostaticPrefValueForDynamics()
-##		electrostaticArg.append(str(electrostaticFlag))
+##              electrostaticArg.append(str(electrostaticFlag))
                 electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 
-                args = [program, 
+                args = [program,
                         '-f' + str(movie.totalFramesRequested), #SIMOPT
                         '-t' + str(movie.temp),  #SIMOPT
                         '-i' + str(movie.stepsper),  #SIMOPT
@@ -1129,7 +1129,7 @@ class SimRunner:
                 simopts.EnableElectrostatic = self.getElectrostaticPrefValueForDynamics()
             if mflag:
                 self.set_minimize_threshhold_prefs(simopts)
-                if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':		    
+                if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':
                     simopts.EnableElectrostatic = self.getElectrostaticPrefValueForAdjust()
                     simopts.NeighborSearching = 0
                 else:
@@ -1158,40 +1158,40 @@ class SimRunner:
 
     def getElectrostaticPrefValueForAdjust(self):
         #ninad20070509
-        #int EnableElectrostatic =1 implies electrostatic is enabled 
-        #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
+        #int EnableElectrostatic =1 implies electrostatic is enabled
+        #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src
         if self.useGromacs and env.prefs[electrostaticsForDnaDuringAdjust_prefs_key]:
             val = 1
         else:
-            val = 0	
+            val = 0
         return val
 
     def getElectrostaticPrefValueForMinimize(self):
         #ninad20070509
-        # int EnableElectrostatic =1 implies electrostatic is enabled 
-        #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
+        # int EnableElectrostatic =1 implies electrostatic is enabled
+        #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src
         if self.useGromacs and env.prefs[electrostaticsForDnaDuringMinimize_prefs_key]:
             val = 1
         else:
-            val = 0	
+            val = 0
         return val
 
     def getNeighborSearchingPrefValue(self):
         if env.prefs[neighborSearchingInGromacs_prefs_key]:
             val = 1
         else:
-            val = 0	
+            val = 0
         return val
 
 
     def getElectrostaticPrefValueForDynamics(self):
         #ninad20070509
-        # int EnableElectrostatic =1 implies electrostatic is enabled 
-        #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
+        # int EnableElectrostatic =1 implies electrostatic is enabled
+        #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src
         if env.prefs[electrostaticsForDnaDuringDynamics_prefs_key]:
-            val = 1 
+            val = 1
         else:
-            val = 0	
+            val = 0
         return val
 
     def set_minimize_threshhold_prefs(self, simopts): #bruce 060628, revised 060705
@@ -1312,7 +1312,7 @@ class SimRunner:
         try:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
             self.remove_old_tracefile(self.traceFileName)
-            ## Start the simulator in a different process 
+            ## Start the simulator in a different process
             self.simProcess = QProcess()
             simProcess = self.simProcess
             if DEBUG_SIM: #bruce 051115 revised this debug code
@@ -1394,7 +1394,7 @@ class SimRunner:
             if DEBUG_SIM:
                 print "deleting moviefile: [",moviefile,"]"
             os.remove (moviefile) # Delete before spawning simulator.
-        return        
+        return
         #bruce 051231: here is an old comment related to remove_old_moviefile;
         # I don't know whether it's obsolete regarding the bug it warns about:
         # delete old moviefile we're about to write on, and warn anything that might have it open
@@ -1454,7 +1454,7 @@ class SimRunner:
                 filesize = movie.totalFramesRequested * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
                 pbarCaption = "Save File" # might be changed below
                 pbarMsg = "Saving XYZ trajectory file " + os.path.basename(moviefile) + "..."
-        else: 
+        else:
             # Multiframe minimize
             if mflag:
                 filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
@@ -1870,8 +1870,8 @@ class SimRunner:
         or printed history messages, if anything has set self.need_process_events to indicate it needs this
         (and reset that flag):
         - tell Qt to process events
-        - see if user aborted, if so, set flag in simulator object so it will abort too 
-          (but for now, separate code will also terminate the sim run in the usual way, 
+        - see if user aborted, if so, set flag in simulator object so it will abort too
+          (but for now, separate code will also terminate the sim run in the usual way,
            reading redundantly from xyz file)
         """
         if self.need_process_events:
@@ -1959,7 +1959,7 @@ class SimRunner:
         structure (a Part) as it was stored in an MMP file (all_atoms).
 
         @param filename: pathname of file to create and write to.
-        
+
         @param used_atoms: dict of atoms used (atom.key -> atom id used for sim)
 
         @param all_atoms: dict of all atoms in one Part (atom.key -> atom id
@@ -1970,7 +1970,7 @@ class SimRunner:
             len(used_atoms), len(all_atoms) # remove when works @@@@@
         try:
             fileHandle = open(filename, 'w')
-            
+
             header1 = "# Format: simulation_atom_id mmp_file_atom_id\n"
                 # format uses -1 for missing atom errors (should never happen)
             fileHandle.write(header1)
@@ -1999,7 +1999,7 @@ class SimRunner:
 
             fileHandle.write("# end\n")
             fileHandle.close()
-            
+
         except:
             msg = self.cmdname + ": Failed to write [%s] " \
                   "(the simulation atom id to mmp file atom id map file)." % \
@@ -2042,7 +2042,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
     findRmsForce = re.compile("rms ([0-9.]+) pN")
     findHighForce = re.compile("high ([0-9.]+) pN")
     formattedCommentRegex = re.compile(r'^(# [^:]+:)(.*)')
-    
+
     def __init__(self, owner, minimize = False, simopts = None):
         """
         store owner in self, so we can later set owner.said_we_are_done = True; also start
@@ -2057,7 +2057,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         self._pattern_atom_id_cache = {} # note: this cache and its associated methods
             # might be moved to another object, like self.owner
         return
-        
+
     def start(self):
         """
         prepare to loop over lines
@@ -2067,7 +2067,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         self.mentioned_sim_trace_file = False # public, can be set by client code
         self.currentPatternName = ""
         self.PAM5_handles = []
-        
+
     def step(self, line): #k should this also be called by __call__ ? no, that would slow down its use as a callback.
         """
         do whatever should be done immediately with this line, and save things to do later;
@@ -2084,7 +2084,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                     self.__last_plain_line_words = words
                 elif debug_flags.atom_debug:
                     print "atom_debug: weird tracef line:", line ####@@@@ remove this? it happens normally at the end of many runs
-            return 
+            return
         if _print_sim_comments_to_history: #e add checkbox or debug-pref for this??
             env.history.message("tracefile: " + line)
         # don't discard initial "#" or "# "
@@ -2239,13 +2239,13 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             delta = 100.0 * vlen(A(pos1) - A(pos2)) # pm
             force = abs((delta - r0) * ks) # pN
             env.history.message("Force on handle %d: %f pN" % (atom2, force))
-    
+
     def _atomID(self, idString):
         if (idString.startswith("{")):
             s = idString[1:-1]
             return int(s)
         return int(idString)
-    
+
     def progress_text(self): ####@@@@ call this instead of printing that time stuff
         """
         Return some brief text suitable for periodically displaying on statusbar to show progress
@@ -2291,12 +2291,12 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         """
         """
         ### TODO: add exception protection to caller.
-        
+
         # start looks like "# Pattern <patterntype>:"
         patterntype = start[:-1].strip().split()[2]
 
         assy = self.owner.part.assy
-        
+
         if patterntype == "makeVirtualAtom":
             # for format details see:
             #
@@ -2316,14 +2316,14 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             #   In this case, there are only three parents, so parentID4 is "x"
             #   instead of a number.  Function_id 1 with 3 parents only uses two
             #   parameters (A and B), so C is zero.
-            #   
+            #
             #   For a three parent virtual site with function_id 1, here is how you
             #   find the location of the site:
-            #   
+            #
             #   Multiply the vector (parentID2 - parentID1) * A
             #   Multiply the vector (parentID3 - parentID1) * B
             #   Add the above two vectors to parentID1
-            #   
+            #
             #   This is the only style of virtual site currently in use.  See the
             #   GROMACS user manual for the definition of other types of virtual sites.
             words = rest.strip().split()
@@ -2344,7 +2344,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             if (num_parents, function_id) == (3, 1):
                 # the only style of virtual site currently in use (as of 20080501)
                 from model.virtual_site_indicators import add_virtual_site
-                
+
                 site_params = ( function_id, A, B)
                 mt_name = "%s %s %0.2f %0.2f" % (matchseq, site_atom_id, A, B)
                 site_atom = add_virtual_site(assy, parent_atoms, site_params,
@@ -2378,7 +2378,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
             from model.virtual_site_indicators import add_virtual_bond
             add_virtual_bond( assy, atoms, bond_params, MT_name = mt_name)
             pass
-        
+
         return # from createPatternIndicator
 
     def interpret_pattern_atom_id(self, id_string, ok_to_not_exist = False):
@@ -2406,7 +2406,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                               ( atom_id_num, len(alist))
                     return None
                 pass
-            res = alist[atom_id_index]                
+            res = alist[atom_id_index]
             self._pattern_atom_id_cache[ id_string ] = res
             return res
         pass
@@ -2447,7 +2447,7 @@ def part_contains_pam_atoms(part, kill_leftover_sim_feedback_atoms = False):
     #             PAM3   PAM5  other
     contents = [ False, False, False ]
     kill_these = []
-    
+
     def check_for_pam(n):
         if (isinstance(n, Chunk)):
             for a in n.atoms.itervalues():
@@ -2469,7 +2469,7 @@ def part_contains_pam_atoms(part, kill_leftover_sim_feedback_atoms = False):
     # do this last, since it can't be done during apply2all:
     for atom in kill_these:
         atom.kill()
-    
+
     if (contents[0]):     # has PAM3
         if (contents[1]): # has PAM5
             return -2     # mixture of PAM3 and PAM5
@@ -2618,7 +2618,7 @@ def readxyz(filename, alist):
     in the same order as in the xyz file (hopefully the same order as in alist).
     """
     from model.elements import Singlet
-    
+
     xyzFile = filename ## was assy.m.filename
     lines = open(xyzFile, "rU").readlines()
 
@@ -2630,9 +2630,9 @@ def readxyz(filename, alist):
     atomList = alist ## was assy.alist, with assy passed as an arg
         # bruce comment 050324: this list or its atoms are not modified in this function
     ## stores the new position for each atom in atomList
-    newAtomsPos = [] 
+    newAtomsPos = []
 
-    try:     
+    try:
         numAtoms_junk = int(lines[0])
         rms_junk = float(lines[1][4:])
     except ValueError:
@@ -2648,7 +2648,7 @@ def readxyz(filename, alist):
                 #bruce 050404 fixed order of printfields, added 1 to index
             print msg
             return msg
-        try:        
+        try:
             if words[0] != atomList[atomIndex].element.symbol:
                 if words[0] == 'H' and atomList[atomIndex].element == Singlet:
                     #bruce 050406 permit this, to help fix bug 254 by writing H to sim for Singlets in memory
@@ -2668,7 +2668,7 @@ def readxyz(filename, alist):
             print msg
             return msg
         except:
-            #bruce 060108 added this case (untested) since it looks necessary to catch atomList[atomIndex] attributeerrors 
+            #bruce 060108 added this case (untested) since it looks necessary to catch atomList[atomIndex] attributeerrors
             msg = "readxyz: %s: error (perhaps fewer atoms in model than in xyz file)" % (xyzFile,)
             print msg
             return msg
@@ -2728,7 +2728,7 @@ def readGromacsCoordinates(filename, atomList, tracefileProcessor = None):
     newAtomsPos = []
     allAtomPositions = []
 
-    try:     
+    try:
         numAtoms_junk = int(lines[1])
     except ValueError:
         msg = "readGromacsCoordinates: %s: File format error in Line 2" % filename

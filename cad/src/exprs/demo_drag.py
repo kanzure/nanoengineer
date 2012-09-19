@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 demo_drag.py
 
@@ -101,9 +101,9 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     # 070223 possible fix to seeing depth of self: during a drag, tell glpane not to draw dragobj into depth or during glselect
     # mode... so it finds some other selobj besides dragobj. means it should draw dragobj last i guess... maybe transparent
     # so you can see selobj behind it, or diff color when there is a selobj...
-    
+
     ###e about what to rename it... Hmm, is it a general "Draggable"? .lookslike arg2 -> .islike or .thing arg1?
-    
+
     # BTW, the highlightability is not yet specified here ###nim; it relates to the fact that we can bind commands to it
     # (as opposed to things it contains or is contained in, tho that should be permitted at the same time,
     #  tho implem requires nested glnames to sometimes ignore inner ones, when those are inactive);
@@ -113,7 +113,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     # [update much later 070201: or maybe ModelObject knows about this and asks env whether to override default drawing code.]
 
     # but for now, can we do this here?
-    
+
     pos0 = Arg(Position)
     pos = State(Position, pos0) ###BUG -- does this work -- is pos0 set in time for this? not sure it's working... 061205 1009p
     #e we probably want to combine pos0/pos into one StateArg so it's obvious how they relate,
@@ -141,13 +141,13 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
 
     #e but also to have more args that can be used to set the color [do this only in Vertex_new, below]
     ## color = Option(Color, color)
-    
+
 ##    pass
 
 ## class VertexView(xx): -- SOMETHING LIKE THIS IS THE INTENT ####
 
     #e and then we want this new class to have the hardcoded appearance & behavior which the code below now passes in lookslike arg
-    
+
     lookslike = ArgOrOption(Anything) # OrOption is so it's customizable
         ###BAD for lookslike to be an attr of the Vertex, at least if this should be a good example of editing a sketch. [070105]
         # (a fancy sketch might have custom point types, but they'd have tags or typenames, with rules to control what they look like)
@@ -162,7 +162,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
                               )
                 #e actions? or do this in a per-tool wrapper which knows the actions?
                 # or, do this here and make the actions delegate to the current tool for the current parent? guess: the latter.
-                
+
         ##e digr: will we want to rename delegate so it's only for appearance? *is it*? does it sim like this too?
         # Guess: it's for everything -- looks, sim qualities, etc -- except what we override or grab from special members.
         # [if so, no need to rename, except to clarify, leaving it general.]
@@ -176,7 +176,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
         # where i am 070103 447p (one of two places with that comment)
         # - sort of sometimes works, but posns are sometimes same as bg, not sure why that DZ would be needed,
         # oh i guess the mousepos comes from the gray bg rect not the self unless we drag very slow...
-        
+
         point = self.current_event_mousepoint() ### MIGHT BE WRONG COORDS? guess: no
          #k guess: will have snap-to-fixed-point bug for generic drag code
         newpos = point + DZ * DZFUZZ # used for different things, depending #### DZ needed but might cause trouble too
@@ -197,7 +197,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
 # My general sense in hindsight is that it's too low-level -- I need to figure out how all this could/should look as toplevel exprs.
 #
 # See a new file rules.py for more on that.
-    
+
 class Vertex_new(ModelObject): #070105 ###e maybe it also needs an official type or typename for use in rules and files?
     pos0 = Arg(Position)
     pos = State(Position, pos0)
@@ -210,7 +210,7 @@ class Viewer(InstanceOrExpr):
     pass
 
 class VertexViewer(DelegatingInstanceOrExpr, Viewer): ###k ok supers?
-    
+
     delegate = Rect(1, color = _self.modelobj.color) ###WRONG details, also assumes _self.modelobj has a color, but some don't.
         ###e do we wrap it in a provider of new default options??
     ###e also needs behaviors...
@@ -424,7 +424,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
     )
 
     newnode = None # note: name conflict(?) with one of those not yet used Command classes
-    
+
     def on_press_bg(self):
         if 0:
             print "compare:"
@@ -433,7 +433,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
             print "hl.highlighted =",self.delegate.delegate.highlighted
                 # self.background is the same as the .plain printed above, which means, as of 061208 941pm anyway,
                 # instantiating an instance gives exactly that instance. (Reasonable for now...)
-            
+
         point = self.current_event_mousepoint()
             #e note: current_event_mousepoint is defined only on Highlightable, for now (see comments there for how we need to fix that),
             # but works here because we delegate ultimately to a Highlightable, without changing local coords as we do.
@@ -463,7 +463,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
                                color = tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Vertex).ipath[0],6)]
                             )
             pass
-        
+
         ## draggable_node_expr = Highlightable(node_expr, on_drag = _self.on_drag_node, sbar_text = "dne")
             ###BUG: this breaks dragging of the new node; it fails to print the call message from on_drag_node;
             # if you try to drag an old node made this way, it doesn't work but says
@@ -495,7 +495,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
             # Or we can probably just "draw it" and have it pick up the current display style from the env (including the
             # currently active tools). Is there any reason not to permit both? (draw using current style, draw using given style,
             # give me function from you to drawables using given style, use specific function and draw the results -- all possible.)
-            # 
+            #
             # If a thing in a world has standard mouse actions of its own, can it also have "grabbable areas" for use in dragging it
             # when it has a posn as displayed in some world? Or did that world have to explicitly turn it into a draggable thing?
             # Answer: both. The world turns it into that by adding a drag binding for those "overall handles" the thing has.
@@ -509,22 +509,22 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
             # In general the outer name decides how to interpret (or whether to ignore) the inner names.
             # It can map the inner ones somehow... not sure how. This will relate a lot to DisplayListChunk when we have that.
             # Mere nested Highlightables might push two names but both would be unique. Outer name might just defer to inner one then.
-            
+
         if 0:
             ## MAKE THIS WORK:
             draggable_node_expr = 'define this'
             newnode = self.world.make_and_add( draggable_node_expr, type = "Vertex")
         else:
             newnode = self.world.make_and_add( node_expr, type = "Vertex") #070206 added type = "Vertex"
-            
+
         self.newnode = newnode ###KLUGE that we store it directly in self; might work tho; we store it only for use by on_drag_bg
         return # from on_press_bg
-    
+
 ##    def on_drag_node(self):
 ##        print "on_drag_node called -- how can we know *which* node it was called on??"
-##        # 070103 status guess: this is not called; old cmts above seem to say that the only problem with it working is nested glnames. 
+##        # 070103 status guess: this is not called; old cmts above seem to say that the only problem with it working is nested glnames.
 ##        return
-    
+
     def on_drag_bg(self):
         # note: so far, anyway, called only for drag after click on empty space, not from drag after click on existing node
         point = self.current_event_mousepoint()
@@ -536,7 +536,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
 ##        # print "on_drag_bg %d" % lastipath, point###  # this shows no error in retaining correct lastnode -- that's not the bug
         ## print "on_drag_bg"
         newpos = point + DZ * DZFUZZ # used for different things, depending
-        
+
         what = kluge_dragtool_state() ###IMPLEM better
         if what == 'draw':
             # make a blue dot showing the drag path, without moving the main new node (from the click)
@@ -591,11 +591,11 @@ def kluge_dragtool_state():
     return drag and 'drag' or 'draw'
 
 kluge_dragtool_state() # set the default val
-    
+
 kluge_dragtool_state_checkbox_expr = SimpleColumn( # note, on 061215 late, checkbox_pref was replaced with a better version, same name
     checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
     checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
- )    
+ )
 
 def demo_drag_toolcorner_expr_maker(world): #070106 improving the above
     # given an instance of World, return an expr for the "toolcorner" for use along with GraphDrawDemo_FixedToolOnArg1 (on the same World)

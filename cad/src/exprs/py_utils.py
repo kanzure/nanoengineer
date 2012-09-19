@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 py_utils.py
 
@@ -122,9 +122,9 @@ class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibled
 def union(A,B): #k does this override anything that's standard in python? if so, rename it, perhaps to dict_union
     #note: presumably useful, but not yet used; may never end up being used.
     """Union, for sets represented as dicts from k to k,
-    or (if you prefer) from k to f(k), for any pure function f 
+    or (if you prefer) from k to f(k), for any pure function f
     (which need not be deterministic, and can even be entirely arbitrary).
-       For even more general uses, we guarantee: 
+       For even more general uses, we guarantee:
     when k occurs in both inputs, the value f(k) comes from B.
     But we might remove this guarantee as an optim, someday, so uses should comment if they depend on it
     (or should use an alias to this function, which carries a permanent guarantee #e).

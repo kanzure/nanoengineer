@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 """
@@ -10,7 +10,7 @@ random point in n-dim-simplex, as n+1 vertex weights:
 - replace each one, and a final added 1, by itself minus the prior one.
 
 evidence: each ordering of cube coords corrs to a simplicial region of the cube;
-the operation shifts that into a standard posn. 
+the operation shifts that into a standard posn.
 
 more evidence: the op appears to be volume-preserving (the sort is, the shears are -- those minus prior ones are shears)
 and fair

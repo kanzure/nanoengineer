@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 @author: Ninad
@@ -9,7 +9,7 @@ History:
 ninad 20070602: Created.
 Summer 2008: Urmi and Piotr added code to support image display and grid display
              within Plane objects.
-             
+
 TODO 2008-09-19:
 See Plane_EditCommand.py
 
@@ -45,7 +45,7 @@ _superclass = EditCommand_PM
 
 class PlanePropertyManager(EditCommand_PM):
     """
-    The PlanePropertyManager class provides a Property Manager for a 
+    The PlanePropertyManager class provides a Property Manager for a
     (reference) Plane.
 
     """
@@ -69,7 +69,7 @@ class PlanePropertyManager(EditCommand_PM):
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
-        
+
         self.gridColor = black
         self.gridXSpacing = 4.0
         self.gridYSpacing = 4.0
@@ -78,11 +78,11 @@ class PlanePropertyManager(EditCommand_PM):
         self.originLocation = PLANE_ORIGIN_LOWER_LEFT
         self.displayLabelStyle = LABELS_ALONG_ORIGIN
 
-        EditCommand_PM.__init__( self, command) 
-        
+        EditCommand_PM.__init__( self, command)
+
         # Hide Preview and Restore defaults buttons
-        self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON)        
-        
+        self.hideTopRowButtons(PM_RESTORE_DEFAULTS_BUTTON)
+
 
     def _addGroupBoxes(self):
         """
@@ -99,7 +99,7 @@ class PlanePropertyManager(EditCommand_PM):
 
         self.pmPlacementOptions = \
             PM_RadioButtonList( self,
-                                title      = "Placement Options", 
+                                title      = "Placement Options",
                                 buttonList = PLACEMENT_OPTIONS_BUTTON_LIST,
                                 checkedId  = 3 )
 
@@ -142,7 +142,7 @@ class PlanePropertyManager(EditCommand_PM):
                               minimum       =  1.00,
                               maximum       =  200.0,
                               decimals      =  3,
-                              singleStep    =  1.0, 
+                              singleStep    =  1.0,
                               spanWidth = False)
 
         self.gpYSpacingDoubleSpinBox  =  \
@@ -153,7 +153,7 @@ class PlanePropertyManager(EditCommand_PM):
                               minimum       =  1.00,
                               maximum       =  200.0,
                               decimals      =  3,
-                              singleStep    =  1.0, 
+                              singleStep    =  1.0,
                               spanWidth = False)
 
         lineTypeChoices = [ 'Dotted (default)',
@@ -161,14 +161,14 @@ class PlanePropertyManager(EditCommand_PM):
                             'Solid' ]
 
         self.gpLineTypeComboBox = \
-            PM_ComboBox( pmGroupBox ,     
-                         label         =  "Line type:", 
+            PM_ComboBox( pmGroupBox ,
+                         label         =  "Line type:",
                          choices       =  lineTypeChoices,
                          setAsDefault  =  True)
 
-        hhColorList = [ black, orange, red, magenta, 
+        hhColorList = [ black, orange, red, magenta,
                         cyan, blue, white, yellow, gray ]
-        hhColorNames = [ "Black (default)", "Orange", "Red", "Magenta", 
+        hhColorNames = [ "Black (default)", "Orange", "Red", "Magenta",
                          "Cyan", "Blue", "White", "Yellow", "Other color..." ]
 
         self.gpColorTypeComboBox = \
@@ -193,8 +193,8 @@ class PlanePropertyManager(EditCommand_PM):
                           'Upper right' ]
 
         self.gpOriginComboBox = \
-            PM_ComboBox( self.pmGroupBox5 ,     
-                         label         =  "Origin:", 
+            PM_ComboBox( self.pmGroupBox5 ,
+                         label         =  "Origin:",
                          choices       =  originChoices,
                          setAsDefault  =  True )
 
@@ -202,8 +202,8 @@ class PlanePropertyManager(EditCommand_PM):
                             'Plane perimeter' ]
 
         self.gpPositionComboBox = \
-            PM_ComboBox( self.pmGroupBox5 ,     
-                         label         =  "Position:", 
+            PM_ComboBox( self.pmGroupBox5 ,
+                         label         =  "Position:",
                          choices       =  positionChoices,
                          setAsDefault  =  True)
 
@@ -224,26 +224,26 @@ class PlanePropertyManager(EditCommand_PM):
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
-        #TODO: Fix for bug: When you invoke a temporary mode 
-        # entering such a temporary mode keeps the signals of 
+        #TODO: Fix for bug: When you invoke a temporary mode
+        # entering such a temporary mode keeps the signals of
         #PM from the previous mode connected (
-        #but while exiting that temporary mode and reentering the 
-        #previous mode, it actually reconnects the signal! This gives rise to 
-        #lots  of bugs. This needs more general fix in Temporary mode API. 
+        #but while exiting that temporary mode and reentering the
+        #previous mode, it actually reconnects the signal! This gives rise to
+        #lots  of bugs. This needs more general fix in Temporary mode API.
         # -- Ninad 2008-01-09 (similar comment exists in MovePropertyManager.py
 
-        #UPDATE: (comment copied and modifief from BuildNanotube_PropertyManager. 
+        #UPDATE: (comment copied and modifief from BuildNanotube_PropertyManager.
         #The general problem still remains -- Ninad 2008-06-25
 
         if isConnect and self.isAlreadyConnected:
             if debug_flags.atom_debug:
                 print_compact_stack("warning: attempt to connect widgets"\
                                     "in this PM that are already connected." )
-            return 
+            return
 
         if not isConnect and self.isAlreadyDisconnected:
             if debug_flags.atom_debug:
@@ -257,18 +257,18 @@ class PlanePropertyManager(EditCommand_PM):
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
+            change_connect = self.win.disconnect
 
         change_connect(self.pmPlacementOptions.buttonGroup,
                        SIGNAL("buttonClicked(int)"),
                        self.changePlanePlacement)
 
-        change_connect(self.widthDblSpinBox, 
-                       SIGNAL("valueChanged(double)"), 
+        change_connect(self.widthDblSpinBox,
+                       SIGNAL("valueChanged(double)"),
                        self.change_plane_width)
 
-        change_connect(self.heightDblSpinBox, 
-                       SIGNAL("valueChanged(double)"), 
+        change_connect(self.heightDblSpinBox,
+                       SIGNAL("valueChanged(double)"),
                        self.change_plane_height)
 
         change_connect(self.aspectRatioCheckBox,
@@ -277,33 +277,33 @@ class PlanePropertyManager(EditCommand_PM):
 
 
         #signal slot connection for imageDisplayCheckBox
-        change_connect(self.imageDisplayCheckBox, 
-                       SIGNAL("stateChanged(int)"), 
+        change_connect(self.imageDisplayCheckBox,
+                       SIGNAL("stateChanged(int)"),
                        self.toggleFileChooserBehavior)
 
         #signal slot connection for imageDisplayFileChooser
-        change_connect(self.imageDisplayFileChooser.lineEdit, 
+        change_connect(self.imageDisplayFileChooser.lineEdit,
                        SIGNAL("editingFinished()"),
                        self.update_imageFile)
 
         #signal slot connection for heightfieldDisplayCheckBox
-        change_connect(self.heightfieldDisplayCheckBox, 
-                       SIGNAL("stateChanged(int)"), 
+        change_connect(self.heightfieldDisplayCheckBox,
+                       SIGNAL("stateChanged(int)"),
                        self.toggleHeightfield)
 
         #signal slot connection for heightfieldHQDisplayCheckBox
-        change_connect(self.heightfieldHQDisplayCheckBox, 
-                       SIGNAL("stateChanged(int)"), 
-                       self.toggleHeightfieldHQ)        
+        change_connect(self.heightfieldHQDisplayCheckBox,
+                       SIGNAL("stateChanged(int)"),
+                       self.toggleHeightfieldHQ)
 
         #signal slot connection for heightfieldTextureCheckBox
-        change_connect(self.heightfieldTextureCheckBox, 
-                       SIGNAL("stateChanged(int)"), 
+        change_connect(self.heightfieldTextureCheckBox,
+                       SIGNAL("stateChanged(int)"),
                        self.toggleTexture)
 
         #signal slot connection for vScaleSpinBox
-        change_connect(self.vScaleSpinBox, 
-                       SIGNAL("valueChanged(double)"), 
+        change_connect(self.vScaleSpinBox,
+                       SIGNAL("valueChanged(double)"),
                        self.change_vertical_scale)
 
         change_connect(self.plusNinetyButton,
@@ -322,8 +322,8 @@ class PlanePropertyManager(EditCommand_PM):
                        SIGNAL("clicked()"),
                        self.mirror_image)
 
-        change_connect(self.gridPlaneCheckBox, 
-                       SIGNAL("stateChanged(int)"), 
+        change_connect(self.gridPlaneCheckBox,
+                       SIGNAL("stateChanged(int)"),
                        self.displayGridPlane)
 
         change_connect(self.gpXSpacingDoubleSpinBox,
@@ -366,7 +366,7 @@ class PlanePropertyManager(EditCommand_PM):
             PlanePM_showGrid_prefs_key)
 
         connect_checkbox_with_boolean_pref(
-            self.gpDisplayLabels, 
+            self.gpDisplayLabels,
             PlanePM_showGridLabels_prefs_key)
 
 
@@ -406,7 +406,7 @@ class PlanePropertyManager(EditCommand_PM):
     def displayLabelsInGP(self, state):
         """
         Choose to show or hide grid labels
-        @param state: State of the Display Label Checkbox 
+        @param state: State of the Display Label Checkbox
         @type state: boolean
         """
         if env.prefs[PlanePM_showGridLabels_prefs_key]:
@@ -440,7 +440,7 @@ class PlanePropertyManager(EditCommand_PM):
         if idx == 1:
             self.gridLineType = 2
         if idx == 2:
-            self.gridLineType = 1   
+            self.gridLineType = 1
         return
 
     def changeYSpacingInGP(self, val):
@@ -464,7 +464,7 @@ class PlanePropertyManager(EditCommand_PM):
     def displayGridPlane(self, state):
         """
         Display or hide grid based on the state of the checkbox
-        @param state: State of the Display Label Checkbox 
+        @param state: State of the Display Label Checkbox
         @type state: boolean
         """
         self._showHideGPWidgets()
@@ -474,7 +474,7 @@ class PlanePropertyManager(EditCommand_PM):
         else:
             env.prefs[PlanePM_showGrid_prefs_key] = False
 
-        return 
+        return
 
     def _makeGridPlane(self):
         """
@@ -494,7 +494,7 @@ class PlanePropertyManager(EditCommand_PM):
 
     def _showHideGPWidgets(self):
         """
-        Enable Disable grid related widgets based on the state of the show grid 
+        Enable Disable grid related widgets based on the state of the show grid
         checkbox.
         """
         if self.gridPlaneCheckBox.isChecked():
@@ -502,7 +502,7 @@ class PlanePropertyManager(EditCommand_PM):
             self.gpYSpacingDoubleSpinBox.setEnabled(True)
             self.gpLineTypeComboBox.setEnabled(True)
             self.gpColorTypeComboBox.setEnabled(True)
-            self.gpDisplayLabels.setEnabled(True)        
+            self.gpDisplayLabels.setEnabled(True)
         else:
             self.gpXSpacingDoubleSpinBox.setEnabled(False)
             self.gpXSpacingDoubleSpinBox.setEnabled(False)
@@ -539,26 +539,26 @@ class PlanePropertyManager(EditCommand_PM):
         self.imageDisplayFileChooser.setEnabled(False)
         # add change image properties button
 
-        BUTTON_LIST = [ 
-            ( "QToolButton", 1,  "+90", 
+        BUTTON_LIST = [
+            ( "QToolButton", 1,  "+90",
               "ui/actions/Properties Manager/RotateImage+90.png",
               "+90", "", 0),
-            ( "QToolButton", 2,  "-90", 
+            ( "QToolButton", 2,  "-90",
               "ui/actions/Properties Manager/RotateImage-90.png",
               "-90", "", 1),
-            ( "QToolButton", 3,  "FLIP",  
+            ( "QToolButton", 3,  "FLIP",
               "ui/actions/Properties Manager/FlipImageVertical.png",
               "Flip", "", 2),
-            ( "QToolButton", 4,  "MIRROR",  
+            ( "QToolButton", 4,  "MIRROR",
               "ui/actions/Properties Manager/FlipImageHorizontal.png",
-              "Mirror", "", 3) 
+              "Mirror", "", 3)
         ]
 
         #image change button groupbox
         self.pmGroupBox2 = PM_GroupBox(pmGroupBox, title = "Modify Image")
 
         self.imageChangeButtonGroup = \
-            PM_ToolButtonRow( self.pmGroupBox2, 
+            PM_ToolButtonRow( self.pmGroupBox2,
                               title        = "",
                               buttonList   = BUTTON_LIST,
                               spanWidth    = True,
@@ -596,7 +596,7 @@ class PlanePropertyManager(EditCommand_PM):
                          state        = Qt.Unchecked,
                          setAsDefault = True,
                          spanWidth = True
-                         )        
+                         )
 
         self.heightfieldTextureCheckBox = \
             PM_CheckBox( pmGroupBox,
@@ -608,14 +608,14 @@ class PlanePropertyManager(EditCommand_PM):
                          )
 
         self.vScaleSpinBox = \
-            PM_DoubleSpinBox(pmGroupBox, 
+            PM_DoubleSpinBox(pmGroupBox,
                              label        = " Vertical scale:",
-                             value        = 1.0, 
+                             value        = 1.0,
                              setAsDefault = True,
                              minimum      = -1000.0, # -1000 A
                              maximum      =  1000.0, # 1000 A
-                             singleStep   = 0.1, 
-                             decimals     = 1, 
+                             singleStep   = 0.1,
+                             decimals     = 1,
                              suffix       = ' Angstroms')
 
         self.heightfieldDisplayCheckBox.setEnabled(False)
@@ -637,25 +637,25 @@ class PlanePropertyManager(EditCommand_PM):
         self.widthDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox,
                              label        = "Width:",
-                             value        = 16.0, 
+                             value        = 16.0,
                              setAsDefault = True,
-                             minimum      = 1.0, 
+                             minimum      = 1.0,
                              maximum      = 10000.0, # 1000 nm
-                             singleStep   = 1.0, 
-                             decimals     = 1, 
+                             singleStep   = 1.0,
+                             decimals     = 1,
                              suffix       = ' Angstroms')
 
 
 
         self.heightDblSpinBox = \
-            PM_DoubleSpinBox(pmGroupBox, 
+            PM_DoubleSpinBox(pmGroupBox,
                              label        =" Height:",
-                             value        = 16.0, 
+                             value        = 16.0,
                              setAsDefault = True,
-                             minimum      = 1.0, 
+                             minimum      = 1.0,
                              maximum      = 10000.0, # 1000 nm
-                             singleStep   = 1.0, 
-                             decimals     = 1, 
+                             singleStep   = 1.0,
+                             decimals     = 1,
                              suffix       = ' Angstroms')
 
 
@@ -677,7 +677,7 @@ class PlanePropertyManager(EditCommand_PM):
                               maximum       =  10.0,
                               singleStep    =  0.1,
                               decimals      =  2,
-                              suffix        =  " to 1.00")   
+                              suffix        =  " to 1.00")
 
         if self.aspectRatioCheckBox.isChecked():
             self.aspectRatioSpinBox.setEnabled(True)
@@ -686,7 +686,7 @@ class PlanePropertyManager(EditCommand_PM):
 
     def _addWhatsThisText(self):
         """
-        What's This text for some of the widgets in this Property Manager.  
+        What's This text for some of the widgets in this Property Manager.
 
         @note: Many PM widgets are still missing their "What's This" text.
         """
@@ -696,12 +696,12 @@ class PlanePropertyManager(EditCommand_PM):
 
     def toggleFileChooserBehavior(self, checked):
         """
-        Enables FileChooser and displays image when checkbox is checked otherwise 
+        Enables FileChooser and displays image when checkbox is checked otherwise
         not
         """
         self.imageDisplayFileChooser.lineEdit.emit(SIGNAL("editingFinished()"))
         if checked == Qt.Checked:
-            self.imageDisplayFileChooser.setEnabled(True)   
+            self.imageDisplayFileChooser.setEnabled(True)
         elif checked == Qt.Unchecked:
             self.imageDisplayFileChooser.setEnabled(False)
             # if an image is already displayed, that's need to be hidden as well
@@ -721,7 +721,7 @@ class PlanePropertyManager(EditCommand_PM):
             if checked:
                 self.heightfieldHQDisplayCheckBox.setEnabled(True)
                 self.heightfieldTextureCheckBox.setEnabled(True)
-                self.vScaleSpinBox.setEnabled(True)                
+                self.vScaleSpinBox.setEnabled(True)
                 plane.computeHeightfield()
             else:
                 self.heightfieldHQDisplayCheckBox.setEnabled(False)
@@ -749,38 +749,38 @@ class PlanePropertyManager(EditCommand_PM):
             plane.heightfield_use_texture = checked
             # It is not necessary to re-compute the heightfield coordinates
             # at this point, they are re-computed whenever the "3D relief image"
-            # checkbox is set. 
+            # checkbox is set.
             plane.glpane.gl_update()
-            
-    def update_spinboxes(self): 	 
-        """ 	 
-	Update the width and height spinboxes. 	 
+
+    def update_spinboxes(self):
+        """
+        Update the width and height spinboxes.
         @see: Plane.resizeGeometry()
-        This typically gets called when the plane is resized from the 
+        This typically gets called when the plane is resized from the
         3D workspace (which marks assy as modified) .So, update the spinboxes
         that represent the Plane's width and height, but do no emit 'valueChanged'
-        signal when the spinbox value changes. 
-        
+        signal when the spinbox value changes.
+
         @see: Plane.resizeGeometry()
         @see: self._update_UI_do_updates()
-        @see: Plane_EditCommand.command_update_internal_state()        
-	""" 	 
-        # blockSignals = True make sure that spinbox.valueChanged() 	 
+        @see: Plane_EditCommand.command_update_internal_state()
+        """
+        # blockSignals = True make sure that spinbox.valueChanged()
         # signal is not emitted after calling spinbox.setValue().  This is done
-        #because the spinbox valu changes as a result of resizing the plane 
+        #because the spinbox valu changes as a result of resizing the plane
         #from the 3D workspace.
-        if self.command.hasValidStructure():            	 
-            self.heightDblSpinBox.setValue(self.command.struct.height, 
-                                           blockSignals = True) 	 
-            self.widthDblSpinBox.setValue(self.command.struct.width, 
-                                          blockSignals = True) 
-                        
+        if self.command.hasValidStructure():
+            self.heightDblSpinBox.setValue(self.command.struct.height,
+                                           blockSignals = True)
+            self.widthDblSpinBox.setValue(self.command.struct.width,
+                                          blockSignals = True)
+
 
     def update_imageFile(self):
         """
         Loads image file if path is valid
         """
-        
+
         # Update buttons and checkboxes.
         self.mirrorButton.setEnabled(False)
         self.plusNinetyButton.setEnabled(False)
@@ -798,7 +798,7 @@ class PlanePropertyManager(EditCommand_PM):
         plane.heightfield = None
         plane.display_image = self.imageDisplayCheckBox.isChecked()
 
-        if plane.display_image: 
+        if plane.display_image:
             imageFile = str(self.imageDisplayFileChooser.lineEdit.text())
 
             from model.Plane import checkIfValidImagePath
@@ -823,7 +823,7 @@ class PlanePropertyManager(EditCommand_PM):
                     if plane.display_heightfield:
                         self.heightfieldHQDisplayCheckBox.setEnabled(True)
                         self.heightfieldTextureCheckBox.setEnabled(True)
-                        self.vScaleSpinBox.setEnabled(True)  
+                        self.vScaleSpinBox.setEnabled(True)
 
 
     def show(self):
@@ -831,20 +831,20 @@ class PlanePropertyManager(EditCommand_PM):
         Show the Plane Property Manager.
         """
         EditCommand_PM.show(self)
-        #It turns out that if updateCosmeticProps is called before 
-        #EditCommand_PM.show, the 'preview' properties are not updated 
+        #It turns out that if updateCosmeticProps is called before
+        #EditCommand_PM.show, the 'preview' properties are not updated
         #when you are editing an existing plane. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
 
         if self.command.struct:
 
-            plane = self.command.struct 
+            plane = self.command.struct
             plane.updateCosmeticProps(previewing = True)
             if plane.imagePath:
                 self.imageDisplayFileChooser.setText(plane.imagePath)
-            self.imageDisplayCheckBox.setChecked(plane.display_image)  
-            
-            #Make sure that the plane placement option is always set to 
+            self.imageDisplayCheckBox.setChecked(plane.display_image)
+
+            #Make sure that the plane placement option is always set to
             #'Custom' when the Plane PM is shown. This makes sure that bugs like
             #2949 won't occur. Let the user change the plane placement option
             #explicitely
@@ -858,13 +858,13 @@ class PlanePropertyManager(EditCommand_PM):
              gridXSpacing, gridYSpacing, originLocation, \
              displayLabelStyle = params
 
-        # blockSignals = True  flag makes sure that the 
+        # blockSignals = True  flag makes sure that the
         # spinbox.valueChanged()
-        # signal is not emitted after calling spinbox.setValue(). 
+        # signal is not emitted after calling spinbox.setValue().
         self.widthDblSpinBox.setValue(width, blockSignals = True)
-        self.heightDblSpinBox.setValue(height, blockSignals = True)  
+        self.heightDblSpinBox.setValue(height, blockSignals = True)
         self.win.glpane.gl_update()
-               
+
 
         self.gpColorTypeComboBox.setColor(gridColor)
         self.gridLineType = gridLineType
@@ -874,21 +874,21 @@ class PlanePropertyManager(EditCommand_PM):
 
         self.gpOriginComboBox.setCurrentIndex(originLocation)
         self.gpPositionComboBox.setCurrentIndex(displayLabelStyle)
-        
-        
+
+
     def getCurrrentDisplayParams(self):
         """
-        Returns a tuple containing current display parameters such as current 
+        Returns a tuple containing current display parameters such as current
         image path and grid display params.
         @see: Plane_EditCommand.command_update_internal_state() which uses this
         to decide whether to modify the structure (e.g. because of change in the
-        image path or display parameters.)        
+        image path or display parameters.)
         """
         imagePath = self.imageDisplayFileChooser.text
         gridColor = self.gpColorTypeComboBox.getColor()
-        
-        return (imagePath, gridColor, self.gridLineType, 
-                self.gridXSpacing, self.gridYSpacing, 
+
+        return (imagePath, gridColor, self.gridLineType,
+                self.gridXSpacing, self.gridYSpacing,
                 self.originLocation, self.displayLabelStyle)
 
     def getParameters(self):
@@ -899,7 +899,7 @@ class PlanePropertyManager(EditCommand_PM):
         gridColor = self.gpColorTypeComboBox.getColor()
 
         params = (width, height, gridColor, self.gridLineType,
-                  self.gridXSpacing, self.gridYSpacing, self.originLocation,  
+                  self.gridXSpacing, self.gridYSpacing, self.originLocation,
                   self.displayLabelStyle)
 
         return params
@@ -911,11 +911,11 @@ class PlanePropertyManager(EditCommand_PM):
 
         @param newWidth: width in Angstroms.
         @type  newWidth: float
-        """      
+        """
         if self.aspectRatioCheckBox.isChecked():
             self.command.struct.width   =  newWidth
             self.command.struct.height  =  self.command.struct.width / \
-                self.aspectRatioSpinBox.value() 
+                self.aspectRatioSpinBox.value()
             self.update_spinboxes()
         else:
             self.change_plane_size()
@@ -927,9 +927,9 @@ class PlanePropertyManager(EditCommand_PM):
 
         @param newHeight: height in Angstroms.
         @type  newHeight: float
-        """        
+        """
         if self.aspectRatioCheckBox.isChecked():
-            self.command.struct.height  =  newHeight 
+            self.command.struct.height  =  newHeight
             self.command.struct.width   =  self.command.struct.height * \
                 self.aspectRatioSpinBox.value()
             self.update_spinboxes()
@@ -945,7 +945,7 @@ class PlanePropertyManager(EditCommand_PM):
         @type  gl_update: bool
         """
         self.command.struct.width   =  self.widthDblSpinBox.value()
-        self.command.struct.height  =  self.heightDblSpinBox.value() 
+        self.command.struct.height  =  self.heightDblSpinBox.value()
         if gl_update:
             self.command.struct.glpane.gl_update()
 
@@ -961,24 +961,24 @@ class PlanePropertyManager(EditCommand_PM):
 
     def changePlanePlacement(self, buttonId):
         """
-        Slot to change the placement of the plane depending upon the 
+        Slot to change the placement of the plane depending upon the
         option checked in the "Placement Options" group box of the PM.
 
         @param buttonId: The button id of the selected radio button (option).
         @type  buttonId: int
-        """       
+        """
 
         if buttonId == 0:
             msg = "Create a Plane parallel to the screen. "\
                 "With <b>Parallel to Screen</b> plane placement option, the "\
-                "center of the plane is always (0,0,0)" 
+                "center of the plane is always (0,0,0)"
             self.updateMessage(msg)
-            self.command.placePlaneParallelToScreen()            
+            self.command.placePlaneParallelToScreen()
         elif buttonId == 1:
             msg = "Create a Plane with center coinciding with the common center "\
                 "of <b> 3 or more selected atoms </b>. If exactly 3 atoms are "\
-                "selected, the Plane will pass through those atoms."        
-            self.updateMessage(msg)            
+                "selected, the Plane will pass through those atoms."
+            self.updateMessage(msg)
             self.command.placePlaneThroughAtoms()
             if self.command.logMessage:
                 env.history.message(self.command.logMessage)
@@ -986,7 +986,7 @@ class PlanePropertyManager(EditCommand_PM):
             msg = "Create a Plane at an <b>offset</b> to the selected plane "\
                 "indicated by the direction arrow. "\
                 "you can click on the direction arrow to reverse its direction."
-            self.updateMessage(msg)            
+            self.updateMessage(msg)
             self.command.placePlaneOffsetToAnother()
             if self.command.logMessage:
                 env.history.message(self.command.logMessage)
@@ -1016,17 +1016,17 @@ class PlanePropertyManager(EditCommand_PM):
         """
         aspectRatio = self.command.struct.width / self.command.struct.height
         self.aspectRatioSpinBox.setValue(aspectRatio)
-        
+
     def _update_UI_do_updates(self):
         """
-        Overrides superclass method. 
-        @see: Command_PropertyManager._update_UI_do_updates() for documentation. 
-        
+        Overrides superclass method.
+        @see: Command_PropertyManager._update_UI_do_updates() for documentation.
+
         @see: Plane.resizeGeometry()
         @see: self.update_spinboxes()
         @see: Plane_EditCommand.command_update_internal_state()
         """
-        #This typically gets called when the plane is resized from the 
+        #This typically gets called when the plane is resized from the
         #3D workspace (which marks assy as modified) . So, update the spinboxes
         #that represent the Plane's width and height.
         self.update_spinboxes()
@@ -1034,40 +1034,40 @@ class PlanePropertyManager(EditCommand_PM):
 
     def update_props_if_needed_before_closing(self):
         """
-        This updates some cosmetic properties of the Plane (e.g. fill color, 
+        This updates some cosmetic properties of the Plane (e.g. fill color,
         border color, etc.) before closing the Property Manager.
         """
 
-        # Example: The Plane Property Manager is open and the user is 
-        # 'previewing' the plane. Now the user clicks on "Build > Atoms" 
-        # to invoke the next command (without clicking "Done"). 
-        # This calls openPropertyManager() which replaces the current PM 
-        # with the Build Atoms PM.  Thus, it creates and inserts the Plane 
+        # Example: The Plane Property Manager is open and the user is
+        # 'previewing' the plane. Now the user clicks on "Build > Atoms"
+        # to invoke the next command (without clicking "Done").
+        # This calls openPropertyManager() which replaces the current PM
+        # with the Build Atoms PM.  Thus, it creates and inserts the Plane
         # that was being previewed. Before the plane is permanently inserted
         # into the part, it needs to change some of its cosmetic properties
-        # (e.g. fill color, border color, etc.) which distinguishes it as 
+        # (e.g. fill color, border color, etc.) which distinguishes it as
         # a new plane in the part. This function changes those properties.
-        # ninad 2007-06-13 
+        # ninad 2007-06-13
 
         #called in updatePropertyManager in MWsemeantics.py --(Partwindow class)
 
         EditCommand_PM.update_props_if_needed_before_closing(self)
 
-        #Don't draw the direction arrow when the object is finalized. 
+        #Don't draw the direction arrow when the object is finalized.
         if self.command.struct and \
            self.command.struct.offsetParentGeometry:
 
-            dirArrow = self.command.struct.offsetParentGeometry.directionArrow 
+            dirArrow = self.command.struct.offsetParentGeometry.directionArrow
             dirArrow.setDrawRequested(False)
 
     def updateMessage(self, msg = ''):
         """
         Updates the message box with an informative message
-        @param message: Message to be displayed in the Message groupbox of 
+        @param message: Message to be displayed in the Message groupbox of
                         the property manager
         @type  message: string
         """
-        self.MessageGroupBox.insertHtmlMessage(msg, 
+        self.MessageGroupBox.insertHtmlMessage(msg,
                                                setAsDefault = False,
                                                minLines     = 5)
 
@@ -1088,7 +1088,7 @@ class PlanePropertyManager(EditCommand_PM):
         return
 
     def flip_image(self):
-        """ 
+        """
         Flip the image horizontally.
         """
         if self.command.hasValidStructure():

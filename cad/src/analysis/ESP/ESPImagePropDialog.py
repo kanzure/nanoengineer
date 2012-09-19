@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 # Form implementation generated from reading ui file 'ESPImagePropDialog.ui'
 #
 # Created: Wed Sep 27 14:24:14 2006

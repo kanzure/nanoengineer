@@ -163,7 +163,7 @@ class _OutputStream(object):
     def _write(self, line):
         self._contents = self._contents + line
         self._lineNumber += 1
-        
+
     def writeLine(self, line):
         """
         Output one line of text without any modifications.
@@ -200,7 +200,7 @@ class _OutputStream(object):
             clause = moduleName + " as " + asModuleName
         else:
             clause = moduleName
-        
+
         if (self._bothSame):
             originalFrom = False
         if (originalFrom):
@@ -273,7 +273,7 @@ def renameModule(oldPackage, oldModule, newPackage, newModule):
     newPath = newPackageDot + newModule
 
     whichAction = "%s -> %s" % (oldPath, newPath)
-    
+
     # oldPath surrounded by something that can't be in an identifier:
     oldPathRegex = re.compile(r'(^|[^\w_])' +
                               re.escape(oldPath) + r'($|[^\w_])')
@@ -296,7 +296,7 @@ def renameModule(oldPackage, oldModule, newPackage, newModule):
             if (m):
                 out.error("%s in original, replacement could be ambiguous"
                           % newPath)
-            
+
             m = importStatementRegex.match(line)
             if (m):
                 gotFrom = "None"
@@ -327,7 +327,7 @@ def renameModule(oldPackage, oldModule, newPackage, newModule):
                     # substitutions.
                     out.writeLine(line)
                     continue
-                
+
                 prefixFromImport = prefixFromImport + "import "
                 # At this point, prefixFromImport has accumulated any
                 # leading spaces, an optional from clause, and always
@@ -338,7 +338,7 @@ def renameModule(oldPackage, oldModule, newPackage, newModule):
                 # clause intact.
 
                 out.startImportLine(prefixFromImport, prefixOriginalFromImport)
-                
+
                 importList = line[m.end():]
                 while (True):
                     m = importClauseRegex.match(importList)
@@ -388,7 +388,7 @@ def renameModule(oldPackage, oldModule, newPackage, newModule):
                                                         asClause,
                                                         originalFrom = True,
                                                         isEdit = False)
-                                
+
                         elif (gotFrom == "Path"):
                             # from oldPath import symbol (as asClause)
                             out.collectImportClause(importPath, asClause)
@@ -448,7 +448,7 @@ if (__name__ == '__main__'):
 
     DryRun = findOption("--dry-run")
     SubstituteBareModule = not findOption("--ignore-bare-module")
-    
+
     if (len(sys.argv) != 3):
         print "len(sys.argv): %d" % len(sys.argv)
         usage()
@@ -469,7 +469,7 @@ if (__name__ == '__main__'):
         if (os.path.isdir(moduleToPath(oldPackage + "." + oldModule))):
             print >>sys.stderr, "old module path is a package"
             usage()
-            
+
     if (newPackage == ""):
         if (os.path.isdir(moduleToPath(newModule))):
             newPackage = newModule
@@ -485,6 +485,6 @@ if (__name__ == '__main__'):
     if (oldPackage == newPackage and oldModule == newModule):
         print >>sys.stderr, "old and new modules are the same"
         usage()
-        
+
     renameModule(oldPackage, oldModule, newPackage, newModule)
 

@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ops_connected.py -- operations on the connectivity of bond networks.
 
@@ -20,35 +20,35 @@ import foundation.env as env
 
 class ops_connected_Mixin:
     "Mixin for providing Select Connected and Select Doubly methods to class Part"
-    
+
     #mark 060128 made this more general by adding the atomlist arg.
     def selectConnected(self, atomlist = None):
         """
         Selects any atom that can be reached from any currently
         selected atom through a sequence of bonds.
-        
+
         @param atomlist: If supplied, use this list of atoms to select connected
                          atoms instead of the currently selected atoms.
         @type  atomlist: List of atoms.
-        
+
         @attention: Only correctly reports the number newly selected atoms.
         """
         ###@@@ should make sure we don't traverse interspace bonds, until all bugs creating them are fixed
-        
+
         cmd = greenmsg("Select Connected: ")
-        
+
         if atomlist is None and not self.selatoms:
             msg = redmsg("No atoms selected")
             env.history.message(cmd + msg)
             return
-        
+
         if atomlist is None: # test for None since atomlist can be an empty list.
             atomlist = self.selatoms.values()
-            
+
         catoms = self.getConnectedAtoms(atomlist)
-        if not len(catoms): 
+        if not len(catoms):
             return
-        
+
         natoms = 0
         for atom in catoms[:]:
             if not atom.picked:
@@ -58,12 +58,12 @@ class ops_connected_Mixin:
                     natoms += 1
             else:
                 natoms += 1 # Counts atom that is already picked.
-        
+
         from platform_dependent.PlatformDependent import fix_plurals
         info = fix_plurals( "%d new atom(s) selected." % natoms)
         env.history.message( cmd + info)
         self.o.gl_update()
-        
+
     def unselectConnected(self, atomlist=None):
         """
         Unselect any atom that can be reached from any currently
@@ -71,51 +71,51 @@ class ops_connected_Mixin:
         If <atomlist> is supplied, use it instead of the currently selected atoms.
         """
         cmd = greenmsg("Unselect Connected: ")
-        
+
         if atomlist is None and not self.selatoms:
             msg = redmsg("No atoms selected")
             env.history.message(cmd + msg)
             return
-        
+
         if atomlist is None: # test for None since atomlist can be an empty list.
             atomlist = self.selatoms.values()
-            
+
         catoms = self.getConnectedAtoms(atomlist)
         if not len(catoms): return
-        
+
         natoms = 0
         for atom in catoms[:]:
             if atom.picked:
                 atom.unpick()
                 if not atom.picked:
                     # Just in case a selection filter was applied to this atom.
-                    natoms += 1 
-        
+                    natoms += 1
+
         from platform_dependent.PlatformDependent import fix_plurals
         info = fix_plurals( "%d atom(s) unselected." % natoms)
         env.history.message( cmd + info)
         self.o.gl_update()
-        
+
     def deleteConnected(self, atomlist=None): # by mark
         """
         Delete any atom that can be reached from any currently
         selected atom through a sequence of bonds, and that is acceptable to the current selection filter.
         If <atomlist> is supplied, use it instead of the currently selected atoms.
         """
-        
+
         cmd = greenmsg("Delete Connected: ")
-        
+
         if atomlist is None and not self.selatoms:
             msg = redmsg("No atoms selected")
             env.history.message(cmd + msg)
             return
-        
+
         if atomlist is None: # test for None since atomlist can be an empty list.
             atomlist = self.selatoms.values()
-            
+
         catoms = self.getConnectedAtoms(atomlist)
         if not len(catoms): return
-        
+
         natoms = 0
         for atom in catoms[:]:
             if atom.killed():
@@ -134,7 +134,7 @@ class ops_connected_Mixin:
                 # depending on python dict item order and/or their order of deposition or their order in the mmp file.
             natoms += 1
             atom.kill()
-        
+
         from platform_dependent.PlatformDependent import fix_plurals
         info = fix_plurals( "%d connected atom(s) deleted." % natoms)
             #bruce 060331 comment: this message is sometimes wrong, since caller has deleted some atoms on click 1 of
@@ -145,7 +145,7 @@ class ops_connected_Mixin:
         ## self.o.gl_update()
         self.w.win_update() #bruce 060331 possible bugfix (bug is unconfirmed) -- update MT too, in case some chunk is gone now
         return
-        
+
     def selectDoubly(self):
         """
         Select any atom that can be reached from any currently
@@ -154,33 +154,33 @@ class ops_connected_Mixin:
         one bond and have no other bonds.
         """
         ###@@@ same comment about interspace bonds as in selectConnected
-        
+
         cmd = greenmsg("Select Doubly: ")
-        
+
         if not self.selatoms:
             msg = redmsg("No atoms selected")
             env.history.message(cmd + msg)
             return
-        
+
         alreadySelected = len(self.selatoms.values())
         from operations.op_select_doubly import select_doubly # new code, bruce 050520
         #e could also reload it now to speed devel!
         select_doubly(self.selatoms.values()) #e optim
         totalSelected = len(self.selatoms.values())
-        
+
         from platform_dependent.PlatformDependent import fix_plurals
         info = fix_plurals("%d new atom(s) selected (besides the %d initially selected)." % \
                                (totalSelected - alreadySelected, alreadySelected) )
         env.history.message( cmd + info)
-                
+
         if totalSelected > alreadySelected:
-            ## otherwise, means nothing new selected. Am I right? ---Huaicai, not analyze the markdouble() algorithm yet 
+            ## otherwise, means nothing new selected. Am I right? ---Huaicai, not analyze the markdouble() algorithm yet
             #self.w.win_update()
             self.o.gl_update()
         return
 
     # == helpers for SelectConnected (for SelectDoubly, see separate file imported above)
-    
+
     def getConnectedAtoms(self, atomlist, singlet_ok = False, _return_marked = False):
         """
         Return a list of atoms reachable from all the atoms in atomlist,
@@ -189,7 +189,7 @@ class ops_connected_Mixin:
         [Private option _return_marked just returns the internal marked dictionary
          (including singlets regardless of other options).]
         """
-            
+
         marked = {} # maps id(atom) -> atom, for processed atoms
         todo = atomlist # list of atoms we must still mark and explore (recurse on all unmarked neighbors)
         # from elements import Singlet
@@ -209,7 +209,7 @@ class ops_connected_Mixin:
                         # New feature:
                         # Don't consider PAM strand-axis bonds as really connected unless
                         # the user did a triple-click (on a PAM atom).
-                        # (initial kluge for trying it out -- needs cleanup, generalization, 
+                        # (initial kluge for trying it out -- needs cleanup, generalization,
                         # optim (use element attrs, not lists [done now]), control by option
                         # of this method, and needs to also affect
                         # neighbors_of_last_deleted_atom() in selectMode.py ###e) [bruce 070411]
@@ -244,17 +244,17 @@ class ops_connected_Mixin:
         if _return_marked:
             return marked # KLUGE [bruce 070411], should split out a separate method instead
                 # (but this form is safer for now -- cvs merge conflicts/errors are less likely this way)
-        
+
         alist = []
-        
+
         for atom in marked.itervalues():
             if singlet_ok:
                 alist.append(atom)
             elif not atom.is_singlet():
                 alist.append(atom)
-                
+
         return alist
-        
+
 
     def getConnectedSinglets(self, atomlist):
         """
@@ -264,16 +264,16 @@ class ops_connected_Mixin:
             # use private option of sibling method, to incorporate the new details
             # of its functionality (i.e. its meaning of "connected"/"reachable")
             # [bruce 070411]
-        
+
         slist = []
-        
+
         for atom in marked.itervalues():
             if atom.is_singlet():
                 slist.append(atom)
-                
+
         return slist
 
-    
+
     pass # end of class ops_connected_Mixin
 
 # end

@@ -1,11 +1,11 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 ColorSortedDisplayList.py - A set of primitives to be drawn as a unit,
 under runtime-determined drawing styles
 
 @author: Russ
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -94,10 +94,10 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     """
 
     # default values of instance variables [note: incomplete]
-    
+
     ### todo: some of these and/or the dl variables not listed here
     #   could be renamed to indicate that they are private.
-    
+
     transformControl = None # might be a TransformControl or a Chunk
     reentrant = False #bruce 090220
     _transform_id = None #bruce 090223
@@ -105,7 +105,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     spheres = () #bruce 090224
     cylinders = () #bruce 090224
     _drawing_funcs = () #bruce 090312
-    
+
     def __init__(self, transformControl = None, reentrant = False):
         """
         """
@@ -115,7 +115,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
         if reentrant:
             self.reentrant = True # permits reentrant ColorSorter.start
-        
+
         # [Russ 080915: Added.
         # A unique integer ID for each CSDL.
         global _csdl_id_counter
@@ -166,7 +166,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # Reviewing the current code, I think the only remaining
         # essential use of self.dl is in CrystalShape.py
         # (see new comment in its docstring for how to clean that up),
-        # and the only remaining essential use of self.selected 
+        # and the only remaining essential use of self.selected
         # (aside from maintaining self.dl, no longer needed if it's removed)
         # is in ColorSorter.finish (which should be replaced by
         # passing finish the same drawing-style arguments that
@@ -181,7 +181,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         else:
             return "<%s at %#x>" % (name, id(self))
         pass
-    
+
     # Russ 080925: Added.
     def transform_id(self):
         """
@@ -209,13 +209,13 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         # (see comments in GLPrimitiveSet for how this might evolve further)
         return self.has_nonempty_DLs() or self._drawing_funcs
-        
+
     # ==
 
     def start(self, pickstate): #bruce 090224 split this out of caller
         """
         Clear self and start collecting new primitives for use inside it.
-        
+
         (They are collected by staticmethods in the ColorSorter singleton class,
          and saved partly in ColorSorter class attributes, partly in self
          by direct assignment (maybe not anymore), and partly in self by
@@ -233,7 +233,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         self.changed = drawing_constants.eventStamp()
 
         # Clear the primitive data to start collecting a new set.
-        
+
         # REVIEW: is it good that we don't also deallocate DLs here?
         # Guess: yes if we reuse them, no if we don't.
         # It looks like finish calls _reset, which deallocates them,
@@ -279,7 +279,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
         [meant to be called only by ColorSorter.start, for now]
         """
-##        self._reset() 
+##        self._reset()
 ##            # (note: this deallocates any existing display lists)
 
         if self.transformControl and (self.spheres or self.cylinders):
@@ -289,7 +289,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 # whereever we first compile these down? That
                 # might be a different place in self.draw vs.
                 # draw from DrawingSet.
-        
+
         selColor = env.prefs[selectionColor_prefs_key]
 
         # Note: if sorted_by_color is empty, current code still builds all
@@ -302,7 +302,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # have. [bruce 090225/090312 comment]
 
         # First build the lower level per-color sublists of primitives.
-        
+
         for color, funcs in sorted_by_color.iteritems():
             sublists = [glGenLists(1), 0]
 
@@ -354,17 +354,17 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                         # Just to be sure, check if the func
                         # is drawpolycone_multicolor_worker
                         # and call drawpolycone_worker instead.
-                        # I think in the future we can figure out 
-                        # a more general way of handling the 
+                        # I think in the future we can figure out
+                        # a more general way of handling the
                         # GL_COLOR_MATERIAL objects. piotr 080420
                         pos_array, color_array_junk, rad_array = params
                         drawpolycone_worker((pos_array, rad_array))
                     elif func == drawtriangle_strip_worker:
                         # piotr 080710: Multi-color modification
-                        # for triangle_strip primitive (used by 
+                        # for triangle_strip primitive (used by
                         # reduced protein style).
                         pos_array, normal_array, color_array_junk = params
-                        drawtriangle_strip_worker((pos_array, 
+                        drawtriangle_strip_worker((pos_array,
                                                    normal_array,
                                                    None))
                     if name:
@@ -378,7 +378,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # Now the upper-level lists call all of the per-color sublists.
         #### REVIEW: these are created even when empty. Is that necessary?
         # [bruce 090224 Q]
-        
+
         # One with colors.
         color_dl = self.color_dl = glGenLists(1)
         glNewList(color_dl, GL_COMPILE)
@@ -391,7 +391,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 # by a negative alpha.
                 glColor3fv(color[:3])
                 # piotr 080417: for opacity == -2, i.e. if
-                # GL_COLOR_MATERIAL is enabled, the color is going 
+                # GL_COLOR_MATERIAL is enabled, the color is going
                 # to be ignored, anyway, so it is not necessary
                 # to be tested here
             else:
@@ -405,14 +405,14 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # A second one without any colors.
         nocolor_dl = self.nocolor_dl = glGenLists(1)
         glNewList(nocolor_dl, GL_COMPILE)
-        for color, dls in self._per_color_dls:                    
+        for color, dls in self._per_color_dls:
             opacity = color[3]
 
             if opacity == -2 \
                and dls[1] > 0:
                 # piotr 080420: If GL_COLOR_MATERIAL is enabled,
                 # use a regular, single color dl rather than the
-                # multicolor one. Btw, dls[1] == 0 should never 
+                # multicolor one. Btw, dls[1] == 0 should never
                 # happen.
                 glCallList(dls[1])
             else:
@@ -441,7 +441,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         pass
 
     # ==
-    
+
     # Russ 080925: For batched primitive drawing, drawing-primitive functions
     # conditionally collect lists of primitive IDs here in the CSDL, rather than
     # sending them down through the ColorSorter schedule methods into the DL
@@ -453,7 +453,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     #
     # This can be factored when we get a lot of primitive shaders.  For now,
     # simply cache the drawing-primitive IDs at the top level of CSDL.
-        
+
     def addSphere(self, center, radius, color, glname):
         """
         Allocate a shader sphere primitive (in the set of all spheres
@@ -462,7 +462,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         and add its primID to self's list of spheres
         (so it will be drawn when self is drawn, or included in
         DrawingSet drawing indices when they are drawn and include self).
-        
+
         . center is a VQT point.
         . radius is a number.
         . color is a list of components: [R, G, B].
@@ -477,7 +477,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     def addCylinder(self, endpts, radii, color, glname):
         """
         Like addSphere, but for cylinders. See addSphere docstring for details.
-        
+
         . endpts is a tuple of two VQT points.
         . radii may be a single number, or a tuple of two radii for taper.
         . color is a list of components: [R, G, B] or [R, G, B, A].
@@ -528,7 +528,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
     ##### TODO: FIX TERMINOLOGY BUG:
     # in the following three methodnames and all localvar names and comments
     # where they are used, replace shader with primitiveBuffer. [bruce 090303]
-    
+
     def shaders_and_primitive_lists(self): #bruce 090218
         """
         Yield each pair of (primitiveBuffer, primitive-list) which we need to draw.
@@ -597,7 +597,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                     # this could fail if the length of s_p_pairs could vary
                     # over time, without resets to self._untransformed_data
                     # (which would be a bug)
-            
+
             transform = self.transformControl
             for (shader, p), ut in zip( s_p_pairs , self._untransformed_data ):
                 shader.store_transformed_primitive( p, ut, transform)
@@ -609,11 +609,11 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
             msg = "bug: ignoring exception in updateTransform in %r" % self
             print_compact_traceback(msg + ": ")
         return
-    
-    def draw(self, 
-             highlighted = False, 
+
+    def draw(self,
+             highlighted = False,
              selected = False,
-             patterning = True, 
+             patterning = True,
              highlight_color = None,
              draw_shader_primitives = True, #bruce 090312 renamed from draw_primitives
              transform_nonshaders = True, #bruce 090312 renamed from transform_DLs
@@ -659,14 +659,14 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
         # KLUGES which should be replaced by our having suitable new attrs,
         # such as glpane or glprefs or glresourcecontext (replacing drawing_globals):
-        
+
         drawing_phase = drawing_globals.drawing_phase # kluge in CSDL.draw
-        
+
         # (the other kluge is not having glpane.glprefs to pass to apply_material,
         #  in draw; we do have glpane in finish but no point in using it there
         #  until we have it in .draw too, preferably by attr rather than arg
         #  (should review that opinion).)
-        
+
 
         # Russ 081128 (clarified, bruce 090218):
         #
@@ -754,7 +754,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         if transform_once:
             glPushMatrix()
             self.transformControl.applyTransform()
-        
+
         if (patterned_highlighting or not highlighted or
             (halo_selection and not halo_highlighting)) :
             if selected:
@@ -788,7 +788,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
                 self.draw_shader_primitives( highlighted, selected,
                            patterning, highlight_color)
                 pass
-                
+
             if DLs_to_do:                        # Display lists.
                 if patterned_highlighting:
                     # Set up a patterned drawing mode for the following draw.
@@ -813,7 +813,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
         if transform_once:
             glPopMatrix()
-        
+
         return
 
     def _callList_inside_transformControl(self, DL): #bruce 090224
@@ -832,7 +832,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         ### REVIEW: after today's cleanup, I think this can no longer be called.
         # (Though it may be a logic bug that CrystalShape.py never calls it.)
         # [bruce 090114 comment]
-        
+
         # Display list id for the current appearance.
         if not self.selected:
             self.color_dl = glGenLists(1)
@@ -862,7 +862,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
 
     # == state clearing methods, also used to set up initial state
     #    (should be refactored a bit more [bruce 090224 comment])
-    
+
     def _reset(self):
         """
         Return to initialized state (but don't clear constructor parameters).
@@ -889,15 +889,15 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
               deallocating them is safe.
         """
         # With CSDL active, self.dl duplicates either selected_dl or color_dl.
-        
+
         #bruce 090224 rewrote to make no assumptions about which DLs
         # are currently allocated or overlapping -- just delete all valid ones.
         DLs = {}
         for dl in [self.dl, self.color_dl, self.nocolor_dl, self.selected_dl]:
             DLs[dl] = dl
-        # piotr 080420: The second level dl's are 2-element lists of DL ids 
+        # piotr 080420: The second level dl's are 2-element lists of DL ids
         # rather than just a list of ids. The second DL is used in case
-        # of multi-color objects and is required for highlighting 
+        # of multi-color objects and is required for highlighting
         # and selection (not in rc1)
         for clr_junk, dls in self._per_color_dls: # Second-level dl's.
             for dl in dls: # iterate over DL pairs.
@@ -938,21 +938,21 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         # _clear_when_deallocate_DLs_might_be_unsafe? Maybe other callers
         # can call that instead? For now, there are some calls for which
         # this is unclear, so I'm not merging them. [bruce 090224 comment]
-        
+
         # Free them in the GLPrimitiveBuffers.
         # TODO: refactor to use self.shaders_and_primitive_lists().
-        
+
         #bruce 090224 revised conditions so they ignore current prefs
         if self.spheres:
             drawing_globals.sphereShaderGlobals.primitiveBuffer.releasePrimitives(self.spheres)
         if self.cylinders:
             drawing_globals.cylinderShaderGlobals.primitiveBuffer.releasePrimitives(self.cylinders)
-        
+
         # Included drawing-primitive IDs. (These can be accessed more generally
         # using self.shaders_and_primitive_lists().)
         self.spheres = []
         self.cylinders = []
-        
+
         self._clear_derived_primitive_caches()
         return
 
@@ -968,7 +968,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         #bruce 090218: corrected above comment, and changed drawIndex ->
         # drawIndices so it can support more than one primitive type.
         self.drawIndices = {}
-        
+
         self._untransformed_data = None
         return
 
@@ -978,7 +978,7 @@ class ColorSortedDisplayList:    #Russ 080225: Added.
         """
         self.destroy()
         return
-    
+
     def destroy(self):
         """
         Free external resources and break reference cycles.

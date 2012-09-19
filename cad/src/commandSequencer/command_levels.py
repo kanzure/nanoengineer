@@ -127,13 +127,13 @@ def allowed_parent( want, parent ): #bruce 080815
     # (we might revise the caller to pass the FeatureDescriptor here,
     #  in place of what's now used for want and parent, namely,
     #  actual command instances)
-    
+
     allowed_parent_levels = _ALLOWED_PARENT_LEVELS[ want.command_level ]
 
     if allowed_parent_levels == _USE_COMMAND_PARENT:
 
         # want is a fixed-parent command
-        
+
         # just check whether parent is the desired parent, or is a parent of that ...
         ### really part of a higher alg in caller? and/or a new command class method?
         allowed_parent_names = [ want.command_parent or DEFAULT_COMMAND ]
@@ -147,11 +147,11 @@ def allowed_parent( want, parent ): #bruce 080815
         # <want> is nestable
         # (or a fixed parent command that doesn't care about
         #  its command_parent field? I don't think that's possible.)
-        
+
         # (Note: this scheme would not be sufficient for a command which is
         # "nestable under any subcommand of a given environment-providing command,
         #  but not under other kinds of subcommands".)
-        
+
         res = parent.command_level in allowed_parent_levels
 
     return res

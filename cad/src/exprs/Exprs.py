@@ -1,4 +1,4 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Exprs.py -- class Expr, and related subclasses and utilities, other than those involving Instances
 
@@ -82,7 +82,7 @@ def expr_serno(expr):
 
 def is_Expr(expr):
     """
-    is expr an Expr -- meaning, a subclass or instance of class Expr? 
+    is expr an Expr -- meaning, a subclass or instance of class Expr?
     (Can be true even if it's also considered an Instance.)
     """
     return hasattr(expr, '_e_serno')
@@ -113,7 +113,7 @@ def expr_is_Instance(expr):
 def is_Expr_pyinstance(expr): ##e make sure we check this before calling _e_eval / _e_compute_method / _e_make_in on an expr
     """
     Is expr an Expr, and also a python instance (not an Expr subclass)?
-    (This is necessary to be sure you can safely call Expr methods on it.) 
+    (This is necessary to be sure you can safely call Expr methods on it.)
     (Note: If so, it might or might not be an Instance.)
     [Use this instead of isinstance(Expr) in case Expr module was reloaded.]
     """
@@ -181,7 +181,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     - and (after enough replacement to be fully defined, and after being "placed" in a specific mutable environment)
     to evaluate themselves as formulas, in the current state of their environment,
     tracking usage of env attrs so an external system can know when the return value becomes invalid;
-    - 
+    -
     """
     ##e for debug it would be useful to record line/file of expr construction, and then for any instance or expr
     # printed in an error msg or traceback, print the chain of these (as it gets customized, gets args, gets instantiated) --
@@ -294,7 +294,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         """
         Return a compute method version of this formula, which will use instance as the value of _self,
         at the given index relative to instance. [index is a required arg as of 070120.]
-        
+
         Example index [#k guess 061110]: the attrname where self was found in instance (as an attrvalue),
         or if self was found inside some attrval (but not equal to the whole),
         a tuple containing the attrname and something encoding where self occurred in the attrval.
@@ -328,8 +328,8 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         pass
     def __repr__(self): # class Expr
         """
-        [often overridden by subclasses; 
-         __str__ can depend on __repr__ but not vice versa(?) 
+        [often overridden by subclasses;
+         __str__ can depend on __repr__ but not vice versa(?)
          (as python itself does by default(??))]
         """
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect_old) on 061016
@@ -392,7 +392,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         """ operator a[b] """
         #e will Instances extend this to return their kids??
         return getitem_Expr(self, index)
-    
+
     # == not sure where these end up
     def __float__( self):
         """ operator float(a) """
@@ -434,7 +434,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
             #####@@@@ warning: following is slow, even when it doesn't print -- NEEDS OPTIM ####@@@@
             printonce("debug note: _e_free_in is False since no _e_args attr in %r" % self) # print once per self
             return False ###k guess -- correct? #####@@@@@
-        for arg in _e_args: 
+        for arg in _e_args:
             if arg._e_free_in(sym):
                 return True
         printnim("_e_free_in is nim for option vals")###@@@ btw 061114 do we still use _e_free_in at all? see if this gets printed.
@@ -642,7 +642,7 @@ class LvalueFromObjAndAttr(object): #061204 for _e_eval_lval and LvalueArg, like
     # since getattr_Expr can't do that (it only makes a syntactic lval).
     # Should we rename this to e.g. getattr_StateRef, and put it into basic? (It's already in basic, since Exprs.* is.)
     # Maybe, but ONLY IF WE MAKE IT AN EXPR -- as it is, you have to use call_Expr with it.
-    ##e make a variant for getitem_Expr? 
+    ##e make a variant for getitem_Expr?
     def __init__(self, obj, attr):
         self.obj = obj
         self.attr = attr
@@ -873,8 +873,8 @@ def _eval_mod_Expr(a1, a2):#070121
 
 class and_Expr(OpExpr): #061128
     """
-    Evaluate only enough args (out of 2 or more) 
-    to return the last one if they're all true, 
+    Evaluate only enough args (out of 2 or more)
+    to return the last one if they're all true,
     otherwise the first false one.
     """
     def _e_init(self):
@@ -895,8 +895,8 @@ class and_Expr(OpExpr): #061128
 
 class or_Expr(OpExpr): #061128 untested
     """
-    Evaluate only enough args (out of 2 or more) 
-    to return the last one if they're all false, 
+    Evaluate only enough args (out of 2 or more)
+    to return the last one if they're all false,
     otherwise the first true one.
     """
     def _e_init(self):
@@ -950,12 +950,12 @@ class format_Expr(OpExpr): #061113, seems to work
                                      or assert_0_func("format_Expr got non-string format %r" % arg1)
                                 ) #e accept unicode arg1 too; python2.2 has an official way to express that (using the name string??)
     pass # format_Expr
-    
+
 # ==
 
 class internal_Expr(Expr):
     """
-    Abstract class for various kinds of low-level exprs 
+    Abstract class for various kinds of low-level exprs
     for internal use that have no visible subexprs.
     """
     def __init__(self, *args, **kws):
@@ -997,9 +997,9 @@ class internal_Expr(Expr):
         ##        return False
         return True
     pass
-    
+
 class constant_Expr(internal_Expr):
-    #### NOT YET REVIEWED FOR EVAL_REFORM 070117 [should it ever wrap the result using _e_eval_to_expr -- maybe in a variant class?] 
+    #### NOT YET REVIEWED FOR EVAL_REFORM 070117 [should it ever wrap the result using _e_eval_to_expr -- maybe in a variant class?]
     ###k super may not be quite right -- we want some things in it, like isinstance Expr, but not the __add__ defs [not sure, actually]
     def _internal_Expr_init(self):
         (self._e_constant_value,) = self.args
@@ -1060,8 +1060,8 @@ class property_Expr(internal_Expr): ##k guess, 061119, for attr 'open' in Toggle
     # maybe just a kluge, since mixing properties with exprs is probably a temp workaround, tho in theory it might make sense...
     # if it can be rationalized then it's good to leave it in, maybe even encourage it. See also class State.
     """
-    #doc; 
-    canon_expr will turn a python property into this 
+    #doc;
+    canon_expr will turn a python property into this
     (or maybe any misc data descriptor??)
     """
     def _internal_Expr_init(self):
@@ -1096,7 +1096,7 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
                                       self._e_env0, self._e_expr0,)
     def _e_call_with_modified_env(self, env, ipath, whatever = 'bug'): # revised 070119
         """
-        [private helper method] 
+        [private helper method]
         Call self._e_expr0.<whatever> with lexenv self._e_env0 and [nim] dynenv taken from the given env
         """
         # about the lval code: #061204 semi-guess; works for now. _e_eval and _e_eval_lval methods merged on 070109.
@@ -1193,13 +1193,13 @@ class local_ipath_Expr(lexenv_Expr): #070122 experimental
         [overrides lexenv_Expr implem]
         [private helper method for _e_burrow_for_find_or_make]
         """
-        new_expr = self._e_expr0        
+        new_expr = self._e_expr0
         new_env = env # differs from superclass
         new_ipath = self._e_locally_modify_ipath(ipath)
         return (new_expr, new_env, new_ipath)
     def _e_locally_modify_ipath(self, ipath):
         # WARNING: dup code from lexenv_ipath_Expr (differs from superclass)
-        localstuff = self._e_local_ipath 
+        localstuff = self._e_local_ipath
         if 1:
             intern_ipath( ipath)
             localstuff2 = intern_ipath( localstuff)

@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 atomtypes.py -- AtomType object, knows about one bonding pattern for one element.
 
@@ -106,7 +106,7 @@ class AtomType(IdentityCopyMixin):
         else:
             self.numbonds = 0
         self.bondvectors = bondvectors or [] # not sure if [] (in place of None) matters
-        
+
         self.charge = formalCharge
         #self._init_electronic_structure() # this uses self.numbonds, so don't call it too early
         self._init_permitted_v6_list()
@@ -163,7 +163,7 @@ class AtomType(IdentityCopyMixin):
 #             else: # 5 thru 8
 #                 if (numbonds != shellsize - num_outer_shell_es):
 #                     return # this is true for sp3(p) i.e. sp3(phosphate),
-                             #currently ok to bail, as none of this is actually 
+                             #currently ok to bail, as none of this is actually
                              #used.
 #                 nlp = num_outer_shell_es - 4
 #         elif spX == 2:
@@ -242,7 +242,7 @@ class AtomType(IdentityCopyMixin):
         Returns true if atoms of this type have three bonds in a planar arrangement.
         """
         return self.spX == 2
-        
+
     def apply_to(self, atom): # how is this used? do we transmute the elt too? (why not? why? when would that be called?)
         """
         change atom to have this atomtype
@@ -272,7 +272,7 @@ class AtomType(IdentityCopyMixin):
         else:
             return self.element.name
         pass
-    
+
     def permits_v6(self, v6):
         ###@@@ see also bond_utils.possible_bond_types; maybe they should share some common knowledge
         """
@@ -298,21 +298,21 @@ class AtomType(IdentityCopyMixin):
         or deprecated for sp2 O and S (as a special case, or based on some other attr of this atomtype (#e nim)).
         """
         return (v6 in self.permitted_v6_list)
-    
+
     permitted_v6_list = (V_SINGLE,) # default value of instance attribute; correct value for most atomtypes
         # permitted_v6_list is a public instance attribute, I guess
-    
+
     def _init_permitted_v6_list(self):
         #e not yet correct for charged atomtypes (which is ok since we don't yet have any)...
         # the hardcoded element lists would need revision
-        
+
         # set some public attrs which help with some warnings by external code;
         # some of them are because numbonds == 1 means atom valence determines bond order for the only bond
         self.is_S_sp2 = (self.element.symbol == 'S' and self.spX == 2)
         self.is_O_sp2 = (self.element.symbol == 'O' and self.spX == 2)
         self.bond1_is_bad = (self.is_S_sp2 or self.is_O_sp2)
         self.is_N_sp = (self.element.symbol == 'N' and self.spX == 1) # used for a special case, below
-        
+
         res = [] # build a list of bond types to allow
         spX = self.spX
 
@@ -370,7 +370,7 @@ class AtomType(IdentityCopyMixin):
     def _classify(self): #bruce 080502
         """
         [private helper for can_bond_to]
-        
+
         @return: one of the following strings, as appropriate for self.
         - 'bondpoint'
         - 'Pl'
@@ -408,9 +408,9 @@ class AtomType(IdentityCopyMixin):
         """
         # note: this is not yet modular; and it is partly redundant with
         # _fix_atom_or_return_error_info in fix_bond_directions.py.
-        
+
         del bondpoint, auto # not yet used
-        
+
         def check_by_class1(class1, class2):
             # Note: pairs of _classify return values can be made illegal
             # by making this function return false for them in either order.
@@ -430,7 +430,7 @@ class AtomType(IdentityCopyMixin):
         if not check_by_class1(class2, class1):
             return False
         return True
-        
+
     pass # end of class AtomType
 
 # end

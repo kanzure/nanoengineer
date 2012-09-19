@@ -1,7 +1,7 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-The Ui_MoviePropertyManager class defines UI elements for the Property 
+The Ui_MoviePropertyManager class defines UI elements for the Property
 Manager of the B{Movie mode}.
 
 @author: Mark, Ninad
@@ -12,8 +12,8 @@ History:
 ninad 2007-05-07 : Converted movie dashboard into movie Property manager
 ninad 2007-09-11: Code clean up to use PM module classes
 
-#TODO: Ui_MoviePlayerManager uses some Mainwindow widgets and actions 
-#(This is because Movie PM uses most methods originally created for movie 
+#TODO: Ui_MoviePlayerManager uses some Mainwindow widgets and actions
+#(This is because Movie PM uses most methods originally created for movie
 #dashboard and Movie dashboard defined them this way -- ninad 2007-05-07
 """
 
@@ -37,7 +37,7 @@ from command_support.Command_PropertyManager import Command_PropertyManager
 _superclass = Command_PropertyManager
 class Ui_MoviePropertyManager(Command_PropertyManager):
     """
-    The Ui_MoviePropertyManager class defines UI elements for the Property 
+    The Ui_MoviePropertyManager class defines UI elements for the Property
     Manager of the B{Movie mode}.
 
     @ivar title: The title that appears in the property manager header.
@@ -62,11 +62,11 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
 
     def __init__(self, command):
         """
-        Constructor for the B{Movie} property manager class that defines 
+        Constructor for the B{Movie} property manager class that defines
         its UI.
 
         @param command: The parent mode where this Property Manager is used
-        @type  command: L{movieMode}        
+        @type  command: L{movieMode}
         """
         _superclass.__init__(self, command)
 
@@ -80,7 +80,7 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
 
     def _addGroupBoxes(self):
         """
-        Add various group boxes to the Movie Property manager. 
+        Add various group boxes to the Movie Property manager.
         """
         self._createAllActionWidgets()
         self._addMovieControlsGroupBox()
@@ -91,7 +91,7 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
         """
         Add Movie Controls groupbox
         """
-        self.movieControlsGroupBox = PM_GroupBox(self, 
+        self.movieControlsGroupBox = PM_GroupBox(self,
                                                  title = "Movie Controls"
                                                  )
         self._loadMovieControlsGroupBox(self.movieControlsGroupBox)
@@ -101,7 +101,7 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
         """
         Add Movie Options groupbox
         """
-        self.movieOptionsGroupBox = PM_GroupBox(self, 
+        self.movieOptionsGroupBox = PM_GroupBox(self,
                                                 title = "Movie Options"
                                                 )
         self._loadMovieOptionsGroupBox(self.movieOptionsGroupBox)
@@ -111,7 +111,7 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
         """
         Add Open / Save Movie File groupbox
         """
-        self.movieFilesGroupBox = PM_GroupBox(self, 
+        self.movieFilesGroupBox = PM_GroupBox(self,
                                               title = "Open/Save Movie File"
                                               )
         self._loadMovieFilesGroupBox(self.movieFilesGroupBox)
@@ -120,7 +120,7 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
         """
         Load widgets in the Movie Controls group box.
         @param inPmGroupBox: The Movie Controls groupbox in the PM
-        @type  inPmGroupBox: L{PM_GroupBox} 
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
         #Movie Slider
         self.frameNumberSlider = \
@@ -154,7 +154,7 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
 
         WIDGET_LIST = [("PM_", self.movieButtonsToolBar, 0)]
 
-        self.moviecontrolsWidgetRow = PM_WidgetRow(inPmGroupBox, 
+        self.moviecontrolsWidgetRow = PM_WidgetRow(inPmGroupBox,
                                                    widgetList = WIDGET_LIST,
                                                    spanWidth = True)
 
@@ -167,7 +167,7 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
         """
         Load widgets in the Movie Options group box.
         @param inPmGroupBox: The Movie Options groupbox in the PM
-        @type  inPmGroupBox: L{PM_GroupBox} 
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
 
         self.frameNumberSpinBox = PM_SpinBox(inPmGroupBox,
@@ -189,7 +189,7 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
         """
         Load widgets in the Open/Save Movie Files group box.
         @param inPmGroupBox: The Open/Save Movie Files groupbox in the PM
-        @type  inPmGroupBox: L{PM_GroupBox} 
+        @type  inPmGroupBox: L{PM_GroupBox}
         """
 
         for action in self.fileOpenMovieAction, self.fileSaveMovieAction:
@@ -250,15 +250,15 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
             geticon("ui/actions/Properties Manager/Save.png"))
 
         self.fileSaveMovieAction.setText(
-            QtGui.QApplication.translate("MainWindow", 
-                                         "Save Movie File...", 
-                                         None, 
+            QtGui.QApplication.translate("MainWindow",
+                                         "Save Movie File...",
+                                         None,
                                          QtGui.QApplication.UnicodeUTF8))
 
         self.fileOpenMovieAction.setText(
-            QtGui.QApplication.translate("MainWindow", 
-                                         "Open Movie File...", 
-                                         None, 
+            QtGui.QApplication.translate("MainWindow",
+                                         "Open Movie File...",
+                                         None,
                                          QtGui.QApplication.UnicodeUTF8))
 
         # This isn't currently in the PM. It's connected and ready to go.
@@ -271,14 +271,14 @@ class Ui_MoviePropertyManager(Command_PropertyManager):
 
     def _addWhatsThisText(self):
         """
-        What's This text for widgets in this Property Manager.  
+        What's This text for widgets in this Property Manager.
         """
         from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_MoviePropertyManager
         whatsThis_MoviePropertyManager(self)
 
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in this Property Manager.  
+        Tool Tip text for widgets in this Property Manager.
         """
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_MoviePropertyManager
         ToolTip_MoviePropertyManager(self)

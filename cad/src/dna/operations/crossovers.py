@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 crossovers.py -- support for DNA crossovers, modelled at various levels
 
@@ -50,7 +50,7 @@ def crossover_menu_spec(atom, selatoms):
     # Are these Pl atoms either:
     # - legitimate candidates for making a crossover,
     # - or already in a crossover?
-    
+
     # They are candidates for making a crossover if:
     # - each one is in a double helix of pseudo-DNA (or locally appears to be) (ignoring Ss/Sj errors, though we'll fix them)
     #   - this means, you can find the 5-ring of Pl5-Ss5-Ax5-Ax5-Ss5-samePl5... probably no more requirements are strictly needed
@@ -68,11 +68,11 @@ def crossover_menu_spec(atom, selatoms):
     # For now, we'll probably be simpler here to get started, but then we'll get generalized
     # when the pseudo-dna spelling checker is added, and/or take advantage of the persistent recognizers
     # which that will make use of (rather than creating new recognizer objects for each cmenu request, like we'll do now).
-    
+
     res = []
 
     ##e need to protect against exceptions while considering adding each item
-    
+
     twoPls = map( Pl5_recognizer, atoms)
     Pl1, Pl2 = twoPls
 
@@ -81,13 +81,13 @@ def crossover_menu_spec(atom, selatoms):
     # (This also simplifies the code for deciding whether to offer Remove Crossover.)
 
     if not Pl1.strand_direction_well_defined or not Pl2.strand_direction_well_defined: ###IMPLEM
-        
+
         text = "(strand directions not well-defined)" #e shorten? mention which atom? do it for single selected atom? say how not?
         item = (text, noop, 'disabled')
         res.append(item)
 
     else:
-    
+
         # maybe add a "Make Crossover" command
         if make_crossover_ok(twoPls):
             text = "Make Crossover (%s - %s)" % (Pl1.atom, Pl2.atom) #e or print the Pl5_recognizer objects in the menu text??
@@ -97,7 +97,7 @@ def crossover_menu_spec(atom, selatoms):
 
         #e maybe package up those two related functions (make_crossover and make_crossover_ok)
         # into a class for the potential command -- sort of a twoPl-recognizer, i guess
-        
+
         # maybe add a "Remove Crossover" command
             # should we call this Break or Unmake or Delete? It leaves the atoms, patches things up... reverses effect of Make...
             # so Unmake seems best of those, but Remove seems better than any of them.
@@ -112,7 +112,7 @@ def crossover_menu_spec(atom, selatoms):
             print "bug: both Make Crossover and %s are being offered" % text #kluge to ref text to include atom names
 
         pass
-    
+
     return res
 
 def make_crossover_ok(twoPls): ##### NEED TO MAKE THIS A RECOGNIZER so it can easily be told to print why it's not saying it's ok.
@@ -121,7 +121,7 @@ def make_crossover_ok(twoPls): ##### NEED TO MAKE THIS A RECOGNIZER so it can ea
     """
 
     Pl1, Pl2 = twoPls
-    
+
     ## if Pl1.in_only_one_helix and Pl2.in_only_one_helix: not enough -- need to make sure the other 4 pairings are not stacked.
 
     a,b = Pl1.ordered_bases
@@ -141,7 +141,7 @@ def remove_crossover_ok(twoPls):
     Figure out whether to offer Remove Crossover, assuming bond directions are
     well-defined.
     """
-    
+
 ##    when = debug_pref("Offer Remove Crossover...",
 ##                      Choice(["never", "always (even when incorrect)"]),
 ##                      non_debug = True, prefs_key = '_debug_pref_key:Offer Unmake Crossover...' )
@@ -158,11 +158,11 @@ def remove_crossover_ok(twoPls):
     if bases_are_stacked((a, c)) and bases_are_stacked((b, d)) \
        and not bases_are_stacked((a, d)) and not bases_are_stacked((b, c)) \
        and not bases_are_stacked((a, b)) and not bases_are_stacked((d, c)):
-        
+
         involved1, involved2 = map( lambda pl: pl.involved_atoms_for_remove_crossover, twoPls)
         if not sets_overlap(involved1, involved2):
             return True
-    
+
     return False # from remove_crossover_ok
 
 # ==
@@ -170,7 +170,7 @@ def remove_crossover_ok(twoPls):
 # set functions; sets must be dicts whose keys and values are the same
 ###e get some of these from the Set or set module??
 
-def union(set1, set2): 
+def union(set1, set2):
     res = dict(set1)
     res.update(set2)
     return res
@@ -254,23 +254,23 @@ def element_matcher(sym):
 
 class Base5_recognizer(StaticRecognizer):
     """
-    StaticRecognizer for a base of PAM-DNA (represented by its Ss or Sj 
+    StaticRecognizer for a base of PAM-DNA (represented by its Ss or Sj
     atom).
-    
-    @warning: it's an error to call this on any other kind of atom, and the 
+
+    @warning: it's an error to call this on any other kind of atom, and the
     constructor raises an exception if you do.
-    
-    @note: it's *not* an error to call it on a legal kind of atom, regardless of 
-    that atom's surroundings. Any structural errors detected around that atom 
-    (or on it, e.g. its valence) should not cause exceptions from the 
+
+    @note: it's *not* an error to call it on a legal kind of atom, regardless of
+    that atom's surroundings. Any structural errors detected around that atom
+    (or on it, e.g. its valence) should not cause exceptions from the
     constructor or from any attr accesses, but only the use of fallback values
-    for computed attrs, and/or the setting of an error flag, and (in the 
+    for computed attrs, and/or the setting of an error flag, and (in the
     future) the tracking of errors and warnings into the dynenv.
     """
     def __init__(self, atom):
         self.atom = atom
         assert atom.element.symbol in ('Ss5', 'Sj5')
-            #e other possibilities for init args might be added later 
+            #e other possibilities for init args might be added later
             #e (we might become a polymorphic constructor).
         return
     def _C_axis_atom(self):
@@ -307,7 +307,7 @@ def bases_are_stacked(bases):
     I [bruce 070604] think there is no local definition of this property which handles that case.
     I'm not sure whether this leads to any problems with when to offer Make or Remove Crossover --
     maybe the overall conditions end up being sufficient; this needs review.
-    Also, I'm not yet sure how big a deficiency it is in our model. 
+    Also, I'm not yet sure how big a deficiency it is in our model.
     """
     try:
         len(bases)
@@ -333,15 +333,15 @@ class Pl5_recognizer(StaticRecognizer):
     def _C_unordered_bases(self):
         """
         [compute method for self.unordered_bases]
-        Require self.atom to have exactly two neighbors, and for them to be 
+        Require self.atom to have exactly two neighbors, and for them to be
         Ss5 or Sj5. Then return those atoms, wrapped in Base5_recognizer objects
         (which may or may not be .in_helix).
-        
+
         @note: the bases are arbitrarily ordered; see also _C_ordered_bases.
-           
+
         @warning: value will be None (not a sequence) if a RecognizerError was
                   raised.
-        [###REVIEW: should we pass through that exception, instead, for this 
+        [###REVIEW: should we pass through that exception, instead, for this
         attr? Or assign a different error value?]
         """
         nn = self.atom.neighbors()
@@ -358,8 +358,8 @@ class Pl5_recognizer(StaticRecognizer):
         Return our two bases (as Base5_recognizer objects, which may or may not be .in_helix),
         in an order consistent with backbone bond direction,
         which we require to be locally defined in a consistent way.
-        
-        @warning: value will be None (not a sequence) if a RecognizerError was 
+
+        @warning: value will be None (not a sequence) if a RecognizerError was
                   raised.
         """
         if self.unordered_bases is None:
@@ -466,7 +466,7 @@ def remove_crossover(twoPls):
     for pl in twoPls:
         assert isinstance(pl, Pl5_recognizer)
     assert remove_crossover_ok(twoPls)
-    
+
     make_or_remove_crossover(twoPls, make = False, cmdname = "Remove Crossover")
     return
 
@@ -475,7 +475,7 @@ def make_crossover(twoPls):
     for pl in twoPls:
         assert isinstance(pl, Pl5_recognizer)
     assert make_crossover_ok(twoPls)
-    
+
     make_or_remove_crossover(twoPls, make = True, cmdname = "Make Crossover")
     return
 
@@ -499,7 +499,7 @@ def make_or_remove_crossover(twoPls, make = True, cmdname = None):
     # or only "per-Pl"? hmm... it's per-Pl for now
 
     assert cmdname
-    
+
     for pl in twoPls:
         if pl.ordered_bases is None: # should no longer be possible -- now checked before menu commands are offered [bruce 070604]
             ###BUG: this could have various causes, not only the one reported below! Somehow we need access to the
@@ -511,11 +511,11 @@ def make_or_remove_crossover(twoPls, make = True, cmdname = None):
             print "should no longer be possible:", msg #bruce 070604
             env.history.message( redmsg( quote_html( msg)))
             return
-    
+
     Pl1, Pl2 = twoPls
     a,b = Pl1.ordered_bases
     d,c = Pl2.ordered_bases # note: we use d,c rather than c,d so that the atom arrangement is as shown in the diagram below.
-    
+
     # Note: for either the Make or Remove operation, the geometric arrangement is initially:
     #
     # c <-- Pl2 <-- d
@@ -540,13 +540,13 @@ def make_or_remove_crossover(twoPls, make = True, cmdname = None):
     for obj1, obj2 in [(Pl1, b), (Pl2, c)]:
         bond = find_bond(obj1.atom, obj2.atom)
         bond.bust(make_bondpoints = False)
-    
-    # make the bonds we want and didn't already have 
+
+    # make the bonds we want and didn't already have
     for obj1, obj2 in [(Pl1, c), (Pl2, b)]:
         assert not atoms_are_bonded(obj1.atom, obj2.atom)
             ###e we should make bond_atoms do this assert itself, or maybe tolerate it (or does it already??)
         bond_atoms_faster(obj1.atom, obj2.atom, V_SINGLE)
-    
+
     # set directions of all 4 bonds (even the preserved ones -- it's possible they were not set before,
     #  if some but not all bonds had directions set in the part of a strand whose directions we look at.)
     for obj1, obj2 in [(a, Pl1), (Pl1, c), (d, Pl2), (Pl2, b)]:
@@ -554,7 +554,7 @@ def make_or_remove_crossover(twoPls, make = True, cmdname = None):
         bond.set_bond_direction_from(obj1.atom, 1)
 
     # WARNING: after that bond rearrangement, don't use our Pl5_recognizers in ways that depend on Pl bonding,
-    # since it's not well defined whether they think about the old or new bonding to give their answers.    
+    # since it's not well defined whether they think about the old or new bonding to give their answers.
     Pl_atoms = Pl1.atom, Pl2.atom
     del Pl1, Pl2, twoPls
 
@@ -576,14 +576,14 @@ def make_or_remove_crossover(twoPls, make = True, cmdname = None):
     env.history.message( greenmsg( cmdname + ": ") + quote_html("(%s - %s)" % tuple(Pl_atoms)))
 
     #e need assy.changed()? evidently not.
-    
+
     return # from make_or_remove_crossover
 
 # ==
 
 ### TODO, someday:
 # - rename Recognizer? it's really more like Situational Perceiver...
-#    
+#
 # - btw we do want one for "any two Pl" to perceive whether to offer make or break of the crossover...
 #
 # -  rename RecognizerError -- but to what? it's not even an error, more like "this attr is not well defined" or so...
@@ -602,5 +602,5 @@ def make_or_remove_crossover(twoPls, make = True, cmdname = None):
     # think in terms of 3 base relations: paired base, stacked base, backbone-bonded base. two directions for some, one for other.
     # so, find bases, then look at them for patterns.
     # for phosphate find two bases (ie sugars), know they're backbone-bound, see if stacked or not (in right direction?)
-    
+
 # end

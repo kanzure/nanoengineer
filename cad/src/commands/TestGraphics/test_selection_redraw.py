@@ -1,10 +1,10 @@
-# Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2009 Nanorex, Inc.  See LICENSE file for details.
 """
 test_selection_redraw.py - test case for frequent moving of CSDLs between DrawingSets
 
 @author: Bruce
 @version: $Id$
-@copyright: 2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2009 Nanorex, Inc.  See LICENSE file for details.
 
 Results, as of 090106:
 
@@ -21,7 +21,7 @@ WARNING; these are measured while running Wing IDE; at least one of these result
 
 * the initial setup time (in which we make and fill 10k CSDLs) is *very* long
   (maybe half a minute). (The fps-printing code fails to measure this.)
-  This too needs optimizing, since it will limit any NE1 operation which modifies 
+  This too needs optimizing, since it will limit any NE1 operation which modifies
   lots of chunks locally, e.g. loading a file or minimizing. Probably we need to
   translate some of that code into C or Pyrex.
 """
@@ -56,7 +56,7 @@ _INVERSE_FREQUENCY_OF_REVISION = 1 # must be an integer; only revise model every
 class CSDL_holder(object):
     """
     Represent a CSDL in a particular DrawingSet.
-    
+
     (CSDL itself can't be used for this, since a CSDL
     can be in more than one DrawingSet at a time.)
     """
@@ -95,35 +95,35 @@ class CSDL_holder(object):
 class test_selection_redraw(GraphicsTestCase):
     """
     test case for frequent moving of CSDLs between DrawingSets:
-    
+
     Exercise graphics similar to selection/deselection, rapid change of highlighting, etc,
     by moving CSDLs rapidly between several DrawingSets drawn in different styles.
-    
+
     If this is too slow per-frame due to setup cost, we can ignore this at first
     since highlighting can be done differently
     and selection doesn't change during most frames.
-    
+
     But it is still a useful test for correctness,
     and for speed of selection changes that need to be reasonably responsive
     even if not occurring on most frames.
     """
     # test results [bruce 090102, usual Mac]:
-    # For my initial parameters of 10 x 10 chunks of 5 spheres, 
+    # For my initial parameters of 10 x 10 chunks of 5 spheres,
     # in 5 drawingsets (one not drawn), changing 20% of styles each time,
-    # I get about 20 msec per frame 
+    # I get about 20 msec per frame
     # (or 44 msec if 'Use batched primitive shaders?' is turned off).
     # But this is only 500 spheres, far less than realistic.
     def __init__(self, *params):
-        GraphicsTestCase.__init__(self, *params) 
+        GraphicsTestCase.__init__(self, *params)
             ### review: split into __init__ and setup methods? or use activate for the following?
         _NUM_CSDLS_X = _NUM_CSDLS_Y = self._params[0]
         # set up a lot of CSDLs, in wrappers that know which DrawingSet they're in (initially None)
-        self._csdls = [ CSDL_holder((i % _NUM_CSDLS_X) - (_NUM_CSDLS_X - 1) / 2.0, 
+        self._csdls = [ CSDL_holder((i % _NUM_CSDLS_X) - (_NUM_CSDLS_X - 1) / 2.0,
                                     ((i / _NUM_CSDLS_X) % _NUM_CSDLS_Y) - (_NUM_CSDLS_Y - 1) / 2.0,
                                     _NUM_SPHERES_PER_CSDL)
                         for i in range(_NUM_CSDLS_X * _NUM_CSDLS_Y) ]
         # set up our two DrawingSets (deselected first)
-        self.drawingsets = [DrawingSet() for i in range(_NUM_DRAWINGSETS)] 
+        self.drawingsets = [DrawingSet() for i in range(_NUM_DRAWINGSETS)]
         self.drawingsets[-1] = None # replace the last one with None, for hidden CSDLs
         # put all the CSDLs in the first one
         for csdl in self._csdls:
@@ -150,7 +150,7 @@ class test_selection_redraw(GraphicsTestCase):
                 pass
             continue
         return
-    def _draw_drawingsets(self): 
+    def _draw_drawingsets(self):
         # note: called after .draw
         for i in range(_NUM_DRAWINGSETS):
             # choose proper drawing style

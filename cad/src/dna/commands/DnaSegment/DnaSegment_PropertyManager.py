@@ -1,11 +1,11 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 @author: Ninad
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO: as of 2008-01-18
-See DnaSegment_EditCommand for details. 
+See DnaSegment_EditCommand for details.
 """
 from PyQt4.Qt import SIGNAL
 from PM.PM_GroupBox      import PM_GroupBox
@@ -20,7 +20,7 @@ from PM.PM_Constants     import PM_PREVIEW_BUTTON
 from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_LineEdit import PM_LineEdit
-from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength 
+from dna.model.Dna_Constants import getNumberOfBasePairsFromDuplexLength
 from dna.model.Dna_Constants import getDuplexLength
 from geometry.VQT import V, vlen
 from utilities.Log import redmsg
@@ -36,8 +36,8 @@ _superclass = DnaOrCnt_PropertyManager
 
 class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
     """
-    The DnaSegmenta_PropertyManager class provides a Property Manager 
-    for the DnaSegment_EditCommand. 
+    The DnaSegmenta_PropertyManager class provides a Property Manager
+    for the DnaSegment_EditCommand.
 
     @ivar title: The title that appears in the property manager header.
     @type title: str
@@ -59,11 +59,11 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         Constructor for the Build DNA property manager.
         """
 
-        
+
         self.endPoint1 = V(0, 0, 0)
         self.endPoint2 = V(0, 0, 0)
 
-        self._numberOfBases = 0 
+        self._numberOfBases = 0
         self._conformation = 'B-DNA'
         self.duplexRise = 3.18
         self.basesPerTurn = 10
@@ -80,22 +80,22 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         msg = "Use resize handles to resize the segment. Drag any axis or sugar"\
             " atom for translation or rotation about axis respectively. Dragging"\
             " any bond will freely move the whole segment."
-        self.updateMessage(msg)   
+        self.updateMessage(msg)
 
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
-            
-        
+            change_connect = self.win.disconnect
+
+
         _superclass.connect_or_disconnect_signals(self, isConnect)
 
 
@@ -111,12 +111,12 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                         SIGNAL("valueChanged(double)"),
                         self.duplexRiseChanged )
 
-        change_connect(self.showCursorTextCheckBox, 
-                       SIGNAL('stateChanged(int)'), 
+        change_connect(self.showCursorTextCheckBox,
+                       SIGNAL('stateChanged(int)'),
                        self._update_state_of_cursorTextGroupBox)
 
 
-    def _update_UI_do_updates(self): 
+    def _update_UI_do_updates(self):
         """
         @see: Command_PropertyManager._update_UI_do_updates()
         @see: DnaSegment_EditCommand.command_update_UI()
@@ -124,10 +124,10 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         @see: self._current_model_changed_params()
         """
         currentParams = self._current_model_changed_params()
-        #Optimization. Return from the model_changed method if the 
-        #params are the same. 
+        #Optimization. Return from the model_changed method if the
+        #params are the same.
         if same_vals(currentParams, self._previous_model_changed_params):
-            return 
+            return
 
         isStructResizable, why_not = currentParams
         #update the self._previous_model_changed_params with this new param set.
@@ -154,22 +154,22 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         against the previously stored parameters. This provides a quick test
         to determine whether to do more things in self.model_changed()
         @see: self.model_changed() which calls this
-        @see: self._previous_model_changed_params attr. 
+        @see: self._previous_model_changed_params attr.
         """
         params = None
 
-        if self.command:   
+        if self.command:
             isStructResizable, why_not = self.command.hasResizableStructure()
             params = (isStructResizable, why_not)
 
-        return params 
+        return params
 
 
     def show(self):
         """
         Show this property manager. Overrides EditCommand_PM.show()
-        This method also retrives the name information from the 
-        command's structure for its name line edit field. 
+        This method also retrives the name information from the
+        command's structure for its name line edit field.
         @see: DnaSegment_EditCommand.getStructureName()
         @see: self.close()
         """
@@ -181,8 +181,8 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
 
     def close(self):
         """
-        Close this property manager. 
-        Also sets the name of the self.command's structure to the one 
+        Close this property manager.
+        Also sets the name of the self.command's structure to the one
         displayed in the line edit field.
         @see self.show()
         @see: DnaSegment_EditCommand.setStructureName
@@ -194,13 +194,13 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
 
     def setParameters(self, params):
         """
-        This is usually called when you are editing an existing structure. 
-        Some property manager ui elements then display the information 
-        obtained from the object being edited. 
+        This is usually called when you are editing an existing structure.
+        Some property manager ui elements then display the information
+        obtained from the object being edited.
         TODO:
-        - Make this a EditCommand_PM API method? 
+        - Make this a EditCommand_PM API method?
         - See also the routines GraphicsMode.setParams or object.setProps
-        ..better to name them all in one style?  
+        ..better to name them all in one style?
         """
         numberOfBasePairs, \
                          dnaForm, \
@@ -209,7 +209,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                          duplexRise, \
                          endPoint1, \
                          endPoint2 , \
-                         color = params 
+                         color = params
 
         if numberOfBasePairs is not None:
             self.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
@@ -233,10 +233,10 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
     def getParameters(self):
         """
         """
-        #See bug 2802 for details about the parameter 
+        #See bug 2802 for details about the parameter
         #'number_of_basePairs_from_struct'. Basically it is used to check
-        #if the structure got modified (e.g. because of undo) 
-        #The numberOfBases parameter obtained from the propMgr is given as a 
+        #if the structure got modified (e.g. because of undo)
+        #The numberOfBases parameter obtained from the propMgr is given as a
         #separate parameter for the reasons mentioned in bug 2802
         #-- Ninad 2008-04-12
         number_of_basePairs_from_struct = None
@@ -251,13 +251,13 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
 
         return (
             number_of_basePairs_from_struct,
-            numberOfBases, 
+            numberOfBases,
             dnaForm,
             dnaModel,
             basesPerTurn,
             duplexRise,
-            self.endPoint1, 
-            self.endPoint2, 
+            self.endPoint1,
+            self.endPoint2,
             color
         )
 
@@ -267,8 +267,8 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
         """
         duplexRise = self.duplexRiseDoubleSpinBox.value()
         # Update the Duplex Length lineEdit widget.
-        text = str(getDuplexLength(self._conformation, 
-                                   numberOfBases, 
+        text = str(getDuplexLength(self._conformation,
+                                   numberOfBases,
                                    duplexRise = duplexRise)) \
              + " Angstroms"
         self.duplexLengthLineEdit.setText(text)
@@ -291,12 +291,12 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
-        """        
+        """
 
         self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox1( self._pmGroupBox1 )
 
-        self._displayOptionsGroupBox = PM_GroupBox( self, 
+        self._displayOptionsGroupBox = PM_GroupBox( self,
                                                     title = "Display Options" )
         self._loadDisplayOptionsGroupBox( self._displayOptionsGroupBox )
 
@@ -313,8 +313,8 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
 
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
-            PM_SpinBox( pmGroupBox, 
-                        label         =  "Base pairs:", 
+            PM_SpinBox( pmGroupBox,
+                        label         =  "Base pairs:",
                         value         =  self._numberOfBases,
                         setAsDefault  =  False,
                         minimum       =  2,
@@ -329,7 +329,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                               maximum       =  20.0,
                               decimals      =  2,
                               singleStep    =  0.1 )
-        self.basesPerTurnDoubleSpinBox.setDisabled(True)  
+        self.basesPerTurnDoubleSpinBox.setDisabled(True)
 
         self.duplexRiseDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
@@ -340,7 +340,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                               maximum       =  4.0,
                               decimals      =  3,
                               singleStep    =  0.01 )
-        self.duplexRiseDoubleSpinBox.setDisabled(True)  
+        self.duplexRiseDoubleSpinBox.setDisabled(True)
 
         # Duplex Length
         self.duplexLengthLineEdit  =  \
@@ -349,55 +349,55 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
                          text          =  "0.0 Angstroms",
                          setAsDefault  =  False)
 
-        self.duplexLengthLineEdit.setDisabled(True)  
-        
-        
+        self.duplexLengthLineEdit.setDisabled(True)
+
+
     def _loadDisplayOptionsGroupBox(self, pmGroupBox):
         """
-        Overrides superclass method. 
-        Also loads the color chooser widget. 
+        Overrides superclass method.
+        Also loads the color chooser widget.
         """
         self._loadColorChooser(pmGroupBox)
         _superclass._loadDisplayOptionsGroupBox(self, pmGroupBox)
-        
+
 
 
     def _connect_showCursorTextCheckBox(self):
         """
         Connect the show cursor text checkbox with user prefs_key.
-        Overrides 
+        Overrides
         DnaOrCnt_PropertyManager._connect_showCursorTextCheckBox
         """
         connect_checkbox_with_boolean_pref(
-            self.showCursorTextCheckBox , 
+            self.showCursorTextCheckBox ,
             dnaSegmentEditCommand_showCursorTextCheckBox_prefs_key)
 
 
     def _params_for_creating_cursorTextCheckBoxes(self):
         """
         Returns params needed to create various cursor text checkboxes connected
-        to prefs_keys  that allow custom cursor texts. 
+        to prefs_keys  that allow custom cursor texts.
         @return: A list containing tuples in the following format:
-                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes 
+                ('checkBoxTextString' , preference_key). PM_PrefsCheckBoxes
                 uses this data to create checkboxes with the the given names and
-                connects them to the provided preference keys. (Note that 
+                connects them to the provided preference keys. (Note that
                 PM_PrefsCheckBoxes puts thes within a GroupBox)
         @rtype: list
         @see: PM_PrefsCheckBoxes
-        @see: self._loadDisplayOptionsGroupBox where this list is used. 
+        @see: self._loadDisplayOptionsGroupBox where this list is used.
         @see: Superclass method which is overridden here --
         DnaOrCnt_PropertyManager._params_for_creating_cursorTextCheckBoxes()
         """
         params = \
                [  #Format: (" checkbox text", prefs_key)
-                  ("Number of base pairs", 
+                  ("Number of base pairs",
                    dnaSegmentEditCommand_cursorTextCheckBox_numberOfBasePairs_prefs_key),
 
                    ("Duplex length",
                     dnaSegmentEditCommand_cursorTextCheckBox_length_prefs_key),
 
                     ("Number of basepairs to be changed",
-                     dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key) 
+                     dnaSegmentEditCommand_cursorTextCheckBox_changedBasePairs_prefs_key)
                  ]
 
         return params
@@ -405,7 +405,7 @@ class DnaSegment_PropertyManager( DnaOrCnt_PropertyManager):
 
     def _addWhatsThisText(self):
         """
-        Add what's this text. 
+        Add what's this text.
         """
         pass
 

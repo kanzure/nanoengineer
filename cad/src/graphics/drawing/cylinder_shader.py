@@ -1,4 +1,4 @@
-# Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2009 Nanorex, Inc.  See LICENSE file for details.
 """
 cylinder_shader.py - Cylinder shader GLSL source code.
 
@@ -22,131 +22,131 @@ Russ 090106: Design description file created.
 # end-points determining an axis line-segment, and two radii at the end-points.
 # A constant-radius cylinder is tapered by perspective anyway, so the same
 # shader does cones as well as cylinders.
-# 
+#
 # The rendered cylinders are smooth, with no polygon facets.  Exact shading, Z
 # depth, and normals are calculated in parallel in the GPU for each pixel.
-# 
-# 
+#
+#
 # === Terminology:
-# 
+#
 # In the remainder of this description, the word "cylinder" will be used to
 # refer to the generalized family of tapered cylinders with flat ends
 # perpendicular to the axis, including parallel cylinders, truncated cones
 # (frusta), and pointed cones where the radius at one end is zero.  (If both
 # radii are zero, nothing is visible.)
-# 
+#
 # The two flat circular end surfaces of generalized cylinders are called
 # "endcaps" here, and the rounded middle part a "barrel".  Cylinder barrel
 # surfaces are ruled surfaces, made up of straight lines that are referred to as
 # "barrel lines".
-# 
+#
 # The barrel lines and axis line of a cylinder intersect at a "convergence
 # point" where the tapered radius goes to zero.  This point will be at an
 # infinite distance for an untapered cylinder, in which case its location is a
 # pure direction vector, with a W coordinate of zero.  Pairs of barrel lines are
 # coplanar, not skew, because they all intersect at the convergence point.
-# 
-# 
+#
+#
 # === How the sphere shader works:
-# 
+#
 # (This is a quick overview, as context for the cylinder shader.  See the the
 # description, comments, and source of the sphere vertex shader program for fine
 # details of that process that are not repeated here.)
-# 
+#
 # The vertex shader for spheres doesn't care what OpenGL "unit" drawing pattern
 # is used to bound the necessary pixels in the window, since spheres are
 # symmetric in every direction.  Unit cubes, tetrahedra, or viewpoint oriented
 # billboard quads are all treated the same.
-# 
+#
 # . Their vertices are scaled by the sphere radius and added to the sphere
 #   center point:
 #       drawing_vertex = sphere_center + radius * pattern_vertex
 #   This is done in eye coordinates, where lengths are still valid.
-# 
+#
 # . When perspective is on, a rotation is done as well, to keep a billboard
 #   drawing pattern oriented directly toward the viewpoint.
-# 
+#
 # The fragment (pixel) shader for spheres gets a unit ray vector from the
 # rasterizer, and 3D eye-space data from the vertex shader specifying the
 # viewpoint and the sphere.  The ray gives the direction from the viewpoint
 # through a pixel in the window in the vicinity of the sphere.
-# 
+#
 # . For ray-hit detection, it determines whether the closest point to the sphere
 #   center on the ray is within the sphere radius (or surrounding flat halo disk
 #   radius) of the sphere center point.
-# 
+#
 # . When there is a hit, it calculates the front intersection point of the ray
 #   with the sphere, the 3D normal vector there, the depth of the projection
 #   onto the window pixel, and the shaded pixel color based on the normal,
 #   lights, and material properties.
-# 
-# 
+#
+#
 # === Cylinder shaders:
-# 
+#
 # Tapered cylinders/cones are more complicated than spheres, but still have
 # radial symmetry around the axis to work with.  The visible surfaces of a
 # cylinder are the portion of the barrel surface towards the viewpoint, and at
 # most one endcap.  (*Both* endcaps are hidden by the barrel if the viewpoint is
 # anywhere between the endcap planes.)
-# 
-# 
+#
+#
 # === How the cylinder vertex shader works:
-# 
+#
 # A vertex shader is executed in parallel on each input vertex in the drawing
 # pattern.  Spheres have a single center point and radius, but (tapered)
 # cylinders have two.  All vertices have copies of the associated "attribute"
 # values, the two axis endpoints and associated end cap radii, packaged into two
 # 4-vector VBOs for efficiency.
-# 
+#
 # A particular drawing pattern is assumed as the input to this vertex shader, a
 # "unit cylinder" quadrilateral billboard with its cylinder axis aligned along
 # the X axis: four vertices with X in {0.0,1.0}, Y in {+1.0,-1.0}, and Z is 1.0.
-# 
+#
 # The vertex shader identifies the individual vertices and handles them
 # individually by knowing where they occur in the input drawing pattern.
-# 
+#
 # This billboard pattern would emerge unchanged as the output for a unit
 # cylinder with the viewpoint above the middle of the cylinder, with 1.0 for
 # both end radii, and endpoints at [0.0,0.0] and [0.0,1.0].
-# 
+#
 # In general, the vertices output from the cylinder vertex shader are based on
 # the input vertices, scaled and positioned by the cylinder axis taper radii and
 # endpoints.  This makes a *symmetric trapezoid billboard quadrilateral*, whose
 # midline swivels around the cylinder axis to face directly toward the viewpoint
 # *in eye space coordinates*.  The job of this billboard is to cover all of the
 # visible pixels of the cylinder barrel and endcap.
-# 
+#
 # [Further details are below, in the vertex shader main procedure.]
-# 
-# 
+#
+#
 # === A note about pixel (fragment) shaders in general:
-# 
+#
 # There are a minimum of 32 "interpolators" that smear the "varying" outputs of
 # the vertex shader over the pixels during raster conversion, and pass them as
 # inputs to the pixel shaders.  Since there are a lot more pixels than vertices,
 # everything possible is factored out of the pixel shaders as an optimization.
-# 
+#
 # . Division is an expensive operation, so denominators of fractions are often
 #   passed as inverses for multiplication.
-# 
+#
 # . Lengths are often passed and compared in squared form (calculated by the
 #   dot-product of a vector with itself) to avoid square roots.
-# 
+#
 # . Trig functions are expensive, but usually implicit in the results of
 #   dot-products and cross-products, which are cheap GPU operations.
-# 
-# 
+#
+#
 # === How the cylinder pixel (fragment) shader works:
-# 
+#
 # Ray-hit detection is in two parts, the endcaps and the barrel surface.
-# 
+#
 # Endcap circle ray-hit detection is done first, because if the pixel ray hits
 # the endcap, it won't get through to the barrel.
-# 
+#
 # Barrel surface ray-hit detection is based on comparing the "passing distance",
 # between the ray line and the cylinder axis line, with the tapered radius of
 # the cylinder at the passing point.
-# 
+#
 # [Further details are below, in the pixel shader main procedure.]
 # ===
 
@@ -162,7 +162,7 @@ Russ 090106: Design description file created.
 
 cylinderVertSrc = """
 // Vertex shader program for cylinder primitives.
-// 
+//
 // See the description at the beginning of this file.
 
 // XXX Start by copying a lot of stuff from the sphere shaders, factor later.
@@ -185,7 +185,7 @@ uniform float ndc_halo_width;   // Halo width in normalized device coords.
 
 uniform int n_transforms;
 #ifdef UNIFORM_XFORMS
-  // Transforms are in uniform (constant) memory. 
+  // Transforms are in uniform (constant) memory.
   uniform mat4 transforms[N_CONST_XFORMS]; // Must dimension at compile time.
 #endif
 #ifdef TEXTURE_XFORMS
@@ -252,7 +252,7 @@ void main(void) {
   var_basecolor = vec4(gl_Vertex.x, gl_Vertex.y + 1.0 / 2.0, 0.0, 1.0);
 #endif
   var_input_xy = gl_Vertex.xy;
-  
+
   // The endpoints and radii are combined in one attribute: endpt_rad.
   vec4 endpts[2];
   float radii[2];
@@ -284,8 +284,8 @@ void main(void) {
     float mat = transform_id / float(n_transforms - 1);  // (0...N-1)=>(0...1) .
     // The second tex coord goes down the height of four vec4s for the matrix.
     xform = mat4(texture2D(transforms, vec2(0.0/3.0, mat)),
-                 texture2D(transforms, vec2(1.0/3.0, mat)), 
-                 texture2D(transforms, vec2(2.0/3.0, mat)), 
+                 texture2D(transforms, vec2(1.0/3.0, mat)),
+                 texture2D(transforms, vec2(2.0/3.0, mat)),
                  texture2D(transforms, vec2(3.0/3.0, mat)));
 # endif
     for (i = 0; i <= 1; i++)
@@ -341,9 +341,9 @@ void main(void) {
     var_ray_vec = vec3(0.0, 0.0, -1.0);
   }
 
-  //=== Vertex shader details 
+  //=== Vertex shader details
   // [See context and general description above, at the beginning of the file.]
-  // 
+  //
   // Consider a square truncated pyramid, a tapered box with 6 quadrilateral
   // faces, tightly surrounding the tapered cylinder.  It has 2 square faces
   // containing circular endcaps, and 4 symmetric trapezoids (tapered rectangles
@@ -417,7 +417,7 @@ void main(void) {
                                            endpt_across_vp_dir[i]));
       }
     }
-    
+
   } else {
 
     // In orthogonal projection, the barrel surface is hidden from view if the
@@ -453,11 +453,11 @@ void main(void) {
       endpt_toward_vp_dir[0] = endpt_toward_vp_dir[1] = vec3(1.0, 0.0, 0.0);
     } else {
       // Perpendicular to cylinder axis and the view direction, in the XY plane.
-      endpt_across_vp_dir[0] = endpt_across_vp_dir[1] = 
+      endpt_across_vp_dir[0] = endpt_across_vp_dir[1] =
         normalize(cross(axis_line_dir, var_ray_vec));
 
       // Perpendicular to both the cylinder axis and endpt_across_vp directions.
-      endpt_toward_vp_dir[0] = endpt_toward_vp_dir[1] = 
+      endpt_toward_vp_dir[0] = endpt_toward_vp_dir[1] =
         normalize(cross(axis_line_dir, endpt_across_vp_dir[0]));
     }
 
@@ -468,14 +468,14 @@ void main(void) {
   //===
   // The output vertices for the billboard quadrilateral are based on the
   // vertices of the tapered box, with several cases:
-  // 
+  //
   // . NE1 does not draw the interior (back sides) of atom and bond surfaces.
   //   When the viewpoint is both (1) between the endcap planes, *and* (2)
   //   inside the barrel surface as well, we draw nothing at all.
   //===
 
   // Output vertex in eye space for now, will be projected into clipping coords.
-  vec3 billboard_vertex;  
+  vec3 billboard_vertex;
 
   if (vp_between_endcaps && vp_in_barrel) {
     var_visibility_type = VISIBLE_NOTHING;
@@ -571,7 +571,7 @@ void main(void) {
   //   a barrel face are combined into a single trapezoid by ignoring the shared
   //   edge between them, replacing an 'L' shaped combination with a diagonal
   //   '\'.
-  // 
+  //
   //   - A subtlety: the max of the two cylinder radii is used for the endcap
   //     square size, because the far end of the cylinder barrel may have a
   //     larger radius than the endcap circle toward us, and we want to cover it
@@ -611,7 +611,7 @@ void main(void) {
       endcap_endpt = var_endpts[0];
       halo_width = var_halo_radii[0]-var_radii[0];
     }
-      
+
     vec3 scaled_across = (gl_Vertex.y * max_billboard_radius) * endcap_across;
     vec3 scaled_toward = max_billboard_radius * endcap_toward;
 
@@ -662,14 +662,14 @@ void main(void) {
     var_ray_vec = normalize(billboard_vertex);
   } else {
     // Without perspective, look from the 2D pixel position, in the -Z dir.
-    var_view_pt = vec3(billboard_vertex.xy, 0.0);  
+    var_view_pt = vec3(billboard_vertex.xy, 0.0);
   }
 
   // Transform the billboard vertex through the projection matrix, making clip
   // coordinates for the next stage of the pipeline.
   gl_Position = gl_ProjectionMatrix * vec4(billboard_vertex, 1.0);
 
-  // Pack some varyings for nVidia 7000 series and similar graphics chips. 
+  // Pack some varyings for nVidia 7000 series and similar graphics chips.
   var_pack1 = vec4(var_ray_vec, float(var_visible_endcap));
   var_pack2 = vec4(var_view_pt, float(var_visibility_type));
   var_pack3 = vec4(var_radii[0], var_radii[1],
@@ -683,7 +683,7 @@ void main(void) {
 # together with an optional #define line.
 cylinderFragSrc = """
 // Fragment (pixel) shader program for cylinder primitives.
-// 
+//
 // See the description at the beginning of this file.
 
 // Uniform variables, which are constant inputs for the whole shader execution.
@@ -810,7 +810,7 @@ void main(void) {
     // X in the billboard drawing pattern is red (0 to 1), Y (+-1) is green.
     halo_color = vec4(var_input_xy.x, var_input_xy.y + 1.0 / 2.0, 0.0, 1.0);
   }
-  
+
   // Nothing to do if the viewpoint is inside the cylinder.
   if (!debug_hit && var_visibility_type == VISIBLE_NOTHING)
     discard; // **Exit**
@@ -830,7 +830,7 @@ void main(void) {
 
   //=== Fragment (pixel) shader details
   // [See context and general description above, at the beginning of the file.]
-  // 
+  //
   // The ray and axis lines in general do not intersect.  The closest two
   // points where a pair of skew lines pass are their intersections with the
   // line that crosses perpendicular to both of them.  The direction vector of
@@ -894,7 +894,7 @@ void main(void) {
     // . The endcap ray-hit test is similar to the sphere shader hit test, in
     //   that a center point and a radius are given, so calculate the distance
     //   that the ray passes from the endcap center point similarly.
-    // 
+    //
     // . The difference is that the endcaps are flat circles, not spheres,
     //   projecting to an elliptical shape in general.  We deal with that by
     //   intersecting the ray with the endcap plane and comparing the distance
@@ -950,7 +950,7 @@ void main(void) {
       // Early out.  We know only an endcap is visible, and we missed it.
       discard; // **Exit**
 
-    }      
+    }
   }
 
   // Skip the barrel hit test if we already hit an endcap.
@@ -962,7 +962,7 @@ void main(void) {
     // Barrel surface ray-hit detection is based on comparing the 'passing
     // distance', between the the ray line and the cylinder axis line, with the
     // tapered radius of the cylinder at the passing point.
-    // 
+    //
     // . Interpolate the tapered radius along the axis line, to the point
     //   closest to the ray on the cylinder axis line, and compare with the
     //   passing distance.
@@ -1006,7 +1006,7 @@ void main(void) {
       // extended barrel of the cylinder.  We will have a hit if the projection
       // of this intersection point onto the axis line lies between the
       // endpoints of the cylinder.
-      // 
+      //
       // The pixel-ray goes from the viewpoint toward the pixel we are shading,
       // intersects the cylinder barrel, passes closest to the axis-line inside
       // the barrel, and intersects the barrel again on the way out.  We want
@@ -1014,13 +1014,13 @@ void main(void) {
       // viewpoint.  (Note: The two intersection points and the ray
       // passing-point will all be the same point when the ray is tangent to the
       // cylinder.)
-      // 
+      //
       // . First, we find a point on the barrel line that contains the
       //   intersection, in the cross-section plane of the cylinder.  This
       //   crossing-plane is perpendicular to the axis line and contains the two
       //   closest passing points, as well as the passing-line through them,
       //   perpendicular to the axis of the cylinder.
-      // 
+      //
       //   If the radii are the same at both ends of the cylinder, the
       //   barrel-lines are parallel.  The projection of the ray-line, along a
       //   ray-plane *parallel to the cylinder axis* into the crossing-plane, is
@@ -1052,17 +1052,17 @@ void main(void) {
         //   cross-section plane, scaling by the taper of the cylinder along the
         //   axis.  [This is the one place where tapered cylinders and cones are
         //   handled differently from untapered cylinders.]
-        //   
+        //
         //   - Note: If we project parallel to the axis without tapering toward
         //     the convergence-point, we are working in a plane parallel to the
         //     cylinder axis, which intersects a tapered cylinder or cone in a
         //     hyperbola.  Intersecting a ray with a hyperbola is hard.
-        //     
+        //
         //     Instead, we arrange to work in a ray-plane that includes the
         //     convergence point, as well as the viewpoint and ray direction, so
         //     the intersection of the plane with the cylinder is two straight
         //     lines.  It is much easier to intersect a ray with a line.
-        // 
+        //
         //   - The ray-line and the convergence-point determine a ray-plane,
         //     with the projected ray-line at the intersection of the ray-plane
         //     with the cross-plane.  If the ray-line goes through (i.e. within
@@ -1090,7 +1090,7 @@ void main(void) {
         //     passing-line, for tapered cylinders and cones.  It is the closest
         //     point, on the *projected* ray-line in the cross-plane, to the
         //     cylinder axis passing-point (which does not move.)
-        //     
+        //
         //     Note: The original passing-point is still *also* on the projected
         //     ray-line, but not midway between the projected barrel-line
         //     intersections anymore.  In projecting the ray-line into the
@@ -1119,7 +1119,7 @@ void main(void) {
         csp_proj_view_pt = convergence_pt + (var_view_pt - convergence_pt) *
           (app_axis_rel_loc / vp_axis_rel_loc);
 
-        // New passing point in the cross-section plane. 
+        // New passing point in the cross-section plane.
         vec3 csp_ray_line_dir = normalize(ray_passing_pt - csp_proj_view_pt);
         csp_passing_pt = pt_proj_onto_line(axis_passing_pt,
           csp_proj_view_pt, csp_ray_line_dir);
@@ -1142,7 +1142,7 @@ void main(void) {
 
       //===
       //   [Now we are back to common code for tapered and untapered cylinders.]
-      // 
+      //
       //   - In the cross-plane, the projected ray-line intersects the circular
       //     cross section of the cylinder at two points, going through the ray
       //     passing-point, and cutting off a chord of the line and an arc of
@@ -1150,18 +1150,18 @@ void main(void) {
       //     along the surface of the cylinder and also in the ray-plane.  Each
       //     of them contains one of the intersection points between the ray and
       //     the cylinder.
-      // 
+      //
       //     . The chord of the projected ray-line is perpendicularly bisected
       //       by the passing-line, making a right triangle in the cross-plane.
-      // 
+      //
       //     . The passing-distance is the length of the base of the triangle on
       //       the passing-line, adjacent to the cylinder axis point.
-      // 
+      //
       //     . The cylinder cross-section circle radius, tapered along the
       //       cylinder to the cross-plane, is the length of the hypotenuse,
       //       between the axis point and the first intersection point of the
       //       ray chord with the circle.
-      // 
+      //
       //     . The length of the right triangle side opposite the axis, along
       //       the chord of the ray-line toward the viewpoint, is given by the
       //       Pythagorean Theorem.  This locates the third vertex of the
@@ -1188,7 +1188,7 @@ void main(void) {
       //   giving the 3D ray-cylinder intersection point.  Note: this is not in
       //   general contained in the 2D crossing-plane, depending on the location
       //   of the viewpoint.
-      // 
+      //
       //   - The intersection point may be easily calculated by interpolating
       //     two points on the ray line (e.g. the viewpoint and the ray
       //     passing-point.)  The interpolation coefficients are the ratios of
@@ -1236,13 +1236,13 @@ void main(void) {
         //     barrel line) is *perpendicular to the barrel line* (not the
         //     cylinder axis), in the radial plane containing the cylinder axis
         //     and the barrel line.
-        // 
+        //
         //   - The cross-product of the axis-intersection vector (from the
         //     intersection point toward the axis passing-point), with the
         //     barrel-line direction vector (from the first cylinder endpoint
         //     toward the second) makes a vector tangent to the cross-plane
         //     circle, pointed along the arc toward the passing-line.
-        // 
+        //
         //   - The cross-product of the tangent-vector, with the barrel-line
         //     direction vector, makes the normal to the cylinder along the
         //     barrel line.

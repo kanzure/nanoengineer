@@ -29,7 +29,7 @@ elmnts=[("H",   1,   1.6737),
         ("S",  16,  53.233),
         ("Cl", 17,  58.867),
         ("Ar", 18,  66.33),
-        
+
         ("K",  19,  64.9256),
         ("Ca", 20,  66.5495),
         ("Sc", 21,  74.646),
@@ -69,11 +69,11 @@ if __name__ == "__main__":
 
         bt=sqrt(ks/(2.0*de))/10.0
         r0=r0*100.0
-        
+
         print '  addInitialBondStretch(',
         print '%2d,'%sym2num[which[0]],
         print '%2d,'%sym2num[which[2]],
         print "'%s',"%bontyp[which[1]],
-        
+
         print '%6.1f,%6.1f,%7.4f,%7.4f); //'%(ks,r0,de,bt),
         print which[0]+which[1]+which[2]

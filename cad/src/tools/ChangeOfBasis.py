@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 Transform coordinates from one basis set to another.

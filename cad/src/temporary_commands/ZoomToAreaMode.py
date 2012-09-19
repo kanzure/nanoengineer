@@ -38,34 +38,34 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     """
     Custom GraphicsMode for use as a component of ZoomToAreaMode.
     """
-        
+
     def leftDown(self, event):
         """
         Compute the rubber band window starting point, which
-        lies on the near clipping plane, projecting into the same 
+        lies on the near clipping plane, projecting into the same
         point that current cursor points at on the screen plane.
         """
         self.pWxy = (event.pos().x(), self.glpane.height - event.pos().y())
-        p1 = A(gluUnProject(self.pWxy[0], self.pWxy[1], 0.005)) 
-        
+        p1 = A(gluUnProject(self.pWxy[0], self.pWxy[1], 0.005))
+
         self.pStart = p1
         self.pPrev = p1
         self.firstDraw = True
 
         self.command.glStatesChanged = True
             # this warns our exit code to undo the following OpenGL state changes:
-        
+
         self.glpane.redrawGL = False
         glDisable(GL_DEPTH_TEST)
         glDisable(GL_LIGHTING)
         rbwcolor = self.command.rbwcolor
         glColor3d(rbwcolor[0], rbwcolor[1], rbwcolor[2])
-        
+
         glEnable(GL_COLOR_LOGIC_OP)
         glLogicOp(GL_XOR)
-        
+
         return
-        
+
     def leftDrag(self, event):
         """
         Compute the changing rubber band window ending point. Erase the
@@ -88,18 +88,18 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         # draw the new rubberband window
         drawrectangle(self.pStart, self.pPrev, self.glpane.up,
                       self.glpane.right, rbwcolor)
-        
+
         glFlush()
         self.glpane.swapBuffers() # Update display
-        
-        # Based on a suggestion in bug 2961, I added this second call to 
-        # swapBuffers(). It definitely helps, but the rectangle disappears 
-        # once the zoom cursor stops moving. I suspect this is due to 
-        # a gl_update() elsewhere.  I'll ask Bruce about his thoughts on 
+
+        # Based on a suggestion in bug 2961, I added this second call to
+        # swapBuffers(). It definitely helps, but the rectangle disappears
+        # once the zoom cursor stops moving. I suspect this is due to
+        # a gl_update() elsewhere.  I'll ask Bruce about his thoughts on
         # this. --Mark 2008-12-22.
-        self.glpane.swapBuffers() 
+        self.glpane.swapBuffers()
         return
-        
+
     def leftUp(self, event):
         """
         Erase the final rubber band window and do zoom if user indeed draws a
@@ -116,29 +116,29 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         # The rubber band window size can be larger than that of glpane.
         # Limit the zoomFactor to 1.0
         zoomFactor = min(max(zoomX, zoomY), 1.0)
-        
+
         # Huaicai: when rubber band window is too small,
         # like a double click, a single line rubber band, skip zoom
         DELTA = 1.0E-5
         if self.pWxy[0] == cWxy[0] or self.pWxy[1] == cWxy[1] \
                 or zoomFactor < DELTA:
-            
+
             self.command.command_Done()
             return
-        
+
         # Erase the last rubber-band window
         rbwcolor = self.command.rbwcolor
         drawrectangle(self.pStart, self.pPrev, self.glpane.up,
                       self.glpane.right, rbwcolor)
         glFlush()
         self.glpane.swapBuffers()
-        
+
         winCenterX = (cWxy[0] + self.pWxy[0]) / 2.0
         winCenterY = (cWxy[1] + self.pWxy[1]) / 2.0
         winCenterZ = \
             glReadPixelsf(int(winCenterX), int(winCenterY), 1, 1,
                           GL_DEPTH_COMPONENT)
-        
+
         assert winCenterZ[0][0] >= 0.0 and winCenterZ[0][0] <= 1.0
         if winCenterZ[0][0] >= GL_FAR_Z:  # window center touches nothing
             p1 = A(gluUnProject(winCenterX, winCenterY, 0.005))
@@ -146,35 +146,35 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
 
             los = self.glpane.lineOfSight
             k = dot(los, -self.glpane.pov - p1) / dot(los, p2 - p1)
-            
+
             zoomCenter = p1 + k*(p2-p1)
-            
+
         else:
             zoomCenter = \
                 A(gluUnProject(winCenterX, winCenterY, winCenterZ[0][0]))
-        self.glpane.pov = V(-zoomCenter[0], -zoomCenter[1], -zoomCenter[2]) 
-        
-        # The following are 2 ways to do the zoom, the first one 
+        self.glpane.pov = V(-zoomCenter[0], -zoomCenter[1], -zoomCenter[2])
+
+        # The following are 2 ways to do the zoom, the first one
         # changes view angles, the 2nd one change viewing distance
-        # The advantage for the 1st one is model will not be clipped by 
-        #  near or back clipping planes, and the rubber band can be 
-        # always shown. The disadvantage: when the view field is too 
+        # The advantage for the 1st one is model will not be clipped by
+        #  near or back clipping planes, and the rubber band can be
+        # always shown. The disadvantage: when the view field is too
         # small, a selection window may be actually act as a single pick.
         # rubber band window will not look as rectangular any more.
         #zf = self.glpane.getZoomFactor() # [note: method does not exist]
         #zoomFactor = pow(zoomFactor, 0.25)
         #zoomFactor *= zf
         #self.glpane.setZoomFactor(zoomFactor) # [note: method does not exist]
-        
+
         # Change viewing distance to do zoom. This works better with
         # mouse wheel, since both are changing viewing distance, and
         # it's not too bad of model being clipped, since the near/far clip
         # plane change as scale too.
         self.glpane.scale *= zoomFactor
-       
+
         self.command.command_Done()
         return
-        
+
     def update_cursor_for_no_MB(self): # Fixes bug 1638. Mark 3/12/2006.
         """
         Update the cursor for 'Zoom' mode.
@@ -185,14 +185,14 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         This is run when we exit this command for any reason.
         """
-        # Note: this is no longer part of the GraphicsMode API 
+        # Note: this is no longer part of the GraphicsMode API
         # but we retain it as an essentially private method and call it from
         # self.command.command_will_exit in that case. [bruce 080829 comment]
-        #(comment slightly updated on 2008-09-26 : removed reference to 
-        #the 'new command api' because it is now the default API we use 
+        #(comment slightly updated on 2008-09-26 : removed reference to
+        #the 'new command api' because it is now the default API we use
         # -- Ninad)
         # [bruce 080929 made this private]
-        
+
         # If OpenGL states changed during this mode, we need to restore
         # them before exit. Currently, only leftDown() will change that.
         # [bruce 071011/071012 change: do this in
@@ -203,7 +203,7 @@ class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
             glEnable(GL_LIGHTING)
             glEnable(GL_DEPTH_TEST)
         return
-    
+
     pass
 
 # == the Command part
@@ -212,9 +212,9 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
     """
     Encapsulates the Zoom Tool functionality.
     """
-    
+
     # TODO: rename to ZoomTool or ZoomCommand or TemporaryCommand_Zoom or ...
-    
+
     # class constants
     commandName = 'ZOOMTOAREA'
     featurename = "Zoom to Area Tool"
@@ -222,12 +222,12 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
     command_level = CL_VIEW_CHANGE
 
     GraphicsMode_class = ZoomToAreaMode_GM
-        
+
 
     def command_entered(self):
         super(ZoomToAreaMode, self).command_entered()
         bg = self.glpane.backgroundColor
-        
+
         # rubber window shows as white color normally, but when the
         # background becomes bright, we'll set it as black.
         brightness = bg[0] + bg[1] + bg[2]
@@ -240,7 +240,7 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
             # would fool some code due to being boolean false?
             # [bruce 080829 question]
             self.rbwcolor = A((1.0, 1.0, 1.0)) - A(bg)
-        
+
         self.glStatesChanged = False
             # note: accessed as self.command.glStatesChanged in our GraphicsMode part
         return
@@ -248,15 +248,15 @@ class ZoomToAreaMode(TemporaryCommand_Overdrawing):
 
     def command_enter_misc_actions(self):
         super(ZoomToAreaMode, self).command_enter_misc_actions()
-        
+
         self.win.zoomToAreaAction.setChecked(1) # toggle on the Zoom Tool icon
 
-    def command_exit_misc_actions(self):       
+    def command_exit_misc_actions(self):
         self.win.zoomToAreaAction.setChecked(0) # toggle off the Zoom Tool icon
         super(ZoomToAreaMode, self).command_exit_misc_actions()
 
-    def command_will_exit(self):        
+    def command_will_exit(self):
         self.graphicsMode._restore_patches_by_GraphicsMode()
         super(ZoomToAreaMode, self).command_will_exit()
         return
-    
+

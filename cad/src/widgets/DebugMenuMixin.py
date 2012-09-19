@@ -50,7 +50,7 @@ from widgets.simple_dialogs import grab_text_line_using_dialog
 
 # enable the undocumented debug menu by default [bruce 040920]
 # (moved here from GLPane, now applies to all widgets using DebugMenuMixin [bruce 050112])
-debug_menu_enabled = 1 
+debug_menu_enabled = 1
 debug_events = 0 # set this to 1 to print info about many mouse events
 
 # this can probably be made a method on DebugMenuMixin
@@ -112,7 +112,7 @@ class DebugMenuMixin:
         Make and return a menu object for use in this widget, from the given menu_spec.
         If menu is provided (should be a QMenu), append to it instead.
         For more info see docstring of widgets.menu_helpers.makemenu_helper.
-        
+
         [This can be overridden by a subclass, but probably never needs to be,
         unless it needs to make *all* menus differently (thus we do use the overridden
         version if one is present) or unless it uses it independently from this mixin
@@ -182,7 +182,7 @@ class DebugMenuMixin:
             res.extend( [
                 ('measure graphics performance', self._debug_do_benchmark),
             ] )
-            
+
         #command entered profiling
         res.extend( [
             ('Profile entering a command...',
@@ -190,7 +190,7 @@ class DebugMenuMixin:
             ('(print profile output)',
              self._debug_print_profile_output),
         ] )
-            
+
 
         if debug_flags.atom_debug: # since it's a dangerous command
             res.extend( [
@@ -361,20 +361,20 @@ class DebugMenuMixin:
         print "Entering graphics benchmark. Drawing 100 frames... please wait."
         win = self._debug_win
         self.win.resize(1024,768) # resize the window to a constant size
-        
-        self.win.glpane.paintGL() 
+
+        self.win.glpane.paintGL()
         # draw once just to make sure the GL context is current
         # piotr 080405
         # [BUG: the right way is gl_update -- direct call of paintGL won't
         #  always work, context might not be current -- bruce 090305 comment]
-        
+
         env.call_qApp_processEvents() # make sure all events were processed
         tm0 = clock()
         profile_single_call_if_enabled(self._draw_hundred_frames, self, None)
         tm1 = clock()
         print "Benchmark complete. FPS = ", 100.0 / (tm1 - tm0)
         return
-        
+
     def _debug_profile_userEnterCommand(self):
         """
         Debug menu command for profiling userEnterCommand(commandName).
@@ -388,38 +388,38 @@ class DebugMenuMixin:
         the first time since opening a new file) than in subsequent times.
         """
         # Ninad 2008-10-03; renamed/revised by bruce 090305
-        
+
         RECOGNIZED_COMMAND_NAMES = (
-            'DEPOSIT', 
-            'BUILD_DNA', 
-            'DNA_SEGMENT', 
+            'DEPOSIT',
+            'BUILD_DNA',
+            'DNA_SEGMENT',
             'DNA_STRAND',
-            'CRYSTAL', 
-            'BUILD_NANOTUBE', 
+            'CRYSTAL',
+            'BUILD_NANOTUBE',
             'EDIT_NANOTUBE',
-            'EXTRUDE', 
+            'EXTRUDE',
             'MODIFY',
             'MOVIE'
          )
-        
+
         ok, commandName =  grab_text_line_using_dialog(
-            title = "profile entering given command", 
+            title = "profile entering given command",
             label = "Enter the command.commandName e.g. 'BUILD_DNA' , 'DEPOSIT'"
          )
         if not ok:
             print "No command name entered, returning"
             return
-        
+
         commandName = str(commandName)
         commandName = commandName.upper()
         if not commandName in RECOGNIZED_COMMAND_NAMES:
             #bruce 090305 changed this to just a warning, added try/except
             print "Warning: command name %r might or might not work. " \
                   "Trying it anyway." % (commandName,)
-            pass 
-        
+            pass
+
         print "Profiling command enter for %s" % (commandName,)
-                 
+
         win = self._debug_win
         meth = self.win.commandSequencer.userEnterCommand
         set_enabled_for_profile_single_call(True)

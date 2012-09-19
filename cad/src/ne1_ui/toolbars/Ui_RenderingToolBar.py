@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Ui_RenderingToolBar.py - Toolbar for Rendering plug-ins like QuteMolX and
 POV-Ray.
@@ -27,7 +27,7 @@ def setupUi(win, toolbarArea):
     win.renderingToolBar = QToolBar_WikiHelp(win)
     win.renderingToolBar.setEnabled(True)
     win.renderingToolBar.setObjectName("renderingToolBar")
-    win.addToolBar(toolbarArea, win.renderingToolBar)    
+    win.addToolBar(toolbarArea, win.renderingToolBar)
 
     # Populate the "Rendering" toolbar.
     win.renderingToolBar.addAction(win.viewQuteMolAction)
@@ -39,14 +39,14 @@ def retranslateUi(win):
     """
     Assigns the I{window title} property of the "Rendering" toolbar.
 
-    The window title of these toolbars will be displayed in the popup menu 
+    The window title of these toolbars will be displayed in the popup menu
     under "View > Toolbars".
     """
     win.renderingToolBar.setWindowTitle(
         QtGui.QApplication.translate(
-            "MainWindow", "Rendering", 
+            "MainWindow", "Rendering",
             None, QtGui.QApplication.UnicodeUTF8))
     win.renderingToolBar.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Rendering Toolbar", 
+            "MainWindow", "Rendering Toolbar",
             None, QtGui.QApplication.UnicodeUTF8))

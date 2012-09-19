@@ -16,11 +16,11 @@ parmpat = re.compile("([A-Z][a-z]?)([\+=\-@#])([A-Z][a-z]?) +Ks= *([\d\.]+) +R0=
 commpat = re.compile("#")
 
 pref="""! Gamess control file
- $CONTRL SCFTYP=UHF MAXIT=200 RUNTYP=energy MULT=1 ICHARG=0 
-ICUT=9 ITOL=20 INTTYP=best COORD=zmt nprint=-5 $END     
- $SCF NCONV=5 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. npunch=0 $END 
- $STATPT NSTEP=50 OPTTOL=0.0001 IFREEZ(1)=1,2,3 $END     
- $FORCE VIBANL=.f. PRTIFC=.f. $END 
+ $CONTRL SCFTYP=UHF MAXIT=200 RUNTYP=energy MULT=1 ICHARG=0
+ICUT=9 ITOL=20 INTTYP=best COORD=zmt nprint=-5 $END
+ $SCF NCONV=5 dirscf=.t. DAMP=.t. SHIFT=.t. DIIS=.T. npunch=0 $END
+ $STATPT NSTEP=50 OPTTOL=0.0001 IFREEZ(1)=1,2,3 $END
+ $FORCE VIBANL=.f. PRTIFC=.f. $END
  $SYSTEM TIMLIM=10000 MWORDS=250 $END
 ! $BASIS GBASIS=AM1 $END
  $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=1 NPFUNC=1 DIFFSP=.t. $END
@@ -41,9 +41,9 @@ for lin in f.readlines():
     if commpat.match(lin): continue
     m = parmpat.match(lin)
     l,b,r = m.group(1),m.group(2),m.group(3)
-    
+
     ks,r0,de = map(lambda p: float(m.group(p)),[4,5,6])
-    
+
     Rzeros[l+b+r]=r0
     Rzeros[r+b+l]=r0
 
@@ -94,4 +94,4 @@ for c in centers:
                 of.write(' dxr = %f\n' % Rzeros[ce+rb+re])
                 of.write(' $END\n')
                 of.close()
-            
+

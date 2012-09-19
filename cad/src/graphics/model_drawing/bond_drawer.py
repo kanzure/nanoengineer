@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 bond_drawer.py -- implementations of Bond.draw and Bond.writepov.
 
@@ -129,7 +129,7 @@ class writepov_to_file:
     def bond(self, a1pos, a2pos, col, rad = None):
         self.writeradmacro(rad, "bondr", "bond")
         self.file.write(povpoint(a1pos) +
-                   "," + povpoint(a2pos) + 
+                   "," + povpoint(a2pos) +
                    "," + Vector3ToString(col) + ")\n")
     def tube3(self, a1pos, a2pos, col, rad = None):
         self.writeradmacro(rad, "tube3r", "tube3")
@@ -158,7 +158,7 @@ class writepov_to_file:
         self.file.write(povpoint(a1pos) +
            "," + Vector3ToString(color1) +
            "," + povpoint(c1) + "," +
-           povpoint(c2) + "," + 
+           povpoint(c2) + "," +
            povpoint(a2pos) + "," +
            Vector3ToString(color2) + ")\n")
 
@@ -173,13 +173,13 @@ class writepov_to_file:
         ###it uses atom macro, since not all spheres are atoms
         self.file.write("atom(" + str(pos) + ", " +
                         str(radius) + ", " + Vector3ToString(color) + ")\n")
-    
+
     def getBondColor(self):
         """
-        Returns the self.bondColor (rgb value) 
+        Returns the self.bondColor (rgb value)
         @return: L{self.bondColor}
         @see: L{self.old_writepov_bondcyl}
-        @Note:  this whole file needs code cleanup.  
+        @Note:  this whole file needs code cleanup.
         """
         return self.bondColor
 
@@ -199,7 +199,7 @@ def bond_draw_in_CPK(self): #bruce 080212 # todo: make this a Bond method
     # don't bother drawing if atoms touch, even if some of self would be visible
     # if they just barely touch.
     return ( vlen(pos1 - pos2) > radius1 + radius2 )
-    
+
 def draw_bond(self,
               glpane,
               dispdef,
@@ -223,15 +223,15 @@ def draw_bond(self,
     """
     atom1 = self.atom1
     atom2 = self.atom2
-    
+
     disp = max(atom1.display, atom2.display)
     if disp == diDEFAULT:
         disp = dispdef
 
-    # piotr 080312  
+    # piotr 080312
     if disp == diDNACYLINDER:
         return
-    
+
     if disp in (diTrueCPK, diDNACYLINDER):
         # new feature (previously we never drew these bonds):
         # only draw the bond if it's sufficiently long to be visible
@@ -243,10 +243,10 @@ def draw_bond(self,
             disp = diDNACYLINDER
         else:
             return
-    
+
     if disp not in (diLINES, diBALL, diTUBES, diDNACYLINDER):
         return
-        
+
     # set proper glname, for highlighting (must be done whether or not
     # highlighted is true)
     if atom1.element is Singlet:
@@ -273,9 +273,9 @@ def draw_bond(self,
         # to remain the same (and we need to remain registered under it) as long
         # as we live.
 
-    try: #bruce 050610 to ensure calling glPopName    
+    try: #bruce 050610 to ensure calling glPopName
         povfile = None
-        draw_bond_main(self, glpane, disp, col, detailLevel, highlighted, 
+        draw_bond_main(self, glpane, disp, col, detailLevel, highlighted,
                        povfile,
                        special_drawing_handler = special_drawing_handler,
                        special_drawing_prefs = special_drawing_prefs,
@@ -289,7 +289,7 @@ def draw_bond(self,
     else:
         glPopName()
         ColorSorter.popName() #bruce 051206
-    
+
     return # from draw_bond, implem of Bond.draw
 
 def draw_bond_main(self,
@@ -311,7 +311,7 @@ def draw_bond_main(self,
         # This must be kept in agreement with all args of this function except
         # special_*.  We include self in the tuple, since this function is not a
         # method. [bruce 080605]
-    
+
     # figure out how this display mode draws bonds; return now if it doesn't
     # [moved inside this function, bruce 060622]
     if disp == diLINES:
@@ -320,14 +320,14 @@ def draw_bond_main(self,
             # 5.0") and for pi orbital vanes (for which "/ 1.0" would probably
             # be better)
     elif disp == diBALL:
-        # Used for single, double and triple bonds. 
+        # Used for single, double and triple bonds.
         sigmabond_cyl_radius = diBALL_SigmaBondRadius \
             * env.prefs[diBALL_BondCylinderRadius_prefs_key]
             # mark 051003 added.
     elif disp == diTUBES:
         sigmabond_cyl_radius = TubeRadius
     elif disp == diDNACYLINDER:
-        # diDNACYLINDER_BondCylinderRadius_prefs_key is not yet settable by 
+        # diDNACYLINDER_BondCylinderRadius_prefs_key is not yet settable by
         # user. It's value is 1.0. Mark 2008-02-13.
         sigmabond_cyl_radius = diDNACYLINDER_SigmaBondRadius \
                         * env.prefs[diDNACYLINDER_BondCylinderRadius_prefs_key]
@@ -372,14 +372,14 @@ def draw_bond_main(self,
         v6_for_bands = self.v6
     else:
         v6_for_bands = V_SINGLE
-    
+
     shorten_tubes = highlighted
 
      # Usual case for non-directional bonds; draws nothing; change this below if
      # necessary.
     dir_info = (0, False)
     direction_error = False # change below if necessary
-    
+
     if self._direction: #bruce 070415, revised 071016
         # We might want to show this bond's direction, or (someday)
         # its ability to have one. Figure out what to actually show.
@@ -392,10 +392,10 @@ def draw_bond_main(self,
         else:
             # apply this general pref test first, to be faster when it's turned
             # off.
-            
+
             # ninad070504: added the bond arrows preferences to Preferences
             # dialog.  using this preference key instead of debug preference.
-                    
+
                 ### POSSIBLE BUG (by experience, not understood in code, not
                 # always repeatable): changing this debug_pref [back when the
                 # following prefs were debug_prefs] fails to redraw internal
@@ -420,7 +420,7 @@ def draw_bond_main(self,
                self.isThreePrimeOpenBond():
                 # draw self into the "strand end" display list, if caller has
                 # one [bruce 080605]
-                if (special_drawing_handler and 
+                if (special_drawing_handler and
                     special_drawing_handler.should_defer(
                       SPECIAL_DRAWING_STRAND_END)):
                     # defer all drawing of self to special_drawing_handler
@@ -451,10 +451,10 @@ def draw_bond_main(self,
                     return
 
                 # otherwise, draw now, using special_drawing_prefs
-                
+
                 _disable_do_not_draw = disable_do_not_draw_open_bonds()
                     # for debugging [bruce 080122]
-                            
+
                 # Determine whether cylinders of strand open bonds should be
                 # drawn.  Atom._draw_atom_style() takes care of drawing singlets
                 # as arrowheads (or not drawing them at all) based on these two
@@ -492,7 +492,7 @@ def draw_bond_main(self,
             del special_drawing_handler
 
             del special_drawing_prefs # not used below (fyi)
-            
+
             bool_arrowsOnAll = env.prefs[arrowsOnBackBones_prefs_key]
 
             if bool_arrowsOnAll:
@@ -508,13 +508,13 @@ def draw_bond_main(self,
                 # turn it off if self is an open bond, since we draw the arrow
                 # only on the front half of the bond.  (Front and back are
                 # relative to self's bond_direction.)
-                
+
                 # These flags might be changed during the following loop.
-                direction_error = False 
+                direction_error = False
                 suppress_self_arrow_always = False # Set by arrowhead in front.
                 # Set by arrowhead in back.
                 suppress_self_arrow_if_open_bond = False
-                
+
                 for atom in (self.atom1, self.atom2):
                     # Does atom look like an arrowhead (i.e end_bond is not
                     # None), and if so, should that suppress_self_arrow?
@@ -538,22 +538,22 @@ def draw_bond_main(self,
                         ## to indicate as well?
                         direction_error = True
                     continue
-                
+
                 if suppress_self_arrow_if_open_bond and self.is_open_bond():
                     suppress_self_arrow_always = True
-                
+
                 if direction_error or not suppress_self_arrow_always:
                     dir_info = (self.bond_direction_from(self.atom1), True)
                 pass
 
             pass
         pass
-    
+
     # do calcs common to all bond-cylinders for multi-cylinder bonds
 
     atom1 = self.atom1
     atom2 = self.atom2
-    
+
     color1 = col or atom1.drawing_color()
     color2 = col or atom2.drawing_color()
     ## if None, we look up the value when it's used [bruce 050805]
@@ -599,7 +599,7 @@ def draw_bond_main(self,
         # None whenever not setting the error color; since this is done whenever
         # self is redrawn, it will always be up to date when highlighting or
         # tooltip happens.)
-   
+
     v1 = atom1.display != diINVISIBLE
     v2 = atom2.display != diINVISIBLE
         ###e bruce 041104 suspects v1, v2 wrong for external bonds, needs
@@ -608,12 +608,12 @@ def draw_bond_main(self,
     # compute geometry (almost always needed eventually, below)
     fix_geom = (povfile is not None) and (atom1.molecule is atom2.molecule)
     if fix_geom:
-        # in this case, bond.geom is wrong, needs to be absolute but isn't 
+        # in this case, bond.geom is wrong, needs to be absolute but isn't
         selfgeom = self._recompute_geom(abs_coords = True)
     else:
         #e perhaps could be optimized to only compute a1pos, a2pos
         selfgeom = self.geom
-        
+
     howmany = 1 # modified below
     if draw_cyls:
         # Draw 1, 2, or 3 central cyls, depending on bond type (only 1 for
@@ -723,7 +723,7 @@ def draw_bond_main(self,
                 # chunk and per offset. Not worth it for now.
             text = bond_letter_from_v6(self.v6).upper()
             text_qcolor = QColor(255, 255, 255) # white
-            
+
             # fontname and fontsize: only some combos work, e.g. Times 10
             # (maybe) but not 12, and Helvetica 12 but not 10, and this might be
             # platform-dependent; when it fails, for Mac it just draws nothing
@@ -742,7 +742,7 @@ def draw_bond_main(self,
             glDisable(GL_LIGHTING)
             glpane.qglColor(text_qcolor)
             p = textpos
-            
+
             #k need explicit QString??
             glpane.renderText(p[0], p[1], p[2], QString(text), font)
                 ### BUG: it seems that this text is not stored in display lists.
@@ -757,10 +757,10 @@ def draw_bond_main(self,
                 # no longer being valid). It might be a new bug with Qt 4 --
                 # I'm not sure how new it is.
                 # [bruce 081204 comment]
-                
+
             # bug 969 traceback (not on Mac) claims "illegal OpenGL op" in this
             # line! [as of 051110 night] [which line?]
-            
+
             glEnable(GL_LIGHTING)
             pass
         pass
@@ -787,27 +787,27 @@ def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
 
     [private function for a single caller, which is the only reason such a long
     arglist is tolerable]
-    """    
+    """
     a1pos, c1, center, c2, a2pos, toolong = geom
-    
+
     #following turns off the bond stretch indicators based on the user
     #preference
     bool_showBondStretch = env.prefs[showBondStretchIndicators_prefs_key]
     if not bool_showBondStretch:
         toolong = False
-       
+
     # kluge, bruce 080130:
     if (atom1._dna_updater__error and atom2._dna_updater__error):
         toolong = False
-    
+
     # If atom1 or atom2 is a PAM atom, we recompute the sigmabond_cyl_radius.
-    # After experimenting, the standard <TubeRadius> works well for the 
-    # standard radius for both diBALL and diTUBES display styles. 
+    # After experimenting, the standard <TubeRadius> works well for the
+    # standard radius for both diBALL and diTUBES display styles.
     # This is multiplied by the "DNA Strut Scale Factor" user preference to
     # compute the final radius. Mark 2008-01-31.
     ### REVIEW: is this correct for diTrueCPK and/or diDNACYLINDER?
     ### [bruce comment 080213]
-    if (atom1.element.pam or atom2.element.pam):            
+    if (atom1.element.pam or atom2.element.pam):
         if disp == diBALL or disp == diTUBES:
             # The following increases the radius of the axis bonds by the
             # 'axisFactor'. The new radius makes it easy to drag the dna segment
@@ -821,12 +821,12 @@ def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
                 axisFactor = 2.0
             else:
                 axisFactor = 1.0
-                
+
             sigmabond_cyl_radius = \
                 TubeRadius * env.prefs[dnaStrutScaleFactor_prefs_key]*axisFactor
-    
-        
-        
+
+
+
     # Figure out banding (only in CPK [review -- old or true cpk?] or Tubes
     # display modes).  This is only done in multicyl mode, because caller makes
     # our v6 equal V_SINGLE otherwise.  If new color args are needed, they
@@ -931,7 +931,7 @@ def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
         # old_writepov_bondcyl as of bruce 080213 povray bugfix]
         if bondcolor is None:
             # OK to use diBALL_bondcolor_prefs_key for now. Mark 2008-02-13.
-            bondcolor = env.prefs.get(diBALL_bondcolor_prefs_key) 
+            bondcolor = env.prefs.get(diBALL_bondcolor_prefs_key)
         drawcylinder(bondcolor, a1pos, a2pos, sigmabond_cyl_radius)
     elif disp == diTUBES:
         if shorten_tubes:
@@ -996,7 +996,7 @@ def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
     # review: do we want this in diTrueCPK and/or diDNACYLINDER?
     # [bruce comment 080213]
     direction, is_directional = dir_info
-    if (direction or is_directional) and (disp in (diBALL, diTUBES)):        
+    if (direction or is_directional) and (disp in (diBALL, diTUBES)):
         # If the bond has a direction, draw an arrowhead in the middle of the
         # bond-cylinder to show it.  (Make that gray if this is ok, or red if
         # this is a non-directional bond.)  If it has no direction but "wants
@@ -1013,7 +1013,7 @@ def draw_bond_cyl(atom1, atom2, disp, v1, v2, color1, color2,
                                 color1,
                                 color2,
                                 sigmabond_cyl_radius)
-                                 
+
         pass
 
     return # from draw_bond_cyl
@@ -1051,7 +1051,7 @@ def draw_bond_cyl_arrowhead(a1pos,
         # print "draw a confused/unknown direction somehow"
         # two orange arrows? no arrow?
         pass
-    else:            
+    else:
         # draw arrowhead pointing from a1pos to a2pos, closer to a2pos.
         pos = a1pos
         axis = a2pos - a1pos
@@ -1098,7 +1098,7 @@ def old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos,
     [private function for this module, still used by new multicyl code 060622,
     once per cyl]
 
-    Write one bond cylinder. atom args are only for checking rcovs vs DELTA. 
+    Write one bond cylinder. atom args are only for checking rcovs vs DELTA.
     """
     if disp == diLINES:
         if not toolong:
@@ -1126,8 +1126,8 @@ def old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos,
                 bondColor = color1
             povfile.bond(a1pos, a2pos, bondColor, rad) # .tube3 or .bond??
     if disp == diTUBES:
-        #Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
-        # cylinder written to a pov file    
+        #Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length
+        # cylinder written to a pov file
         DELTA = 1.0E-5
         isSingleCylinder = False
         if atom1.atomtype.rcovalent < DELTA:

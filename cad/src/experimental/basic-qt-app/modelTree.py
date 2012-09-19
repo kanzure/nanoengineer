@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 from PyQt4.Qt import *
 from PyQt4 import QtCore, QtGui
 
@@ -75,7 +75,7 @@ class PartWindow(partWindowBaseClass):
         abc.setIcon(0, QIcon(icons + '/NanotubeGeneratorDialog_image1.png'))
         abc.setText(1, 'abc')
         self.modelTree.addTopLevelItem(abc)
-        
+
         defg = QTreeWidgetItem(abc)
         defg.setIcon(0, QIcon(icons + '/MainWindowUI_image125.png'))
         defg.setText(1, 'defg')
@@ -262,7 +262,7 @@ class MainWindow(QMainWindow):
         pw = PartWindow(self)
         row, col = self.gridPosition.next(pw)
         self.layout.addWidget(pw, row, col)
-            
+
     def openFile(self):
         print "Let's pretend we're opening a file"
 

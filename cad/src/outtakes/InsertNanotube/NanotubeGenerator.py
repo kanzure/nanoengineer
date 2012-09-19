@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 NanotubeGenerator.py
 
@@ -314,13 +314,13 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
 
     cmd = greenmsg("Build Nanotube: ")
     prefix = 'Nanotube'   # used for gensym
-    # Generators for DNA, nanotubes and graphene have their MT name generated 
+    # Generators for DNA, nanotubes and graphene have their MT name generated
     # (in GeneratorBaseClass) from the prefix.
-    create_name_from_prefix = True 
+    create_name_from_prefix = True
     # We now support multiple keywords in a list or tuple
     # sponsor_keyword = ('Nanotubes', 'Carbon')
     sponsor_keyword = 'Nanotubes'
-    
+
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         NanotubeGeneratorPropertyManager.__init__(self)
@@ -334,7 +334,7 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
         """
         Return all the parameters from the Property Manager dialog.
         """
-        
+
         n = self.chiralityNSpinBox.value()
         m = self.chiralityMSpinBox.value()
 
@@ -351,7 +351,7 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
         if endings == "Capped" and not debug_flags.atom_debug:
             raise Exception('Nanotube endcaps not implemented yet.')
         numwalls = self.mwntCountSpinBox.value()
-        
+
         return (length, n, m, bond_length, zdist, xydist,
                 twist, bend, members, endings, numwalls, spacing)
 
@@ -359,7 +359,7 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
         """
         Build a nanotube from the parameters in the Property Manger dialog.
         """
-        
+
         length, n, m, bond_length, zdist, xydist, \
                 twist, bend, members, endings, numwalls, spacing = params
         # This can take a few seconds. Inform the user.

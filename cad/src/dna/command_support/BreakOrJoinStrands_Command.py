@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 @author: Ninad
@@ -22,52 +22,52 @@ _superclass = BuildAtoms_Command
 class BreakOrJoinStrands_Command(BuildAtoms_Command):
     """
     A superclass for Break Strands and Join Strands commands
-    """   
-    
+    """
+
     #Property Manager class (overridden in subclasses)
     PM_class = None
-    
+
     #Flyout toolbar class
     FlyoutToolbar_class = None
-    
+
     command_level = CL_SUBCOMMAND
     command_parent = 'BUILD_DNA'
     __abstract_command_class = True #bruce 080905
-    
-    command_should_resume_prevMode = True 
+
+    command_should_resume_prevMode = True
     command_has_its_own_PM = True
-    
-    
-    
-    flyoutToolbar = None   
-    
-    
+
+
+
+    flyoutToolbar = None
+
+
     def _getFlyoutToolBarActionAndParentCommand(self):
         """
         See superclass for documentation.
         @see: self.command_update_flyout()
         """
         flyoutActionToCheck = self._get_init_gui_flyout_action_string()
-        parentCommandName = None        
+        parentCommandName = None
         return flyoutActionToCheck, parentCommandName
-             
-    
+
+
     def _get_init_gui_flyout_action_string(self):
         raise AbstractMethod
-                  
-            
+
+
     def command_enter_misc_actions(self):
         """
         Overrides superclass method. See superclass for documentation.
         """
         pass
-    
+
     def command_exit_misc_action(self):
         """
         Overrides superclass method. See superclass for documentation.
         """
-        pass      
-    
+        pass
+
     def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted.
@@ -93,6 +93,6 @@ class BreakOrJoinStrands_Command(BuildAtoms_Command):
             # to keep all instances of DnaGroup even when they might be empty.
             if isinstance(group, self.assy.DnaGroup):
                 bool_keep = True
-            
+
         return bool_keep
-    
+

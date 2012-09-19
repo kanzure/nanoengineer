@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 confirmation_corner.py -- helpers for modes with a confirmation corner
 (or other overlay widgets).
@@ -105,10 +105,10 @@ class MouseEventHandler_API: #e refile #e some methods may need graphicsMode and
 # a different location inside the confirmation corner, but I cannot
 # figure out how to do this. I will discuss with Bruce soon. -Mark 2008-03-23
 
-_overlay_image = Image(convert = 'RGBA', 
-                       decal = False, 
+_overlay_image = Image(convert = 'RGBA',
+                       decal = False,
                        blend = True,
-                       #ideal_width = 22, 
+                       #ideal_width = 22,
                        #ideal_height = 22,
                        size = Rect(22 * PIXELS))
 
@@ -154,7 +154,7 @@ def _expr_for_imagename(imagename):
     # (But it looks like its caller, _expr_instance_for_imagename, caches the expr instances,
     #  so only the uninstantiated expr itself is recomputed each time, so it's probably ok.
     #  [bruce 080323 comment])
-    
+
     if '/' not in imagename:
         imagename = os.path.join( "ui/confcorner", imagename)
     image_expr = _trans_image( imagename )
@@ -188,7 +188,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
     """
     ###doc
     """
-    
+
     # initial values of state variables, etc
     _last_button_position = False # False or an element of BUTTON_CODES
     _pressed_button = False # False or an element of BUTTON_CODES; valid regardless of self.glpane.in_drag
@@ -197,7 +197,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
 
     # review: are self.glpane and self.command, set below, private?
     # if so, should rename them to indicate this. [bruce 080323 comment]
-    
+
     def __init__(self, glpane):
         self.glpane = glpane
         for imagename in IMAGENAMES:
@@ -214,7 +214,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         expr = _expr_for_imagename(imagename)
         expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
         return expr_instance
-    
+
     def _expr_instance_for_overlay_imagename(self, imagename, dx = 0, dy = 0):
         ih = get_glpane_InstanceHolder(self.glpane)
         index = 1, imagename # might have to be more unique if we start sharing this InstanceHolder with anything else
@@ -226,7 +226,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         """
         [friend method; can be called as often as every time this is drawn;
          cctype can be None or one of a few string constants.]
-        
+
         Set self._button_codes correctly for cctype and command,
         also saving those in attrs of self of related names.
 
@@ -250,7 +250,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         return
 
     # == event position (internal and _API methods), and other methods ###DESCRIBE better
-    
+
     def want_event_position(self, wX, wY):
         """
         MouseEventHandler_API method:
@@ -262,7 +262,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         The current implem does not depend on only being called at those times, AFAIK.
         """
         return self._button_region_for_event_position(wX, wY)
-    
+
     def _button_region_for_event_position(self, wX, wY):
         """
         Return False if wX, wY is not over self, or a button-region-code
@@ -284,16 +284,16 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             else:
                 return False # can this ever happen? I don't know, but if it does, it should work.
         return False
-    
+
     def _transient_overlay_icon_name(self, imagename):
         """
-        Returns the transient overlay icon filename to include in the 
+        Returns the transient overlay icon filename to include in the
         confirmation corner. This is the current command's icon that is used
         in the title of the property manager.
-        
+
         @param imagename: Confirmation corner imagename.
         @type  imagename: string
-        
+
         @return: Iconpath of the image to use as an overlay in the confimation
                  corner, delta x and delta y translation for positioning the
                  icon in the confirmation corner.
@@ -308,7 +308,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                 dy = -1
             return (self.command.propMgr.iconPath, dx, dy)
         return (None, 0, 0)
-    
+
     def draw(self):
         """
         MouseEventHandler_API method: draw self. Assume background is already
@@ -317,17 +317,17 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         """
         if 0:
             print "draw CC for cctype %r and state %r, %r" \
-                  % (self._cctype, 
-                     self._pressed_button, 
+                  % (self._cctype,
+                     self._pressed_button,
                      self._last_button_position)
 
         # figure out what image expr to draw
 
-        # NOTE: this is currently not nearly as general as the rest of our 
+        # NOTE: this is currently not nearly as general as the rest of our
         # logic, regarding what values of self._button_codes are supported.
-        # If we need it to be more general, we can split the expr into two 
+        # If we need it to be more general, we can split the expr into two
         # triangular pieces, using Image's shape option and Overlay, so its
-        # two buttons are independent (as is done in some of the tests in 
+        # two buttons are independent (as is done in some of the tests in
         # exprs/test.py).
 
         if self._button_codes == []:
@@ -361,27 +361,27 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             if self._pressed_button == 'Transient-Done':
                 imagename = "TransientDoneBig_Pressed.png"
             else:
-                imagename = "TransientDoneBig.png"            
+                imagename = "TransientDoneBig.png"
         else:
             assert 0, "unsupported list of buttoncodes: %r" \
                    % (self._button_codes,)
 
         expr_instance = self._expr_instance_for_imagename(imagename)
-            ### REVIEW: worry about value of PIXELS vs perspective? 
+            ### REVIEW: worry about value of PIXELS vs perspective?
             ###         worry about depth writes?
-        expr_instance.draw() 
-            # Note: this draws expr_instance in the same coordsys used for 
+        expr_instance.draw()
+            # Note: this draws expr_instance in the same coordsys used for
             # drawing the model.
-            
+
         overlay_imagename, dx, dy = self._transient_overlay_icon_name(imagename)
         if overlay_imagename:
             expr_instance = \
-                self._expr_instance_for_overlay_imagename(overlay_imagename, 
+                self._expr_instance_for_overlay_imagename(overlay_imagename,
                                                           dx, dy)
             expr_instance.draw()
-            
+
         return
-    
+
     def update_cursor(self, graphicsMode, wpos):
         """
         MouseEventHandler_API method; change cursor based on current state and
@@ -394,9 +394,9 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         # figure out want_cursor (False or a button code; in future there may
         # be other codes for modified cursors)
         if not self._pressed_button:
-            # mouse is not down; cursor reflects where we are at the moment 
+            # mouse is not down; cursor reflects where we are at the moment
             # (False or a button code)
-            want_cursor = bc 
+            want_cursor = bc
         else:
             # a button is pressed; cursor reflects whether this button will act
             # or not (based on whether we're over it now or not)
@@ -421,14 +421,14 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             # We want to set a cursor which indicates that we'll do nothing.
             # Modes won't tell us that cursor, but they'll set it as a side
             # effect of graphicsMode.update_cursor_for_no_MB().
-            # Actually, they may set the wrong cursor then (e.g. BuildCrystal_Command, 
+            # Actually, they may set the wrong cursor then (e.g. BuildCrystal_Command,
             # which looks at glpane.modkeys, but if we're here with modkeys
             # we're going to ignore them). If that proves to be misleading,
             # we'll revise this.
-            self.glpane.setCursor(win.ArrowCursor) 
+            self.glpane.setCursor(win.ArrowCursor)
                 # in case the following method does nothing (can happen)
             try:
-                graphicsMode.update_cursor_for_no_MB() 
+                graphicsMode.update_cursor_for_no_MB()
                     # _no_MB is correct, even though a button is presumably
                     # pressed.
             except:
@@ -437,7 +437,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         return
 
     # == mouse event handling (part of the _API)
-    
+
     def mousePressEvent(self, event):
         # print "meh press"
         wX, wY = wpos = self.glpane._last_event_wXwY
@@ -478,7 +478,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         return
 
     # == internal update methods
-    
+
     def _do_update_cursor(self): ### TODO: REVISE DOCSTRING; it's unclear after recent changes [bruce 070628]
         """
         internal helper for calling our external API method update_cursor with the right arguments --
@@ -492,7 +492,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             # should be harmless; it might still be needed in the move case (though probably self
             # is always active then).
         return
-    
+
     def _update_drawing(self):
         ### TODO: figure out if our appearance has changed, and do nothing if not (important optim)
         # (be careful about whether we're the last CC to be drawn, if there's more than one and they get switched around!
@@ -512,7 +512,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         ###REVIEW: maybe all the following should be a Command method?
         # Note: it will all get revised and cleaned up once we have a command stack
         # and we can just tell the top command to do Done or Cancel.
-        
+
         done_button, cancel_button = self.command._KLUGE_visible_PM_buttons()
             # each one is either None, or a QToolButton (a true value) currently displayed on the current PM
         if buttoncode in ['Done', 'Transient-Done']:
@@ -530,12 +530,12 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                     # "All the usual signals associated with a click are emitted as appropriate."
                     # Our code mostly connects to clicked, but for a few buttons (not the ones we have here, I think)
                     # connects to pressed or released. Search for those words used in a SIGNAL macro to find them.
-                    
+
                 # Assume the click handler did whatever updates were required,
                 # as it would need to do if the user pressed the button directly,
                 # so no updates are needed here. That's good, because only the event handler
                 # knows if some are not needed (as an optimization).
-                
+
                 # print "did the click"
             except:
                 print_compact_traceback("bug: exception (ignored) when using %r button == %r: " % (buttoncode, button,) )
@@ -546,7 +546,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             self.glpane.set_mouse_event_handler(None)
             pass
         return
-    
+
     pass # end of class cc_MouseEventHandler
 
 # ==

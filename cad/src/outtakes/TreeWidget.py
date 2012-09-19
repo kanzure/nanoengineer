@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 TreeWidget.py -- NO LONGER USED IN Qt4 NE1
 
@@ -121,7 +121,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # this overrides the one from DebugMenuMixin (with the same code), but that's ok,
         # since we want to be self-contained in case someone later removes that mixin class.
         # [bruce 050418 comment]
-        return makemenu_helper(self, menu_spec)    
+        return makemenu_helper(self, menu_spec)
 
     def item_x_edges(self, item):
         """Given a QListViewItem of ours (not None(??) or opts so None seems all to left of openclose, etc??),
@@ -131,9 +131,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         - openclose left edge (even if it's not openable -- this is what it would be if it had been openable),
         - openclose right edge == icon left edge (actually not the true edge but what to use for a hit-test),
         - icon centerline (ideal mousepos for a drop onto that item's depth vs. a child or parent's depth),
-        - 
+        -
         - ... ###
-        between 
+        between
         """
         ####@@@@ #e will split from below
         # this is where i am now 710pm 050201
@@ -350,7 +350,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # 0b. What does current mode think it needs to be?
         # (Someday we might distinguish modes that constrain this,
         #  vs modes that change to fit it or to fit the actual selection.
-        #  For now we only handle modes that change to fit the actual selection.) 
+        #  For now we only handle modes that change to fit the actual selection.)
         selwhat_from_mode = None # most modes don't care
         if isinstance( mode, selectMolsMode):
             selwhat_from_mode = SELWHAT_CHUNKS
@@ -400,7 +400,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                     # right after it gets initiated (almost too fast to see).
                     if selwhat == SELWHAT_CHUNKS:
                         win.toolsSelectMolecules()
-                        print "fyi: forced mode to Select Chunks" # should no longer ever happen as of 060403 
+                        print "fyi: forced mode to Select Chunks" # should no longer ever happen as of 060403
                     elif selwhat == SELWHAT_ATOMS:
                         win.toolsBuildAtoms() #bruce 060403 change: toolsSelectAtoms -> toolsBuildAtoms
                         ## win.toolsSelectAtoms() #bruce 050504 making use of this case for the first time; seems to work
@@ -450,7 +450,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             import utilities.debug as debug
             debug._event = event
             debug._event_state = event.state()
-            debug._event_stateAfter = event.stateAfter()        
+            debug._event_stateAfter = event.stateAfter()
         # handle debug menu; canonicalize buttons and modifier keys.
 
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
@@ -763,7 +763,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 ##        # we'd then decide on its class here, so try to decide now.
 ##        if item and not modifier:
 ##            # subsequent mouseMoves might start a drag and drop.
-##            self.drag_info = drag_and_drop_handler( 
+##            self.drag_info = drag_and_drop_handler(
 ##        self.drag_info = attrholder()
 ##        self.drag_info.permit_drag_type = permit_drag_type # whether or not it's None
 
@@ -871,7 +871,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # since those are always the same for now.) [050129]
 
     def advise_ended_drag(self):#####@@@@@ call this
-        "we call this ourselves - it does not do the operation on the nodes, but it resets variables" 
+        "we call this ourselves - it does not do the operation on the nodes, but it resets variables"
         ###e should it also undo any highlighting of original nodes?
         # or let caller do it? or just let next update do it? not sure...
         self.current_drag_type = None
@@ -1083,7 +1083,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 print " " + actualmsg
             actualmsg = " " # sigh... in fact, don't put it there since it erases our results msg.
         else:
-            self.statusbar_msg( actualmsg ) 
+            self.statusbar_msg( actualmsg )
 
         # now it's time to figure out where we are, if anywhere, and what drop points we would hit
 
@@ -1580,7 +1580,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         for node in nodeset:
             if not node.is_top_of_selection_group():
                 node.dad.pick()
-        self.win.win_update()        
+        self.win.win_update()
 
     def moveright(self): #bruce 060219, revised 060220
         """Select (only) the first element of each toplevel selected Group;
@@ -1615,7 +1615,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 #e (When several nodes are moving, we'd autoclose when none of them were in an autoopened group anymore.)
                 #e Not sure if autoclose would be good; guess yes. (Or maybe it should be a user pref.)
                 # 3. Note that in theory this whole thing can occur inside a closed Group.
-        self.win.win_update()        
+        self.win.win_update()
 
     # == in-place editing of item text
 
@@ -1721,7 +1721,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # first click of the double-click that started the renaming
         item.object.unpick()
         self.win.win_update()
-        return 
+        return
 
     def click_elsewhere_finishes_renaming(self):
         "[private] let this click finish an in-place renaming, if there was one."

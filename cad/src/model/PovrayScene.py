@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 PovrayScene.py - The POV-Ray Scene class.
 
@@ -57,7 +57,7 @@ def get_povrayscene_filename_derived_from_name(assy, name):
     """
     errorcode, dir = assy.find_or_make_pov_files_directory()
     if errorcode:
-        return "filename_does_not_exist" 
+        return "filename_does_not_exist"
     povrayscene_file = os.path.normpath(os.path.join(dir, name))
     #print "get_povrayscene_filename_derived_from_name(): povrayscene_file=", povrayscene_file
     return povrayscene_file
@@ -74,7 +74,7 @@ class PovrayScene(SimpleCopyMixin, Node):
     povrayscene_file = ''
 
     width = height = output_type = None #bruce 060620, might not be needed
-    
+
     copyable_attrs = Node.copyable_attrs + ('width', 'height', 'output_type', 'povrayscene_file')
 
     def __init__(self, assy, name, params = None):
@@ -82,25 +82,25 @@ class PovrayScene(SimpleCopyMixin, Node):
         # all to make this __init__ method compatible with that of other nodes (see above for one reason);
         # also revised this routine in other ways, e.g. to avoid redundant sets of self.assy and self.name
         # (which are set by Node.__init__).
-        if not name: 
+        if not name:
             # [Note: this code might be superceded by code in Node.__init__ once nodename suffix numbers are revised.]
             # If this code is superceded, Node.__init__ must provide a way to verify that the filename (derived from the name)
             # doesn't exist, since this would be an invalid name. Mark 060702.
             name = generate_povrayscene_name(assy, self.sym, self.extension)
-            
+
         self.const_pixmap = imagename_to_pixmap("modeltree/povrayscene.png")
             # note: this might be changed later; this value is not always correct; that may be a bug when this node is copied.
             # [bruce 060620 comment]
-            
+
         Node.__init__(self, assy, name)
         if params:
             self.set_parameters(params)
         else:
             def_params = (assy.o.width, assy.o.height, 'png')
             self.set_parameters(def_params)
-        
+
         return
-            
+
     def set_parameters(self, params): #bruce 060620 removed name from params list
         """
         Sets all parameters in the list <params> for this POV-Ray Scene.
@@ -108,7 +108,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         self.width, self.height, self.output_type = params
         self.povrayscene_file = get_povrayscene_filename_derived_from_name(self.assy, self.name) # Mark 060702.
         self.assy.changed()
-        
+
     def get_parameters(self): #bruce 060620 removed name from params list
         """
         Returns list of parameters for this POV-Ray Scene.
@@ -120,26 +120,26 @@ class PovrayScene(SimpleCopyMixin, Node):
         Opens POV-Ray Scene properties dialog with current parameters.
         """
         self.assy.w.povrayscenecntl.setup(self)
-        
+
     def writemmp(self, mapping):
         mapping.write("povrayscene (" + mapping.encode_name(self.name) + ") %d %d %s\n" % \
             (self.width, self.height, self.output_type))
-        
+
         # Write relative path of POV-Ray Scene file into info record.
         # For Alpha 8, the name and the basename are usually the same.
-        # The only way I'm aware of that the name and the basename would be 
+        # The only way I'm aware of that the name and the basename would be
         # different is if the user renamed the node in the Model Tree.
         # [Or they might move the file in the OS, and edit the node's mmp record,
         #  in ways which ought to be legal according to the documentation. bruce 060707 comment]
-        
+
         mapping.write("info povrayscene povrayscene_file = POV-Ray Scene Files/%s\n" % self.name) # Relative path.
-        
-        # Note: Users will assume when they rename an existing MMP file, all the POV-Ray Scene files will still be associated 
+
+        # Note: Users will assume when they rename an existing MMP file, all the POV-Ray Scene files will still be associated
         # with the MMP file. This is handled by separate code in Save As which copies those files, or warns when it can't.
-        
+
         self.writemmp_info_leaf(mapping)
         return
-    
+
     def readmmp_info_povrayscene_setitem( self, key, val, interp ):
         """
         This is called when reading an mmp file, for each "info povrayscene" record
@@ -158,7 +158,7 @@ class PovrayScene(SimpleCopyMixin, Node):
             if val:
                 if val[0] == '/' or val[0] == '\\':
                     # val is an absolute path.
-                    self.povrayscene_file = val 
+                    self.povrayscene_file = val
                 else:
                      # val is a relative path. Build the absolute path.
                     errorcode, dir = self.assy.find_or_make_part_files_directory()
@@ -175,7 +175,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         If print_missing_file is true, print an error message if the filename is non-null but the file doesn't exist.
         Return "not found" in case callers want to print their own error messages (for example, if they use a different filename).
         """
-        #bruce 060620 split this out of readmmp_info_povrayscene_setitem for later use in copy_fixup_at_end (not yet done ###@@@). 
+        #bruce 060620 split this out of readmmp_info_povrayscene_setitem for later use in copy_fixup_at_end (not yet done ###@@@).
         # But its dual function is a mess (some callers use their own filename) so it needs more cleanup. #e
         filename = self.povrayscene_file
         if found is None:
@@ -189,10 +189,10 @@ class PovrayScene(SimpleCopyMixin, Node):
                 msg = redmsg("POV-Ray Scene file [" + filename + "] does not exist.") #e some callers would prefer orangemsg, cmd, etc.
                 env.history.message(msg)
         return not found
-        
+
     def __str__(self):
         return "<povrayscene " + self.name + ">"
-        
+
     def write_povrayscene_file(self):
         """
         Writes a POV-Ray Scene file of the current scene in the GLPane to the POV-Ray Scene Files directory.
@@ -205,24 +205,24 @@ class PovrayScene(SimpleCopyMixin, Node):
         #print "write_povrayscene_file(): povrayscene_file=", pov
         writepovfile(self.assy.part, self.assy.o, pov)
         return 0, pov
-    
+
     def get_povfile_trio(self, tmpfile = False):
         """
         Makes up and returns the trio of POV-Ray filenames (as absolute paths):
-        POV-Ray INI file, POV-Ray Scene file, and output image filename. 
+        POV-Ray INI file, POV-Ray Scene file, and output image filename.
         If there was any problem, returns None, None, None.
         <tmpfile> flag controls how we choose their directory.
         [WARNING: current code may call it more than once during the same operation,
          so it needs to be sure to return the same names each time! [bruce guess 060711]]
         """
         # The ini, pov and out files must be in the same directory due to POV-Ray's I/O Restriction feature. Mark 060625.
-    
+
         ini_filename = "povray.ini"
         # Critically important: POV-Ray uses the INI filename as an argument; it cannot have any whitespaces.
         # This is a POV-Ray bug on Windows only. For more information about this problem, see:
         # http://news.povray.org/povray.windows/thread/%3C3e28a17f%40news.povray.org%3E/?ttop=227783&toff=150
         # Mark 060624.
-    
+
         if tmpfile:
             pov_filename = "raytracescene.pov"
             dir = find_or_make_Nanorex_subdir("POV-Ray")
@@ -233,7 +233,7 @@ class PovrayScene(SimpleCopyMixin, Node):
             errorcode, dir = self.assy.find_or_make_pov_files_directory()
             if errorcode:
                 return None, None, None ###e ought to return something containing dir (errortext) instead
-        
+
         # Build image output filename <out_filename>.
         # WARNING and BUG: this code is roughly duplicated in povray.py, and they need to match;
         # and .bmp is probably not properly supported for Mac in povray.py. [bruce 060711 comment]
@@ -243,20 +243,20 @@ class PovrayScene(SimpleCopyMixin, Node):
             output_ext = '.png'
         base, ext = os.path.splitext(pov_filename)
         out_filename = base + output_ext
-    
+
         ini = os.path.normpath(os.path.join(dir, ini_filename))
         pov = os.path.normpath(os.path.join(dir, pov_filename))
         out = os.path.normpath(os.path.join(dir, out_filename))
-    
+
         #print "get_povfile_trio():\n  ini=", ini, "\n  pov=", pov, "\n  out=", out
         return ini, pov, out
-    
+
     def raytrace_scene(self, tmpscene = False):
         """
-        Render scene. 
+        Render scene.
         If tmpscene is False, the INI and pov files are written to the 'POV-Ray Scene Files' directory.
         If tmpscene is True, the INI and pov files are written to a temporary directory (~/Nanorex/POV-Ray).
-        Callers should set <tmpscene> = True when they want to render the scene but don't need to 
+        Callers should set <tmpscene> = True when they want to render the scene but don't need to
         save the files and create a POV-Ray Scene node in the MT (i.e. 'View > POV-Ray').
         The caller is responsible for adding the POV-Ray Scene node (self) to the model tree, if desired.
         Prints any necessary error messages to history; returns nothing.
@@ -269,9 +269,9 @@ class PovrayScene(SimpleCopyMixin, Node):
             env.history.message(_graymsg("POV-Ray: "))
             env.history.h_update()
             env.history.widget.update() ###@@@ will this help? is it safe? should h_update do it?
-        
+
         ini, pov, out = self.get_povfile_trio(tmpscene)
-        
+
         if not ini:
             ## return 1, "Problem getting POV-Ray filename trio."
             # [bruce 060710 replaced the above with the following, since it no longer matches the other return statements, or any calls]
@@ -315,7 +315,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         #k is out equal to whatever in self might store it, if anything? maybe it's not stored in self.
 
         write_povray_ini_file(ini, pov, out, info, self.width, self.height, self.output_type)
-        
+
         if tmpscene:
             msg = "Rendering scene. Please wait..."
         else:
@@ -345,14 +345,14 @@ class PovrayScene(SimpleCopyMixin, Node):
                 #e should report the exception text in the history, too
                 env.history.message(msg)
             pass
-        
+
         # Launch raytrace program (POV-Ray or MegaPOV)
         errorcode, errortext = launch_povray_or_megapov(win, info, ini)
-        
+
         if errorcode:
             env.history.message(cmd + redmsg(errortext)) # redmsg in Mac A8, orangemsg in Windows A8 [bruce 060711]
             return
-        
+
         #bruce 060707 (after Windows A8, before Linux/Mac A8): make sure the image file exists.
         # (On Mac, on that date [not anymore, 060710], we get this far (no error return, or maybe another bug hid one),
         # but the file is not there.)
@@ -360,17 +360,17 @@ class PovrayScene(SimpleCopyMixin, Node):
             msg = "Error: %s program finished, but failed to produce expected image file [%s]" % (program_nickname, out)
             env.history.message(cmd + redmsg(msg))
             return
-        
+
         env.history.message(cmd + "Rendered image: " + out)
-        
+
         # Display image in a window.
         imageviewer = ImageViewer(out, win)
             #bruce 060707 comment: if the file named <out> doesn't exist, on Mac,
             # this produces a visible and draggable tiny window, about 3 pixels wide and maybe 30 pixels high.
         imageviewer.display()
-        
+
         return # from raytrace_scene out
-    
+
     def kill(self, require_confirmation = True):
         """
         Delete the POV-Ray Scene node and its associated .pov file if it exists.
@@ -380,7 +380,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         """
         if os.path.isfile(self.povrayscene_file):
             if 0: # Don't require confirmation for A8. Mark 060701. [but see comment below about why this is a bad bug]
-            # if require_confirmation: 
+            # if require_confirmation:
                 msg = "Please confirm that you want to delete " + self.name
                 from widgets.widget_helpers import PleaseConfirmMsgBox
                 confirmed = PleaseConfirmMsgBox( msg)
@@ -409,9 +409,9 @@ class PovrayScene(SimpleCopyMixin, Node):
             #   Of course there should also (for any filenode) be CM commands to delete or rename the file,
             # or (if other nodes also point to it) to copy it so this node owns a unique one.
         Node.kill(self)
-        
+
     # == Context menu item methods
-    
+
     def __CM_Raytrace_Scene(self):
         """
         Method for "Raytrace Scene" context menu.
@@ -447,7 +447,7 @@ class ImageViewer(QDialog):
         self.pixmapLabel.setScaledContents(1)
 
         self.resize(QSize(width, height).expandedTo(self.minimumSizeHint()))
-    
+
     def display(self):
         """
         Display the image in the ImageViewer, making sure it isn't larger than the desktop size.
@@ -456,7 +456,7 @@ class ImageViewer(QDialog):
            QApplication.desktop().height() > self.image.height() + 30:
             self.show()
         else:
-            self.showMaximized() 
+            self.showMaximized()
             # No scrollbars provided with showMaximized. The image is clipped if it is larger than the screen.
             # Probably need to use a QScrollView for large images. Mark 060701.
         return

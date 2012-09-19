@@ -1,5 +1,5 @@
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
   Initialize.py
 
@@ -34,11 +34,11 @@
   effects were first needed, but not too early to work or be legal.
   (One way is to call it before every attempt to rely on its side
   effects, but this might be inefficient.)
-  
+
   @author: Eric Messick
   @version: $Id$
   @copyright: 2007 Nanorex, Inc.
-  @license: GPL 
+  @license: GPL
 """
 
 _RUNNING = "Running"

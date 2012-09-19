@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 world.py -- prototype Model Data Set owning/storing object, not yet very general.
@@ -128,13 +128,13 @@ class World(InstanceOrExpr): #070205 revised, public nodelist -> private _nodese
     ###FLAW: logically, this should store exprs needed to remake its instances, merely caching the instances,
     # but in fact, stores the instances themselves. This will make save/load harder, and means instances survive code-reloading.
     # Probably it should be fixed before trying to do save/load. [070206 comment]
-    
+
     _nodeset = State(Anything, {}) # self._nodeset is private; it's changetracked but only when entirely replaced (not just modified!)
         # (###e optim: can that be fixed? we need a way to access the LvalForState and inval it)
         ###e we'll need to put that State on a different state-layer (i.e. kind of StatePlace) when we start saving/loading this
 
     _coordsys_holder = Instance(SavedCoordsys()) #070401 -- see long comment above, about _CoordsysHolder
-    
+
     def _init_instance(self):
         super(World, self)._init_instance()
         set_default_attrs( self.untracked_model_state, _index_counter = 4000) #070213; could State() do this for us instead? #e
@@ -157,7 +157,7 @@ class World(InstanceOrExpr): #070205 revised, public nodelist -> private _nodese
         ##e needs options for "not just this config", "not just this Part" (and revised implem, once we support configs or Parts)
         #e optim: extend API to be able to specify ordering -- otherwise it has to be sorted twice (here, and often in caller).
         """
-        type_predicate = model_type_predicate( model_type) # this permits model_type to be an IorE subclass (or its name) 
+        type_predicate = model_type_predicate( model_type) # this permits model_type to be an IorE subclass (or its name)
             ###BAD: not enough kinds of type exprs can be passed, and error checking on model_type (not being garbage) is nim
         return filter( type_predicate, self._sorted_objects ) ##e optim: filter first (or keep them already type-separated), then sort
 
@@ -189,7 +189,7 @@ class World(InstanceOrExpr): #070205 revised, public nodelist -> private _nodese
             # works now, but wrong in general due to potential objects or moved-from-elsewhere objects.
             # (Q: Would index-in-world be ordered the same way? A: Yes for now, but not good to require this in the future.)
         return res
-        
+
     def draw(self):
         # draw all the nodes [#e 070228 ###e in future we're more likely to draw X(node) for X supplied from caller & subset of nodes]
         # [optim idea 070103 late: have caller put this in a DisplayListChunk; will it actually work?
@@ -238,7 +238,7 @@ class World(InstanceOrExpr): #070205 revised, public nodelist -> private _nodese
                 node._i_model_type = type
             pass
         return node
-    
+
     def _make(self, expr): # moved here from demo_drag 070202
         """[private]
         Allocate a new index, use it as the localmost component of ipath while making
@@ -251,7 +251,7 @@ class World(InstanceOrExpr): #070205 revised, public nodelist -> private _nodese
         when analyzing the code.
         """
         index = None
-        #e rename? #e move to some superclass 
+        #e rename? #e move to some superclass
         #e worry about lexenv, eg _self in the expr, _this or _my in it... is expr hardcoded or from an arg?
         #e revise implem in other ways eg eval vs instantiate
         #e default unique index?? (unique in the saved stateplace, not just here)
@@ -313,16 +313,16 @@ class World(InstanceOrExpr): #070205 revised, public nodelist -> private _nodese
         # So for now let's pretend self.env can tell us... tho as initial kluge, the global env.prefs (get_pref?) could tell us.
         # But even sooner, just pretend we don't care and always show all the kids.
         return self._sorted_objects
-    
+
     mt_name = "testmode" #e or maybe something like State(str, "Untitled"), or a stateref # or "Untitled" as it was before 070208
     mt_openable = True
     ## mt_node_id = getattr_Expr( _self, '_e_serno')
     mt_node_id = getattr_Expr( _self, 'ipath') #e optim: should intern the ipath ###e move this to IorE? btw redundant w/ def mt_node_id
         # 070218 -- by test, using ipath (a bugfix) makes world.open persistent (as hoped/predicted);
         # probably doesn't affect open-MT newnode slowness (but now that's fixed in different way in demo_MT)
-    
+
     # ==
-    
+
     def _cmd_Clear(self): #070106 experimental naming convention for a "cmd method" -- a command on this object (requiring no args/opts, by default)
         if self._nodeset:
             # avoid gratuitous change-track by only doing it if it does something (see also _cmd_Clear_nontrivial)

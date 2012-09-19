@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 changedicts.py - utilities related to dictionaries of changed objects
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -67,7 +67,7 @@ class changedict_processor:
         Update all subscribers to self.changedict by passing it to their
         update methods (which should not change its value)
         (typically, subscribers are themselves just dicts); then clear it.
-        
+
         Typically, one subscriber calls this just before checking its
         subscribing dict, but other subscribers might call it at arbitrary
         other times.
@@ -171,7 +171,7 @@ def register_class_changedicts( class1, changedicts ):
     # in future we might be able to auto-translate old-class objects
     # to new classes... so (TODO, maybe) store classname->newestclass map,
     # so you know which objects to upgrade and how...
-    
+
     # This is needed now, and has to be done after all the changedicts were
     # stored above:
     register_postinit_item( '_archive_meet_class', class1)
@@ -192,7 +192,7 @@ def register_class_changedicts( class1, changedicts ):
     # (it won't help in future sessions, which means user/developer should
     # be warned, but it will help in present one and might let them upgrade
     # and resave, i.e. rescue, those objects).
-    
+
     return
 
 #e now something to take class1 and look up the changedicts and their names

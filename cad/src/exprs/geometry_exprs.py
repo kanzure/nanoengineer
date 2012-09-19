@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 geometry_exprs.py -- time-varying geometric primitives that can know their units & coordinate system.
 
@@ -88,7 +88,7 @@ ought to look like, much like drawing exprs can be thought of as glue code to Op
 About compiling as the ultimate optimization:
 
 [###e maybe refile some of this comment into a new file about compiling or optim, even if it's a stub file]
- 
+
 - We're likely someday to implement compiling features which let the application programmer
 use exprs to designate connected networks of objects/methods/attrs to be compiled, and which reexpress
 them as glue code exprs to automatically generated C or Pyrex code, which implements the understood subset

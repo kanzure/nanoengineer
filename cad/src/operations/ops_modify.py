@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 ops_modify.py provides modifySlotsMixin for MWsemantics,
 with modify slot methods and related helper methods.
@@ -23,7 +23,7 @@ class modifySlotsMixin:
     Mixin class to provide modify-related methods for class MWsemantics.
     Has slot methods and their helper methods.
     """
-    
+
     def modifyAdjustSel(self):
         """
         Adjust the current selection.
@@ -132,14 +132,14 @@ class modifySlotsMixin:
     def modifyCenterCommonAxis(self):
         """
         Same as "Align to Common Axis", except that it moves all the selected
-        chunks to the center of the first selected chunk after 
+        chunks to the center of the first selected chunk after
         aligning/rotating the other chunks.
         """
 
-        # This is still not fully implemented as intended.  Instead of moving all the selected 
-        # chunks to the center of the first selected chunk, I want to have them moved to the closest 
-        # (perpendicular) point of the first chunk's axis.  I've studied and understand the math involved; 
-        # I just need to implement the code.  I plan to ask Bruce for help since the two of us will get it 
+        # This is still not fully implemented as intended.  Instead of moving all the selected
+        # chunks to the center of the first selected chunk, I want to have them moved to the closest
+        # (perpendicular) point of the first chunk's axis.  I've studied and understand the math involved;
+        # I just need to implement the code.  I plan to ask Bruce for help since the two of us will get it
         # done much more quickly together than me doing it alone.
         # Mark 050829.
 

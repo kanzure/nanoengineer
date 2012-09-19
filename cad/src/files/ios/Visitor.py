@@ -1,9 +1,9 @@
 """
 Visitor.py - Supporting class for printing a DOM Document
 
-@version: 
+@version:
 
-Original file from the pyXML 0.8.4 dom/ext module. 
+Original file from the pyXML 0.8.4 dom/ext module.
 Copyright (c) 2000 Fourthought Inc, USA.   All Rights Reserved.
 See  http://4suite.com/COPYRIGHT  for license and copyright information
 """

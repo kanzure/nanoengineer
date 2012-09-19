@@ -2,16 +2,16 @@
 """
 ProteinDisplayStyle_PropertyManager.py
 
-The ProteinDisplayStyle_PropertyManager class provides a Property Manager 
-for the B{Display Style} command on the flyout toolbar in the 
-Build > Protein mode. 
+The ProteinDisplayStyle_PropertyManager class provides a Property Manager
+for the B{Display Style} command on the flyout toolbar in the
+Build > Protein mode.
 
 @author: Urmi
-@version: $Id$ 
+@version: $Id$
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
 History: Urmi copied this from DnaDisplayStyle_PropertyManager.py and modified
          it to suit the needs of protein display.
-         
+
 To do:
 - Fix bug: a single rotamer is displayed (i.e. expanded) by default.
 - Change "Style" factory setting to "Trace (ball and stick)
@@ -25,7 +25,7 @@ import foundation.env as env
 from utilities.prefs_constants import getDefaultWorkingDirectory
 from utilities.prefs_constants import workingDirectory_prefs_key
 from utilities.Log import greenmsg
-from utilities.constants import yellow, orange, red, magenta 
+from utilities.constants import yellow, orange, red, magenta
 from utilities.constants import cyan, blue, white, black, gray
 from utilities.constants import diPROTEIN
 
@@ -47,10 +47,10 @@ from utilities.prefs_constants import proteinStyleScaling_prefs_key
 from utilities.prefs_constants import proteinStyleScaleFactor_prefs_key
 from utilities.prefs_constants import proteinStyleColors_prefs_key
 from utilities.prefs_constants import proteinStyleAuxColors_prefs_key
-from utilities.prefs_constants import proteinStyleCustomColor_prefs_key 
-from utilities.prefs_constants import proteinStyleAuxCustomColor_prefs_key 
-from utilities.prefs_constants import proteinStyleColorsDiscrete_prefs_key 
-from utilities.prefs_constants import proteinStyleHelixColor_prefs_key 
+from utilities.prefs_constants import proteinStyleCustomColor_prefs_key
+from utilities.prefs_constants import proteinStyleAuxCustomColor_prefs_key
+from utilities.prefs_constants import proteinStyleColorsDiscrete_prefs_key
+from utilities.prefs_constants import proteinStyleHelixColor_prefs_key
 from utilities.prefs_constants import proteinStyleStrandColor_prefs_key
 from utilities.prefs_constants import proteinStyleCoilColor_prefs_key
 from utilities.Log import redmsg
@@ -60,21 +60,21 @@ from command_support.Command_PropertyManager import Command_PropertyManager
 proteinDisplayStylePrefsList = \
                          [proteinStyle_prefs_key,
                           proteinStyleSmooth_prefs_key,
-                          proteinStyleQuality_prefs_key, 
-                          proteinStyleScaling_prefs_key, 
-                          proteinStyleScaleFactor_prefs_key, 
-                          proteinStyleColors_prefs_key, 
-                          proteinStyleAuxColors_prefs_key, 
-                          proteinStyleCustomColor_prefs_key, 
-                          proteinStyleAuxCustomColor_prefs_key, 
-                          proteinStyleColorsDiscrete_prefs_key, 
-                          proteinStyleHelixColor_prefs_key, 
-                          proteinStyleStrandColor_prefs_key, 
+                          proteinStyleQuality_prefs_key,
+                          proteinStyleScaling_prefs_key,
+                          proteinStyleScaleFactor_prefs_key,
+                          proteinStyleColors_prefs_key,
+                          proteinStyleAuxColors_prefs_key,
+                          proteinStyleCustomColor_prefs_key,
+                          proteinStyleAuxCustomColor_prefs_key,
+                          proteinStyleColorsDiscrete_prefs_key,
+                          proteinStyleHelixColor_prefs_key,
+                          proteinStyleStrandColor_prefs_key,
                           proteinStyleCoilColor_prefs_key ]
 
-# Protein Display Style Favorite File I/O functions. 
+# Protein Display Style Favorite File I/O functions.
 def writeProteinDisplayStyleSettingsToFavoritesFile( basename ):
-    
+
     """
     Writes a "favorite file" (with a .txt extension) to store all the
     Protein display style settings (pref keys and their current values).
@@ -253,9 +253,9 @@ def saveFavoriteFile( savePath, fromPath ):
 _superclass = Command_PropertyManager
 class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
     """
-    The ProteinDisplayStyle_PropertyManager class provides a Property Manager 
-    for the B{Display Style} command on the flyout toolbar in the 
-    Build > Protein mode. 
+    The ProteinDisplayStyle_PropertyManager class provides a Property Manager
+    for the B{Display Style} command on the flyout toolbar in the
+    Build > Protein mode.
 
     @ivar title: The title that appears in the property manager header.
     @type title: str
@@ -272,22 +272,22 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
     title         =  "Edit Protein Display Style"
     pmName        =  title
     iconPath      =  "ui/actions/Edit/EditProteinDisplayStyle.png"
-    
+
     def __init__( self, command ):
         """
         Constructor for the property manager.
         """
 
-                     
+
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
-        
-        _superclass.__init__(self, command)        
-        
+
+        _superclass.__init__(self, command)
+
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
-        
-     
+
+
         msg = "Modify the protein display settings below."
         self.updateMessage(msg)
 
@@ -295,43 +295,43 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
-        
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
-        
+            change_connect = self.win.disconnect
+
         # Favorite buttons signal-slot connections.
         change_connect( self.applyFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.applyFavorite)
-        
+
 
         change_connect( self.addFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.addFavorite)
-        
+
         change_connect( self.deleteFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.deleteFavorite)
-        
+
         change_connect( self.saveFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.saveFavorite)
-        
+
         change_connect( self.loadFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.loadFavorite)
-        
+
         #Display group box signal slot connections
         change_connect(self.proteinStyleComboBox,
                        SIGNAL("currentIndexChanged(int)"),
                        self.changeProteinDisplayStyle)
-        
+
         change_connect(self.smoothingCheckBox,
                        SIGNAL("stateChanged(int)"),
                        self.smoothProteinDisplay)
@@ -344,61 +344,61 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         change_connect(self.scaleFactorDoubleSpinBox,
                        SIGNAL("valueChanged(double)"),
                        self.changeProteinScaleFactor)
-        
+
         #color groupbox
         change_connect(self.proteinComponentComboBox,
                        SIGNAL("currentIndexChanged(int)"),
                        self.chooseProteinComponent)
-        
+
         change_connect(self.proteinAuxComponentComboBox,
                        SIGNAL("currentIndexChanged(int)"),
-                       self.chooseAuxilliaryProteinComponent)        
-        
+                       self.chooseAuxilliaryProteinComponent)
+
         change_connect(self.customColorComboBox,
                        SIGNAL("editingFinished()"),
                        self.chooseCustomColor)
-        
+
         change_connect(self.auxColorComboBox,
                        SIGNAL("editingFinished()"),
                        self.chooseAuxilliaryColor)
-        
+
         #change_connect(self.discColorCheckBox,
         #               SIGNAL("stateChanged(int)"),
         #               self.setDiscreteColors)
-        
+
         change_connect(self.helixColorComboBox,
                        SIGNAL("editingFinished()"),
                        self.chooseHelixColor)
-        
+
         change_connect(self.strandColorComboBox,
                        SIGNAL("editingFinished()"),
                        self.chooseStrandColor)
-        
+
         change_connect(self.coilColorComboBox,
                        SIGNAL("editingFinished()"),
                        self.chooseCoilColor)
 
-    #Protein Display methods         
-        
+    #Protein Display methods
+
     def  changeProteinDisplayStyle(self, idx):
         """
         Change protein display style
-        
+
         @param idx: index of the protein display style combo box
         @type idx: int
         """
         env.prefs[proteinStyle_prefs_key] = idx
         return
-    
+
     def  changeProteinDisplayQuality(self, idx):
-        
+
         env.prefs[proteinStyleQuality_prefs_key] = idx
         return
-    
+
     def  smoothProteinDisplay(self, state):
         """
         Smoooth protein display.
-        
+
         @param state: state of the smooth protein display check box.
         @type state: int
         """
@@ -407,17 +407,17 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         else:
             env.prefs[proteinStyleSmooth_prefs_key] = False
         return
-    
+
     def  changeProteinDisplayScale(self, idx):
         """
         Change protein display scale
-        
+
         @param idx: index of the protein display scaling choices combo box
         @type idx: int
         """
         env.prefs[proteinStyleScaling_prefs_key] = idx
         return
-    
+
     def changeProteinSplineValue(self, val):
         """
         Change protein display resolution
@@ -426,37 +426,37 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         """
         env.prefs[proteinStyleQuality_prefs_key] = val
         return
-    
+
     def changeProteinScaleFactor(self, val):
         """
         Change protein display scale factor
-        
+
         @param val: value in the protein display scale factor double spinbox
         @type val: double
         """
         env.prefs[proteinStyleScaleFactor_prefs_key] = val
         return
-    
+
     def chooseProteinComponent(self, idx):
         """
-        Choose protein component to set the color of 
-        
+        Choose protein component to set the color of
+
         @param idx: index of the protein component choices combo box
         @type idx: int
         """
         env.prefs[proteinStyleColors_prefs_key] = idx
         return
-    
+
     def chooseAuxilliaryProteinComponent(self, idx):
         """
-        Choose auxilliary protein component to set the color of 
-        
+        Choose auxilliary protein component to set the color of
+
         @param idx: index of the auxilliary protein component choices combo box
         @type idx: int
         """
         env.prefs[proteinStyleAuxColors_prefs_key] = idx - 1
         return
-    
+
     def chooseCustomColor(self):
         """
         Choose custom color of the chosen protein component
@@ -464,16 +464,16 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         color = self.customColorComboBox.getColor()
         env.prefs[proteinStyleCustomColor_prefs_key] = color
         return
-    
+
     def chooseAuxilliaryColor(self):
         """
         Choose custom color of the chosen auxilliary protein component
         """
         color = self.auxColorComboBox.getColor()
         env.prefs[proteinStyleAuxCustomColor_prefs_key] = color
-        return  
-    
-        
+        return
+
+
     def chooseHelixColor(self):
         """
         Choose helix color
@@ -481,27 +481,27 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         color = self.helixColorComboBox.getColor()
         env.prefs[proteinStyleHelixColor_prefs_key] = color
         return
-    
+
     def chooseStrandColor(self):
         """
         Choose strand color
         """
         color = self.strandColorComboBox.getColor()
         env.prefs[proteinStyleStrandColor_prefs_key] = color
-        return     
-    
+        return
+
     def chooseCoilColor(self):
         """
         Choose coil color
         """
         color = self.coilColorComboBox.getColor()
         env.prefs[proteinStyleCoilColor_prefs_key] = color
-        return     
-    
+        return
+
     def setDiscreteColors(self, state):
         """
         Set discrete colors.
-        
+
         @param state: state of the set discrete colors check box.
         @type state: int
         """
@@ -510,26 +510,26 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         else:
             env.prefs[proteinStyleColorsDiscrete_prefs_key] = False
         return
-    
-    
+
+
     def show_OLD(self):
         """
-        Shows the Property Manager.Extends superclass method. 
+        Shows the Property Manager.Extends superclass method.
         """
         #@REVIEW: See comment in CompareProteins_PropertyManager
         self.sequenceEditor = self.win.createProteinSequenceEditorIfNeeded()
-        self.sequenceEditor.hide()        
-        
+        self.sequenceEditor.hide()
+
         self.updateProteinDisplayStyleWidgets()
-        
+
         _superclass.show(self)
-        
+
     def show(self):
         """
         Shows the Property Manager. Extends superclass method
         """
         _superclass.show(self)
-        
+
         #@REVIEW: Is it safe to do the follwoing before calling superclass.show()?
         #-- Ninad 2008-10-02
 
@@ -543,13 +543,13 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         self.o.setGlobalDisplayStyle(diPROTEIN)
 
         # Update all PM widgets, .
-        # note: It is important to update the widgets by blocking the 
-        # 'signals'. If done in the reverse order, it will generate signals 
-        #when updating the PM widgets (via updateDnaDisplayStyleWidgets()), 
+        # note: It is important to update the widgets by blocking the
+        # 'signals'. If done in the reverse order, it will generate signals
+        #when updating the PM widgets (via updateDnaDisplayStyleWidgets()),
         #causing unneccessary repaints of the model view.
         self.updateProteinDisplayStyleWidgets()#@@@ blockSignals = True)
         return
-    
+
     def close(self):
         """
         Closes the Property Manager. Extends superclass method.
@@ -559,7 +559,7 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         # Restore the original global display style.
         self.o.setGlobalDisplayStyle(self.originalDisplayStyle)
         return
-    
+
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.
@@ -580,7 +580,7 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         """
         Load widgets in group box.
         @param pmGroupBox: group box that contains various favorite buttons
-        @see: L{PM_GroupBox}  
+        @see: L{PM_GroupBox}
         """
         # Other info
         # Not only loads the factory default settings but also all the favorite
@@ -621,7 +621,7 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
 
         BUTTON_LIST = [
             ( "QToolButton", 1,  "APPLY_FAVORITE","ui/actions/Properties Manager/ApplyPeptideDisplayStyleFavorite.png",
-              "Apply Favorite", "", 0),   
+              "Apply Favorite", "", 0),
             ( "QToolButton", 2,  "ADD_FAVORITE",
               "ui/actions/Properties Manager/AddFavorite.png","Add Favorite", "", 1),
             ( "QToolButton", 3,  "DELETE_FAVORITE", "ui/actions/Properties Manager/DeleteFavorite.png",
@@ -655,13 +655,13 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in group box.
-        
+
         @param pmGroupBox: group box that contains protein display choices
-        @see: L{PM_GroupBox}  
-        
+        @see: L{PM_GroupBox}
+
         """
-        proteinStyleChoices = ['CA trace (wire)', 
-                               'CA trace (cylinders)', 
+        proteinStyleChoices = ['CA trace (wire)',
+                               'CA trace (cylinders)',
                                'CA trace (ball and stick)',
                                'Tube',
                                'Ladder',
@@ -678,7 +678,7 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
                          label         =  "Style:",
                          choices       =  proteinStyleChoices,
                          setAsDefault  =  True)
-            
+
         scaleChoices = ['Constant', 'Secondary structure', 'B-factor']
 
         self.scaleComboBox  = \
@@ -695,7 +695,7 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
                               maximum       =  3.0,
                               decimals      =  1,
                               singleStep    =  0.1 )
-   
+
         self.splineDoubleSpinBox = \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Resolution:",
@@ -705,17 +705,17 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
                               maximum       =  8,
                               decimals      =  0,
                               singleStep    =  1 )
-        
+
         self.smoothingCheckBox = \
             PM_CheckBox( pmGroupBox,
                          text         = "Smoothing",
                          setAsDefault = True)
-        
+
     def _loadGroupBox3(self, pmGroupBox):
         """
         Load widgets in group box.
         @param pmGroupBox: group box that contains various color choices
-        @see: L{PM_GroupBox} 
+        @see: L{PM_GroupBox}
         """
         colorChoices = ['Chunk', 'Chain', 'Order', 'Hydropathy', 'Polarity',
                         'Acidity', 'Size', 'Character', 'Number of contacts',
@@ -728,12 +728,12 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
                          choices       =  colorChoices,
                          setAsDefault  =  True)
 
-        colorList = [orange, yellow, red, magenta, 
+        colorList = [orange, yellow, red, magenta,
                        cyan, blue, white, black, gray]
-        
-        colorNames = ["Orange(default)", "Yellow", "Red", "Magenta", 
+
+        colorNames = ["Orange(default)", "Yellow", "Red", "Magenta",
                         "Cyan", "Blue", "White", "Black", "Other color..."]
-        
+
         self.customColorComboBox = \
             PM_ColorComboBox(pmGroupBox,
                             colorList = colorList,
@@ -741,25 +741,25 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
                             label      = "Custom:",
                             color      = orange,
                             setAsDefault  =  True)
-                            
-        colorChoices1 = [ 'Same as main color', 'Lighter', 'Darker', 
+
+        colorChoices1 = [ 'Same as main color', 'Lighter', 'Darker',
                           'Gray', 'Custom']
-        
+
         self.proteinAuxComponentComboBox  = \
             PM_ComboBox( pmGroupBox,
                          label         =  "Aux:",
                          choices       =  colorChoices1,
                          setAsDefault  =  True)
-        
+
         colorListAux = [orange, yellow, red, magenta,cyan, blue, white, black, gray]
-        
-        colorNamesAux = ["Orange(default)", "Yellow", "Red", "Magenta", "Cyan", 
+
+        colorNamesAux = ["Orange(default)", "Yellow", "Red", "Magenta", "Cyan",
                          "Blue", "White", "Black", "Other color..."]
-        
+
         self.auxColorComboBox = \
             PM_ColorComboBox(pmGroupBox,
                              colorList = colorListAux,
-                             colorNames = colorNamesAux, 
+                             colorNames = colorNamesAux,
                              label = "Custom aux:",
                              color = gray,
                              setAsDefault  =  True)
@@ -769,31 +769,31 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         #                 text = "Discretize colors",
         #                 setAsDefault = True
         #                 )
-        # 
-        colorListHelix = [red, yellow, gray, magenta, 
+        #
+        colorListHelix = [red, yellow, gray, magenta,
                           cyan, blue, white, black, orange]
-        
-        colorNamesHelix = ["Red(default)", "Yellow", "Gray", "Magenta", 
+
+        colorNamesHelix = ["Red(default)", "Yellow", "Gray", "Magenta",
                            "Cyan", "Blue", "White", "Black", "Other color..."]
-        
+
         self.helixColorComboBox = \
             PM_ColorComboBox(pmGroupBox,
                             colorList = colorListHelix,
-                            colorNames = colorNamesHelix,  
+                            colorNames = colorNamesHelix,
                             label      = "Helix:",
                             color      = red,
                             setAsDefault  =  True)
-        
-        colorListStrand = [cyan, yellow, gray, magenta, 
+
+        colorListStrand = [cyan, yellow, gray, magenta,
                            red, blue, white, black, orange]
-        
-        colorNamesStrand = ["Cyan(default)", "Yellow", "Gray", "Magenta", 
+
+        colorNamesStrand = ["Cyan(default)", "Yellow", "Gray", "Magenta",
                             "Red", "Blue", "White", "Black", "Other color..."]
-        
+
         self.strandColorComboBox = \
             PM_ColorComboBox(pmGroupBox,
                             colorList = colorListStrand,
-                            colorNames = colorNamesStrand, 
+                            colorNames = colorNamesStrand,
                             label      = "Strand:",
                             color      = cyan,
                             setAsDefault  =  True)
@@ -811,25 +811,25 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         Updates all the Protein Display style widgets based on the current pref keys
         values
         """
-        self.proteinStyleComboBox.setCurrentIndex(env.prefs[proteinStyle_prefs_key]) 
-        self.splineDoubleSpinBox.setValue(env.prefs[proteinStyleQuality_prefs_key])  
-        if env.prefs[proteinStyleSmooth_prefs_key] == True:        
+        self.proteinStyleComboBox.setCurrentIndex(env.prefs[proteinStyle_prefs_key])
+        self.splineDoubleSpinBox.setValue(env.prefs[proteinStyleQuality_prefs_key])
+        if env.prefs[proteinStyleSmooth_prefs_key] == True:
             self.smoothingCheckBox.setCheckState(Qt.Checked)
         else:
             self.smoothingCheckBox.setCheckState(Qt.Unchecked)
         self.scaleComboBox.setCurrentIndex(env.prefs[proteinStyleScaling_prefs_key])
-        self.scaleFactorDoubleSpinBox.setValue(env.prefs[proteinStyleScaleFactor_prefs_key])         
-        self.proteinComponentComboBox.setCurrentIndex(env.prefs[proteinStyleColors_prefs_key])         
+        self.scaleFactorDoubleSpinBox.setValue(env.prefs[proteinStyleScaleFactor_prefs_key])
+        self.proteinComponentComboBox.setCurrentIndex(env.prefs[proteinStyleColors_prefs_key])
         self.customColorComboBox.setColor(env.prefs[proteinStyleCustomColor_prefs_key])
-        self.proteinAuxComponentComboBox.setCurrentIndex(env.prefs[proteinStyleAuxColors_prefs_key])        
+        self.proteinAuxComponentComboBox.setCurrentIndex(env.prefs[proteinStyleAuxColors_prefs_key])
         self.auxColorComboBox.setColor(env.prefs[proteinStyleAuxCustomColor_prefs_key])
-        #if env.prefs[proteinStyleColorsDiscrete_prefs_key] == True:        
-        #    self.discColorCheckBox.setCheckState(Qt.Checked)  
+        #if env.prefs[proteinStyleColorsDiscrete_prefs_key] == True:
+        #    self.discColorCheckBox.setCheckState(Qt.Checked)
         #else:
-        #    self.discColorCheckBox.setCheckState(Qt.Unchecked)   
+        #    self.discColorCheckBox.setCheckState(Qt.Unchecked)
         self.helixColorComboBox.setColor(env.prefs[proteinStyleHelixColor_prefs_key])
         self.strandColorComboBox.setColor(env.prefs[proteinStyleStrandColor_prefs_key])
-        self.coilColorComboBox.setColor(env.prefs[proteinStyleCoilColor_prefs_key])      
+        self.coilColorComboBox.setColor(env.prefs[proteinStyleCoilColor_prefs_key])
         return
 
     def applyFavorite(self):
@@ -851,7 +851,7 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         create and add favorite to favorites directory and favorites combo box
         in PM
         @note: Rules and other info:
-         - The new favorite is defined by the current Protein display style 
+         - The new favorite is defined by the current Protein display style
            settings.
          - The user is prompted to type in a name for the new
            favorite.
@@ -970,7 +970,7 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
     def setCurrentWorkingDirectory(self, dir = None):
         """
         Set dir as current working diretcory
-        
+
         @param dir: dirname
         @type dir: str
         """
@@ -979,30 +979,30 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
             self._setWorkingDirectoryInPrefsDB(dir)
         else:
             self.currentWorkingDirectory =  getDefaultWorkingDirectory()
-        return    
-    
+        return
+
     def _setWorkingDirectoryInPrefsDB(self, workdir = None):
         """
         Set workdir as current working diretcory in prefDB
-        
+
         @param workdir: dirname
         @type workdir: str
         """
         if not workdir:
-            return    
+            return
         workdir = str(workdir)
         if os.path.isdir(workdir):
             workdir = os.path.normpath(workdir)
-            env.prefs[workingDirectory_prefs_key] = workdir # Change pref in prefs db.            
+            env.prefs[workingDirectory_prefs_key] = workdir # Change pref in prefs db.
         else:
             msg = "[" + workdir + "] is not a directory. Working directory was not changed."
             env.history.message( redmsg(msg))
         return
-    
+
     def loadFavorite(self):
         """
         Load a favorite file
-        """ 
+        """
         # If the file already exists in the favorites folder then the user is
         # given the option of overwriting it or renaming it
 
@@ -1065,8 +1065,8 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
                     _lastItem = self.favoritesComboBox.count()
                     self.favoritesComboBox.setCurrentIndex(_lastItem - 1)
                     msg = "Loaded favorite [%s]." % (name)
-                    env.history.message(msg) 
-                self.updateProteinDisplayStyleWidgets()  
+                    env.history.message(msg)
+                self.updateProteinDisplayStyleWidgets()
         return
 
     def _addWhatsThisText( self ):
@@ -1080,7 +1080,7 @@ class ProteinDisplayStyle_PropertyManager(Command_PropertyManager):
         """
         Add tool tip text to all widgets.
         """
-        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_EditProteinDisplayStyle_PropertyManager 
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_EditProteinDisplayStyle_PropertyManager
         ToolTip_EditProteinDisplayStyle_PropertyManager(self)
 
 

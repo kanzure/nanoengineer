@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 chem_patterns.py -- finding simple patterns of bonded atoms
 
@@ -6,7 +6,7 @@ see also ND-1's pattern matching facility, which is faster and more general
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Todo later:
 - really turn O into 8 and reverse rules as needed

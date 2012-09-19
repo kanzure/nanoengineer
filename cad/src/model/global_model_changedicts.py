@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 global_model_changedicts.py - global changedicts needed by master_model_updater
 or the specific update functions it calls. These are public for access
@@ -81,7 +81,7 @@ _changed_otherwise_Atoms = {}
 
 # dict for bonds whose bond-type gets changed
 # (need not include newly created bonds)
- 
+
 changed_bond_types = {}
 
 # ==

@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 """
@@ -48,7 +48,7 @@ class SimplePropertyManager(DelegatingInstanceOrExpr):
         ###e even if so, doesn't it need some args? it needs some state to modify...
         # and something needs a way to make one of these forwhat-things or get the user to find one...
         # to see this more clearly, draw a block diagram which includes the PM and see what it connects to.
-        
+
     pass
 
 nim in above:
@@ -117,7 +117,7 @@ Parameter interface: # see also the HJ .desc parsing code
         can it come with extra info? (like a color along with a number) (maybe this is just metainfo)
         # not sure what category
         can a value be uncertain?
-        
+
     dflt, or dflt_expr
       in _self (the thing it's a param of)
       in _env ?
@@ -144,7 +144,7 @@ Parameter interface: # see also the HJ .desc parsing code
     topics
     keywords (for searching out this parameter when browsing all params of all types/exprs)
     #e author, etc
-    
+
 A lot but not all of the parameter interface
 would apply to any attribute in an IorE class.
 

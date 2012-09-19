@@ -151,7 +151,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     def Draw_other(self):
         """
         Draw handles (if any) of our DnaSegment.
-        
+
         @see:self._drawCursorText()
         @see:self._drawHandles()
         """
@@ -163,7 +163,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     def _drawHandles(self):
         """
         Draw the handles for the command.struct
-        
+
         @see: DnaSegment_EditCommand.getDnaRibbonParams()
         @see: self._drawCursorText()
         @see: self.Draw_other()
@@ -218,7 +218,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                                ribbon1Color = ribbon1Color,
                                ribbon2Color = ribbon2Color,
                                )
-                        
+
             #Draw the text next to the cursor that gives info about
             #number of base pairs etc
             self._drawCursorText()

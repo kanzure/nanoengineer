@@ -117,7 +117,7 @@ class DemoAppWindow(AppWindow):
          ]
 
         self._current_tool_index = 0
-        
+
         self.toolpane = toolpane
 
         self.children_besides_controls = [toolpane] # not counting self.controls... (kluge)
@@ -148,7 +148,7 @@ class DemoAppWindow(AppWindow):
         self.window_button.on_press = lambda: win.set_fullscreen(False)
 
         self.controls = [
-            # self.slider, 
+            # self.slider,
             self.change_tool_button, # demo
             self.window_button, # useful
         ]
@@ -207,13 +207,13 @@ class DemoAppWindow(AppWindow):
         change to the next tool
         """
         self._current_tool_index += 1
-        self._current_tool_index %= len( self._tool_button_table) 
+        self._current_tool_index %= len( self._tool_button_table)
         self.gui_update_state()
 
     def on_draw(self):
         glClearColor(0.95, 0.95, 0.95, 1)
         ## glClearColor(1, 1, 1, 1) # see if this fixes button text color -- nope.
-        
+
         self.clear()
         ## self.model.draw()
         for child in self.children_besides_controls:

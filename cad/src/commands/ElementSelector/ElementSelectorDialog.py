@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 # Form implementation generated from reading ui file 'ElementSelectorDialog.ui'
 #
 # Created: Wed Sep 20 10:12:41 2006

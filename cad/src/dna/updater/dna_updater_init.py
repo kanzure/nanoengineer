@@ -1,6 +1,6 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-dna_updater_init.py -- 
+dna_updater_init.py --
 
 @author: Bruce
 @version: $Id$

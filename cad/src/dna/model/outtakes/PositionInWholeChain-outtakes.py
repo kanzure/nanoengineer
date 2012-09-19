@@ -12,7 +12,7 @@ class PositionInWholeChain(object):
         self.off_end = False # might not be true, but if so we'll find out
         # review: should we now move_by 0 to normalize index if out of range?
         return
-    
+
     def move_by(self, relindex):
         # don't i recall code similar to this somewhere? yes, BaseIterator.py - stub, not yet used
         self.index += self.direction * relindex
@@ -28,12 +28,12 @@ class PositionInWholeChain(object):
 
     def _move_to_prior_rail(self, motion_direction):
         assert self.index < 0 and not self.off_end
-        self._move_to_neighbor_rail(END0, motion_direction)# IMPORT, which variant of END0? 
+        self._move_to_neighbor_rail(END0, motion_direction)# IMPORT, which variant of END0?
 
     def _move_to_next_rail(self, motion_direction):
         assert self.index >= len(self.rail) and not self.off_end
         self._move_to_neighbor_rail(END1, motion_direction)
-        
+
     def _move_to_neighbor_rail(self, end, motion_direction):
         neighbor_rail, index, direction = self.find_neighbor_rail(end) # IMPLEM
         # index is on end we get onto first, direction is pointing into that rail,
@@ -42,14 +42,14 @@ class PositionInWholeChain(object):
             self.off_end = True # self.index is negative but remains valid for self.rail
             return
         self.rail = neighbor_rail # now set index, direction to match
-        
+
     def yield_atom_posns(self, counter = 0, countby = 1, pos = None):
         # maybe 1: might be a method on WholeChain which is passed rail, index, direction, then dispense with this object,
         # OR, maybe 2: might yield a stream of objects of this type, instead
         grab the vars
         if pos is None: # if pos passed, self is useless -- so use WholeChain method which is always passed pos; in here, no pos arg
             pos = self.pos
-        
+
         while 1: # or, while not hitting end condition, like hitting start posn again
             if direction > 0:
                 while index < len(rail):
@@ -76,13 +76,13 @@ class PositionInWholeChain(object):
         self.index = index # base index in current rail
         self.direction = direction # in current rail only
             # note: our direction in each rail can differ.
-        
+
         self.pos = (rail, index, direction) ##k or use property for one or the other?
         return
-        
+
     def yield_rail_index_direction_counter(self, **options):
         return self.wholechain.yield_rail_index_direction_counter( self.pos, **options )
-    
+
     def _that_method_in_WholeChain(self, pos, counter = 0, countby = 1):
         """
         @note: the first position we yield is always pos, with the initial value of counter.

@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 @author: Ninad
@@ -7,12 +7,12 @@
 
 History:
 2008-05-21 - 2008-06-01 Created and further refactored and modified
-@See: ListWidgetItems_Command_Mixin, 
+@See: ListWidgetItems_Command_Mixin,
       ListWidgetItems_GraphicsMode_Mixin
       ListWidgetItems_PM_Mixin,
       CrossoverSite_Marker
       MakeCrossovers_GraphicsMode
-      
+
 
 TODO  2008-06-01 :
 - See class CrossoverSite_Marker for details
@@ -38,96 +38,96 @@ from exprs.Overlay          import Overlay
 from exprs.Exprs import call_Expr
 
 class MakeCrossovers_Handle(DelegatingInstanceOrExpr):
-    
-    should_draw = State(bool, True) 
+
+    should_draw = State(bool, True)
     radius = 0.8
-    
+
     point1 = Arg(Point)
     point2 = Arg(Point)
-    
-    scale = Arg(float)    
-    
+
+    scale = Arg(float)
+
     crossoverSite_marker =  Option(
-        Action, 
+        Action,
         doc = 'The CrossoverSite Marker class which instantiates this handle')
-     
+
     #Command object specified as an 'Option' during instantiation of the class
-    #see DnaSegment_EditCommand class definition. 
-    command =  Option(Action, 
+    #see DnaSegment_EditCommand class definition.
+    command =  Option(Action,
                       doc = 'The Command which instantiates this handle')
-    
-    
-    
-    crossoverPairs = Option(tuple, ())  
-    
-    
-    #Stateusbar text. Variable needs to be renamed in superclass. 
-    sbar_text = Option(str, 
-                       "Click on the handle to create this crossover", 
+
+
+
+    crossoverPairs = Option(tuple, ())
+
+
+    #Stateusbar text. Variable needs to be renamed in superclass.
+    sbar_text = Option(str,
+                       "Click on the handle to create this crossover",
                        doc = "Statusbar text on mouseover")
-    
-    
-    delegate = If_expr(_self.should_draw,   
-                       Highlightable( 
+
+
+    delegate = If_expr(_self.should_draw,
+                       Highlightable(
                            Overlay (
-                               Cylinder((call_Expr(_self.crossoverPairs[0].posn), 
+                               Cylinder((call_Expr(_self.crossoverPairs[0].posn),
                                          call_Expr(_self.crossoverPairs[3].posn)),
                                              radius = radius,
                                              color = silver),
-                                             
-                               Cylinder((call_Expr(_self.crossoverPairs[1].posn), 
+
+                               Cylinder((call_Expr(_self.crossoverPairs[1].posn),
                                          call_Expr(_self.crossoverPairs[2].posn)),
                                              radius = radius,
                                              color = silver)),
-                                     
+
                            Overlay (
-                               Cylinder((call_Expr(_self.crossoverPairs[0].posn), 
+                               Cylinder((call_Expr(_self.crossoverPairs[0].posn),
                                          call_Expr(_self.crossoverPairs[3].posn)),
                                              radius = radius,
                                              color = banana),
-                                             
-                               Cylinder((call_Expr(_self.crossoverPairs[1].posn), 
+
+                               Cylinder((call_Expr(_self.crossoverPairs[1].posn),
                                          call_Expr(_self.crossoverPairs[2].posn)),
                                              radius = radius,
                                              color = banana)),
-                                             
+
                            on_press = _self.on_press,
                            on_release = _self.on_release,
                            sbar_text = sbar_text
                            ))
-                      
-    ##delegate = If_expr(_self.should_draw, 
-                       ##Highlightable(Cylinder((point1, point2), 
+
+    ##delegate = If_expr(_self.should_draw,
+                       ##Highlightable(Cylinder((point1, point2),
                                               ##radius = radius,
                                               ##color = silver),
-                                     ##Cylinder((point1, point2), 
+                                     ##Cylinder((point1, point2),
                                               ##radius = radius,
                                               ##color = banana),
                                      ##on_press = _self.on_press,
                                      ##on_release = _self.on_release))
-    
-    
+
+
     ##delegate = \
         ##If_expr(
             ##_self.should_draw,
-            ##Highlightable(Arrow( 
-                ##color = silver, 
+            ##Highlightable(Arrow(
+                ##color = silver,
                 ##arrowBasePoint = point1,
-                ####tailPoint = norm(vector)*1.0, 
-                ##tailPoint = point2, 
+                ####tailPoint = norm(vector)*1.0,
+                ##tailPoint = point2,
                 ##radius = radius,
-                ##scale = scale), 
-                
-                ##Arrow( 
-                ##color = banana, 
+                ##scale = scale),
+
+                ##Arrow(
+                ##color = banana,
                 ##arrowBasePoint =  point1,
-                ####tailPoint = norm(vector)*1.0, 
-                ##tailPoint =  point2, 
+                ####tailPoint = norm(vector)*1.0,
+                ##tailPoint =  point2,
                 ##radius = radius,
-                ##scale = scale),                
+                ##scale = scale),
                 ##on_press = _self.on_press,
                 ##on_release = _self.on_release ) ) #
-    
+
     def hasValidParamsForDrawing(self):
         """
         Overridden in subclasses. Default implementation returns True
@@ -137,11 +137,11 @@ class MakeCrossovers_Handle(DelegatingInstanceOrExpr):
         """
         ##self.should_draw = True
         return self.should_draw
-    
-    def on_press(self):        
+
+    def on_press(self):
         pass
-        
+
     def on_release(self):
-        self.command.makeCrossover(self.crossoverPairs) 
+        self.command.makeCrossover(self.crossoverPairs)
         self.crossoverSite_marker.removeHandle(self)
-         
+

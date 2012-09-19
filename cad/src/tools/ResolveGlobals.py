@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 # First argument is file containing output of FindPythonGlobals.py
 #
@@ -167,7 +167,7 @@ def checkImportStatements(globalsDict):
             for symbolName in symbolList:
                 symbolName = symbolName.strip()
                 checkOneImport(fileName, moduleName, symbolName, globalsDict)
-        
+
 if (__name__ == '__main__'):
     globalsFilename = sys.argv[1]
     printDuplicates = False

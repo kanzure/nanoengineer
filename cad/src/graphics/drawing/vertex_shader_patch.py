@@ -6,7 +6,7 @@
 ### The only difference between the two is in the glGetActiveAttribARB function,
 ### where the max_index and length parameters retrieved from OpenGL by
 ### glGetObjectParameterivARB are converted to integers.
-### 
+###
 ### The only change to the b3 version to make it work in a6 is that the
 ### glGetObjectParameterivARB function is imported from the b3
 ### shader_objects_patch.py file in this same directory.
@@ -15,8 +15,8 @@ OpenGL extension ARB.vertex_shader
 
 $Id$
 
-This module customises the behaviour of the 
-OpenGL.raw.GL.ARB.vertex_shader to provide a more 
+This module customises the behaviour of the
+OpenGL.raw.GL.ARB.vertex_shader to provide a more
 Python-friendly API
 """
 from OpenGL import platform, constants, constant, arrays

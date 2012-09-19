@@ -1,10 +1,10 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 ShaderGlobals.py - "global state" about a kind of shader in a GL resource context
 
 @author: Russ, Bruce
 @version: $Id$
-@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -71,7 +71,7 @@ class ShaderGlobals:
      ]
 
     # instance variable default values
-    
+
     shader = None # a public attribute, None or a GLShaderObject
 
     primitiveBuffer = None
@@ -96,14 +96,14 @@ class ShaderGlobals:
             test shader.error.
         """
         return self.shader and not self.shader.error
-    
+
     # init or setup methods
 
-    def setup_if_needed_and_not_failed(self): 
+    def setup_if_needed_and_not_failed(self):
         """
         This must be called when the correct GL context is current,
         and only if this kind of shader is now desired for drawing.
-        
+
         But it can be called many times per session (e.g. at start
         of each drawing frame which wants to use this shader).
 
@@ -153,7 +153,7 @@ class ShaderGlobals:
         This runs at most once, when this kind of shader is first needed.
         It should try to set up this kind of shader in this GL resource context,
         and if this works, set self.shader to the shader.
-        
+
         When anything goes wrong it should simply print an error
         and return without setting self.shader (or setting both that
         and self.shader.error).
@@ -161,7 +161,7 @@ class ShaderGlobals:
         It's ok for this to raise an exception, though when practical
         it's preferable to print an error and exit normally (so the
         error message can be more specific and understandable).
-        
+
         (If we ever have more than one GL resource context, we'll want
         to factor it into the part that doesn't depend on context
         (to avoid redundant error messages) and the part that does.)
@@ -179,7 +179,7 @@ class ShaderGlobals:
             print "note: this session WOULD try to use %s-shaders,\n" % self.primtype, \
                 "but GL_EXTENSION GL_ARB_shader_objects is not supported.\n"
             return
-        
+
         shader_class = self.get_shader_class()
         self.shader = shader_class()
         if not self.shader.error: # see also shader_available
@@ -230,7 +230,7 @@ class SphereShaderGlobals(ShaderGlobals):
         (-1.0,  1.0,  1.0),
         ( 1.0,  1.0,  1.0),
      ]
-    billboardIndices = [ 
+    billboardIndices = [
         [0, 1, 3, 2] # +Z face.
      ]
 

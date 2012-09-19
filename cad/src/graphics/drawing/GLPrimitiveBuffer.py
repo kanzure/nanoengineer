@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLPrimitiveBuffer.py -- Manage VBO space for drawing primitives in large batches.
 
@@ -178,7 +178,7 @@ class GLPrimitiveBuffer(object):
 
     # default values of instance variables
     transform_id_Hunks = None
-    
+
     def __init__(self, shaderGlobals):
         """
         Fill in the vertex VBO and IBO drawing pattern for this primitive type.
@@ -189,11 +189,11 @@ class GLPrimitiveBuffer(object):
         """
         # set localvars as follows, for the drawing pattern for VBOs/IBOs
         # for this primitive type:
-        # 
+        #
         # shader - The GLShaderObject to use.
-        # 
+        #
         # drawingMode - What kind of primitives to render, e.g. GL_QUADS.
-        # 
+        #
         # vertexBlock, indexBlock - Single blocks (lists) of vertices and indices
         # making up the drawing pattern for this primitive.
         # See description in the module docstrings for this class or its subclasses.
@@ -308,13 +308,13 @@ class GLPrimitiveBuffer(object):
         shared by all hunks of the same primitive type.  The drawing pattern is
         replicated HUNK_SIZE times, and sent to graphics card RAM for use in
         every draw command for collections of primitives of this type.
-        
+
         In theory, the vertex shader processes each vertex only once, even if
         it is indexed many times in different faces within the same draw.  In
         practice, locality of vertex referencing in the drawing pattern is
         optimal, since there may be a cache of the most recent N transformed
         vertices in that stage of the drawing pipeline on graphics card.
-        
+
         For indexed gl(Multi)DrawElements, the index is a list of faces
         (typically triangles or quads, specified by the drawingMode.)  Each
         face is represented by a block of subscripts into the vertex block.
@@ -353,7 +353,7 @@ class GLPrimitiveBuffer(object):
         self.hunkVertVBO = GLBufferObject(
             GL_ARRAY_BUFFER_ARB, C_vboVerts, GL_STATIC_DRAW)
         self.hunkVertVBO.unbind()
-        
+
         C_iboIndices = numpy.array(Py_iboIndices, dtype=numpy.uint32)
         self.hunkIndexIBO = GLBufferObject(
             GL_ELEMENT_ARRAY_BUFFER_ARB, C_iboIndices, GL_STATIC_DRAW)
@@ -416,7 +416,7 @@ class GLPrimitiveBuffer(object):
 
             # Shared vertex index data IBO: GL_ELEMENT_ARRAY_BUFFER_ARB
             self.hunkIndexIBO.bind()
-            
+
             if drawIndex is not None:
                 # Draw the selected primitives for this Hunk.
                 index = drawIndex[hunkNumber]
@@ -607,7 +607,7 @@ class Hunk:
         """
         hunkNumber - The index of this hunk, e.g. 0 for the first in a group.
         Specifies the range of IDs residing in this hunk.
-        
+
         nVertices - The number of vertices in the primitive drawing pattern.
 
         nCoords - The number of entries per attribute, e.g. 1 for float, 3 for
@@ -629,7 +629,7 @@ class Hunk:
 
     def unchanged(self):
         """
-        Mark a Hunk as unchanged.  (Empty or flushed.) 
+        Mark a Hunk as unchanged.  (Empty or flushed.)
         """
         self.low = self.high = 0
         return
@@ -681,7 +681,7 @@ class Hunk:
         if rangeSize == 0:
             # Nothing to do.
             return
-        
+
         lowID = (self.hunkNumber * HUNK_SIZE) + self.low
         highID = (self.hunkNumber * HUNK_SIZE) + self.high
 
@@ -700,6 +700,6 @@ class Hunk:
 
         self.unchanged()             # Now we're in sync.
         return
-            
+
     pass # End of class HunkBuffer.
 
