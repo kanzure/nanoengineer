@@ -132,13 +132,23 @@ wget http://diyhpl.us/~bryan/irc/nanoengineer/nanoengineer-chroot.tar.gz
 tar -zxvf nanoengineer-chroot.tar.gz
 
 # mount these things if you want the GUI to work
-for i in tmp proc dev; do sudo mount --bind /$i nanoengineer-chroot/$i; done
+for i in etc/resolv.conf tmp proc dev; do sudo mount --bind /$i nanoengineer-chroot/$i; done
+
+# allow connections from other uids over the local X11 socket
+xhost +local:
 
 # jump in
 sudo chroot nanoengineer-chroot/
 
 # now run nanoengineer
 su nanoengineeruser -c "python ~/code/nanoengineer/cad/src/main.py"
+
+# if you have a radeon or intel video hardware, it's possible that this 2007 userspace will be able to use /dev/dri/0
+# after verifying nanoengineer runs with libgl1-mesa-swx11, you may want to replace that with an accelerated solution
+apt-get install libgl1-mesa-glx libgl1-mesa-dri
+
+# verify direct rendering. this is only expected to work if it also works outside the chroot.
+DISPLAY=:0 glxinfo | grep direct
 ```
 
 Alternatively, you can follow [instructions to create a chroot](http://diyhpl.us/~bryan/irc/nanoengineer/nanoengineer-chroot-debootstrap). Developers can be reached on the [mailing list](http://groups.google.com/group/nanoengineer-dev) or on irc.freenode.net in the ##hplusroadmap channel.

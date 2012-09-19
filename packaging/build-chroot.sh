@@ -57,6 +57,9 @@ export EMAIL="jack@saturn.com"
 # password: password
 adduser nanoengineeruser
 
+# add user to the 'video' group in case direct rendering happens to be working
+adduser nanoengineeruser video
+
 # add the user to sudoers
 visudo
 
@@ -79,6 +82,9 @@ sudo apt-get install locales git-core python2.5-dev g++ libqt4-dev \
      libdb4.5=4.5.20-1ubuntu1 libdb4.5-dev=4.5.20-1ubuntu1 wget make \
      python-setuptools automake libtool unzip libhdf5-serial-dev python-pyrex \
      freeglut3 mesa-utils libgl1-mesa-swx11
+
+# replace libgl1-mesa-swx11 with libgl1-mesa-dri libgl1-mesa-glx if you want
+# direct rendering
 
 mkdir -p ~/locals
 cd ~/locals
