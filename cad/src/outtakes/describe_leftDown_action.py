@@ -23,16 +23,16 @@
                 # also only if chunk at toplevel in clipboard (ie pastable)
                 # (this is badly in need of cleanup, since both here and chunk.draw
                 #  should not hardcode the cond for that, they should all ask the same method here)
-                if selatom.molecule in self.o.assy.shelf.members: 
+                if selatom.molecule in self.o.assy.shelf.members:
                     cmd += " (hotspot)"
         elif selatom is not None:
             cmd = "click to drag %r" % selatom
-            cmd += " (%s)" % selatom.atomtype.fullname_for_msg() # nested parens ###e improve    
+            cmd += " (%s)" % selatom.atomtype.fullname_for_msg() # nested parens ###e improve
         else:
             cmd = "%s at \"water surface\"" % what
             #e cmd += " at position ..."
         return cmd
-        
+
 from selectMode:
 
         # someday -- we'll need to do this in a callback when selobj is set:
@@ -46,11 +46,11 @@ from selectMode:
 the def of update_selatom that had code for msg_about_click was in selectAtomsMode.
 that code was:
 
--        if msg_about_click: 
--            # [always do the above, since many things can change what it should 
+-        if msg_about_click:
+-            # [always do the above, since many things can change what it should
 -            # say] Come up with a status bar message about what we would paste
 -            # now.
--            # [bruce 050124 new feature, to mitigate current lack of model 
+-            # [bruce 050124 new feature, to mitigate current lack of model
 -            # tree highlighting of pastable]
 -            msg = self.describe_leftDown_action( glpane.selatom)
 -            env.history.statusbar_msg( msg)
@@ -88,7 +88,7 @@ pastable_atomtype, [still used!]
 and maybe uses of
 self.w.depositState, [still used]
 self.pastable, [still used]
-          
+
 is_pastable_onto_singlet, [still used but no longer need imports in depmode]
 is_pastable_into_free_space [ditto]
 

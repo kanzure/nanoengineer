@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 # Form implementation generated from reading ui file 'NanoHiveDialog.ui'
 #
 # Created: Wed Sep 20 10:17:46 2006

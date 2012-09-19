@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Command.py -- provides class basicCommand, superclass for commands
 [see also baseCommand.py, once ongoing refactoring is completed]
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -49,7 +49,7 @@ from model.jigs import Jig
 
 from command_support.GraphicsMode_API import GraphicsMode_interface
 
-from command_support.baseCommand import baseCommand 
+from command_support.baseCommand import baseCommand
 
 import foundation.changes as changes
 
@@ -76,12 +76,12 @@ class anyCommand(baseCommand, StateMixin):
     __abstract_command_class = True
 
     featurename = ""
-    
-    # Command's property manager. Subclasses should initialize the propMgr object 
+
+    # Command's property manager. Subclasses should initialize the propMgr object
     # if they need one. [in command_enter_PM (after refactoring) or __init__]
     propMgr = None
-    
-        
+
+
 
     command_should_resume_prevMode = False
         # Boolean; whether this command, when exiting, should resume the prior command
@@ -92,10 +92,10 @@ class anyCommand(baseCommand, StateMixin):
         # commandSequencer.userEnterCommand.
         # [bruce 071011, to be revised (replaces need for customized Done methods)]
         #
-        # WARNING: in the new command API as of 2008-09-26, this no longer 
+        # WARNING: in the new command API as of 2008-09-26, this no longer
         #controls command nesting as described above, but it has other effects,
         #e.g. on want_confirmation_corner_type.
-    
+
     command_has_its_own_PM = True
         # note: following comment predates the command stack refactoring circa 080806.
         # This flag now means only that the command should create its own PM
@@ -106,30 +106,30 @@ class anyCommand(baseCommand, StateMixin):
         # fully implemented? [bruce 080905 question]
         #
         #command_has_its_own_PM means, for example, the command has its own PM,
-        #and/or the Done/Cancel button corner (confirmation 
-        #corner). 
-        #For most of the commands, this is True (e.g. BuildAtoms mode , 
-        #BuildCrystal Mode, DnaDuplexEdit Controller etc.) 
-        # For many temporary commands #such as Zoom/Pan/Rotate/Line_Command 
-        # it is False. That means when the temporary command is active, 
-        # it is only doing some thing in the glpane and giving the user an 
-        # impression as if he is still in the previous command he was 
+        #and/or the Done/Cancel button corner (confirmation
+        #corner).
+        #For most of the commands, this is True (e.g. BuildAtoms mode ,
+        #BuildCrystal Mode, DnaDuplexEdit Controller etc.)
+        # For many temporary commands #such as Zoom/Pan/Rotate/Line_Command
+        # it is False. That means when the temporary command is active,
+        # it is only doing some thing in the glpane and giving the user an
+        # impression as if he is still in the previous command he was
         # working on. A good example is PanMode. If user is in Build Atoms mode
         # and needs to Pan the view, he can simply activate the PanTool(PanMode)
-        # The PanMode, being the temporary mode, has not gui of its own. All it 
-        # needs to do is to Pan the view. Thus it continues to use the PM and 
+        # The PanMode, being the temporary mode, has not gui of its own. All it
+        # needs to do is to Pan the view. Thus it continues to use the PM and
         # flyout toolbar from Build Atoms mode, giving the user an impression
-        # that he is still operating on the old mode.         
-        # This flag is also used in fixing bugs like 2566. 
+        # that he is still operating on the old mode.
+        # This flag is also used in fixing bugs like 2566.
         # This flag also means that if you hit 'Done' or 'Cancel' of the
         # previous mode (while in a temporary mode) , then 'that previous mode'
-        # will exit. The related code makes sure to first leave the temporary 
-        # mode(s) before leaving the regular mode (the command with 
-        # command_has_its_own_PM set to True). See also, flag 
-        # 'exit_using_done_cancel' in basicCommand.Done used (= False) for a 
-        # typical exit of a temporary mode . See that method for detailed 
+        # will exit. The related code makes sure to first leave the temporary
+        # mode(s) before leaving the regular mode (the command with
+        # command_has_its_own_PM set to True). See also, flag
+        # 'exit_using_done_cancel' in basicCommand.Done used (= False) for a
+        # typical exit of a temporary mode . See that method for detailed
         # comment. -- Ninad 2007-11-09
-    
+
     def __repr__(self): #bruce 080829, modified from Utility.py version
         """
         [subclasses can override this, and often do]
@@ -139,7 +139,7 @@ class anyCommand(baseCommand, StateMixin):
 
     # (default methods that should be noops in both nullCommand and Command
     #  can be put here instead if desired; for docstrings, see basicCommand)
-    
+
     def isCurrentCommand(self): #bruce 071008
         # WARNING: this value of False means the nullCommand should never itself
         # run code which assumes that this returns true when self is current.
@@ -175,7 +175,7 @@ class anyCommand(baseCommand, StateMixin):
         on all empty groups under topnode for which
         group.autodelete_when_empty is true
         and self.keep_empty_group(group) returns True.
-        
+
         Do this bottom-up, so killing inner empty groups
         (if it makes their containing groups empty)
         subjects their containing groups to this test.
@@ -210,24 +210,24 @@ class anyCommand(baseCommand, StateMixin):
                 # e.g. adding children to topnode and assuming it remains alive.
             pass
         return
-    
+
     def isHighlightingEnabled(self):
         """
         Should be overridden in subclasses. Default implementation returns True
         @see: BuildAtoms_Command.isHighlightingEnabled()
         """
         return True
-    
+
     def isWaterSurfaceEnabled(self):
         """
         Should be overridden in subclasses. Default implementation returns True
         The graphicsMode of current command calls this method to enable/disable
-        water surface and for deciding whther to highlight object under cursor. 
+        water surface and for deciding whther to highlight object under cursor.
         @see: BuildAtoms_Command.isWaterSurfaceEnabled()
-        @see: BuildAtoms_GraphicsMode. 
+        @see: BuildAtoms_GraphicsMode.
         """
         return False
-    
+
     pass # end of class anyCommand
 
 # ==
@@ -238,11 +238,11 @@ class nullCommand(anyCommand):
     in case of certain bugs during transition between commands
     """
     # needs no __init__ method; constructor takes no arguments
-    
+
     # WARNING: the next two methods are similar in all "null objects", of which
     # we have nullCommand and nullGraphicsMode so far. They ought to be moved
     # into a common nullObjectMixin for all kinds of "null objects". [bruce 071009]
-    
+
     def noop_method(self, *args, **kws):
         if debug_flags.atom_debug:
             print "fyi: atom_debug: nullCommand noop method called -- " \
@@ -264,17 +264,17 @@ class nullCommand(anyCommand):
     # (the nullCommand instance is not put into the command sequencer's _commandTable)
 
     is_null = True
-    
+
     commandName = 'nullCommand'
         # this will be overwritten in the nullCommand instance
         # when the currentCommand is changing [bruce 050106]
         # [not sure if that was about commandName or msg_commandName or both]
-    
+
     # Command-specific null methods
-    
+
     def autodelete_empty_groups(self, topnode):
         return
-    
+
     pass # end of class nullCommand
 
 # ==
@@ -301,31 +301,31 @@ class basicCommand(anyCommand):
     # (later clarification: this comment is not about _minimalCommand in
     #  test_commands.py, though that might hold some lessons for this.)
     # [bruce 071011 comment]
-    
+
     # Subclasses should define the following class constants,
     # and normally need no __init__ method.
     # If they have an __init__ method, it must call Command.__init__
     # and pass the CommandSequencer in which this command can run.
     commandName = "(bug: missing commandName)"
     featurename = "Undocumented Command"
-    
+
     __abstract_command_class = True
 
-    
+
     PM_class = None
         #Command subclasses can override this class constant with the appropriate
         #Property Manager class, if they have their own Property Manager object.
-        #This is used by self._createPropMgrObject(). 
-        #See also self.command_enter_PM. 
-       
-        #NOTE 2008-09-02: The class constant PM_class was introduced today and 
-        #will soon be used in all commands. But before that, it will be tested 
-        #in a few command classes [ -- Ninad comment]. This comment can be 
+        #This is used by self._createPropMgrObject().
+        #See also self.command_enter_PM.
+
+        #NOTE 2008-09-02: The class constant PM_class was introduced today and
+        #will soon be used in all commands. But before that, it will be tested
+        #in a few command classes [ -- Ninad comment]. This comment can be
         #deleted when all commands that have their own PM start using this.
 
         # Note: for the new command API as of 2008-09-26, this is always used,
         # since base class command_enter_PM calls _createPropMgrObject.
-        # [bruce 080909]       
+        # [bruce 080909]
 
     def __init__(self, commandSequencer):
         """
@@ -351,26 +351,26 @@ class basicCommand(anyCommand):
         assert glpane is not commandSequencer
             # this might happen due to bugs in certain callers,
             # since in old code they were the same object
-        
+
         self.pw = None # pw = part window
             # TODO: remove this, or rename it -- most code uses .win for the same thing
-                
+
         # verify self.commandName is set for our subclass
         assert not self.commandName.startswith('('), \
             "bug: commandName class constant missing from subclass %s" % \
             self.__class__.__name__
-        
+
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
         # [most methods have been removed after the command api was revised -- bruce 080929]
-        weird_to_override = [ 'StartOver'                              
+        weird_to_override = [ 'StartOver'
                              #bruce 080806
                             ]
             # not 'modifyTransmute', 'keyPress', they are normal to override;
             # not 'draw_selection_curve', 'Wheel', they are none of my business;
             # not 'makemenu' since no relation to new mode changes per se.
             # [bruce 040924]
-    
+
         weird_to_override += [
                          'command_Done', 'command_Cancel', #bruce 080827
                         ]
@@ -388,19 +388,19 @@ class basicCommand(anyCommand):
         # other inits
         self.glpane = glpane # REVIEW: needed?
         self.win = glpane.win
-        
+
         ## self.commandSequencer = self.win.commandSequencer #bruce 070108
         # that doesn't work, since when self is first created during GLPane creation,
         # self.win doesn't yet have this attribute:
         # (btw the exception from this is not very understandable.)
         # So instead, we define a property that does this alias, below.
-        
+
         # Note: the attributes self.o and self.w are deprecated, but often used.
         # New code should use some other attribute, such as self.glpane or
         # self.commandSequencer or self.win, as appropriate. [bruce 070613, 071008]
         self.o = self.glpane # REVIEW: needed? (deprecated)
         self.w = self.win # (deprecated)
-        
+
         # store ourselves in our command sequencer's _commandTable
         # [revised to call a commandSequencer method, bruce 080209]
         ###REVIEW whether this is used for anything except changing to
@@ -411,18 +411,18 @@ class basicCommand(anyCommand):
 
         # exercise self.get_featurename(), just for its debug prints
         self.get_featurename()
-            
+
         return # from basicCommand.__init__
 
     # ==
-    
+
     def command_enter_PM(self):
         """
-        Overrides superclass method. 
-        
+        Overrides superclass method.
+
         @see: baseCommand.command_enter_PM()  for documentation
         """
-        #important to check for old propMgr object. Reusing propMgr object 
+        #important to check for old propMgr object. Reusing propMgr object
         #significantly improves the performance.
         if not self.propMgr:
             self.propMgr = self._createPropMgrObject()
@@ -430,8 +430,8 @@ class basicCommand(anyCommand):
             #This bug is mitigated as propMgr object no longer gets recreated
             #for modes -- ninad 2007-08-29
             if self.propMgr:
-                changes.keep_forever(self.propMgr)  
-    
+                changes.keep_forever(self.propMgr)
+
     def _createPropMgrObject(self):
         """
         Returns the property manager object for this command.
@@ -439,10 +439,10 @@ class basicCommand(anyCommand):
         """
         if self.PM_class is None:
             return None
-    
+
         propMgr = self.PM_class(self)
         return propMgr
-    
+
     def get_featurename(clas): #bruce 071227, revised into classmethod 080722
         """
         Return the "feature name" to be used for the wiki help feature page
@@ -468,21 +468,21 @@ class basicCommand(anyCommand):
         return my_command_descriptor.featurename
 
     get_featurename = classmethod( get_featurename)
-    
+
     # ==
-    
+
     def _get_commandSequencer(self):
         return self.win.commandSequencer #bruce 070108
-    
+
     commandSequencer = property(_get_commandSequencer)
-    
+
     def _get_assy(self): #bruce 071116
         return self.commandSequencer.assy
-    
+
     assy = property(_get_assy) #bruce 071116
 
     # ==
-    
+
     def isCurrentCommand(self): #bruce 071008, for Command API
         """
         Return a boolean to indicate whether self is the currently active command.
@@ -492,7 +492,7 @@ class basicCommand(anyCommand):
         to reject signals that are meant for a newer command object of the same class,
         in case the old command didn't disconnect those signals from its own methods
         (as it ideally should do).
-        
+
         Warning: this is False even if self is temporarily suspended by e.g. Pan Tool,
         which has no PM of its own (so self's UI remains fully displayed); this
         needs to be considered when this method is used to determine whether UI
@@ -517,7 +517,7 @@ class basicCommand(anyCommand):
 
     ### TODO: move this up, and rename to indicate it's about the graphics area's
     # empty space context menus
-    
+
     call_makeMenus_for_each_event = False
         # default value of class attribute; subclasses can override
 
@@ -528,16 +528,16 @@ class basicCommand(anyCommand):
         """
         Call self.makeMenus(), then postprocess the menu_spec attrs
         it sets on self, namely some or all of
-        
+
         Menu_spec,
         Menu_spec_shift,
         Menu_spec_control,
         debug_Menu_spec,
-        
+
         and make sure the first three of those are set on self
         in their final (modified) forms, ready for the caller
         to (presumably) turn into actual menus.
-        
+
         (TODO: optim: if we know we're being called again for each event,
          optim by producing only whichever menu_specs are needed. This is
          not always just one, since we sometimes copy one into a submenu
@@ -555,7 +555,7 @@ class basicCommand(anyCommand):
         for attr in all_attrs:
             if hasattr(self, attr):
                 del self.__dict__[attr]
-        
+
         #bruce 050416: give it a default menu; for modes we have now,
         # this won't ever be seen unless there are bugs
         #bruce 060407 update: improve the text, re bug 1739 comment #3,
@@ -565,7 +565,7 @@ class basicCommand(anyCommand):
             # bruce 040923 moved this here, from the subclasses;
             # for most modes, it replaces self.Menu_spec
         # bruce 041103 changed details of what self.makeMenus() should do
-        
+
         # self.makeMenus should have set self.Menu_spec, and maybe some sister attrs
         assert hasattr(self, 'Menu_spec'), "%r.makeMenus() failed to set up" \
                " self.Menu_spec (to be a menu spec list)" % self # should never happen after 050416
@@ -599,7 +599,7 @@ class basicCommand(anyCommand):
             # command.call_makeMenus_for_each_event for that command.
             # It's worth doing this in the commands that define
             # command.debug_Menu_spec.]
-        
+
         # new feature, bruce 041103:
         # add submenus to Menu_spec for each modifier-key menu which is
         # nonempty and different than Menu_spec
@@ -640,7 +640,7 @@ class basicCommand(anyCommand):
                 from foundation.wiki_help import wiki_help_menuspec_for_featurename
                 ms = wiki_help_menuspec_for_featurename( featurename )
                 if ms:
-                    self.Menu_spec.append( None ) 
+                    self.Menu_spec.append( None )
                         # there's a bug in this separator, for BuildCrystal_Command...
                         # [did I fix that? I vaguely recall fixing a separator
                         #  logic bug in the menu_spec processor... bruce 071009]
@@ -679,7 +679,7 @@ class basicCommand(anyCommand):
         # note: this is now much less of a kluge, but still somewhat klugy
         # (since it makes one UI element depend on another one),
         # so I'm not renaming it. [bruce 080929 comment]
-        
+
         pm = self.propMgr #bruce 080929 revision, used to call _KLUGE_current_PM
             # (but recently, it passed an option that made it equivalent)
         if not pm:
@@ -706,7 +706,7 @@ class basicCommand(anyCommand):
         """
         Subclasses should return the type of confirmation corner they
         currently want, typically computed from their current state.
-        
+
         This makes use of various attrs defined on self, so it should
         be called on whichever command the confirmation corner would
         terminate, which is not necessarily the current command.
@@ -719,7 +719,7 @@ class basicCommand(anyCommand):
         (Later we may add other possible values, e.g. 'Exit'.)
 
         @see: confirmation_corner.py, for related info
-        
+
         [Many subclasses will need to override this; we might also revise
          the default to be computed in a more often correct manner.]
         """
@@ -730,7 +730,7 @@ class basicCommand(anyCommand):
         # We also use them to perform the actions (they are QToolButtons).
         # KLUGE: we do this in other code which finds them again redundantly
         # (calling the same kluge helper function).
-        
+
         done_button_vis, cancel_button_vis = self._KLUGE_visible_PM_buttons()
             # each one is either None, or a QToolButton (a true value),
             # currently displayed on the current PM
@@ -738,8 +738,8 @@ class basicCommand(anyCommand):
         res = []
         if done_button_vis:
             #For temporary commands with their own gui (the commands that
-            #are expected to return to the previous command when done), 
-            #use the 'Transient-Done' confirmation corner images. 
+            #are expected to return to the previous command when done),
+            #use the 'Transient-Done' confirmation corner images.
             if self.command_has_its_own_PM and \
                self.command_should_resume_prevMode:
                 res.append('Transient-Done')
@@ -752,24 +752,24 @@ class basicCommand(anyCommand):
         else:
             res = '+'.join(res)
         return res
-        
+
     def should_exit_when_ESC_key_pressed(self): # not overridden, as of 080815
         """
         @return: whether this command should exit when the ESC key is pressed
         @rtype: boolean
 
         [May be overridden in subclasses.]
-        
+
         Default implementation returns the value of
         self.command_should_resume_prevMode
         (except for the default command, which returns False).
         For now, if you hit Escape key in all such commands,
         the command will exit.
-        
+
         @see: ESC_to_exit_GraphicsMode_preMixin.keyPress()
         """
         return (self.command_should_resume_prevMode and not self.is_default_command())
-    
+
     # methods for leaving this command (from a dashboard tool or an
     # internal request).
 
@@ -777,7 +777,7 @@ class basicCommand(anyCommand):
     # and [we hoped at the time] Build Atoms [bruce 040923]:
     #
     # [WARNING: these comments are MOSTLY OBSOLETE now that
-    # USE_COMMAND_STACK is true (new command API, which 
+    # USE_COMMAND_STACK is true (new command API, which
     # is the default API as of 2008-09-26) ]
     #
     # Each command which accumulates state, meant to be put into its
@@ -814,8 +814,8 @@ class basicCommand(anyCommand):
     # self.haveNontrivialState() returns true; if it returns false,
     # neither of them will be called.
     #
-    # -- bruce 040923    
-    
+    # -- bruce 040923
+
     def _warnUserAboutAbandonedChanges(self): #bruce 080908 split this out
         """
         Private helper method for command subclasses overriding command_will_exit
@@ -826,14 +826,14 @@ class basicCommand(anyCommand):
         only commands that store changes in self rather than in assy might
         need to call it.
 
-        It does nothing if self.commandSequencer.warn_about_abandoned_changes 
+        It does nothing if self.commandSequencer.warn_about_abandoned_changes
         is False.
-        @see: ExtrudeMode.command_will_exit() where it is called. 
+        @see: ExtrudeMode.command_will_exit() where it is called.
         """
-        
+
         if not self.commandSequencer.warn_about_abandoned_changes:
             return
-        
+
         msg = "%s with changes is being forced to abandon those changes!\n" \
               "Sorry, no choice for now." % (self.get_featurename(),)
         self._warning_for_abandon( msg, bother_user_with_dialog = 1 )
@@ -884,7 +884,7 @@ class basicCommand(anyCommand):
         # Or, perhaps just inline it into its sole real caller.
 
         from PyQt4.Qt import QMessageBox
-        
+
         use_status_bar = 0 # always 0, for now
         use_dialog = bother_user_with_dialog
 
@@ -900,8 +900,8 @@ class basicCommand(anyCommand):
         ###e add a timestamp prefix, at least for the printed one
 
         # always print it so there's a semi-permanent record they can refer to
-        
-        print msg 
+
+        print msg
 
         if use_status_bar: # do this first
             ## [this would work again as of 050107:] self.win.statusBar().message( msg)
@@ -913,7 +913,7 @@ class basicCommand(anyCommand):
             # arg to the messagebox could do this...
             QMessageBox.warning(self.o, prefix, msg) # args are widget, title, content
         return
-        
+
     def StartOver(self):
         # only callable from UI of Extrude & Build Crystal;
         # needs rename [bruce 080806 comment]
@@ -925,7 +925,7 @@ class basicCommand(anyCommand):
         #bruce 080827 guess; UNTESTED ###
         self.command_Cancel()
         self.commandSequencer.userEnterCommand(self.commandName)
-           
+
     # ==
 
     def find_self_or_parent_command_named(self, commandName): #bruce 080801; maybe untested
@@ -968,7 +968,7 @@ class basicCommand(anyCommand):
         """
         cseq = self.commandSequencer
         return cseq._f_get_data_while_entering_request_command()
-    
+
     pass # end of class basicCommand
 
 register_abstract_feature_class( basicCommand, basicCommand_Descriptor )
@@ -997,8 +997,8 @@ class Command(basicCommand):
     operation to occur).
     """
     # default values of class constants (often overridden by subclasses)
-    
-    GraphicsMode_class = None        
+
+    GraphicsMode_class = None
         # Each Command subclass must override this class constant with the
         # most abstract GraphicsMode subclass which they are able to work with.
         # In concrete Command subclasses, it must be a subclass of
@@ -1028,7 +1028,7 @@ class Command(basicCommand):
         #  which means its GM changed?)
         self._create_GraphicsMode()
         return
-    
+
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class
             # maybe: let caller pass something to replace this?
@@ -1046,7 +1046,7 @@ class Command(basicCommand):
         # We'd have to reset it with every delegation, or pass it as an argument
         # into every method (or attr get) -- definitely worse than the benefit,
         # so NEVERMIND. Instead, just share anything expensive that a GM sets up.
-        
+
         self.graphicsMode = GM_class(*args, **kws)
         pass
 

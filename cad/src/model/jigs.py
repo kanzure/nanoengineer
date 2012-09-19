@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 jigs.py -- Classes for motors and other jigs, and their superclass, Jig.
 
@@ -95,14 +95,14 @@ class Jig(NodeWith3DContents, Selobj_API):
            they are all inheriting one class, that class needs to
            inherit NodeWith3DContents rather than just Node.
     """
-    
+
     # Each Jig subclass must define the class variables:
     # - icon_names -- a list of two icon basenames (one normal and one "hidden")
     #   to be passed to imagename_to_pixmap
     #   (unless that Jig subclass overrides node_icon)
     icon_names = ("missing", "missing-hidden") # will show up as blank icons if not overridden
         # (see also: "modeltree/junk.png", which exists, but has no hidden form)
-    
+
     #
     # and the class constants:
     # - mmp_record_name (if it's ever written to an mmp file)
@@ -110,7 +110,7 @@ class Jig(NodeWith3DContents, Selobj_API):
 
     #
     # and can optionally redefine some of the following class constants:
-    
+
     sym = "Jig" # affects name-making code in __init__
 
     featurename = "" # wiki help featurename for each Jig (or Node) subclass, or "" if it doesn't have one yet [bruce 051201]
@@ -126,15 +126,15 @@ class Jig(NodeWith3DContents, Selobj_API):
         # to prevent undo bugs (when undoing changes to a jig's atoms).
         # Until that's reviewed, it should not be overridden on any jig.
         # [bruce 071128]
-    
+
     # class constants used as default values of instance variables:
-    
+
     #e we should sometime clean up the normcolor and color attributes, but it's hard,
     # since they're used strangly in the *Prop.py files and in our pick and unpick methods.
     # But at least we'll give them default values for the sake of new jig subclasses. [bruce 050425]
 
     color = normcolor = (0.5, 0.5, 0.5)
-    
+
     # "Enable in Minimize" is only supported for motors.  Otherwise, it is ignored.  Mark 051006.
     # [I suspect the cad code supports it for all jigs, but only provides a UI to set it for motors. -- bruce 051102]
 
@@ -149,17 +149,17 @@ class Jig(NodeWith3DContents, Selobj_API):
     dampers_enabled = True # whether a jig which can have dampers should actually have them (default True in cad and sim)
         # (only used in rotary motor sim & UI so far, but supported for read & write for all jigs,
         #  and for copy for rotary and linear motors) [bruce 060421 for A7]
-    
+
     atoms = None
     cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
     propmgr = None # see set_propmgr method in RotaryMotor class. Mark 2007-05-28.
-    
+
     copyable_attrs = _superclass.copyable_attrs + ('normcolor', 'color')
         # added in some subclasses: 'enable_minimize', 'dampers_enabled'
         # most Jig subclasses need to extend this further
 
     _s_attr_atoms = S_REFS #bruce 060228 fix bug 1592 [untested]
-    
+
     def __init__(self, assy, atomlist):
         """
         Each subclass needs to call this, either in its own __init__ method
@@ -186,7 +186,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         self.glname = self.assy.alloc_my_glselect_name( self) #bruce 080917 revised
             ### REVIEW: is this ok or fixed if this chunk is moved to a new assy
             # (if that's possible)? [bruce 080917 Q]
-        
+
         return
 
     def _um_initargs(self):
@@ -205,7 +205,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         a subclass should override this if it needs to choose its icons differently
         """
         return imagename_to_pixmap( self.icon_names[self.hidden] )
-        
+
     def setAtoms(self, atomList):
         """
         Set self's atoms to the atoms in atomList, and append self to atom.jigs
@@ -221,16 +221,16 @@ class Jig(NodeWith3DContents, Selobj_API):
         when their atomlist is initialized. (It's called in Jig.__init__
         and in Jig._copy_fixup_at_end.)
 
-        @param atomList: List of atoms to which this jig needs to be attached. 
+        @param atomList: List of atoms to which this jig needs to be attached.
         @type  atomList: list
-        
+
         @see: L{self._remove_all_atoms}
         @see: L{RotaryMotor_EditCommand._modifyStructure} for an example use
         @see: L{self.setShaft} (for certain subclasses)
         """
         if self.atoms:
             # intended to fix bug 2561 more safely than the prior change [bruce 071010]
-            self._remove_all_atoms() 
+            self._remove_all_atoms()
         self.atoms = list(atomList) # copy the list
         for atom in atomList:
             if self in atom.jigs:
@@ -262,10 +262,10 @@ class Jig(NodeWith3DContents, Selobj_API):
         # it probably means this method is misnamed or misdescribed.
         # [bruce 080319]
         return False
-    
+
     def needs_atoms_to_survive(self):
         return True # for most Jigs
-    
+
     def _draw(self, glpane, dispdef):
         """
         Draws the jig in the normal way.
@@ -287,7 +287,7 @@ class Jig(NodeWith3DContents, Selobj_API):
             endPatternedDrawing(select = True)
             pass
         return
-        
+
     def draw_in_abs_coords(self, glpane, color):
         """
         Draws the jig in the highlighted way.
@@ -305,7 +305,7 @@ class Jig(NodeWith3DContents, Selobj_API):
             self._draw_jig(glpane, color, 1)
             pass
         return
-        
+
     def _draw_jig(self, glpane, color, highlighted = False):
         """
         This is the main drawing method for a jig,
@@ -318,7 +318,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         drawing methods are overridden by various jigs. I don't know if this
         is justified by the "common code" being harmful in some cases,
         or just carelessness. Either way, it needs cleanup.
-        
+
         By default, this method draws a wireframe box around each of the jig's atoms.
         This method should be overridden by subclasses that want to do more than
         simply draw wireframe boxes around each of the jig's atoms.
@@ -333,10 +333,10 @@ class Jig(NodeWith3DContents, Selobj_API):
             if self.picked:
                 rad *= 1.01
             drawwirecube(color, a.posn(), rad)
-    
+
     # == copy methods [default values or common implems for Jigs,
     # == when these differ from Node methods] [bruce 050526 revised these]
-    
+
     def will_copy_if_selected(self, sel, realCopy):
         """
         [overrides Node method]
@@ -416,7 +416,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         # or use list of classnames to search for more and more specific methods to call...
         # or just let subclasses extend this method in the usual way (maybe not doing those dels above).
         return
-    
+
     # ==
 
     def _remove_all_atoms(self): #bruce 071010
@@ -430,7 +430,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         for atom in list(self.atoms):
             self.remove_atom(atom, _kill_if_no_atoms_left_but_needs_them = False)
         return
-    
+
     def remove_atom(self, atom, _kill_if_no_atoms_left_but_needs_them = True):
         """
         Remove atom from self, and remove self from atom
@@ -460,7 +460,7 @@ class Jig(NodeWith3DContents, Selobj_API):
             if not self.atoms and self.needs_atoms_to_survive():
                 self.kill()
         return
-    
+
     def kill(self):
         """
         [extends superclass method]
@@ -477,8 +477,8 @@ class Jig(NodeWith3DContents, Selobj_API):
     # bruce 050125 centralized pick and unpick (they were identical on all Jig
     # subclasses -- with identical bugs!), added comments; didn't yet fix the bugs.
     #bruce 050131 for Alpha: more changes to it (still needs review after Alpha is out)
-    
-    def pick(self): 
+
+    def pick(self):
         """
         select the Jig
 
@@ -522,7 +522,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         [Subclasses should override this as needed.]
         """
         pass
-    
+
     def break_interpart_bonds(self): #bruce 050316 fix the jig analog of bug 371; 050421 undo that change for Alpha5 (see below)
         """
         [overrides Node method]
@@ -571,7 +571,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         else:
             _superclass.writemmp(self, mapping) # just writes comment into file and atom_debug msg onto stdout
         return
-    
+
     def writemmp_info_leaf(self, mapping): #bruce 051102
         """
         [extends superclass method]
@@ -598,14 +598,14 @@ class Jig(NodeWith3DContents, Selobj_API):
         else:
             _superclass.readmmp_info_leaf_setitem( self, key, val, interp)
         return
-    
+
     def _mmp_record_front_part(self, mapping):
         # [Huaicai 9/21/05: split mmp_record into front-middle-last 3 parts, so each part can be different for a different jig.
         if mapping is not None:
             name = mapping.encode_name(self.name) #bruce 050729 help fix some Jig.__repr__ tracebacks (e.g. part of bug 792-1)
         else:
             name = self.name
-        
+
         if self.picked:
             c = self.normcolor
             # [bruce 050422 comment: this code looks weird, but i guess it undoes pick effect on color]
@@ -615,7 +615,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         mmprectype_name_color = "%s (%s) (%d, %d, %d)" % (self.mmp_record_name, name,
                                                                color[0], color[1], color[2])
         return mmprectype_name_color
-    
+
     def _mmp_record_last_part(self, mapping):
         """
         Last part of the mmp record. By default, this lists self's atoms,
@@ -625,7 +625,7 @@ class Jig(NodeWith3DContents, Selobj_API):
         As of long before 080317, some subclasses do that to work around bugs
         or kluges in class Jig methods which cause problems when they have
         no atoms.
-        
+
         @note: If this returns anything other than empty, make sure to put
                one extra space character at the front. [As of long before 080317,
                it is likely that this is done by caller and therefore
@@ -643,10 +643,10 @@ class Jig(NodeWith3DContents, Selobj_API):
         assert nums is not None # bruce 080317
             # caller must ensure this by calling this with mapping.min set
             # or when all atoms are encodable. [bruce comment 080317]
-        
+
         return " " + " ".join(map(str, nums))
-        
-    def mmp_record(self, mapping = None): 
+
+    def mmp_record(self, mapping = None):
         #bruce 050422 factored this out of all the existing Jig subclasses, changed arg from ndix to mapping
         #e could factor some code from here into mapping methods
         #bruce 050718 made this check for mapping is not None (2 places), as a bugfix in __repr__
@@ -672,14 +672,14 @@ class Jig(NodeWith3DContents, Selobj_API):
         so all they need to override is mmp_record_jigspecific_midpart.]
         """
         if mapping is not None:
-            ndix = mapping.atnums				           
+            ndix = mapping.atnums
             name = mapping.encode_name(self.name)
             # flags related to what we can do about atoms on this jig which have no encoding in mapping
             permit_fwd_ref = not mapping.min #bruce 051031 (kluge, mapping should say this more directly)
             permit_missing_jig_atoms = mapping.min #bruce 051031 (ditto on kluge)
             assert not (permit_fwd_ref and permit_missing_jig_atoms) # otherwise wouldn't know which one to do with missing atoms!
         else:
-            ndix = None	
+            ndix = None
             name = self.name
             permit_fwd_ref = False #bruce 051031
             permit_missing_jig_atoms = False # guess [bruce 051031]
@@ -701,7 +701,7 @@ class Jig(NodeWith3DContents, Selobj_API):
             else:
                 pass # just let missing atoms not get written
         del ndix
-        
+
         if want_fwd_ref:
             assert mapping # implied by above code
             # We need to return a forward ref record now, and set up mapping object to write us out for real, later.
@@ -719,7 +719,7 @@ class Jig(NodeWith3DContents, Selobj_API):
                 # do that. [### need to assert they are not killed??]
             mapping.write_forwarded_node_after_nodes( self, after_these, force_disabled_for_sim = self.is_disabled() )
             return fwd_ref_to_return_now , False
-        
+
         frontpart = self._mmp_record_front_part(mapping)
         midpart = self.mmp_record_jigspecific_midpart()
         lastpart = self._mmp_record_last_part(mapping) # note: this also calls atnums_or_None
@@ -747,7 +747,7 @@ class Jig(NodeWith3DContents, Selobj_API):
                 # return a comment instead of the entire mmp record:
                 return "# jig with no selected atoms skipped for minimize\n", False
             pass
-        
+
         return frontpart + midpart + lastpart + "\n" , True
 
     def mmp_record_jigspecific_midpart(self):
@@ -854,20 +854,20 @@ class Jig(NodeWith3DContents, Selobj_API):
         [subclasses should override this]
         """
         return "[%s: %s]" % (self.sym, self.name)
-    
+
     def getToolTipInfo(self):
         """
         public method that returns a string for display in Dynamic Tool tip
         """
-        return self._getToolTipInfo() 
-            
+        return self._getToolTipInfo()
+
     def _getToolTipInfo(self):
         """
         Return a string for display in Dynamic Tool tip
         [subclasses should override this]
         """
         return "%s <br><font color=\"#0000FF\"> Jig Type:</font> %s" % (self.name, self.sym)
-        
+
     def draw(self, glpane, dispdef): #bruce 050421 added this wrapper method and renamed the subclass methods it calls. ###@@@writepov too
         if self.hidden:
             return
@@ -890,7 +890,7 @@ class Jig(NodeWith3DContents, Selobj_API):
             print_compact_traceback("ignoring exception when drawing Jig %r: " % self)
         else:
             glPopName()
-            
+
         if disabled:
             glEnable(GL_CULL_FACE)
             glEnable(GL_LIGHTING)
@@ -898,7 +898,7 @@ class Jig(NodeWith3DContents, Selobj_API):
             glPolygonMode(GL_BACK, GL_FILL) #bruce 050729 precaution related to bug 835; could probably use GL_FRONT_AND_BACK
             glDisable(GL_LINE_STIPPLE)
         return
-    
+
     def edit(self): #bruce 050526 moved this from each subclass into Jig, and let it handle missing cntl
         if self.cntl is None:
             #bruce 050526: had to defer this until first needed, so I can let some jigs temporarily be in a state
@@ -916,7 +916,7 @@ class Jig(NodeWith3DContents, Selobj_API):
             # [mark 060312 revision; comment rewritten by bruce 090106]
         self.cntl.setup()
         self.cntl.exec_()
-        
+
     def toggleJigDisabled(self):
         """
         Enable/Disable jig.
@@ -929,10 +929,10 @@ class Jig(NodeWith3DContents, Selobj_API):
             # Without this, self will remain highlighted until the mouse moves.
             self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
         self.assy.w.win_update()
-        
+
     def mouseover_statusbar_message(self): # Fixes bug 1642. mark 060312
         return self.name
-        
+
     def make_selobj_cmenu_items(self, menu_spec):
         """
         Add jig specific context menu items to <menu_spec> list when self is the selobj.
@@ -972,7 +972,7 @@ class Anchor(Jig):
     sym = "Anchor"
     icon_names = ["modeltree/anchor.png", "modeltree/anchor-hide.png"]
     featurename = "Anchor" # wiki help featurename [bruce 051201; note that for a few jigs this should end in "Jig"]
-    
+
     # create a blank Anchor with the given list of atoms
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list)
@@ -986,7 +986,7 @@ class Anchor(Jig):
         # Mark 050928.
         from command_support.JigProp import JigProp
         self.cntl = JigProp(self, self.assy.o)
-            
+
     # Write "anchor" record to POV-Ray file in the format:
     # anchor(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
@@ -1005,7 +1005,7 @@ class Anchor(Jig):
 
     def _getinfo(self):
         return "[Object: Anchor] [Name: " + str(self.name) + "] [Total Anchors: " + str(len(self.atoms)) + "]"
-                    
+
     def _getToolTipInfo(self): #ninad060825
         """
         Return a string for display in Dynamic Tool tip
@@ -1035,7 +1035,7 @@ class Anchor(Jig):
         (It's ok to assume without checking that atom is one of this jig's atoms.)
         """
         return True
-    
+
     pass # end of class Anchor
 
 def fake_Anchor_mmp_record(atoms, mapping): #bruce 050404 utility for Minimize Selection
@@ -1079,7 +1079,7 @@ class Jig_onChunk_by1atom(Jig):
         atomlist = atomlist[0:1] # store at most one atom
         super = Jig
         super.setAtoms(self, atomlist)
-        
+
     def atnums_or_None(self, ndix, return_partial_list = False): #bruce 051031 added return_partial_list implem
         """
         return list of atnums to write, or None if some atoms not yet written
@@ -1105,7 +1105,7 @@ class Jig_onChunk_by1atom(Jig):
             nums = map((lambda a: a.key), self.atoms)
         return nums
     pass
-    
+
 class Stat( Jig_onChunk_by1atom ):
     """
     A Stat is a Langevin thermostat, which sets a chunk to a specific
@@ -1122,13 +1122,13 @@ class Stat( Jig_onChunk_by1atom ):
     different even when the set of atoms in the chunk has not changed.
     Only the boxed_atom is constant (and only it is saved, as self.atoms[0]).
     """
-    #bruce 050210 for Alpha-2: fix bug in Stat record reported by Josh to ne1-users    
+    #bruce 050210 for Alpha-2: fix bug in Stat record reported by Josh to ne1-users
     sym = "Stat"
     icon_names = ["modeltree/Thermostat.png", "modeltree/Thermostat-hide.png"]
     featurename = "Thermostat" #bruce 051203
 
     copyable_attrs = Jig_onChunk_by1atom.copyable_attrs + ('temp',)
-    
+
     # create a blank Stat with the given list of atoms, set to 300K
     def __init__(self, assy, list):
         Jig.__init__(self, assy, list) # note: this calls Jig_onChunk_by1atom.setAtoms method
@@ -1140,7 +1140,7 @@ class Stat( Jig_onChunk_by1atom ):
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
         self.cntl = StatProp(self, self.assy.o)
         ## self.cntl = None #bruce 050526 do this later since it needs at least one atom to be present
-            
+
     # Write "stat" record to POV-Ray file in the format:
     # stat(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
@@ -1162,12 +1162,12 @@ class Stat( Jig_onChunk_by1atom ):
                     "[Name: " + str(self.name) + "] "\
                     "[Temp = " + str(self.temp) + "K]" + "] "\
                     "[Attached to: " + str(self.atoms[0].molecule.name) + "] "
-                                        
+
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
         #ninad060825 We know that stat has only one atom  May be we should use try - except to be safer?
-        attachedChunkInfo = ("<font color=\"#0000FF\">Attached to chunk </font>[%s]") %(self.atoms[0].molecule.name) 
-        
+        attachedChunkInfo = ("<font color=\"#0000FF\">Attached to chunk </font>[%s]") %(self.atoms[0].molecule.name)
+
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Thermostat"\
         + "<br>"  + "<font color=\"#0000FF\"> Temperature:</font>" + str(self.temp) + " K"\
         + "<br>" + str(attachedChunkInfo)
@@ -1205,7 +1205,7 @@ class Thermo(Jig_onChunk_by1atom):
 
     def set_cntl(self): #bruce 050526 split this out of __init__ (in all Jig subclasses)
         self.cntl = ThermoProp(self, self.assy.o)
-            
+
     # Write "thermo" record to POV-Ray file in the format:
     # thermo(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
@@ -1226,7 +1226,7 @@ class Thermo(Jig_onChunk_by1atom):
         return  "[Object: Thermometer] "\
                     "[Name: " + str(self.name) + "] "\
                     "[Attached to: " + str(self.atoms[0].molecule.name) + "] "
-                    
+
     def _getToolTipInfo(self): #ninad060825
         """
         Return a string for display in Dynamic Tool tip
@@ -1242,7 +1242,7 @@ class Thermo(Jig_onChunk_by1atom):
     mmp_record_name = "thermo"
     def mmp_record_jigspecific_midpart(self):
         return ""
-    
+
     pass # end of class Thermo
 
 
@@ -1275,7 +1275,7 @@ class AtomSet(Jig):
         """
         if not self.picked:
             return
-            
+
         for a in self.atoms:
             # Using dispdef of the atom's chunk instead of the glpane's dispdef fixes bug 373. mark 060122.
             chunk = a.molecule
@@ -1284,10 +1284,10 @@ class AtomSet(Jig):
             # wware 060203 selected bounding box bigger, bug 756
             if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
-        
+
     def _getinfo(self):
         return "[Object: Atom Set] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "]"
-                    
+
     def _getToolTipInfo(self): #ninad060825
         """
         Return a string for display in Dynamic Tool tip
@@ -1302,7 +1302,7 @@ class AtomSet(Jig):
     mmp_record_name = "atomset"
     def mmp_record_jigspecific_midpart(self):
         return ""
-        
+
     pass # end of class AtomSet
 
 # end

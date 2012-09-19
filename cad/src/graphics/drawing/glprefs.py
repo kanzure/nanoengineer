@@ -1,10 +1,10 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 glprefs.py - class GLPrefs encapsulates prefs affecting all Chunk display lists
 
 @author: Brad G, Bruce, Russ
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -43,7 +43,7 @@ class GLPrefs:
     """
     This has not yet been split into its abstract and concrete classes,
     but is best described by specifying both aspects:
-    
+
     Abstract: instances contain cached values of preferences or other settings
     which affect overall appearance of a GLPane, or content of most or all of
     its Chunks' display lists. There are public attributes for the prefs values,
@@ -68,7 +68,7 @@ class GLPrefs:
     # [bruce 090304 comment]
 
     # ==
-    
+
     # class constants and initial values of instance variables
 
     # Prefs related to experimental native C renderer (quux module in
@@ -77,10 +77,10 @@ class GLPrefs:
     # [note: as of 090114, this hasn't been maintained for a long time,
     #  but it might still mostly work, so we'll keep it around for now
     #  as potentially useful example code]
-    
+
     use_c_renderer = use_c_renderer_default = False
     use_c_renderer_prefs_key = "use_c_renderer_rev2"
-    
+
     # ColorSorter control prefs (some)
 
     #russ 080403: Added drawing variant selection for unbatched spheres.
@@ -136,7 +136,7 @@ class GLPrefs:
         self._setup_shader_prefs()
 
         return
-    
+
     def _setup_c_renderer_prefs(self):
         # 20060313 grantham Added use_c_renderer debug pref, can
         # take out when C renderer used by default.
@@ -144,7 +144,7 @@ class GLPrefs:
         # REVIEW: is this still next-session, or does it work fine for same session now?
         # Guess: works for same-session after today's refactoring (once it works again at all).
         # So I modified the debug_pref menu text optimistically. [bruce 090304]
-        
+
         if quux_module_import_succeeded:
             self.use_c_renderer = (
                 debug_pref("GLPane: use native C renderer?", #bruce 090304 revised text
@@ -158,7 +158,7 @@ class GLPrefs:
     def _setup_shader_prefs(self):
         # note: as of bruce 090304 these all should work as same-session prefs,
         # and most of them have been tested that way.
-        
+
         self.use_sphere_shaders_pref = debug_pref(
             "GLPane: use sphere-shaders?",
             _choices[self.use_sphere_shaders_default],
@@ -205,7 +205,7 @@ class GLPrefs:
         return
 
     # ==
-    
+
     def update(self): #bruce 051126, revised 090303
         """
         Update attributes from current drawing-related prefs stored in prefs db
@@ -252,7 +252,7 @@ class GLPrefs:
     def _update_material_prefs(self):
         self.enable_specular_highlights = not not env.prefs[
             material_specular_highlights_prefs_key] # boolean
-        
+
         if self.enable_specular_highlights:
             self.override_light_specular = None # used in glpane
             # self.specular_shininess: float; shininess exponent for all
@@ -288,13 +288,13 @@ class GLPrefs:
         # bruce 090303 renamed this from updatePrefsVars, refactored it
         # from a global function to a method of this class, and heavily
         # revised related code.
-        
+
         # implem note: this is slightly faster than directly calling debug_pref
         # (though that needs to be done the first time, via _setup_shader_prefs);
         # and as of 090303 the split between this and _setup_shader_prefs is
         # confined to this module, so if we change some of these to non-debug_prefs
         # no external code should need to be changed. [bruce 090303 comment]
-        
+
         self._use_sphere_shaders = env.prefs.get(
             self.use_sphere_shaders_prefs_key,
             self.use_sphere_shaders_default)
@@ -318,7 +318,7 @@ class GLPrefs:
         return
 
     # ==
-    
+
     def materialprefs_summary(self): #bruce 051126  ### TODO: RENAME; refactor to connect more strongly to apply_material
         """
         Return a Python data object (which can be correctly compared using '==')
@@ -343,7 +343,7 @@ class GLPrefs:
         @note: only valid if self.update() has been called recently.
         """
         # bruce 090305 rewrote docstring to explain the purpose better.
-        
+
         #### todo: optimizations (not urgent except for user experience
         #      when adjusting these prefs on a large model):
         #
@@ -382,7 +382,7 @@ class GLPrefs:
         # If in doubt, including too much is better since it only slows down
         # prefs changes, whereas including too little causes bugs of lack of
         # chunk appearance update when it's required.
-        
+
         res = (self.enable_specular_highlights,)
         if self.enable_specular_highlights:
             res = res + ( self.specular_shininess,

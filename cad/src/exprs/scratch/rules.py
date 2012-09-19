@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 rules.py
 
@@ -70,7 +70,7 @@ def rules_in_series(r1, r2):
     def res(thing, r1=r1, r2=r2):
         try:
             return r1(thing)
-        except RuleFailedException: # note this 
+        except RuleFailedException: # note this
             return r2(thing)
         pass
     return res
@@ -101,7 +101,7 @@ class rules_in_series(RuleOp):
 # Note a lot of them will be modified views of a big main one in the env.
 # Note someday it'll do compiling and other fancy stuff too... and something else I just forgot I wanted to say... oh yeah, weak index-part handling
 # maybe type coercion too... and easy formation of incrly modified versions...
-# 
+#
 
 
 # ... what about some example rules?
@@ -117,7 +117,7 @@ class VertexViewer(...):
     vertex = Arg(Vertex) # requires arg to be a Vertex object... hmm, do we say it has to be an Instance of one, already??
         # that means it has a pos, rel to whatever obj the vertex type is rel to... but how do we capture that idea
         # that Vertex is really a parametrized type? well, put that off for now since it's not one in demo_drag.py (safe??)
-    
+
     delegate = Translate( Rect(0.2, color = vertex.color), vertex.pos ) # or so
     pass
 
@@ -208,12 +208,12 @@ WithViewRule( expr, Rule(Vertex, VertexView)) # use this form
     # this form of Rule(type, func) can be general if we say that type can be fancy, as long as it returns False or (True, *args)
     # with *args passed as extra args to func! Not sure if that way of fancification makes sense... ok for now,
     # since there'll be few enough of these (for some time from now) that changing them all in name or syntax would be ok.
-    
+
     # BTW can a func, or an exprhead needing one arg, be interchangeable here? I hope so and guess so, but don't know for sure,
     # and I doubt it's already implemented. It might require instantiating such an expr without its arg, getting a func
     # that wants an arg instance! But then I'd worry about whether erroneous uses of that feature could be detected.
     # Maybe they could by attr access too early... or maybe the argslot would have to specifically permit this kind of instantiation.
-    
+
 class Rule(FunctionExpr): # FunctionExpr means it instantiates into a function, and has the __call__ interface to self.apply
         #e or we might decide that any sort of expr can define apply, with that meaning on its instances
         # (if so should we rename apply to _e_apply or _i_apply or so? probably _i_apply.)
@@ -375,4 +375,4 @@ def _viewer_for_object(obj, essential_data = None): #####@@@@@ CALL ME
 
 
 
-# end 
+# end

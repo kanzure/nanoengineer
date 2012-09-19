@@ -29,8 +29,8 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
 
     #see self.connect_or_disconnect_signals for comment about this flag
     isAlreadyConnected = False
-    
-     
+
+
     def connect_or_disconnect_signals(self, connect):
         """
         Connect the slots in the Property Manager.
@@ -138,7 +138,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         """
         msg = self.getOpenMovieFileInfo()
         self.updateMessage(msg)
-        _superclass.show(self)        
+        _superclass.show(self)
 
 # ==
 

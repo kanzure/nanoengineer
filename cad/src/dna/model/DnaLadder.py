@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 DnaLadder.py - automatically recognized guide objects for understanding PAM DNA
 duplexes, sticky end regions, and single strands.
@@ -13,9 +13,9 @@ The PAM atoms in any PAM DNA structure will be internally divided into
 "ladders", in which all the bonding strictly follows the pattern
 
  ...  -+-+-+-+-+-+-> ... (strand 1)
-       | | | | | | 
+       | | | | | |
  ...  -+-+-+-+-+-+-  ... (axis; missing for free-floating single strand)
-       | | | | | | 
+       | | | | | |
  ... <-+-+-+-+-+-+-  ... (strand 2; missing for any kind of single strand)
 
 (with the strand bond directions antiparallel and standardized
@@ -119,7 +119,7 @@ from dna.updater.dna_updater_globals import rail_end_atom_to_ladder
 class DnaLadder(object, DnaLadder_pam_conversion_methods):
     """
     [see module docstring]
-        
+
     @note: a valid ladder is not always in
     correspondence with atom chunks for its rails
     (since the chunks are only made or fixed after ladder merging),
@@ -154,19 +154,19 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
 
     def baselength(self):
         return len(self.axis_rail)
-    
+
     def __len__(self):
         return self.baselength()
-    
+
     def __nonzero__(self): # 080311
         # avoid Python calling __len__ for this [review: need __eq__ as well?]
         return True
-    
+
     def add_strand_rail(self, strand_rail): # review: _f_, since requires a lot of calling code?
         """
         This is called while constructing a dna ladder (self)
         which already has an axis rail and 0 or 1 strand rails.
-        
+
         Due to how the calling code works, it's guaranteed
         that the atomlist in the new strand rail corresponds to that
         in the existing axis rail, either directly or in reverse order --
@@ -187,7 +187,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         if _DEBUG_REVERSE_STRANDS():
             strand_rail.debug_check_bond_direction("in %r.add_strand_rail" % self)
         return
-    
+
     def finished(self): # Q. rename to 'finish'?
         """
         This is called once to signify that construction of self is done
@@ -230,7 +230,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         del axis_left_end_baseatom # would be wrong after the following code
         self._finish_strand_rails()
         return
-    
+
     def _finish_strand_rails(self): # also used in DnaSingleStrandDomain
         """
         verify strand bond directions are antiparallel, and standardize them;
@@ -272,7 +272,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             else:
                 if have_dir != desired_dir:
                     # need to reverse all rails in this ladder (if we're first strand,
-                    #  or if dir is arb since len is 1) 
+                    #  or if dir is arb since len is 1)
                     # or report error (if we're second strand)
                     if strand_rail.bond_direction_is_arbitrary():
                         if _DEBUG_REVERSE_STRANDS():
@@ -347,7 +347,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         """
         self.error = error_string # REVIEW: more? relation to valid?
         return
-    
+
     def _duplex_geometric_checks(self):
         """
         Set (or append to) self.error, if self has any duplex geometric errors.
@@ -366,7 +366,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                 strand2_atoms.reverse()
                 self._check_geom( axis_atoms, strand2_atoms, strand1_atoms)
         return
-    
+
     def _check_geom(self, axis_atoms, strand1_atoms, strand2_atoms ):
         """
         Check the first 4 atoms (out of 6 passed to us, as 3 lists of 2)
@@ -424,7 +424,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
 
     def num_strands(self):
         return len(self.strand_rails)
-    
+
     def _ladder_set_valid(self, val):
         if val != self.valid:
             self.valid = val
@@ -469,7 +469,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                 # tell the next run of the dna updater we're invalid
                 _f_invalid_dna_ladders[id(self)] = self
         return
-    
+
     def rail_end_baseatoms(self):
         # rename? end_baseatoms is logical, but occurs too much in other code.
         # ladder_end_baseatoms is good too, but is too confusable
@@ -495,7 +495,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         # note: one of these is called from dna updater and from
         # DnaLadderRailChunk.delatom, so changed atoms inval their
         # entire ladders
-    
+
     def ladder_invalidate_and_assert_permitted(self): #bruce 080413
         dnaladder_inval_policy = get_dnaladder_inval_policy()
         if dnaladder_inval_policy != DNALADDER_INVAL_IS_OK:
@@ -508,7 +508,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         dnaladder_inval_policy = get_dnaladder_inval_policy()
         if dnaladder_inval_policy == DNALADDER_INVAL_IS_OK:
             # usual case should be fastest
-            self._ladder_set_valid(False)            
+            self._ladder_set_valid(False)
         elif dnaladder_inval_policy == DNALADDER_INVAL_IS_NOOP_BUT_OK:
             print "fyi: disabled inval of %r" % self ### remove when works, or put under debug_flags
             pass # don't invalidate it
@@ -526,14 +526,14 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         return
 
     # ==
-    
+
     def get_ladder_end(self, endBaseAtom): # by Ninad # todo: rename to indicate it gets it from an atom, not an end-index
         """
         Return the end (as a value in LADDER_ENDS) of the ladder self
         which has the given end base atom, or None if the given atom
         is not one of self's end_baseatoms. (If self has length 1, either
         end might be returned.)
-        
+
         @param endBaseAtom: One of the end atoms of the ladder (or any
                             other value, for which we will return None,
                             though passing a non-Atom is an error).
@@ -541,9 +541,9 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         for ladderEnd in LADDER_ENDS:
             if endBaseAtom in self.ladder_end_atoms(ladderEnd):
                 return ladderEnd
-        
+
         return None
-    
+
     def get_endBaseAtoms_containing_atom(self, baseAtom): # by Ninad
         """
         Returns a list of end base atoms that contain <baseAtom> (including that
@@ -562,29 +562,29 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         if len(endBaseAtomList) > 2:
             end_strand_base_atoms = (endBaseAtomList[0], endBaseAtomList[2])
         else:
-            #@TODO: single stranded dna. Need to figure out if it has 
+            #@TODO: single stranded dna. Need to figure out if it has
             #strand1 or strand2 as its strand.
             # [always strand1, it guarantees this. --bruce]
             pass
-        
+
         strand1Atom = None
         axisAtom =  endBaseAtomList [1]
         strand2Atom = None
-        for atom in end_strand_base_atoms:     
+        for atom in end_strand_base_atoms:
             if atom is not None:
-                temp_strand = atom.molecule        
+                temp_strand = atom.molecule
                 rail = temp_strand.get_ladder_rail()
-                #rail goes from left to right. (increasing chain index order)                
-                
+                #rail goes from left to right. (increasing chain index order)
+
                 if rail.bond_direction() == 1:
                     strand1Atom = atom
                 elif rail.bond_direction() == -1:
                     strand2Atom = atom
-     
+
         endBaseAtomList = [strand1Atom, axisAtom, strand2Atom]
-        
-        return endBaseAtomList                
-     
+
+        return endBaseAtomList
+
     def is_ladder_end_baseatom(self, baseAtom):
         """
         Returns true if the given atom is an end base atom of a ladder (either
@@ -593,7 +593,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         for ladderEnd in LADDER_ENDS:
             if endBaseAtom in self.ladder_end_atoms(ladderEnd):
                 return True
-        
+
         return False
 
     def whichrail_and_index_of_baseatom(self, baseatom): # bruce 080402
@@ -667,7 +667,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         return self.strand_rails[whichrail / 2]
 
     # == ladder-merge methods
-    
+
     def can_merge(self):
         """
         Is self valid, and mergeable (end-end) with another valid ladder?
@@ -684,21 +684,21 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
             if other_ladder_and_merge_info:
                 return other_ladder_and_merge_info
         return None
-    
+
     def do_merge(self, other_ladder_and_merge_info):
         """
         Caller promises that other_ladder_and_merge_info was returned by
         self.can_merge() (and is not None).
         Do the specified permitted merge (with another ladder, end to end,
         both valid).
-        
+
         Invalidate the merged ladders; return the new valid ladder
         resulting from the merge.
         """
         other_ladder, merge_info = other_ladder_and_merge_info
         end, other_end = merge_info
         return self._do_merge_with_other_at_ends(other_ladder, end, other_end)
-    
+
     def _can_merge_at_end(self, end): # TODO: update & clean up docstring
         """
         Is the same valid other ladder (with no error) attached to each rail of self
@@ -710,9 +710,9 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         be length==1 (in which case only end 0 is mergeable, as an
         arbitrary decision to make only one case mergeable), ### OR we might use bond_dir, then use both cases again
         and that the other ladder might only merge when flipped.
-        
+
         Also note that bond directions (on strands) need to match. ### really? are they always set?
-        
+
         TODO: Also worry about single-strand regions. [guess: just try them out here, axis ends are None, must match]
         """
         # algorithm:
@@ -773,7 +773,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         ## if self.num_strands() != other.num_strands():
         ##    return None # optimization
         ## #e could also check axis present or not, same in both
-        
+
         # try each orientation for other ladder;
         # first collect the atoms to test for bonding to other
         self_end_atoms = self.ladder_end_atoms(end)
@@ -873,7 +873,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         if reverse:
             res0.reverse() #e could optim by xoring those booleans
         return res0
-    
+
     def __repr__(self):
         ns = self.num_strands()
         if ns == 2:
@@ -896,7 +896,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         """
         Merge two ladders, at specified ends of each one:
         self, at end, with other, at other_end.
-        
+
         Invalidate the merged ladders; return the new valid ladder
         resulting from the merge.
         """
@@ -1001,7 +1001,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                    right_mark
                    for baseatoms in baseatom_lists]
         return "\n".join([label] + strings)
-    
+
     # ==
 
     def all_rails(self):
@@ -1023,12 +1023,12 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         [implem is subclass-specific]
         """
         return [self.axis_rail]
-    
+
     def all_rail_slots_from_top_to_bottom(self):
         """
         Return a list of all our rails (axis and 1 or 2 strands), in top to bottom order,
         using None for missing rails.
-        
+
         [implem is subclass-specific]
         """
         if len(self.strand_rails) == 2:
@@ -1048,7 +1048,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         pass
 
     # ==
-    
+
     def remake_chunks(self, rails = None):
         """
         Make new chunks for self, as close to the old chunks as we can
@@ -1056,7 +1056,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
 
         @param rails: list of rails of self to make them for, or None (default)
                       to make them for all rails of self
-        
+
         @return: list of all newly made (by this method) DnaLadderRailChunks
                  (or modified ones, if that's ever possible)
         """
@@ -1175,7 +1175,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         [subclasses with interior bondpoints must override this implem]
         """
         return self.rail_end_baseatoms() # for duplex ladders
-    
+
     # == chunk access methods
 
     def strand_chunks(self):
@@ -1207,7 +1207,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         return [rail.baseatoms[0].molecule for rail in self.all_rails()]
 
     # == convenience methods
-    
+
     def kill_strand_chunks(self):
         """
         Kill all the strand chunks (DnaStrandChunk objects) of this DnaLadder.
@@ -1234,7 +1234,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         for chunk in self.axis_chunks():
             chunk.kill()
         return
-    
+
     def kill_all_chunks(self):
         """
         Kill all the strand and axis chunks (DnaLadderRailChunk objects) of this DnaLadder.
@@ -1248,13 +1248,13 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         for chunk in self.all_chunks():
             chunk.kill()
         return
-    
+
     # ==
 
     def dnaladder_menu_spec(self, selobj): #bruce 080401, renamed 080407, split 080409
         """
         [called by menu_spec methods for various selobj classes]
-        
+
         Return a menu_spec list of context menu entries specific to selobj being
         a PAM atom or chunk whose DnaLadder is self. (If we have no entries,
         return an empty menu_spec list, namely [].)
@@ -1344,7 +1344,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         Always return them in the order strand1-left,
         strand1-right, strand2-left, strand2-right, even if this list
         contains None (for an end there), self, or the same ladder twice.
-        
+
         The length of the returned list is always exactly twice the number of
         strand rails of self.
 
@@ -1390,7 +1390,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
         next_atom = end_atom.strand_next_baseatom(bond_direction = bond_direction_to_other)
             # (note: strand_next_baseatom returns None if end_atom or the atom it
             #  might return has ._dna_updater__error set, or if it reaches a non-Ss atom.)
-        if next_atom is not None:            
+        if next_atom is not None:
             return rail_end_atom_to_ladder(next_atom)
                 # note: if self.error is set due to wrong strand directions,
                 # then we may have looked in the wrong bond direction for
@@ -1398,7 +1398,7 @@ class DnaLadder(object, DnaLadder_pam_conversion_methods):
                 # in which case this will raise an exception.
                 # [bruce 080523 comment]
         return None
-        
+
     pass # end of class DnaLadder
 
 # ==
@@ -1420,8 +1420,8 @@ class DnaSingleStrandDomain(DnaLadder):
     in terms of ability to interface with other code.
     """
     valid = False # same as in super; set to True in _finish_strand_rails
-    
-    def __init__(self, strand_rail):        
+
+    def __init__(self, strand_rail):
         self.axis_rail = None
         self.assy = strand_rail.baseatoms[0].molecule.assy
         self.strand_rails = [strand_rail]
@@ -1429,35 +1429,35 @@ class DnaSingleStrandDomain(DnaLadder):
         self._finish_strand_rails()
             # check bond direction, reverse if needed
         return
-    
+
     def baselength(self):
         return len(self.strand_rails[0])
-    
+
     def finished(self):
         assert 0, "illegal in this class" # or could be a noop
-        
+
     def add_strand_rail(self, strand_rail):
         assert 0, "illegal in this class"
-        
+
     def all_rails(self):
         """
         Return a list of all our rails (1 strand).
         [implem is subclass-specific]
         """
         return self.strand_rails
-    
+
     def axis_rails(self):
         """
         Return a list of all our axis rails (none, in this subclass).
         [implem is subclass-specific]
         """
         return []
-    
+
     def all_rail_slots_from_top_to_bottom(self):
         """
         Return a list of all our rails (1 strand), in top to bottom order,
         using None for missing rails (so length of return value is 3).
-        
+
         [implem is subclass-specific]
         """
         return [self.strand_rails[0], None, None]
@@ -1475,7 +1475,7 @@ class DnaSingleStrandDomain(DnaLadder):
         [overrides duplex implem in superclass]
         """
         return self.strand_rails[0].baseatoms
-        
+
     def __repr__(self):
         ns = self.num_strands()
         if ns == 1:
@@ -1502,7 +1502,7 @@ def _end_to_end_bonded( atom1, atom2, strandQ):
     param atom1: an end atom of a ladder rail, or None (for a missing rail in a ladder)
 
     param atom2: like atom1, for a possibly-adjacent ladder
-    
+
     param strandQ: whether these atoms are part of strand rails (vs axis rails).
     type strandQ: boolean
     """
@@ -1522,7 +1522,7 @@ def _end_to_end_bonded( atom1, atom2, strandQ):
     else:
         return False
 
-def strand_atoms_are_bonded_by_Pl(atom1, atom2): #e refile 
+def strand_atoms_are_bonded_by_Pl(atom1, atom2): #e refile
     """
     are these two strand base atoms bonded (indirectly) by means of
     a single intervening Pl atom (PAM5)?
@@ -1593,7 +1593,7 @@ def _new_ladder(new_rails):
     """
     Make a new DnaLadder of the appropriate subclass,
     given 3 new rails-or-None in top to bottom order.
-    
+
     @param new_rails: a sequence of length 3; each element is a new rail,
                       or None; top to bottom order.
     """

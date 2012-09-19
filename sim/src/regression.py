@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details.
 
 """run regression tests
 

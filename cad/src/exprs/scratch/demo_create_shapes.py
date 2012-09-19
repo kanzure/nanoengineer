@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 demo_create_shapes.py -- some demo commands for creating shapes in the model.
 
@@ -101,7 +101,7 @@ class StandardSketchEntityCreatorCommand(InstanceOrExpr):
     ##e customizations = Option(Customizations) ###IMPLEM that type, and whatever we do about it in here... see customization below
     #
     fields = expr._e_state_fields ### seems wrong -- how would it know? instead, get the types, let env make them into fields ####e
-        # [besides the problem with making a getattr_Expr due to the _e_] 
+        # [besides the problem with making a getattr_Expr due to the _e_]
     field_editor_group = StandardFieldEditorGroup(fields) ###IMPLEM
     property_manager_groups = [field_editor_group] #e more? btw, don't we want to subdivide the fields into groups?
         ###e what we *really* want is to be able to apply user (or developer) customization data

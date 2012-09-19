@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 ModelTree.py -- owner and external interface to the NE1 model tree
 (which is implemented as several objects by the modules in this
@@ -31,7 +31,7 @@ might therefore be:
 
 - modelTreeGui.py (display and update, event handling, and some
   conventions suitable for all our tree widgets, if we define other ones), and
-  
+
 - modelTree.py (customized for showing "the NE1 model tree" per se).
 
 Bruce later rewrote much of modelTreeGui.py, and has added lots
@@ -66,7 +66,7 @@ class ModelTree(object):
         #doc
         """
         self._treemodel = TreeModel(self, win)
-        
+
         self.modelTreeGui = ModelTreeGui(win, name, self._treemodel, parent)
             # public member; review: maybe it ought to have a special name
             # (or get-method) just for its public purpose, so this attr could
@@ -74,7 +74,7 @@ class ModelTree(object):
 
         self.mt_update()
         return
-    
+
     def mt_update(self):
         return self.modelTreeGui.mt_update()
 
@@ -85,16 +85,16 @@ class ModelTree(object):
         """
         self.modelTreeGui.repaint_some_nodes(nodes)
         return
-    
+
     def setMinimumSize(self, h, w):
         return self.modelTreeGui.setMinimumSize(h, w)
-    
+
     def setMaximumWidth(self, w): #k might not be needed
         return self.modelTreeGui.setMaximumWidth(w)
-    
+
     def setColumnWidth(self, column, w):
         return self.modelTreeGui.setColumnWidth(column, w)
-    
+
     def setGeometry(self, w, h): #k might not be needed
         return self.modelTreeGui.setGeometry(QtCore.QRect(0,0,w,h))
 

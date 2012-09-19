@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 lambda_Expr.py
 
@@ -18,7 +18,7 @@ if 0: # excerpt from test.py
                                          testexpr_19b ))
     ###EVAL_REFORM ###BUG: testexpr_19b is not instantiated (when we eval the call_Expr and ask for thing.world) but needs to be.
 
-    
+
     # Since this whole syntax was a kluge, I should not worry much about making it or something similar still work,
     # but should instead make a better toplevel syntax for the desired effect, and make *that* work.
     # I guess that's a lambda wrapper which can have the effect of Arg/Instance decls on the lambda args...

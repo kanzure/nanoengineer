@@ -1,11 +1,11 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
-PovraySceneProp.py - the PovraySceneProp class, including all methods 
+PovraySceneProp.py - the PovraySceneProp class, including all methods
 needed by the POV-Ray Scene dialog.
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -53,16 +53,16 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         in the Model Tree.</p>""")
         self.output_type_combox.setWhatsThis("""<b>Image Format </b>- the output image format when rendering
         an image from this POV-Ray Scene file.""")
-        
+
     def setup(self, pov=None):
         """
-        Show the Properties Manager dialog. If <pov> is supplied, 
+        Show the Properties Manager dialog. If <pov> is supplied,
         get the parameters from it and load the dialog widgets.
         """
         if not self.win.assy.filename:
             env.history.message( self.cmdname + redmsg("Can't insert POV-Ray Scene until the current part has been saved.") )
             return
-        
+
         if not pov:
             self.node_is_new = True
             from model.PovrayScene import PovrayScene
@@ -70,15 +70,15 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         else:
             self.node_is_new = False
             self.node = pov
-            
+
         self.name = self.originalName = self.node.name
         ini, self.originalPov, out = self.node.get_povfile_trio()
         self.width, self.height, self.output_type = self.node.get_parameters()
-            
+
         self.update_widgets()
         self.previousParams = params = self.gather_parameters()
         self.show()
-           
+
     def gather_parameters(self):
         """
         Returns a tuple with the current parameter values from the widgets.
@@ -90,7 +90,7 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         height = self.height_spinbox.value()
         output_type = str(self.output_type_combox.currentText()).lower()
         return (name, width, height, output_type)
-    
+
     def update_widgets(self):
         """
         Update the widgets using the current attr values.
@@ -98,12 +98,12 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         self.name_linedit.setText(self.name)
         self.output_type_combox.setItemText(self.output_type_combox.currentIndex(),
                                                                             self.output_type.upper())
-        
+
         # This must be called before setting the values of the width and height spinboxes. Mark 060621.
         self.aspect_ratio = float(self.width) / float(self.height)
         aspect_ratio_str = "%.3f to 1" % self.aspect_ratio
         self.aspect_ratio_value_label.setText(aspect_ratio_str)
-        
+
         self.width_spinbox.setValue(self.width) # Generates signal.
         self.height_spinbox.setValue(self.height) # Generates signal.
 
@@ -112,31 +112,31 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         Update the POV-Ray Scene node.
         """
         self.set_params( self.node, self.gather_parameters())
-        
+
         ini, pov, out = self.node.get_povfile_trio()
-        
+
         # If the node was renamed, rename the POV-Ray Scene file name, too.
         # Don't do this if the "Preview" button was pressed since the user could later
-        # hit "Cancel". In that case we'd loose the original .pov file, which would not be good. 
+        # hit "Cancel". In that case we'd loose the original .pov file, which would not be good.
         # Mark 060702.
         if ok_pressed and self.originalName != self.node.name:
             if os.path.isfile(self.originalPov):
                 if os.path.isfile(pov):
-                    # Normally, I'd never allow the user to delete an existing POV-Ray Scene file without asking. 
+                    # Normally, I'd never allow the user to delete an existing POV-Ray Scene file without asking.
                     # For A8 I'll allow it since I've run out of time.
                     # This will be fixed when Bruce implements the new File class in A9 (or later). Mark 060702.
                     os.remove(pov)
                 os.rename(self.originalPov, pov)
-                
-        # Write the POV-Ray Scene (.pov) file if this is a new node or if the node's ".pov" file doesn't exist. 
+
+        # Write the POV-Ray Scene (.pov) file if this is a new node or if the node's ".pov" file doesn't exist.
         # Possible ways the ".pov" file could be missing from an existing node:
-        #   1. the user renamed the node in the Model Tree, or 
+        #   1. the user renamed the node in the Model Tree, or
         #   2. the POV-Ray Scene node was deleted, which deletes the file in self.kill(), and then Undo was pressed, or
         #   3. the ".pov" file was deleted by the user another way (via OS).
         # In the future, the POV-Ray Scene should save the view quat in the MMP (info) record. Then it
-        # would always be possible to regenerate the POV-Ray Scene file from the MMP record, even if  
+        # would always be possible to regenerate the POV-Ray Scene file from the MMP record, even if
         # the node's .pov file didn't exist on disk anymore. Mark 060701.
-        
+
         if self.node_is_new or not os.path.exists(pov):
             errorcode, filename_or_errortext = self.node.write_povrayscene_file()
             if errorcode:
@@ -157,14 +157,14 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
             # are also known to the node itself, for use in its mmp record format. Probably that's irrelevant
             # and we should still make this change during the next cleanup of these files. ###@@@ [bruce 060620 comment]
         return
-    
+
     def remove_node(self):
         """
         Delete this POV-Ray Scene node.
         """
         if self.node != None:
             #&&& self.node.kill(require_confirmation = False)
-            # This version prompts the user to confirm deleting the node if its file exists (usually). 
+            # This version prompts the user to confirm deleting the node if its file exists (usually).
             self.node.kill() # Assume the user wants to delete the node's POV-Ray Scene file.
             self.node = None
             self.win.mt.mt_update()
@@ -176,21 +176,21 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         Slot for the OK button
         """
         self.win.assy.current_command_info(cmdname = self.cmdname)
-        
+
         self.update_node(ok_pressed = True)
-        
+
         if self.node_is_new:
             self.win.assy.addnode(self.node)
-            
+
         self.node.update_icon() # In case we rewrote a lost POV-Ray Scene file in update_node().
         self.win.mt.mt_update()
-            # Update model tree regardless whether it is a new node or not, 
+            # Update model tree regardless whether it is a new node or not,
             # since the user may have changed the name of an existing POV-Ray Scene node.
-        
+
         env.history.message(self.cmdname + self.done_msg())
         self.node = None
         QDialog.accept(self)
-        
+
     def done_msg(self):
         """
         Returns the message to print after the OK button has been pressed.
@@ -202,7 +202,7 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
                 return "%s updated." % self.name
             else:
                 return "%s unchanged." % self.name
-        
+
     def cancel_btn_clicked(self):
         """
         Slot for Cancel button.
@@ -212,23 +212,23 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
             self.remove_node()
         else:
             self.set_params(self.node, self.previousParams)
-        QDialog.accept(self)   
-    
+        QDialog.accept(self)
+
     def restore_defaults_btn_clicked(self):
         """
         Slot for Restore Defaults button.
         """
         self.name, self.width, self.height, self.output_type = self.previousParams
         self.update_widgets()
-            
+
     def preview_btn_clicked(self):
         """
         Slot for Preview button.
         """
         self.update_node()
-        
+
         self.node.raytrace_scene()
-        
+
         #&&& Should we print history message in this method or return the errorcode and text so the caller
         #&&& can decide what to do? I think it would be better to display the history msg in raytrace_scene. Mark 060701.
         #&&&errorcode, errortext = self.node.raytrace_scene()
@@ -236,13 +236,13 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         #&&&    env.history.message( self.cmdname + redmsg(errortext) )
         #&&&else:
         #&&&    env.history.message( self.cmdname + errortext ) # "Rendering finished" message.
-        
+
     def whatsthis_btn_clicked(self):
         """
         Slot for the What's This button
         """
         QWhatsThis.enterWhatsThisMode()
-    
+
 # Property manager widget slots.
 
     def change_width(self, width):
@@ -251,7 +251,7 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         """
         self.width = width
         self.update_height()
-        
+
     def update_height(self):
         """
         Updates height when width changes
@@ -260,14 +260,14 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         self.disconnect(self.height_spinbox,SIGNAL("valueChanged(int)"),self.change_height)
         self.height_spinbox.setValue(self.height)
         self.connect(self.height_spinbox,SIGNAL("valueChanged(int)"),self.change_height)
-    
+
     def change_height(self, height):
         """
         Slot for Height spinbox
         """
         self.height = height
         self.update_width()
-        
+
     def update_width(self):
         """
         Updates width when height changes
@@ -276,7 +276,7 @@ class PovraySceneProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_PovrayScen
         self.disconnect(self.width_spinbox,SIGNAL("valueChanged(int)"),self.change_width)
         self.width_spinbox.setValue(self.width)
         self.connect(self.width_spinbox,SIGNAL("valueChanged(int)"),self.change_width)
-        
+
 # Property Manager groupbox button slots
 
     def toggle_grpbtn_1(self):

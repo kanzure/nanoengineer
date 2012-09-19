@@ -51,7 +51,7 @@ def atom_is_anchored(atom):
         if jig.anchors_atom(atom): # as of 050321, true only for Anchor jigs
             res = True # but continue, so as to debug this new method anchors_atom for all jigs
     return res
-    
+
 class sim_aspect:
     """
     Class for a "simulatable aspect" (portion, more or less) of a Part.
@@ -240,10 +240,10 @@ class sim_aspect:
         """
         ### @@@ this is currently WRONG for some bondpoint_policy values;
         # REVIEW ALL USES [bruce 080507/080603 comment]
-        
+
         # review: should this just be the number that were in _moving_atoms
         # (guess yes), or in other dicts too? [bruce 080507 Q]
-        
+
         return 0 # for now
 
     def writemmpfile(self, filename, **mapping_options):
@@ -268,7 +268,7 @@ class sim_aspect:
             #   affects mapping attrnames in chem.py atom.writemmp)
             #bruce 051031 comment: it seems wrong that this class assumes min = True
             # (rather than being told this in __init__). ###@@@
-        mapping.set_fp(fp)    
+        mapping.set_fp(fp)
         # note that this mmp file doesn't need any grouping or chunking info at all.
         try:
             mapping.write_header() ###e header should differ in this case
@@ -307,7 +307,7 @@ class sim_aspect:
             line = fake_Anchor_mmp_record( these_atoms, mapping) # includes \n at end
             mapping.write(line)
             if debug_sim_aspect:
-                print "debug_sim_aspect: wrote %r" % (line,)           
+                print "debug_sim_aspect: wrote %r" % (line,)
         return
 
     def write_minimize_enabled_jigs(self, mapping): # Mark 051006

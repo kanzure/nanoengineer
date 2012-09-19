@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GridPlaneProp.py
 
@@ -32,47 +32,47 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
         self.glpane = glpane
 
     def setup(self):
-        
+
         self.jig_attrs = self.grid_plane.copyable_attrs_dict() # Save the jig's attributes in case of Cancel.
-        
+
         # Border color
         self.border_color = RGBf_to_QColor(self.grid_plane.normcolor) # Used as default color by Color Chooser
-                
+
         # Grid color
         self.grid_color = RGBf_to_QColor(self.grid_plane.grid_color) # Used as default color by Color Chooser
- 
+
         self.grid_color_pixmap = get_widget_with_color_palette(
             self.grid_color_pixmap, self.grid_color)
-        
+
         self.border_color_pixmap = get_widget_with_color_palette(
             self.border_color_pixmap,self.border_color)
-        
+
         self.name_linedit.setText(self.grid_plane.name)
-        
+
         self.width_spinbox.setValue(self.grid_plane.width)
         self.height_spinbox.setValue(self.grid_plane.height)
         self.x_spacing_spinbox.setValue(self.grid_plane.x_spacing)
         self.y_spacing_spinbox.setValue(self.grid_plane.y_spacing)
-        
+
         self.grid_type_combox.setCurrentIndex(self.grid_plane.grid_type)
         self.line_type_combox.setCurrentIndex(self.grid_plane.line_type)
-        
+
         self._set_xyspacing_enabled(self.grid_plane.grid_type)
 
-        
+
     def _set_xyspacing_enabled(self, grid_type):
         """
-        If <grid_type> == 1, which is SiC type, disable x, y spacing comboBox, otherwise, enable it. 
+        If <grid_type> == 1, which is SiC type, disable x, y spacing comboBox, otherwise, enable it.
         """
         from utilities.prefs_constants import SiC_GRID, SQUARE_GRID
-        
+
         if grid_type == SiC_GRID:
             self.x_spacing_spinbox.setEnabled(False)
             self.y_spacing_spinbox.setEnabled(False)
         else:
             self.x_spacing_spinbox.setEnabled(True)
             self.y_spacing_spinbox.setEnabled(True)
-        
+
 
     def change_grid_type(self, grid_type):
         """
@@ -81,8 +81,8 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
         self.grid_plane.grid_type = grid_type
         self._set_xyspacing_enabled(grid_type)
         self.glpane.gl_update()
-    
-        
+
+
     def change_line_type(self, line_type):
         """
         Slot method to change grid line type
@@ -90,21 +90,21 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
         self.grid_plane.line_type = line_type
         self.glpane.gl_update()
 
-        
+
     def change_grid_color(self):
         """
         Slot method to change grid color.
         """
         color = QColorDialog.getColor(self.grid_color, self)
 
-        if color.isValid():            
+        if color.isValid():
             self.grid_color = color
             self.grid_color_pixmap = get_widget_with_color_palette(
             self.grid_color_pixmap, self.grid_color)
             self.grid_plane.grid_color = QColor_to_RGBf(color)
             self.glpane.gl_update()
 
-            
+
     def change_border_color(self):
         """
         Slot method change border color.
@@ -124,31 +124,31 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
         """
         self.grid_plane.width = float(newWidth)
         self.glpane.gl_update()
-        
+
     def change_height(self, newHeight):
         """
         Slot for Height spinbox
         """
         self.grid_plane.height = float(newHeight)
         self.glpane.gl_update()
-        
+
     def change_x_spacing(self, newXValue):
         """
         Slot for X Spacing spinbox
         """
         self.grid_plane.x_spacing = float(newXValue)
         self.glpane.gl_update()
-        
+
     def change_y_spacing(self, newYValue):
         """
         Slot for Y Spacing spinbox
         """
         self.grid_plane.y_spacing = float(newYValue)
         self.glpane.gl_update()
-        
+
     def accept(self):
         """
-        Slot for the 'OK' button 
+        Slot for the 'OK' button
         """
         self.grid_plane.cancelled = False
         self.grid_plane.try_rename(self.name_linedit.text())
@@ -156,15 +156,15 @@ class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
         self.grid_plane.height = float(self.height_spinbox.value())
         self.grid_plane.x_spacing = float(self.x_spacing_spinbox.value())
         self.grid_plane.y_spacing = float(self.y_spacing_spinbox.value())
-        
+
         self.grid_plane.assy.w.win_update() # Update model tree
         self.grid_plane.assy.changed()
-        
+
         QDialog.accept(self)
-        
+
     def reject(self):
         """
-        Slot for the 'Cancel' button 
+        Slot for the 'Cancel' button
         """
         self.grid_plane.attr_update(self.jig_attrs) # Restore attributes of the jig.
         self.glpane.gl_update()

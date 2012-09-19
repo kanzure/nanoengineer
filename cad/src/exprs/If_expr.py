@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 If_expr.py - provide the expr (or macro) If(cond, _then, _else) and related functions/classes
 
@@ -94,7 +94,7 @@ class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py thi
         return res
     pass
 
-def If_kluge(*args):###e zap or rename 
+def If_kluge(*args):###e zap or rename
     """Use this in place of If when you know you want If to mean If_expr but you worry that the If code might not give it to you yet;
     this always does give it to you, but warns you if If would not have done so.
     [probably not needed anymore]
@@ -114,7 +114,7 @@ def If(cond, _then, _else = None):
     cond = canon_expr(cond)
         # (but not on _then or _else to make this work better for immediate use. (might be deprecated, not sure))
     constflag, condval = expr_constant_value(cond)
-    
+
     if not constflag:
         return If_expr(cond, _then, _else)
             #e maybe this will typecheck cond someday (in a way that would complain if it was a pyclass)
@@ -150,7 +150,7 @@ class If_OpExpr(OpExpr): # 070125 experiment -- can If work as an OpExpr, now th
     #   (digr re that: we might want to wrap the opts with Optional() in such cases... maybe user should do that explicitly....
     #    where should I refile that comment? as it says near testexpr_29 about customization outside of If_expr:
     #    the desire came up in Ribbon2_try1 in new file dna_ribbon_view.py, but devel comments might as well be in If_expr.py [here].)
-    
+
     def _e_init(self):pass # ok for a stub
 
     _e_eval_function = staticmethod( lambda c,t,e: (c and (1,t) or (1,e))[1] )

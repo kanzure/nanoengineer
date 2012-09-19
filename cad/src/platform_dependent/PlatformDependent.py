@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 PlatformDependent.py -- module for platform-specific utilities and constants.
 
@@ -188,16 +188,16 @@ def fix_buttons_helper(self, but, mod, when):
     filtered through this method (actually just a "method helper function").
 
     Arguments:
-    
+
     - self can be the client object; we use it only for storing state
       between calls, namely, self._fix_buttons_saved_buttons.
       The caller need no longer init that to 0.
-      
+
     - 'but' should be the flags from event.stateAfter() or
       event.state(), whichever ones would have the correct set of
       mousebuttons -- this depends on the type of event; see the
       usage in GLPane for an example.
-      
+
     - 'when' should be 'press', 'move', or 'release', according
       to how this function should treat the buttons and modifier keys --
       it will record them for press, and then maintain the same
@@ -211,7 +211,7 @@ def fix_buttons_helper(self, but, mod, when):
     has wrong results, when dialogs intercept some "release" events.
     (Or am I confusing these rumors with ones about key-releases?)
     Should be easy to fix given a repeatable example.
-    
+
     More details: this function does two things:
 
     1. Store all button and modifier-key flags from a mouse-press,
@@ -261,13 +261,13 @@ def fix_buttons_helper(self, but, mod, when):
     if not hasattr(self, '_fix_buttons_saved_buttons'):
         self._fix_buttons_saved_buttons = Qt.NoButton
         self._fix_buttons_saved_modifiers = Qt.NoModifier
-    
+
     # 1. bugfix: make mod keys during drag and button-release the
     # same as on the initial button-press.  Do the same with mouse
     # buttons, if they change during a single drag (though I hope
     # that will be rare).  Do all this before remapping the
     # modkey/mousebutton combinations in part 2 below!
-    
+
     if when == 'press':
         self._fix_buttons_saved_buttons = but & allButtons
         self._fix_buttons_saved_modifiers = mod & allModifiers
@@ -294,7 +294,7 @@ def fix_buttons_helper(self, but, mod, when):
             if _debug and mod0 != mod:
                 print "fyi, debug: fix_buttons rewrote mod0 0x%x to mod 0x%x" % (mod0, mod) #works
         else:
-            
+
             # fyi: This case might happen in the following rare
             # and weird situation: - the user presses another
             # mousebutton during a drag, then releases the first
@@ -321,13 +321,13 @@ def fix_buttons_helper(self, but, mod, when):
     if when == 'release':
         self._fix_buttons_saved_buttons = Qt.NoButton
         self._fix_buttons_saved_modifiers = Qt.NoModifier
-    
+
     # 2. let the Mac's Alt/Option mod key simulate middle mouse button.
     if sys.platform in ['darwin']:
-        
+
 ### please try adding your platform here, and tell me whether it
 ### breaks anything... see below.
-        
+
         # As of 040916 this hasn't been tested on other platforms,
         # so I used sys.platform to limit it to the Mac.  Note
         # that sys.platform is 'darwin' for my MacPython 2.3 and
@@ -340,7 +340,7 @@ def fix_buttons_helper(self, but, mod, when):
         # than Shift or Control) to middleButton.  If it does the
         # latter, maybe we'll decide that's good (for users with
         # less than 3 mouse buttons) and document it.
-        
+
         # -- bruce 040916-17
 
         ## qt4todo('Not sure this is what Bruce intended...') # nope, it crashed! Fixing it using & and ~. bruce 070328
@@ -428,7 +428,7 @@ def path_of_Nanorex_subdir(subdir): #bruce 060614
     nanorex = find_or_make_Nanorex_directory()
     nanorex_subdir = os.path.join(nanorex, subdir)
     return nanorex_subdir
-    
+
 def find_or_make_Nanorex_subdir(subdir, make = True): #bruce 060614 added make arg; revised implem (so subdir can be >1 level deep)
     """
     Find or make a given subdirectory under ~/Nanorex/. It's allowed to be more than one level deep, using '/' separator.
@@ -450,9 +450,9 @@ def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #
     """
     Find or make the given directory, making containing directories as needed unless make_higher_dirs is False.
     If <make> is False, don't make it, only find it, and make sure it's really a directory.
-    
+
     Return (errorcode, message), where:
-        - on success, return (0, the full and normalized path of <dirname>), 
+        - on success, return (0, the full and normalized path of <dirname>),
             or if <make> is False and <dirname> does not exist, return (0, None).
         - on error, return (1, errormsg).
     """
@@ -464,7 +464,7 @@ def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #
         return 1, "[%s] exists but is not a directory" % (dirname,)
     # not there
     if not make:
-        return 0, None # This isn't an error since <make> is False and <dirname> does not exist. 
+        return 0, None # This isn't an error since <make> is False and <dirname> does not exist.
     # try to make it; first make sure parent is there, only making it if make_higher_dirs is true.
     parent, basedir = os.path.split(dirname)
     if not parent or parent == dirname:
@@ -531,7 +531,7 @@ def find_plugin_dir(plugin_name):
     pass
 
 # ==
-    
+
 _histfile = None
 _histfile_timestamp_string = None
     #bruce 060614 kluge -- record this for use in creating other per-session unique directory names
@@ -669,7 +669,7 @@ def fix_plurals(text, between = 1):
 
             ## suflen = ( (not word.endswith("(s)")) and 1) or 0 # klugier and klugier
             suflen = len( word.split('(s)', 1)[1] ) # length of everything after '(s)' #bruce 080201
-            
+
             count += 1
             if numpos >= 0 and (i-numpos) <= (between+1): # not too far back
                 # fix word for whether number is 1
@@ -764,7 +764,7 @@ def screen_pos_size(): ###e this copies code in main.py -- main.py should call t
     # Create desktop widget to obtain screen resolution
     dtop = QDesktopWidget()
     screensize = QRect (dtop.screenGeometry (0))
-    
+
     if is_macintosh():
         # menubar_height = 44 was measured (approximately) on an iMac G5 20 inch
         # screen; I don't know if it's the same on all Macs (or whether it can
@@ -773,13 +773,13 @@ def screen_pos_size(): ###e this copies code in main.py -- main.py should call t
         menubar_height = 44
     else:
         menubar_height = 0
-    
+
     screen_w = screensize.width()
     screen_h = screensize.height() # of which menubar_height is in use at the top
 
     x,y = 0,0
     w,h = screen_w, screen_h
-    
+
     y += menubar_height
     h -= menubar_height
 
@@ -800,12 +800,12 @@ def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
         if hflag:
             env.history.message(redmsg(msg))
         return
-        
+
     editor_and_args = get_text_editor()
         # a list of editor name and 0 or more required initial arguments [bruce 050704 revised API]
     editor = editor_and_args[0]
     initial_args = list( editor_and_args[1:] )
-        
+
     if os.path.exists(editor):
         args = [editor] + initial_args + [file]
         if debug_flags.atom_debug:
@@ -825,7 +825,7 @@ def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
         if hflag:
             env.history.message(redmsg(msg))
     return
-            
+
 def get_text_editor(): #bruce 050704 revised API
     """
     Returns a list of the name and required initial shell-command-line arguments (if any) of a text editor for this platform.
@@ -850,18 +850,18 @@ def get_rootdir():
         rootdir = "C:/"
     else: # Linux and MacOS
         rootdir = "/"
-    
+
     return rootdir
 
 def get_gms_name():
     """
-    Returns either GAMESS (Linux or MacOS) or PC GAMESS (Windows). 
+    Returns either GAMESS (Linux or MacOS) or PC GAMESS (Windows).
     """
     if sys.platform == 'win32': # Windows
         gms_name = "PC GAMESS"
     else: # Linux and MacOS
         gms_name =  "GAMESS"
-    
+
     return gms_name
 
 def find_pyrexc():

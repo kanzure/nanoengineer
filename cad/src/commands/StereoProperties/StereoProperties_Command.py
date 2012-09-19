@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 @author:    Piotr
 @version:   $Id$
@@ -13,28 +13,28 @@ from commands.StereoProperties.StereoProperties_PropertyManager import StereoPro
 
 class StereoProperties_GraphicsMode(SelectChunks_GraphicsMode ):
     """
-    Graphics mode for StereoProperties command. 
+    Graphics mode for StereoProperties command.
     """
     pass
 
 # == Command part
 
-class StereoProperties_Command(SelectChunks_Command): 
+class StereoProperties_Command(SelectChunks_Command):
     """
 
     """
-       
+
     # class constants
     GraphicsMode_class = StereoProperties_GraphicsMode
     PM_class = StereoProperties_PropertyManager
-    
+
     commandName = 'STEREO_PROPERTIES'
     featurename = "Stereo View Properties"
     from utilities.constants import CL_GLOBAL_PROPERTIES
     command_level = CL_GLOBAL_PROPERTIES
-   
-    command_should_resume_prevMode = True 
+
+    command_should_resume_prevMode = True
     command_has_its_own_PM = True
 
     flyoutToolbar = None
-    
+

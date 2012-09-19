@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
    PackageDependency.py
@@ -27,7 +27,7 @@
    the GraphViz package.
 
    http://www.graphviz.org
-   
+
 """
 
 import sys
@@ -184,7 +184,7 @@ def dotReplacement(moduleName):
     if (ret == "edge"):
         return "_edge"
     return ret
-    
+
 def moduleToDotNode(moduleName, returnPackageName):
     if (returnPackageName):
         if (moduleName in libraryReferences):
@@ -351,13 +351,13 @@ def initializeGlobals():
     global referencedModules
     global fromModuleCount
     global toModuleCount
-    
+
     allProcessedModules = set([])
     referencedModules = set([])
 
     fromModuleCount = {}
     toModuleCount = {}
-    
+
 
 def pruneTree():
     global pruneModules
@@ -379,7 +379,7 @@ def pruneTree():
                 prunedModuleList += [prunedModule]
     pruneModules += prunedModuleList
     pruneCount += len(prunedModuleList)
-    
+
     unreferencedModulesList = allProcessedModules.difference(referencedModules)
     if (optionPrintUnreferenced):
         unreferencedModulesList = unreferencedModulesList.difference(rootsToKeep)
@@ -439,7 +439,7 @@ def scanForCycles(cycleRoot):
         if (debugCycle):
             print "returning right away"
         return
-    
+
     removeArcs = []
     importList = moduleNameToImportList[cycleRoot]
     for toModuleName in importList:

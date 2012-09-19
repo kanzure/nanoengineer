@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 jigs_motors.py -- Classes for motors.
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
-History: 
+History:
 
 050927. Split off Motor jigs from jigs.py into this file. Mark
 
@@ -58,13 +58,13 @@ class Motor(Jig):
 
         self.quat = Q(1, 0, 0, 0)
             # is self.quat ever set to other values? if not, remove it; if so, add it to mutable_attrs. [bruce 060228 comment]
-        
+
         #The motor is usually drawn as an opaque object. However when it is
         #being previewed, it is drawn as a transparent object - Ninad 2007-10-09
         self.previewOpacity = 0.4
         self.defaultOpacity = 1.0
         self.opacity = self.defaultOpacity
-        
+
 
     # == The following methods were moved from RotaryMotor to this class by bruce 050705,
     # since some were almost identical in LinearMotor (and those were removed from it, as well)
@@ -117,8 +117,8 @@ class Motor(Jig):
         cmd = greenmsg("Recenter on Atoms: ")
 
         self.recenter_on_atoms()
-        info = "Recentered motor [%s] for current atom positions" % self.name 
-        env.history.message( cmd + info ) 
+        info = "Recentered motor [%s] for current atom positions" % self.name
+        env.history.message( cmd + info )
         self.assy.w.win_update() # (glpane might be enough, but the other updates are fast so don't bother figuring it out)
         return
 
@@ -130,7 +130,7 @@ class Motor(Jig):
         # I needed this when attempting to simulate the rotation of a long, skinny
         # chunk.  The axis computed from the attached atoms was not close to the axis
         # of the chunk.  I figured this would be a common feature that was easy to add.
-        # 
+        #
         ##e it might be nice to dim this menu item if the chunk's axis hasn't moved since this motor was made or recentered;
         # first we'd need to extend the __CM_ API to make that possible. [mark 050717]
 
@@ -149,8 +149,8 @@ class Motor(Jig):
         self.axis = newAxis
         self.assy.changed()   # wware 060116 bug 1331 - assembly changed when axis changed
 
-        info = "Aligned motor [%s] on chunk [%s]" % (self.name, chunk.name) 
-        env.history.message( cmd + info ) 
+        info = "Aligned motor [%s] on chunk [%s]" % (self.name, chunk.name)
+        env.history.message( cmd + info )
         self.assy.w.win_update()
 
         return
@@ -161,8 +161,8 @@ class Motor(Jig):
         """
         cmd = greenmsg("Reverse direction: ")
         self.reverse_direction()
-        info = "Reversed direction of motor [%s]" % self.name 
-        env.history.message( cmd + info ) 
+        info = "Reversed direction of motor [%s]" % self.name
+        env.history.message( cmd + info )
         self.assy.w.win_update() # (glpane might be enough, but the other updates are fast so don't bother figuring it out)
         return
 
@@ -216,7 +216,7 @@ class Motor(Jig):
         menu_spec.append(item)
         item = ('Reverse Direction', self.__CM_Reverse_direction)
         menu_spec.append(item)
-    
+
     def updateCosmeticProps(self, previewing = False):
         """
         Update the cosmetic properties of motor
@@ -254,8 +254,8 @@ class RotaryMotor(Motor):
                                              'center', 'axis', \
                                              '_initial_posns', '_initial_quats' )
 
-    def __init__(self, 
-                 assy, 
+    def __init__(self,
+                 assy,
                  editCommand = None,
                  atomlist = []):
         """
@@ -280,7 +280,7 @@ class RotaryMotor(Motor):
         self.color = gray # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = gray # This is the normal (unselected) color.
 
-        
+
         self.length = 10.0 # default length of Rotary Motor cylinder
         self.radius = 1.0 # default cylinder radius
         self.sradius = 0.2 #default spoke radius
@@ -291,20 +291,20 @@ class RotaryMotor(Motor):
 
     def edit(self):
         """
-        Overrides jig.edit. 
+        Overrides jig.edit.
         """
         commandSequencer = self.assy.w.commandSequencer
         commandSequencer.userEnterCommand('ROTARY_MOTOR', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'ROTARY_MOTOR'
-        #When a Motor object read from an mmp file is edited, we need to assign 
+        #When a Motor object read from an mmp file is edited, we need to assign
         #it an editCommand. So, when it is resized, the propMgr spinboxes
-        #are properly updated. See also Plane.resizeGeometry. 
+        #are properly updated. See also Plane.resizeGeometry.
         if self.editCommand is None:
             self.editCommand = currentCommand
-            
+
         currentCommand.editStructure(self)
-        
+
         if self is self.assy.o.selobj:
             self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
             # If the Properties dialog was selected from the GLPane's context menu, set selobj = None
@@ -315,8 +315,8 @@ class RotaryMotor(Motor):
 
     def setProps(self, props):
         """
-        Set the Rotary Motor properties. It is called while reading a MMP 
-        file record or to restore the old properties if user cancels 
+        Set the Rotary Motor properties. It is called while reading a MMP
+        file record or to restore the old properties if user cancels
         edit operation on an exsiting motor.
 
         @param props: The rotary motor properties to be set.
@@ -347,7 +347,7 @@ class RotaryMotor(Motor):
                 self.radius,
                 self.sradius)
 
-    def _getinfo(self):        
+    def _getinfo(self):
         return  "[Object: Rotary Motor] [Name: " + str(self.name) + "] " + \
                 "[Torque = " + str(self.torque) + " nN-nm] " + \
                 "[Speed = " + str(self.speed) + " GHz]"
@@ -488,20 +488,20 @@ class RotaryMotor(Motor):
         try:
             glTranslatef( self.center[0], self.center[1], self.center[2])
             q = self.quat
-            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
+            glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
 
             orig_center = V(0.0, 0.0, 0.0)
 
             bCenter = orig_center - (self.length / 2.0 + inc) * self.axis
             tCenter = orig_center + (self.length / 2.0 + inc) * self.axis
 
-            drawcylinder(color, bCenter, tCenter, 
-                         self.radius + inc, 
-                         capped = 1, 
+            drawcylinder(color, bCenter, tCenter,
+                         self.radius + inc,
+                         capped = 1,
                          opacity = self.opacity )
             for a in self.atoms:
-                drawcylinder(color, orig_center, 
-                             a.posn()-self.center, 
+                drawcylinder(color, orig_center,
+                             a.posn()-self.center,
                              self.sradius + inc,
                              opacity = self.opacity)
             rotby = self.getrotation() #bruce 050518
@@ -511,7 +511,7 @@ class RotaryMotor(Motor):
         except:
             #bruce 060208 protect OpenGL stack from exception seen in bug 1445
             print_compact_traceback("exception in RotaryMotor._draw, continuing: ")
-            print "  some info that might be related to that exception: natoms = %d" % len(self.atoms) ###@@@ might not keep this 
+            print "  some info that might be related to that exception: natoms = %d" % len(self.atoms) ###@@@ might not keep this
         glPopMatrix()
         return
 
@@ -581,7 +581,7 @@ def angle(x,y): #bruce 050518; see also atan2 (noticed used in VQT.py) which mig
     #e here we could normalize length if we felt like it,
     # and/or repair any glitches in continuity at exactly 45 degrees
     res = asin(y)*180/pi
-    #print "angle(%r,%r) -> %r" % (x,y,res) 
+    #print "angle(%r,%r) -> %r" % (x,y,res)
     if res < 0:
         return res + 360 # should never happen
     return res
@@ -602,8 +602,8 @@ class LinearMotor(Motor):
     copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius', 'center', 'axis', \
                                              'enable_minimize', 'dampers_enabled')
 
-    def __init__(self, 
-                 assy, 
+    def __init__(self,
+                 assy,
                  command = None,
                  atomlist = []):
         """
@@ -631,27 +631,27 @@ class LinearMotor(Motor):
 
     def edit(self):
         """
-        Overrides jig.edit. 
+        Overrides jig.edit.
         """
         commandSequencer = self.assy.w.commandSequencer
         commandSequencer.userEnterCommand('LINEAR_MOTOR', always_update = True)
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'LINEAR_MOTOR'
-        #When a Motor object read from an mmp file is edited, we need to assign 
+        #When a Motor object read from an mmp file is edited, we need to assign
         #it an command. So, when it is resized, the propMgr spinboxes
-        #are properly updated. See also Plane.resizeGeometry. 
+        #are properly updated. See also Plane.resizeGeometry.
         if self.command is None:
             self.command = currentCommand
-            
+
         currentCommand.editStructure(self)
-        
+
         if self is self.assy.o.selobj:
             self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
             # If the Properties dialog was selected from the GLPane's context menu, set selobj = None
             # so that we can see the jig's real color, not the highlighted color.  This is very important
             # when changing the jig's color from the properties dialog since it will remain highlighted
             # if we don't do this. mark 060312.
-    
+
     def getProps(self):
         """
         Return the current properties of the Rotary motor.
@@ -668,12 +668,12 @@ class LinearMotor(Motor):
                 self.length,
                 self.width,
                 self.sradius)
-            
+
     # set the properties for a Linear Motor read from a (MMP) file
     def setProps(self, props):
         """
-        Set the Linear Motor properties. It is called while reading a MMP 
-        file record or to restore the old properties if user cancels 
+        Set the Linear Motor properties. It is called while reading a MMP
+        file record or to restore the old properties if user cancels
         edit operation on an exsiting motor.
 
         @param props: The linear motor properties to be set.
@@ -723,17 +723,17 @@ class LinearMotor(Motor):
             glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
 
             orig_center = V(0.0, 0.0, 0.0)
-            drawbrick(color, orig_center, self.axis, 
-                      self.length, self.width, self.width, 
+            drawbrick(color, orig_center, self.axis,
+                      self.length, self.width, self.width,
                       opacity = self.opacity)
-            
+
             drawLinearSign((0,0,0), orig_center, self.axis, self.length, self.width, self.width)
                 # (note: drawLinearSign uses a small depth offset so that arrows are slightly in front of brick)
                 # [bruce comment 060302, a guess from skimming drawLinearSign's code]
             for a in self.atoms[:]:
-                drawcylinder(color, orig_center, 
-                             a.posn()-self.center, 
-                             self.sradius, 
+                drawcylinder(color, orig_center,
+                             a.posn()-self.center,
+                             self.sradius,
                              opacity = self.opacity)
         except:
             #bruce 060208 protect OpenGL stack from exception analogous to that seen for RotaryMotor in bug 1445

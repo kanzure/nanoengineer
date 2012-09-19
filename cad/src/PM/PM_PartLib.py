@@ -2,9 +2,9 @@
 """
 PM_PartLib.py
 
-The PM_PartLib class provides a groupbox that contains the partlib (any user 
-specified directory). The parts from the partlib can be pasted into the 3D 
-workspace. The selected item in this list is shown by its elementViewer 
+The PM_PartLib class provides a groupbox that contains the partlib (any user
+specified directory). The parts from the partlib can be pasted into the 3D
+workspace. The selected item in this list is shown by its elementViewer
 (an instance of L{PM_PreviewGroupBox}). The object being previewed can then be
 deposited into the 3D workspace.
 
@@ -14,10 +14,10 @@ deposited into the 3D workspace.
 
 History:
 
-The Partlib existed as a tab in the MMKit of Build Atoms Mode. (MMKit has been 
-deprecated since 2007-08-29.) 
+The Partlib existed as a tab in the MMKit of Build Atoms Mode. (MMKit has been
+deprecated since 2007-08-29.)
 
-ninad 2007-09-06: Created. 
+ninad 2007-09-06: Created.
 """
 import os
 from utilities import debug_flags
@@ -33,16 +33,16 @@ from PM.PM_TreeView    import PM_TreeView
 class PM_PartLib(PM_GroupBox):
     """
     The PM_PartLib class provides a groupbox containing a partlib directory
-    The selected part in this list is shown by its elementViewer 
+    The selected part in this list is shown by its elementViewer
     (an instance of L{PM_PreviewGroupBox})
     The part being previewed can then be deposited into the 3D workspace.
     """
-    def __init__(self, 
+    def __init__(self,
                  parentWidget,
                  title = 'Part Library',
                  win   = None,
                  elementViewer = None
-                 ):            
+                 ):
         self.w = win
         self.elementViewer = elementViewer
         # piotr 080410 changed diTUBES to diTrueCPK
@@ -54,11 +54,11 @@ class PM_PartLib(PM_GroupBox):
 
         self._loadPartLibGroupBox()
 
-    def connect_or_disconnect_signals(self, isConnect):         
+    def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
         ##if isConnect:
@@ -66,10 +66,10 @@ class PM_PartLib(PM_GroupBox):
         ##else:
         ##    change_connect = self.w.disconnect
 
-        #Following doesn't work for some reasons so this call is disabled. 
-        #Instead , see PM_TreeView.mouseReleaseEvent where self.partChanged is 
-        #called. 
-        ##change_connect(self.partLib, 
+        #Following doesn't work for some reasons so this call is disabled.
+        #Instead , see PM_TreeView.mouseReleaseEvent where self.partChanged is
+        #called.
+        ##change_connect(self.partLib,
         ##               SIGNAL("selectionChanged(QItemSelection *,\
         ##               QItemSelection *)"),
         ##               self.partChanged)
@@ -79,25 +79,25 @@ class PM_PartLib(PM_GroupBox):
     def _loadPartLibGroupBox(self):
         """
         """
-        self.partLib = PM_TreeView(self)                    
+        self.partLib = PM_TreeView(self)
         self.gridLayout.addWidget(self.partLib)
-        #Append to the widget list. This is important for expand -collapse 
+        #Append to the widget list. This is important for expand -collapse
         #functions (of the groupbox) to work properly.
         self._widgetList.append(self.partLib)
 
     def _updateElementViewer(self, newModel = None):
         """
         Update the view of L{self.elementViewer}
-        @param newModel: The model correseponding to the item selected 
-                         in L{self.clipboardListWidget}. 
+        @param newModel: The model correseponding to the item selected
+                         in L{self.clipboardListWidget}.
         @type  newModel: L{molecule} or L{Group}
         """
         if not self.elementViewer:
-            return  
+            return
 
-        assert isinstance(self.elementViewer, MMKitView)  
+        assert isinstance(self.elementViewer, MMKitView)
 
-        self.elementViewer.resetView()             
+        self.elementViewer.resetView()
         if newModel:
             self.elementViewer.updateModel(newModel)
 
@@ -106,12 +106,12 @@ class PM_PartLib(PM_GroupBox):
         Method called when user changed the partlib browser tree.
 
         @param selectedItem: Item currently selected in the L{self.partLib}
-        @type  selectedItem: L{self.partLib.FileItem} 
+        @type  selectedItem: L{self.partLib.FileItem}
 
-        @attention: This is called in the L{PM_TreeView.mouseReleaseEvent}. The 
+        @attention: This is called in the L{PM_TreeView.mouseReleaseEvent}. The
         'selectionChanged' signal for self.partLib apparently was not emitted
-        so that code has been removed.                        
-        """    
+        so that code has been removed.
+        """
         #Copying some old code from deprecated MMKit.py -- ninad 2007-09-06
         item = selectedItem
         self.newModel = None
@@ -119,7 +119,7 @@ class PM_PartLib(PM_GroupBox):
             mmpFile = str(item.getFileObj())
             if os.path.isfile(mmpFile):
                 self.newModel = \
-                    Assembly(self.w, 
+                    Assembly(self.w,
                              os.path.normpath(mmpFile),
                              run_updaters = True # desirable for PartLib [bruce 080403]
                          )

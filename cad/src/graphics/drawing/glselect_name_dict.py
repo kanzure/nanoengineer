@@ -1,10 +1,10 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 glselect_name_dict.py - allocate GL_SELECT names and record their owners.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Module classification:  [bruce 080223]
 
@@ -54,13 +54,13 @@ class glselect_name_dict(object):
             # [Note: we might make this private
             #  when access from env.py is no longer needed]
             # TODO: clear this when destroying the assy which owns self
-    
+
     def alloc_my_glselect_name(self, obj):
         """
         Allocate and return a new GL_SELECT name, recording obj as its owner.
         Obj should provide the Selobj_API so it can handle GLPane callbacks
         during hit-testing.
-        
+
         @see: Selobj_API
         """
         glname = _new_glselect_name()
@@ -76,14 +76,14 @@ class glselect_name_dict(object):
     # Todo: add a variant of object_for_glselect_name to which the entire
     # name stack should be passed. Current code (as of 080220) passes the last
     # (innermost) element of the name stack.
-    
+
     # Maybe todo: add methods for temporarily removing glname from dict (without
     # deallocating it) and for restoring it, so killed objects needn't have
     # names in the dict.  This would mean we needn't remove the name when
     # destroying a killed object, thus, needn't find the object at all. But when
     # this class is per-assy, there won't be a need for that when destroying an
     # entire assy, so it might not be needed at all.
-    
+
     def dealloc_my_glselect_name(self, obj, glname):
         """
         #doc [todo: get material from docstring of same method in assembly.py]
@@ -93,7 +93,7 @@ class glselect_name_dict(object):
                destroy methods which forget their glname, or work if they never
                allocated one yet. (Note that this is only ok because we never
                allocate a glname of 0.)
-               
+
         @see: Selobj_API
         """
         # objs have to pass the glname, since we don't know where they keep it

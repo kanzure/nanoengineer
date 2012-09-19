@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_utils.py -- miscellaneous utilities for dna_updater
 
@@ -38,7 +38,7 @@ def replace_atom_class( atom, newclass, *atomdicts): #e refile?
                       and in which atom (the one passed)
                       should be replaced with newatom if necessary.
     @type atomdicts:  zero or more dictionaries.
-    
+
     @return: None. (If newatom is needed, caller should get it
                    from one of the atomdicts.)
     """
@@ -61,7 +61,7 @@ def replace_atom_class( atom, newclass, *atomdicts): #e refile?
     # or the glname allocator, since the old atom won't have had a chance
     # to get into undo diffs by the time the dna_updater runs, or to get
     # drawn (so its glname won't matter yet).)
-    # 
+    #
     # See outtakes/Atom_replace_class.py for unfinished code which does
     # some of that work, and a more detailed comment about what would have
     # to be done, also covering analogous replacements for Bond and Chunk.

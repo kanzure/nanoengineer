@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 PyrexSimulator.py - Wrapper around the pyrex/C ND-1 simulator code.
 Responsible for maintaining references to strings which are passed
@@ -6,7 +6,7 @@ to the C code, and which end up referenced by variables defined in
 src/sim/globals.c.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import os

@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Elem.py -- provides class Elem, which represents one element
 in NE1's periodic table.
@@ -8,7 +8,7 @@ bondpoints, whereas others correspond to actual chemical elements.
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -33,7 +33,7 @@ class Elem(IdentityCopyMixin):
     """
     # bruce 050510 renamed this from 'elem'
     # (not using 'Element' since too common in strings/comments)
-    
+
     # default values of per-instance constants
     bonds_can_be_directional = False #bruce 071015
 
@@ -47,7 +47,7 @@ class Elem(IdentityCopyMixin):
         # this can be 'strand' or 'axis' or 'unpaired-base'; not sure about Singlet
     deprecated_to = None # symbol of an element to transmute this one to, when reading mmp files; or None, or 'remove' (??)
         # (used for deprecated elements, including simulation-only elements no longer needed when modeling)
-    
+
     def __init__(self, eltnum, sym, name, mass, rvdw, color, bn,
                  pam = None,
                  role = None,
@@ -112,19 +112,19 @@ class Elem(IdentityCopyMixin):
         """
         Given an atomtype name or fullname (or an atomtype object itself)
         for this element, return the atomtype object.
-        
-        @param atomTypeName: The atomtype name or fullname (or an atomtype 
-                             object itself) for this element. Given None, 
+
+        @param atomTypeName: The atomtype name or fullname (or an atomtype
+                             object itself) for this element. Given None,
                              return this element's default atomtype object.
         @type  atomTypeName: str or L{AtomType}
-        
+
         @return: The atomtype object.
         @rtype:  L{AtomType}
-        
+
         @raise: Raise an exception (various exception types are possible)
                 if no atomtype for this element matches the name (or equals
                 the passed object).
-        
+
         """
         if not atomtype_name: # permit None or "" for now
             return self.atomtypes[0]
@@ -132,28 +132,28 @@ class Elem(IdentityCopyMixin):
             if atomtype.name == atomtype_name or atomtype.fullname == atomtype_name or atomtype == atomtype_name:
                 return atomtype # we're not bothering to optimize for atomtype_name being the same obj we return
         assert 0, "%r is not a valid atomtype name or object for %s" % (atomtype_name, self.name)
-    
+
     def findAtomType(self, atomTypeName):
         """
         Given an atomtype name or fullname (or an atomtype object itself)
         for this element, return the atomtype object.
-        
+
         Same as L{find_atomtype()}, provided for convenience.
-        
-        @param atomTypeName: The atomtype name or fullname (or an atomtype 
-                             object itself) for this element. Given None, 
+
+        @param atomTypeName: The atomtype name or fullname (or an atomtype
+                             object itself) for this element. Given None,
                              return this element's default atomtype object.
         @type  atomTypeName: str or L{AtomType}
-        
+
         @return: The atomtype object.
         @rtype:  L{AtomType}
-        
+
         @raise: Raise an exception (various exception types are possible)
-                if no atomtype for this element matches the name (or equals 
+                if no atomtype for this element matches the name (or equals
                 the passed object).
         """
         return self.find_atomtype(atomTypeName)
-        
+
     def __repr__(self):
         return "<Element: " + self.symbol + "(" + self.name + ")>"
 

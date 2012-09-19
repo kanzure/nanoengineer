@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 A_Dna_Generator.py -- DNA duplex generator helper class, based on empirical data.
 
@@ -30,8 +30,8 @@ class A_Dna_Generator(Dna_Generator):
     """
     Provides an atomistic model of the A form of DNA.
 
-    The geometry for A-DNA is very twisty and funky. We need to to research 
-    the A form since it's not a simple helix (like B) or an alternating helix 
+    The geometry for A-DNA is very twisty and funky. We need to to research
+    the A form since it's not a simple helix (like B) or an alternating helix
     (like Z).
 
     @attention: This class is not implemented yet.

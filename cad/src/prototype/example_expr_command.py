@@ -1,9 +1,9 @@
-# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 example_expr_command.py -- example of how to use an interactive graphics
 expr in a command (unfinished, so partly scratch code); command and PM
 are each variants of ExampleCommand1's command and PM classes
- 
+
 @author: Bruce
 @version: $Id$
 @copyright: 2007-2009 Nanorex, Inc.  See LICENSE file for details.
@@ -30,18 +30,18 @@ class ExampleCommand2E_PM( ExampleCommand1_PM ):
     """
     title = "Example Command 2E"
     prefix = "Thing2E" # for names created by GBC
-    
+
     def _addGroupBoxes(self):
         """
         Add group boxes to this Property Manager.
         """
         _superclass_PM._addGroupBoxes(self)
-        
+
         self.pmGroupBox2 = PM_GroupBox( self, title =  "group box 2" )
         self._loadGroupBox2(self.pmGroupBox2)
-        
+
         return
-    
+
     def _loadGroupBox2(self, groupbox):
         """
         Load widgets into group box 2.
@@ -110,12 +110,12 @@ class ExampleCommand2E_GM(SelectAtoms_GraphicsMode):
 ##    ##  [GLPane.py:1845] [selectAtomsMode.py:494]
 ##    # but setting this in __init__ works around that (see comment there).
 #@ATTENTION:
-#UPDATE 2008-08-22: Above comment is obsolete since SelectAtomsMode class has 
+#UPDATE 2008-08-22: Above comment is obsolete since SelectAtomsMode class has
 #been deprecated . This commented out code needs to be revised if its ever used.
 #[-- Ninad comment]
-##    
+##
 ##    command = None # defeat the property in selectAtomsMode #k needed?
-##    
+##
 ##    def __init__(self, command):
 ##        ExampleCommand1.GraphicsMode_class.__init__(self, command) # includes self.command = command
 ##        SelectAtoms_Command.__init__(self, self.glpane) ##k??
@@ -174,7 +174,7 @@ class ExampleCommand2E( ExampleCommand1, object):
         self._expr_instance = ih.Instance( expr, index, skip_expr_compare = True)
 
         return
-    
+
     pass # end of class ExampleCommand2E
 
 # end

@@ -10,24 +10,24 @@ BuildProtein_Command.py
 from command_support.EditCommand import EditCommand
 from utilities.Log  import greenmsg
 from ne1_ui.toolbars.Ui_ProteinFlyout import ProteinFlyout
-from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager 
-from protein.commands.BuildProtein.BuildProtein_GraphicsMode    import BuildProtein_GraphicsMode 
+from protein.commands.BuildProtein.BuildProtein_PropertyManager import BuildProtein_PropertyManager
+from protein.commands.BuildProtein.BuildProtein_GraphicsMode    import BuildProtein_GraphicsMode
 
 _superclass = EditCommand
 class BuildProtein_Command(EditCommand):
     """
-    ModelAndSimulateProtein_EditCommand provides a convenient way to edit or create 
+    ModelAndSimulateProtein_EditCommand provides a convenient way to edit or create
     or simulate a Protein object
     """
-    
+
     # class constants
     GraphicsMode_class = BuildProtein_GraphicsMode
-    
+
     PM_class = BuildProtein_PropertyManager
-    
+
     #Flyout Toolbar
     FlyoutToolbar_class = ProteinFlyout
-    
+
     cmd              =  greenmsg("Build Protein: ")
     prefix           =  'ProteinGroup'   # used for gensym
     cmdname          = "Build Protein"
@@ -40,49 +40,49 @@ class BuildProtein_Command(EditCommand):
     command_has_its_own_PM = True
     create_name_from_prefix  =  True
     call_makeMenus_for_each_event = True
-    
+
     flyoutToolbar = None
     _currentActiveTool = 'MODEL_PROTEIN'
 
     def command_enter_misc_actions(self):
         """
-        Overrides superclass method. 
-        
+        Overrides superclass method.
+
         @see: baseCommand.command_enter_misc_actions()  for documentation
         """
         self.w.buildProteinAction.setChecked(True)
         return
-            
+
     def command_exit_misc_actions(self): #@@@
         """
-        Overrides superclass method. 
-        
+        Overrides superclass method.
+
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
-        #self.w.buildProteinAction.setChecked(False)  
-        return   
-    
+        #self.w.buildProteinAction.setChecked(False)
+        return
+
     def getCurrentActiveTool(self):
         return self._currentActiveTool
-      
+
     def setCurrentCommandMode(self, commandName):
         """
         Sets the current active command: modeling or simulation
         """
         self._currentActiveTool = commandName
         return
-    
-    def enterModelOrSimulateCommand(self, commandName = ''): 
+
+    def enterModelOrSimulateCommand(self, commandName = ''):
         """
         Enter the given tools subcommand (e.g. Model or Simulate Protein command)
         """
         if not commandName:
-            return 
-        
-        commandSequencer = self.win.commandSequencer       
+            return
+
+        commandSequencer = self.win.commandSequencer
         commandSequencer.userEnterCommand( commandName)
-        return    
-    
+        return
+
     def makeMenus(self):
         """
         Create context menu for this command.
@@ -90,7 +90,7 @@ class BuildProtein_Command(EditCommand):
         #Urmi 20080806: will implement later, once the basic system is up and
         #working
         return
-    
+
     def keep_empty_group(self, group): #@@@
         """
         Returns True if the empty group should not be automatically deleted.
@@ -109,4 +109,4 @@ class BuildProtein_Command(EditCommand):
 
         return bool_keep
 
-    
+

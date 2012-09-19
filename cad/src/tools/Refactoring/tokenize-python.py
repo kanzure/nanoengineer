@@ -123,7 +123,7 @@ def doText(tokStrs, file_out):
     nlIndent = 0                       # Second-level indent within a statement.
     commentIndent = 0
     lineBuff = ""
-    
+
     nlToks = ('NEWLINE', 'NL', 'COMMENT') # Comments have a newline at the end.
     wordToks = ('NAME', 'NUMBER', 'STRING')
     noSpaceOps = ('.', ':', '(', '[', '{', '}', ']', ')')
@@ -216,7 +216,7 @@ def doText(tokStrs, file_out):
         else:
             commentIndent = 0
             pass
-            
+
         # The current token becomes the previous.
         prevTok = tok
         prevString = tokString

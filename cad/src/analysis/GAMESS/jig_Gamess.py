@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 jig_Gamess.py
 
@@ -67,7 +67,7 @@ class Gamess(Jig):
     #bruce 050704 added these attrs and related methods, to make copying of this jig work properly
     mutable_attrs = ('pset',)
     copyable_attrs = Jig.copyable_attrs + () + mutable_attrs
-    
+
     # Default job parameters for a GAMESS job.
     job_parms = {
         'Engine':'GAMESS',
@@ -95,7 +95,7 @@ class Gamess(Jig):
 
     def edit(self):
         self.gmsjob.edit()
-        
+
     # it's drawn as a wire cube around each atom.
     def _draw(self, glpane, dispdef):
         for a in self.atoms:
@@ -106,7 +106,7 @@ class Gamess(Jig):
             # wware 060203 selected bounding box bigger, bug 756
             if self.picked: rad *= 1.01
             drawwirecube(self.color, a.posn(), rad)
-            
+
     # Write "gamess" record to POV-Ray file in the format:
     # gamess(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
@@ -121,7 +121,7 @@ class Gamess(Jig):
 
     def _getinfo(self):
         return "[Object: Gamess Jig] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "] [Parameters: " + self.gms_parms_info() + "]"
-     
+
     def _getToolTipInfo(self): #ninad060825
         """
         Return a string for display in Dynamic Tool tip
@@ -143,117 +143,117 @@ class Gamess(Jig):
         # the new chunk made from a GAMESS optimization.  It is also used to display the
         # parameter info (along with the energy) when doing an energy calculation.
         # Mark 050625.
-        
+
         d = delimeter
-        
+
         pset = self.pset
-        
+
         # SCFTYP (RHF, UHF, or ROHF)
         s1 = scftyp[pset.ui.scftyp]
-        
+
         # Hartree-Fock (display nothing), DFT (display functional) or MP2
         if ecm[pset.ui.ecm] == 'DFT':
             if sys.platform == 'win32': # Windows - PC GAMESS
                 item = pcgms_dfttyp_items[pset.ui.dfttyp]
             else: # Linux or MacOS - GAMESS
                 item = gms_dfttyp_items[pset.ui.dfttyp]
-            
+
             s2, junk = item.split(' ',1)
             s2 = d + s2
         elif ecm[pset.ui.ecm] == 'MP2':
             s2 = d + 'MP2'
         else:
             s2 = ''
-        
-        # Basis Set    
+
+        # Basis Set
         s3 = d + pset.ui.gbasisname
-        
+
         # Charge
         s4 = d + 'Ch' + str(pset.ui.icharg)
-        
+
         # Multiplicity
         s5 = d + 'M' + str(pset.ui.mult + 1)
 
         return s1 + s2 + s3 + s4 + s5
-                        
+
     def __CM_Calculate_Energy(self):
         """
         Gamess Jig context menu "Calculate Energy"
         """
         self.calculate_energy()
-        
+
     def calculate_energy(self):
         """
         Calculate energy.
         """
-        
+
         cmd = greenmsg("Calculate Energy: ")
-        
+
         errmsgs = ["GAMESS job aborted.",
                             "Error: GAMESS job failed."]
-                            
+
         pset = self.pset
         runtyp = pset.ui.runtyp # Save runtyp (Calculate) setting to restore it later.
         pset.ui.runtyp = 0 # Energy calculation
         origCalType = self.gmsjob.Calculation
         self.gmsjob.Calculation = 'Energy'
-        
+
         self.update_gamess_parms()
-        
+
         # Run GAMESS job.  Return value r:
         # 0 = success
         # 1 = job aborted
         # 2 = job failed.
         r = self.gmsjob.launch()
-        
+
         pset.ui.runtyp = runtyp # Restore to original value
         self.gmsjob.Calculation = origCalType
-        
+
         if r: # Job was aborted or an error occurred.
             msg = redmsg(errmsgs[r-1])
             env.history.message( cmd + msg )
             return
-            
+
         self.print_energy()
-            
+
     def __CM_Optimize_Geometry(self):
         """
         Gamess Jig context menu "Optimize Geometry"
         """
         self.optimize_geometry()
-        
+
     def optimize_geometry(self):
         """
         Optimize geometry
         """
-        
+
         cmd = greenmsg("Optimize Geometry: ")
-        
+
         errmsgs = ["GAMESS job aborted.",
                             "Error: GAMESS job failed."]
-                            
+
         pset = self.pset
         runtyp = pset.ui.runtyp # Save runtyp (Calculate) setting to restore it later.
         pset.ui.runtyp = 1 # Optimize
         origCalType = self.gmsjob.Calculation
         self.gmsjob.Calculation = 'Optimize'
-        
+
         self.update_gamess_parms()
-        
+
         # Run GAMESS job.  Return value r:
         # 0 = success
         # 1 = job aborted.
         # 2 = job failed.
         r = self.gmsjob.launch()
-        
+
         pset.ui.runtyp = runtyp # Restore to original value
         self.gmsjob.Calculation = origCalType
-        
+
         if r: # Job was aborted or an error occurred.
             msg = redmsg(errmsgs[r-1])
             env.history.message( cmd + msg )
             return
-        
+
         try:
             r2 = self.move_optimized_atoms()
         except:
@@ -267,13 +267,13 @@ class Gamess(Jig):
                 self.assy.changed() # The file and the part are not the same.
                 self.print_energy() # Print the final energy from the optimize OUT file, too.
                 env.history.message( cmd + "Atoms adjusted.")
-    
+
     def __CM_Optimize_Geometry__options(self):
         if Jig.is_disabled(self):
             return ['disabled']
         else:
             return []
-    
+
     def __CM_Calculate_Energy__options(self):
         if Jig.is_disabled(self):
             return ['disabled']
@@ -282,21 +282,21 @@ class Gamess(Jig):
         pass
 
     def print_energy(self):
-        
+
         r, final_energy_str = get_energy_from_gms_outfile(self.outputfile)
 
         if r == 1: # GAMESS terminated abnormally.
             if final_energy_str:
                 env.history.message(redmsg(final_energy_str + " Check if you have set the right Gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
                 return
-                
+
             msg = "Final energy value not found. The output file is located at: " + self.outputfile
             env.history.message(redmsg(msg))
-        
+
         elif r == 2: # The output file not exist
             msg = "The output file %s doesn't exist. The reason is either that Gamess didn't run or the output file has been deleted. " % self.outputfile
             env.history.message(redmsg(msg))
-            
+
         else: # Final energy was found.
             gmstr = self.gms_parms_info()
             msg = "GAMESS finished. The output file is located at: " + self.outputfile
@@ -308,7 +308,7 @@ class Gamess(Jig):
 
 
     def move_optimized_atoms(self):
-        
+
         newPositions = get_atompos_from_gms_outfile( self.assy, self.outputfile, self.atoms )
         # retval is either a list of atom posns or an error message string.
         assert type(newPositions) in [type([]),type("")]
@@ -321,19 +321,19 @@ class Gamess(Jig):
         else:
             env.history.message(redmsg( newPositions))
             return 1
-                
+
     def move_atoms(self, newPositions): # used when reading xyz files
         """
         [Borrowed from movie.moveAtoms.]
-        
-        Move a list of atoms to newPosition. After 
+
+        Move a list of atoms to newPosition. After
         all atoms moving, bond updated, update display once.
         <parameter>newPosition is a list of atom absolute position,
         the list order is the same as self.alist
-        """   
-        
+        """
+
         atomList = self.atoms
-        
+
         if len(newPositions) != len(atomList):
             #bruce 050225 added some parameters to this error message
             #bruce 050406 comment: but it probably never comes out, since readxyz checks this,
@@ -346,7 +346,7 @@ class Gamess(Jig):
             # replace a copy (which was right here) of the older buggy version of that loop
         self.assy.o.gl_update()
         return
-                        
+
     def writemmp(self, mapping): #bruce 050701
         "[extends Jig method]"
         super = Jig
@@ -393,12 +393,12 @@ class Gamess(Jig):
         # the rest of the work should be done by the pset.
         try:
             self.pset.info_gamess_setitem( name, val, interp )
-            
+
         except:
             print_compact_traceback("bug: exception (ignored) in pset.info_gamess_setitem( %r, %r, interp ): " % (name,val) )
             return
         pass
-    
+
     def own_mutable_copyable_attrs(self): #bruce 050704
         """
         [overrides Node method]
@@ -451,8 +451,8 @@ class Gamess(Jig):
             ##e Should fix this to only draw one wirecube, of the "maximal color", I guess...
         self.assy.w.win_update() # MT and glpane both might need update
         return
-    
-    
+
+
     #def set_disabled_by_user_choice(self, val):
     #    """Called when users disable/enable the jig"""
     #    self.gmsjob.edit_cntl.run_job_btn.setEnabled(not val)
@@ -464,13 +464,13 @@ class Gamess(Jig):
         val = Jig.is_disabled(self)
         self.gmsjob.edit_cntl.run_job_btn.setEnabled(not val)
         return val
-   
+
     def update_gamess_parms(self):
         """
         Update the GAMESS parameter set values using the settings in the UI object.
         """
         # $CONTRL group ###########################################
-        
+
         # Parms Values
         self.pset.contrl.runtyp = runtyp[self.pset.ui.runtyp] # RUNTYP
         self.pset.contrl.scftyp = scftyp[self.pset.ui.scftyp] # SCFTYP
@@ -479,7 +479,7 @@ class Gamess(Jig):
         self.pset.contrl.mplevl = mplevl[self.pset.ui.ecm] # MPLEVL
         self.pset.contrl.inttyp = inttyp[self.pset.ui.ecm] # INTTYP
         self.pset.contrl.maxit = self.pset.ui.iterations # Iterations
-        
+
         # ICUT and QMTTOL
         #s = str(self.gbasis_combox.currentText())
         m = self.pset.ui.gbasisname.count('+') # If there is a plus sign in the basis set name, we have "diffuse orbitals"
@@ -491,11 +491,11 @@ class Gamess(Jig):
                 self.pset.contrl.qmttol = None
         else:  # No diffuse orbitals
             self.pset.contrl.icut = 9
-            if self.gmsjob.server.engine == 'GAMESS': 
+            if self.gmsjob.server.engine == 'GAMESS':
                 self.pset.contrl.qmttol = '1.0E-6'
             else:
                 self.pset.contrl.qmttol = None # PC GAMESS does not support QMTTOL. Mark 052105
-        
+
         # DFTTYP (PC GAMESS only)
         # For PC GAMESS, the DFTTYP keyword is included in the CONTRL section, not the $DFT group.
         if self.gmsjob.server.engine == 'PC GAMESS':
@@ -506,9 +506,9 @@ class Gamess(Jig):
             else: # None or MP2
                 self.pset.contrl.dfttyp = 0
                 self.pset.dft.nrad = 0
-        
+
         # $SCF group ###########################################
-        
+
         self.pset.scf.extrap = tf[self.pset.ui.extrap] # EXTRAP
         self.pset.scf.dirscf = tf[self.pset.ui.dirscf] # DIRSCF
         self.pset.scf.damp = tf[self.pset.ui.damp] # DAMP
@@ -516,8 +516,8 @@ class Gamess(Jig):
         self.pset.scf.shift = tf[self.pset.ui.shift] # SHIFT
         self.pset.scf.soscf = tf[self.pset.ui.soscf] # SOSCF
         self.pset.scf.rstrct = tf[self.pset.ui.rstrct] # RSTRCT
-        
-        # CONV (GAMESS) or 
+
+        # CONV (GAMESS) or
         # NCONV (PC GAMESS)
         if self.gmsjob.server.engine == 'GAMESS':
             self.pset.scf.conv = conv[self.pset.ui.conv] # CONV (GAMESS)
@@ -525,16 +525,16 @@ class Gamess(Jig):
         else: # PC GAMESS
             self.pset.scf.nconv = conv[self.pset.ui.conv] # NCONV (PC GAMESS)
             self.pset.scf.conv = 0 # Turn off CONV
-        
+
         # $SYSTEM group ###########################################
-        
+
         self.pset.system.timlin = 1000 # Time limit in minutes
         self.pset.system.memory = self.pset.ui.memory * 1000000
-        
+
         # $MP2 group ###########################################
-        
+
         self.pset.mp2.ncore = ncore[self.pset.ui.ncore]
-        
+
         # $DFT group ###########################################
 
         # The DFT section record is supported in GAMESS only.
@@ -546,24 +546,24 @@ class Gamess(Jig):
             else: # None or MP2
                 self.pset.dft.dfttyp = 'NONE'
                 self.pset.dft.nrad = 0
-        
+
         # $GUESS group ###########################################
-        
+
         # $STATPT group ###########################################
-        
+
         if runtyp[self.pset.ui.runtyp] == 'optimize':
             self.pset.statpt.opttol = float(opttol[self.pset.ui.rmsdconv])
         else:
             self.pset.statpt.opttol = None
-        
+
         # $BASIS group ###########################################
-        
+
         if ecm[self.pset.ui.ecm] == 'None':
             self.pset.basis.gbasis = gbasis[self.pset.ui.gbasis] # GBASIS
         else:
             self.pset.basis.gbasis = gbasis[self.pset.ui.gbasis + 2] # GBASIS
         return
-    
+
     pass # end of class Gamess
 
 # ==
@@ -572,19 +572,19 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
     def __init__(self, name):
         """
         A GAMESS parameter set contains all the parameters for a Gamess Jig.
-        
-        The ui ctlRec object is the "master".  From it, all the other ctlRec objects 
+
+        The ui ctlRec object is the "master".  From it, all the other ctlRec objects
         have their parms set/reset, in GamessProp._save_parms(), each time the user
-        selects "Save and Run" or "Save".  The reason for this has to do with 
+        selects "Save and Run" or "Save".  The reason for this has to do with
         the fact that there is not a one-to-one relationship between UI settings (in the
         Gamess Jig Properties dialog) and the parameters written to the GAMESS
-        input file.  There are all sorts of strange combinations and permutations 
-        between the UI settings and what the GAMESS input file parameters end up being.  
-        This is also why it is very difficult (but not impossible) to go from a raw GAMESS 
+        input file.  There are all sorts of strange combinations and permutations
+        between the UI settings and what the GAMESS input file parameters end up being.
+        This is also why it is very difficult (but not impossible) to go from a raw GAMESS
         input file to the proper UI settings in the Gamess Jig Properties dialog.
-        
-        Many parameters have a value for the ui object and another value in one of 
-        the other ctlRec objects.  The ui object is used to setup the UI and 
+
+        Many parameters have a value for the ui object and another value in one of
+        the other ctlRec objects.  The ui object is used to setup the UI and
         read/write parms to/from the MMP file. The values for the other
         ctlRec objects are set (and only important) when writing the GAMESS input file.
         """
@@ -675,7 +675,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
             # But this is not for comments which need to be read back in and shown in the params dialog!
             # Those need to be string-valued params (and not contain newlines, or encode those if they do).
         items = self.param_names_and_valstrings()
-            # Rules for these name/valstring pairs [bruce 050701]: 
+            # Rules for these name/valstring pairs [bruce 050701]:
             # param names must not contain whitespace.
             # valstrings must not start or end with whitespace, or contain newlines, but they can contain blanks or tabs.
             # (if you need to write comments that might contain newlines, these must be encoded somehow as non-newlines.)
@@ -708,7 +708,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
 
     boolparms = ('damp', 'diis', 'dirscf', 'extrap', 'ncore', 'rstrct', 'shift', 'soscf' )
         # these MUST MATCH info_gamess_setitem uses of decode_bool [bruce 060307, to help with bug 1616]
-    
+
     def info_gamess_setitem(self, name, val, interp, error_if_name_not_known = False):
         #bruce 050701; extended by Mark 050704 to read and set the actual params; bruce 050704 added error_if_name_not_known
         """
@@ -739,11 +739,11 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
             if p is not None:
                 self.ui.dfttyp = p
         elif name == 'diis':            # DIIS
-            p = interp.decode_bool(val) 
+            p = interp.decode_bool(val)
             if p is not None:
                 self.ui.diis = p
         elif name == 'dirscf':          # DIRSCF
-            p = interp.decode_bool(val) 
+            p = interp.decode_bool(val)
             if p is not None:
                 self.ui.dirscf = p
         elif name == 'ecm':            # emc = None (0), DFT (1) or MP2 (2)
@@ -751,7 +751,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
             if p is not None:
                 self.ui.ecm = p
         elif name == 'extrap':          # EXTRAP
-            p = interp.decode_bool(val) 
+            p = interp.decode_bool(val)
             if p is not None:
                 self.ui.extrap = p
         elif name == 'gbasis':            # Basis Set Id
@@ -789,7 +789,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
             if p is not None:
                 self.ui.rmsdconv = p
         elif name == 'rstrct':          # RSTRCT
-            p = interp.decode_bool(val) 
+            p = interp.decode_bool(val)
             if p is not None:
                 self.ui.rstrct = p
         elif name == 'runtyp':            # RUNTYP = Energy (0), or Optimize (1)
@@ -801,14 +801,14 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
             if p is not None:
                 self.ui.scftyp = p
         elif name == 'shift':          # SHIFT
-            p = interp.decode_bool(val) 
+            p = interp.decode_bool(val)
             if p is not None:
                 self.ui.shift = p
         elif name == 'soscf':          # SOSCF
-            p = interp.decode_bool(val) 
+            p = interp.decode_bool(val)
             if p is not None:
                 self.ui.soscf = p
-        
+
         # Unused - keeping them for examples.
         # Mark 050603
         elif name == 'param2':
@@ -825,7 +825,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
                 # (they can be written as 0, 1, False, True, or in a few other forms)
             if p4 is not None:
                 self.param4 = p4
-                
+
         else:
             if error_if_name_not_known:
                 #bruce 050704, only correct when this method is used internally to copy an object of this class
@@ -835,7 +835,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
             # this is not an error, since old code might read newer mmp files which know about more gamess params;
             # it's better (in general) to ignore those than for this to make it impossible to read the mmp file.
             # If non-debug warnings were added, that might be ok in this case since not many lines per file will trigger them.
-        
+
         return # from info_gamess_setitem
 
     pass # end of class gamessParms
@@ -845,14 +845,14 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
 _boolparms = {} # used in ctlRec [bruce 060308]
 for p in gamessParms.boolparms:
     _boolparms[p] = None
-    
+
 class ctlRec:
     def __init__(self, name, parms):
         self.name = name
         self.parms = parms.keys()
         self.parms.sort() # Sort parms.
-        
-        # WARNING: Bugs will be caused if any of ctlRec's own methods or 
+
+        # WARNING: Bugs will be caused if any of ctlRec's own methods or
         # instance variables had the same name as any of the parameter ('k') values.
 
         for k in self.parms:
@@ -868,13 +868,13 @@ class ctlRec:
             if not self.__dict__[k]: continue # Do not print null parms.
             phrase = k + '=' + str(self.__dict__[k])
             col += 1 + len(phrase)
-            if col > 70: 
+            if col > 70:
                 col = len(phrase)
                 f.write ('\n')
             f.write (phrase + ' ')
         f.write('$END\n')
 
-    def get_mmp_parms(self, canonical = False): 
+    def get_mmp_parms(self, canonical = False):
         """
         Return a list of pairs (parmname, str(parmvalue)) of all the Gamess jig parms
         (and str() of their values) to be stored in the MMP file, sorted by parm name.
@@ -887,15 +887,15 @@ class ctlRec:
         #bruce 060308 added canonical option, to help fix bug 1616
         #bruce 060307 revised docstring to fit code (added str())
         items = []
-        
+
         for p in self.parms: # note: self.parms is already sorted [bruce 060307 comment]
             val = self.__dict__[p]
             if canonical and p in _boolparms:
                 val = not not val
             items.append((p, str(val)))
-      
+
         return items
-        
+
     pass # end of class ctlRec
 
 # ==

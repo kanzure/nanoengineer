@@ -1,4 +1,4 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 @author: EricM
 @version: $Id$
@@ -42,7 +42,7 @@ def same_vals(o1, o2):
     # TODO: also extend c_same_vals to correctly compare numpy.ndarray,
     # like the Python version (in utilities/Comparison.py) now does.
     # [bruce 081202]
-    
+
     # disabled to get ubuntu 7.04 running again [bryan 2012-04-30]
     #getattr3(_old_style_instance, 'missingattr', None)
         # for doc of getattr3: http://www.cosc.canterbury.ac.nz/greg.ewing/python/Pyrex/version/Doc/Manual/basics.html

@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 widget_controllers.py - miscellaneous widget-controller classes
 
@@ -26,12 +26,12 @@ def _env_imagename_to_QIcon(imagename, _cache = {}): ### to be replaced with env
         return _cache[imagename]
     except KeyError:
         pass
-    
+
     ## pixmap_fname = imagename # stub
     from utilities.icon_utilities import imagename_to_pixmap
     pixmap = imagename_to_pixmap(imagename)
     pixmap_fname = pixmap # will this arg work too?
-    
+
     res = QIcon()
     res.setPixmap(pixmap_fname, QIcon.Automatic)
     _cache[imagename] = res # memoize, and also keep permanent python reference
@@ -63,7 +63,7 @@ class CollapsibleGroupController_Qt:
         self.parent.connect(groupbutton,SIGNAL("clicked()"),self.toggle_open) # was toggle_nt_parameters_grpbtn
 
         return
-    
+
     # runtime logic
     def toggle_open(self):
         open = not self.open
@@ -81,7 +81,7 @@ class CollapsibleGroupController_Qt:
     def set_openclose_icon(self, open):
         """
         #doc
-        
+
         @param open:
         @type open: boolean
         """
@@ -96,7 +96,7 @@ class CollapsibleGroupController_Qt:
         else:
             # on Windows, it shows the state you can change it to
             if collapsed:
-                imagename = "win_expand_icon.png" 
+                imagename = "win_expand_icon.png"
             else:
                 imagename = "win_collapse_icon.png"
         iconset = _env_imagename_to_QIcon(imagename) # memoized

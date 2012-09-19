@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """\
 <p>This is an attempt to implement Mark's \"Starting NE-1\" slideshow
 ideas. This is just a little prototype, and is meant to be tweaked as
@@ -320,7 +320,7 @@ class MainWindow(QMainWindow):
         pw = PartWindow(self)
         row, col = self.gridPosition.next(pw)
         self.layout.addWidget(pw, row, col)
-            
+
     def fileOpen(self):
         print "Let's pretend we're opening a file"
 
@@ -335,5 +335,5 @@ if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     mainWin = MainWindow()
     mainWin.show()
-    
+
     sys.exit(app.exec_())

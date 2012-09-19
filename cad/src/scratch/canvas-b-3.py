@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 this is just some drag & drop example code -- it's not part of our product.
@@ -23,7 +23,7 @@ but if it is this doesn't seem to be a problem.
 You can try running it as "./ExecSubDir.py scratch/canvas-b-3.py", but it uses
 features of Qt3 that no longer exist in Qt4, so it needs to be ported before it
 will work.
-  
+
 The current dir probably needs to be the same dir as this code module
 so it can find the 'butterfly.png' file.
 """
@@ -78,7 +78,7 @@ class ImageItem(QCanvasRectangle):
 
     def bruce_start_drag(self, dragsource): # drag and (don't bother to) drop this image!
         print "bruce_start_drag"
-        
+
         if 0:
             # use QImageDrag
             print 'making: dragobj = QImageDrag( self.image, dragsource)'
@@ -90,7 +90,7 @@ class ImageItem(QCanvasRectangle):
             print 'making: dragobj = QTextDrag( "copying 5 items", dragsource)'
             dragobj = QTextDrag( "copying 5 items", dragsource)
             print "made it"
-        
+
         if 0:
             print "not setting a custom pixmap this time"
             pass # don't set a custom pixmap
@@ -147,7 +147,7 @@ QPainter::begin: Cannot paint null pixmap
 QPainter::setPen: Will be reset by begin()
             """
             pass
-        
+
         wantdel = dragobj.dragCopy()
             # during this call, we do recursive event processing, including the expected dragEnter event, and moves and drop,
             # plus another *initial* unexpected dragEnter event, different event object. To debug those, print the stack!
@@ -282,7 +282,7 @@ class FigureEditor(QCanvasView):
         self.dragevent_item_move_to_event(event)
         event.accept(ok) # try doing this here, does it remove that duplicate enter?
          # no; moving codeline to here has no effect i can notice.
-        
+
     def contentsDragMoveEvent(self, event):
         ##print "contentsDragMoveEvent"
         self.dragevent_item_move_to_event(event)
@@ -297,7 +297,7 @@ class FigureEditor(QCanvasView):
         x = point.x()
         y = point.y()
         self.dragevent_item.move(x,y)
-        
+
     def contentsDragLeaveEvent(self, event):
         print "drag leave, event == %r" % event ## pos = %r" % event.pos() # AttributeError: pos ###@@@
         ## self.dragevent_item_move_to_event(event)
@@ -322,7 +322,7 @@ class FigureEditor(QCanvasView):
             img = QImage()
             res = QImageDrag.decode(event, img) #guess
             print "got this res & image (discarding it but accepting the event): %r, %r" % (res,img)
-            event.accept(True) 
+            event.accept(True)
         elif oktext:
             print "accepting text"
             str1 = QString() # see dropsite.py in examples3
@@ -821,7 +821,7 @@ class Main (QMainWindow):
 
 
 if __name__ == '__main__':
-    
+
     app=QApplication(sys.argv)
 
     if len(sys.argv) > 1:

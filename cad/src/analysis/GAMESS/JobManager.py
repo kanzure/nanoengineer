@@ -1,6 +1,6 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-JobManager.py - 
+JobManager.py -
 
 @author: Mark
 @version: $Id$
@@ -46,24 +46,24 @@ def touch_job_id_status_file(job_id, Status = 'Queued'):
         1 = Job Id directory did not exists.  Status file was not created.
         2 = Invalid Status.
     """
-    
+
     # Get the Job Manager directory
     from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
     jobdir = find_or_make_Nanorex_subdir('JobManager')
-    
+
     # Job Id dir (i.e. ~/Nanorex/JobManager/123/)
     job_id_dir  = os.path.join(jobdir, str(job_id))
-        
+
     # Make sure the directory exists
     if not os.path.exists(job_id_dir):
         print "touch_job_id_status_file error: The directory ", job_id_dir, " does not exist."
         return 1
-    
+
     # Make sure Status is valid.
     if Status not in ('Queued', 'Running', 'Completed', 'Suspended', 'Failed'):
         print "touch_job_id_status_file error: Status is invalid: ", Status
         return 2
-    
+
     # Remove any status files (i.e. Status-Running in the directory)
     import glob
     wildcard_str = os.path.join(job_id_dir, 'Status-*')
@@ -71,42 +71,42 @@ def touch_job_id_status_file(job_id, Status = 'Queued'):
 #    print "Status Files:", status_files # Commented this out for A6.  Mark 050712.
     for sfile in status_files:
         os.remove(sfile)
-    
+
     # Write zero length status file.
     status_file = os.path.join(job_id_dir, 'Status-'+Status)
     f = open(status_file, 'w')
     f.close()
-    
+
     return 0
-    
+
 def get_job_manager_job_id_and_dir():
     """
-    Returns a unique Job Id number and JobManager subdirectory for this Job Id.  
+    Returns a unique Job Id number and JobManager subdirectory for this Job Id.
     The Job Id is stored in the User Preference db.
     """
     from foundation.preferences import prefs_context
     prefs = prefs_context()
     job_id = prefs.get('JobId')
-    
+
     if not job_id:
         job_id = 100 # Start with Job Id 100
-    ##Temporarily comment out by Huaicai 6/22/05    
+    ##Temporarily comment out by Huaicai 6/22/05
     #else:
     #    job_id += 1 # Increment the Job Id
-    
+
     # Get the Job Manager directory
     from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
     jobdir = find_or_make_Nanorex_subdir('JobManager')
-    
+
     while 1:
-        
+
         # Create Job Id subdir (i.e. ~/Nanorex/JobManager/123/)
         job_id_dir  = os.path.join(jobdir, str(job_id))
-        
+
         # Make sure there isn't already a Job Id subdir in ~/Nanorex/JobManager/
         if os.path.exists(job_id_dir):
             job_id += 1 # It is there, so increment the Job Id and try again.
-            
+
         else:
             from utilities.debug import print_compact_traceback
             try:
@@ -114,7 +114,7 @@ def get_job_manager_job_id_and_dir():
             except:
                 print_compact_traceback("exception in creating directory: \"%s\"" % job_id_dir)
                 return -1, 0
-            
+
             prefs['JobId'] = 100#job_id # Save the most recent Job Id
             touch_job_id_status_file(job_id, 'Queued')
             return str(job_id), job_id_dir
@@ -143,13 +143,13 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         self.connect(self.refresh_btn,SIGNAL("clicked()"),self.refresh_job_table)
         self.connect(self.start_btn,SIGNAL("clicked()"),self.startJob)
         self.connect(self.stop_btn,SIGNAL("clicked()"),self.stopJob)
-        
+
         self.win = parent
         self.jobs = [] # The job object, currently selected in the job table.
         self.setup()
         self.exec_()
         return
-    
+
     def setup(self):
         """
         Setup widgets to default (or default) values. Return true on error (not yet possible).
@@ -162,7 +162,7 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         """
         """
         print "row =", row, ", column =", col, ", button =", button
-        
+
         # Enable/disable the buttons in the Job Manager based on the Status field.
         jobStatus = self.jobInfoList[row][0]['Status']
         if jobStatus == "Queued":
@@ -173,7 +173,7 @@ class JobManager(QWidget, Ui_JobManagerDialog):
             self.view_btn.setEnabled(0)
             self.delete_btn.setEnabled(1)
             self.move_btn.setEnabled(0)
-            
+
         elif jobStatus == "Running":
             self.start_btn.setText("Start")
             self.start_btn.setEnabled(0)
@@ -182,7 +182,7 @@ class JobManager(QWidget, Ui_JobManagerDialog):
             self.view_btn.setEnabled(0)
             self.delete_btn.setEnabled(0)
             self.move_btn.setEnabled(0)
-            
+
         elif jobStatus == "Completed":
             self.start_btn.setText("Start")
             self.start_btn.setEnabled(0)
@@ -191,7 +191,7 @@ class JobManager(QWidget, Ui_JobManagerDialog):
             self.view_btn.setEnabled(1)
             self.delete_btn.setEnabled(1)
             self.move_btn.setEnabled(1)
-            
+
         elif jobStatus == "Failed":
             self.start_btn.setText("Restart")
             self.start_btn.setEnabled(1)
@@ -201,7 +201,7 @@ class JobManager(QWidget, Ui_JobManagerDialog):
             self.delete_btn.setEnabled(1)
             self.move_btn.setEnabled(0)
         return
-    
+
     def refresh_job_table(self):
         """
         Refreshes the Job Manager table based on the current Job Manager directory.
@@ -211,10 +211,10 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         # Remove all rows in the job table
         for r in range(self.job_table.numRows()):
             self.job_table.removeRow(0)
-        
+
         # BUILD JOB LIST FROM JobManager Directory Structure and Files.
         self.jobInfoList = self.build_job_list()
-        
+
         numjobs = len(self.jobInfoList) # One row for each job.
         tabTitles = ['Name', 'Engine', 'Calculation', 'Description', 'Status', 'Server_id', 'Job_id', 'Time']
             # The number of columns in the job table (change this if you add/remove columns).
@@ -222,19 +222,19 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         self.jobs = []
         for row in range(numjobs):
             self.job_table.insertRows(row)
-            
+
             for col in range(len(tabTitles)):
                 self.job_table.setText(row , col, self.jobInfoList[row][0][tabTitles[col]])
-                
-        self.jobs = self.__createJobs(self.jobInfoList)     
+
+        self.jobs = self.__createJobs(self.jobInfoList)
         return
-        
+
     def delete_job(self):
         """
         """
         self.job_table.removeRow(self.job_table.currentRow())
         return
-    
+
     def startJob(self):
         """
         Run current job
@@ -242,7 +242,7 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         currentJobRow = self.job_table.currentRow()
         self.jobs[currentJobRow].start_job()
         return
-    
+
     def build_job_list(self):
         """
         Scan Job manager directories to find and return all the list of jobs
@@ -252,10 +252,10 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         managerDir = os.path.join(tmpFilePath, "JobManager")
         jobDirs = os.listdir(managerDir)
         jobs = []
-        
+
         try:
            for dr in jobDirs:
-             jobPath = os.path.join(managerDir, dr)  
+             jobPath = os.path.join(managerDir, dr)
              if os.path.isdir(jobPath):
                 jobParas ={};  status = None
                 files = os.listdir(jobPath)
@@ -286,14 +286,14 @@ class JobManager(QWidget, Ui_JobManagerDialog):
                                     else:
                                         items = l.split('> ')
                                         if len(items) > 1:
-                                            outputFile = items[1].strip()    
+                                            outputFile = items[1].strip()
 
                 jobParas['Status'] = status
-                jobs += [(jobParas, batFile, outputFile)]         
-           return jobs                
+                jobs += [(jobParas, batFile, outputFile)]
+           return jobs
         except:
            print "Exception: build job lists failed. check the directory/files."
-           return None                                
+           return None
 
     def __createJobs(self, jobInfoList):
         """
@@ -307,7 +307,7 @@ class JobManager(QWidget, Ui_JobManagerDialog):
             elif j[0]['Engine'] == 'nanoSIM-1':
                 #Create nanoEngineer-1 MD simulator job
                 pass
-                
+
         return jobs
 
     pass # end of class JobManager

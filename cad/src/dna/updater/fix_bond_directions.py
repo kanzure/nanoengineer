@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 fix_bond_directions.py - dna updater helper functions
 
@@ -54,7 +54,7 @@ def fix_local_bond_directions( changed_atoms):
 
     global _DEBUG_PRINT_BOND_DIRECTION_ERRORS
     _DEBUG_PRINT_BOND_DIRECTION_ERRORS = pref_print_bond_direction_errors()
-    
+
     new_error_atoms = {} # note: only used for its length in a warning message
 
     # Find new errors (or the lack of them) on changed_atoms,
@@ -99,7 +99,7 @@ def fix_local_bond_directions( changed_atoms):
                 error_data = prefix + e_string[len("__ERROR:"):].strip()
                 error_info = _ATOM_HAS_ERROR, error_data
                 pass
-        
+
         if error_info:
             error_type, error_data = error_info
             assert error_type == _ATOM_HAS_ERROR
@@ -119,20 +119,20 @@ def fix_local_bond_directions( changed_atoms):
     if new_error_atoms: #e if we print more below, this might be only interesting for debugging, not sure
         # maybe: move later since we will be expanding this set; or report number of base pairs
         msg = "Warning: dna updater noticed %d pseudoatom(s) with bond direction errors" % len(new_error_atoms)
-        msg = fix_plurals(msg)    
+        msg = fix_plurals(msg)
         env.history.orangemsg(msg)
 
     global _all_error_atoms_after_propogation
     old_all_error_atoms_after_propogation = _all_error_atoms_after_propogation
-    
+
     new_all_error_atoms_after_propogation = {}
-    
+
     for atom in _global_direct_error_atoms.itervalues():
         for atom2 in _same_base_pair_atoms(atom):
             new_all_error_atoms_after_propogation[atom2.key] = atom2
 
     _all_error_atoms_after_propogation = new_all_error_atoms_after_propogation
-    
+
     for atom in old_all_error_atoms_after_propogation.itervalues():
         if atom.key not in new_all_error_atoms_after_propogation:
             if atom._dna_updater__error: # should always be true
@@ -208,7 +208,7 @@ def _same_base_pair_atoms(atom):
 ##    else:
 ##        return (atom,)
 ##    return [axis_atom] + axis_atom.strand_neighbors()
-    
+
 # ==
 
 # error type codes (may be revised)
@@ -225,7 +225,7 @@ def _fix_atom_or_return_error_info(atom):
 
     Otherwise try to fix it and/or return advice to caller about it,
     as a tuple of (error type code, error data).
-    
+
     @param atom: a real atom which permits directional bonds.
     """
     # note: the following code is related to these Atom methods
@@ -246,13 +246,13 @@ def _fix_atom_or_return_error_info(atom):
     num_plus_real = 0
     num_minus_real = 0
     num_unset_real = 0
-    
+
     num_plus_open = 0
     num_minus_open = 0
     num_unset_open = 0
 
     neighbors = []
-    
+
     for bond in atom.bonds:
         direction = bond.bond_direction_from(atom)
         neighbor = bond.other(atom)
@@ -267,7 +267,7 @@ def _fix_atom_or_return_error_info(atom):
         if direction == 1:
             if not is_directional:
                 assert not is_open_bond
-                _clear_illegal_direction(bond)                
+                _clear_illegal_direction(bond)
             elif is_open_bond:
                 num_plus_open += 1
             else:
@@ -275,7 +275,7 @@ def _fix_atom_or_return_error_info(atom):
         elif direction == -1:
             if not is_directional:
                 assert not is_open_bond
-                _clear_illegal_direction(bond)                
+                _clear_illegal_direction(bond)
             elif is_open_bond:
                 num_minus_open += 1
             else:
@@ -297,7 +297,7 @@ def _fix_atom_or_return_error_info(atom):
     #  updater stage)
     # (note, this is not complete, just enough to catch some errors
     #  noticed in test files on 080304)
-    
+
     if atom.element is Pl5:
         # permit only strand atoms (not Pl) and bondpoints as neighbors, valence 2
         assert len(atom.bonds) == 2, "__ERROR: Pl valence must be 2"
@@ -369,7 +369,7 @@ def _fix_atom_or_return_error_info(atom):
     if not (num_unset_real or num_plus != 1 or num_minus != 1):
         # nothing wrong (note: doesn't check valence)
         return None
-    
+
     # We need to fix something about this atom (assumed Ss or Pl),
     # or record an error. Detect the most serious errors first so they
     # will be the ones recorded.
@@ -391,7 +391,7 @@ def _fix_atom_or_return_error_info(atom):
         print "  num_minus_open =", num_minus_open
         print "  num_unset_open =", num_unset_open
         print
-    
+
     if num_plus_real + num_minus_real + num_unset_real > 2:
         # Too many real directional bonds -- no way to fully fix
         # without breaking one, so let the user choose which one.
@@ -428,7 +428,7 @@ def _fix_atom_or_return_error_info(atom):
         # (Note: due to earlier checks (ignoring the check on num_unset_real),
         # we know that num_plus_real and num_minus_real are 0 or 1,
         # and num_unset_real is 0 or 1 or 2.)
-        
+
         # Any open bond that duplicates a real bond direction
         # (or another open bond direction) should be unset.
         # But if num_unset_real, we won't know which open bond direction
@@ -438,7 +438,7 @@ def _fix_atom_or_return_error_info(atom):
         # bond directions were chosen. (As it is, only the user can choose
         # them, so the "later code" is the next dna updater pass after
         # they do that.)
-        
+
         while num_plus_open and num_plus > 1:
             _unset_some_open_bond_direction(atom, +1)
             num_plus_open -= 1
@@ -456,7 +456,7 @@ def _fix_atom_or_return_error_info(atom):
         if not (num_unset_real or num_plus != 1 or num_minus != 1):
             # if not still bad, then declare atom as ok
             return None
-            
+
         # (note: if we someday look for chains of unset real bonds to fix,
         #  then we might want to do the above in an initial pass,
         #  or in a subroutine called on any atom we hit then.)
@@ -496,7 +496,7 @@ def _fix_atom_or_return_error_info(atom):
     assert (num_unset_real or num_plus != 1 or num_minus != 1)
     res = _ATOM_HAS_ERROR, "bond direction error"
         # not sure how best to describe it
-        
+
     return res # from _fix_atom_or_return_error_info
 
 # ==
@@ -518,7 +518,7 @@ def _set_some_open_bond_direction(atom, direction):
             break
         continue
     assert didit
-    
+
     summary_format = "Warning: dna updater set bond direction on [N] open bond(s)"
     env.history.deferred_summary_message( orangemsg(summary_format) )
         # todo: refactor so orangemsg is replaced with a warning option
@@ -541,7 +541,7 @@ def _unset_some_open_bond_direction(atom, direction):
             break
         continue
     assert didit
-    
+
     summary_format = "Warning: dna updater unset bond direction on [N] open bond(s)"
     env.history.deferred_summary_message( orangemsg(summary_format) )
     return
@@ -563,7 +563,7 @@ def _clear_illegal_direction(bond):
     Report and immediately fix this error.
 
     @type bond: Bond
-    """    
+    """
     bond.clear_bond_direction()
 
     summary_format = "Warning: dna updater cleared [N] bond direction(s) on pseudoelements that don't permit one"
@@ -612,14 +612,14 @@ def _f_detailed_dna_updater_error_string( atom):
     [friend function for use by Atom.dna_updater_error_string,
      which might be moved onto the same Atom subclass as
      _atom_set_dna_updater_error should be moved to]
-    
+
     Assuming atom._dna_updater__error == PROPOGATED_DNA_UPDATER_ERROR,
     return a more complete error string for atom
     (perhaps containing internal newlines)
     which lists the errors directly assigned to other atoms
     in the same basepair.
     """
-    
+
     ### REVIEW: should we be documented to work even before propogation
     # actually occurs?
 
@@ -638,7 +638,7 @@ def _f_detailed_dna_updater_error_string( atom):
     error_reports = [ "%s: %s" % (str(atom2), error)
                       for atom2, error in direct_errors.items() ]
     if len(error_reports) <= 1:
-        header = "error elsewhere in basepair:" 
+        header = "error elsewhere in basepair:"
     else:
         error_reports.sort() # todo - should probably use atom key numbers as sort order
         header = "errors elsewhere in basepair:"

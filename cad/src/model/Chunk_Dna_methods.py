@@ -1,4 +1,4 @@
-# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Chunk_Dna_methods.py -- dna-related methods for class Chunk
 
@@ -47,13 +47,13 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
     # use cooperating objects rather than mixin classes. [bruce 090123]
     """
     Dna-related methods to be mixed in to class Chunk.
-    """  
-    
+    """
+
     # PAM3+5 attributes (these only affect PAM atoms in self, if any):
     #
     # ### REVIEW [bruce 090115]: can some of these be deprecated and removed?
     #
-    # self.display_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion 
+    # self.display_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion
     #   on input
     #   to the specified PAM model for display and editing of self, or can be
     #   "" to use global preference settings. (There is no value which always
@@ -63,7 +63,7 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
     #   conversion for that chunk.)
     #
     #  The value MODEL_PAM3 implies preservation of PAM5 data when present
-    #  (aka "pam3+5" or "pam3plus5"). 
+    #  (aka "pam3+5" or "pam3plus5").
     #  The allowed values are "", MODEL_PAM3, MODEL_PAM5.
     #
     # self.save_as_pam can be MODEL_PAM3 or MODEL_PAM5 to force conversion on save
@@ -74,18 +74,18 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
     # [bruce 080321 for PAM3+5] ### TODO: use for conversion, and prevent
     # ladder merge when different
 
-    display_as_pam = "" 
+    display_as_pam = ""
         # PAM model to use for displaying and editing PAM atoms in self (not
         # set means use user pref)
 
-    save_as_pam = "" 
+    save_as_pam = ""
         # PAM model to use for saving self (not normally set; not set means
         # use save-op params)
-        
-    # this mixin's contribution to Chunk.copyable_attrs
-    _dna_copyable_attrs = ('display_as_pam', 'save_as_pam', ) 
 
-    
+    # this mixin's contribution to Chunk.copyable_attrs
+    _dna_copyable_attrs = ('display_as_pam', 'save_as_pam', )
+
+
     def invalidate_ladder(self): #bruce 071203
         """
         Subclasses which have a .ladder attribute
@@ -107,58 +107,58 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
         """
         return False
 
-    
+
     def _make_glpane_cmenu_items_Dna(self, contextMenuList): # by Ninad
         """
-        Private helper for Chunk.make_glpane_cmenu_items; 
+        Private helper for Chunk.make_glpane_cmenu_items;
         does the dna-related part.
         """
         #bruce 090115 split this out of Chunk.make_glpane_cmenu_items
-        
+
         def _addDnaGroupMenuItems(dnaGroup):
             if dnaGroup is None:
                 return
             item = (("DnaGroup: [%s]" % dnaGroup.name), noop, 'disabled')
-            contextMenuList.append(item)   
-            item = (("Edit DnaGroup Properties..."), 
-                    dnaGroup.edit) 
+            contextMenuList.append(item)
+            item = (("Edit DnaGroup Properties..."),
+                    dnaGroup.edit)
             contextMenuList.append(item)
             return
-        
+
         if self.isStrandChunk():
             strandGroup = self.parent_node_of_class(self.assy.DnaStrand)
 
             if strandGroup is None:
                 strand = self
             else:
-                #dna_updater case which uses DnaStrand object for 
+                #dna_updater case which uses DnaStrand object for
                 #internal DnaStrandChunks
-                strand = strandGroup                
+                strand = strandGroup
 
             dnaGroup = strand.parent_node_of_class(self.assy.DnaGroup)
 
             if dnaGroup is None:
                 #This is probably a bug. A strand should always be contained
-                #within a Dnagroup. But we'll assume here that this is possible. 
+                #within a Dnagroup. But we'll assume here that this is possible.
                 item = (("%s" % strand.name), noop, 'disabled')
             else:
                 item = (("%s of [%s]" % (strand.name, dnaGroup.name)),
                         noop,
-                        'disabled')	
+                        'disabled')
             contextMenuList.append(None) # adds a separator in the contextmenu
-            contextMenuList.append(item)	    
-            item = (("Edit DnaStrand Properties..."), 
-                    strand.edit) 			  
+            contextMenuList.append(item)
+            item = (("Edit DnaStrand Properties..."),
+                    strand.edit)
             contextMenuList.append(item)
             contextMenuList.append(None) # separator
-            
+
             _addDnaGroupMenuItems(dnaGroup)
-            
+
             # add menu commands from our DnaLadder [bruce 080407]
-            # REVIEW: should these be added regardless of command? 
+            # REVIEW: should these be added regardless of command?
             # [bruce 090115 question]
             # REVIEW: I think self.ladder is not valid except in dna-specific
-            # subclasses of Chunk. Probably that means this code should be 
+            # subclasses of Chunk. Probably that means this code should be
             # moved there. [bruce 090115]
             if self.ladder:
                 menu_spec = self.ladder.dnaladder_menu_spec(self)
@@ -183,17 +183,17 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
                             'disabled')
 
                 contextMenuList.append(item)
-                item = (("Edit DnaSegment Properties..."), 
+                item = (("Edit DnaSegment Properties..."),
                         segment.edit)
                 contextMenuList.append(item)
                 contextMenuList.append(None) # separator
                 # add menu commands from our DnaLadder [bruce 080407]
                 # REVIEW: see comments for similar code above. [bruce 090115]
-                if segment.picked:       
+                if segment.picked:
                     selectedDnaSegments = self.assy.getSelectedDnaSegments()
                     if len(selectedDnaSegments) > 0:
                         item = (("Resize Selected DnaSegments "\
-                                 "(%d)..." % len(selectedDnaSegments)), 
+                                 "(%d)..." % len(selectedDnaSegments)),
                                 self.assy.win.resizeSelectedDnaSegments)
                         contextMenuList.append(item)
                         contextMenuList.append(None)
@@ -201,13 +201,13 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
                     menu_spec = self.ladder.dnaladder_menu_spec(self)
                     if menu_spec:
                         contextMenuList.extend(menu_spec)
-                        
+
                 _addDnaGroupMenuItems(dnaGroup)
                 pass
             pass
         return
-    
-    
+
+
     # START of Dna-Strand-or-Axis chunk specific code ==========================
 
     # Note: some of these methods will be removed from class Chunk once the
@@ -215,16 +215,16 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
 
     def _editProperties_DnaStrandChunk(self):
         """
-        Private helper for Chunk.edit; 
+        Private helper for Chunk.edit;
         does the dna-related part.
         """
         # probably by Ninad; split out of Chunk.edit by Bruce 090115
         commandSequencer = self.assy.w.commandSequencer
-        commandSequencer.userEnterCommand('DNA_STRAND')                
+        commandSequencer.userEnterCommand('DNA_STRAND')
         assert commandSequencer.currentCommand.commandName == 'DNA_STRAND'
         commandSequencer.currentCommand.editStructure(self)
         return
-    
+
     def isStrandChunk(self): # Ninad circa 080117, revised by Bruce 080117
         """
         Returns True if *all atoms* in this chunk are PAM 'strand' atoms
@@ -236,14 +236,14 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
         This method is overridden in dna-specific subclasses of Chunk.
         It is likely that this implementation on Chunk itself could now
         be redefined to just return False, but this has not been analyzed closely.
-        
+
         @see: BuildDna_PropertyManager.updateStrandListWidget where this is used
-              to filter out strand chunks to put those into the strandList 
-              widget.        
+              to filter out strand chunks to put those into the strandList
+              widget.
         """
         # This is a temporary method that can be removed once dna_model is
         # fully functional.
-        
+
         # bruce 090121 comment: REVIEW whether this can be redefined to return
         # False on this class, since it's implemented in our DnaStrandChunk
         # subclass.
@@ -293,7 +293,7 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
                 return False
             continue
 
-        return found_axis_atom  
+        return found_axis_atom
 
     #END of Dna-Axis chunk specific code ====================================
 
@@ -306,52 +306,52 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
         @rtype: boolean
         """
         return self.isAxisChunk() or self.isStrandChunk()
-    
+
 
     def getDnaGroup(self): # ninad 080205
         """
-        Return the DnaGroup of this chunk if it has one. 
+        Return the DnaGroup of this chunk if it has one.
         """
         return self.parent_node_of_class(self.assy.DnaGroup)
-    
+
     def getDnaStrand(self):
         """
-        Returns the DnaStrand(group) node to which this chunk belongs to. 
-        
+        Returns the DnaStrand(group) node to which this chunk belongs to.
+
         Returns None if there isn't a parent DnaStrand group.
-        
+
         @see: Atom.getDnaStrand()
         """
         if self.isNullChunk():
             return None
-        
+
         dnaStrand = self.parent_node_of_class(self.assy.DnaStrand)
-        
+
         return dnaStrand
-    
+
     def getDnaSegment(self):
         """
-        Returns the DnaStrand(group) node to which this chunk belongs to. 
-        
+        Returns the DnaStrand(group) node to which this chunk belongs to.
+
         Returns None if there isn't a parent DnaStrand group.
-        
+
         @see: Atom.getDnaStrand()
         """
         if self.isNullChunk():
             return None
-        
+
         dnaSegment = self.parent_node_of_class(self.assy.DnaSegment)
-        
+
         return dnaSegment
 
     #END of Dna-Strand-or-Axis chunk specific code ========================
 
-    
+
     def _readmmp_info_chunk_setitem_Dna( self, key, val, interp ):
         """
         Private helper for Chunk.readmmp_info_chunk_setitem.
-        
-        @return: whether we handled this info record (depends only on key, 
+
+        @return: whether we handled this info record (depends only on key,
                  not on success vs error)
         @rtype: boolean
         """
@@ -361,7 +361,7 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
             if val not in ("", MODEL_PAM3, MODEL_PAM5):
                 # maybe todo: use deferred_summary_message?
                 print "fyi: info chunk display_as_pam with unrecognized value %r" % \
-                      (val,) 
+                      (val,)
                 val = ""
             #bruce 080523: silently ignore this, until the bug 2842 dust fully
             # settles. This is #1 of 2 changes (in the same commit) which
@@ -385,18 +385,18 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
         else:
             return False
         return True
-    
+
     def _writemmp_info_chunk_before_atoms_Dna(self, mapping):
         """
         Private helper for Chunk.writemmp_info_chunk_before_atoms.
-        
+
         @return: None
         """
         if self.display_as_pam:
             # Note: not normally set on most chunks, even when PAM3+5 is in use.
             # Future optim (unimportant since not normally set):
             # we needn't write this is self contains no PAM atoms.
-            # and if we failed to write it when dna updater was off, 
+            # and if we failed to write it when dna updater was off,
             # that would be ok.
             # So we could assume we don't need it for ordinary chunks
             # (even though that means dna updater errors on atoms would discard it).
@@ -406,7 +406,7 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
             mapping.write("info chunk save_as_pam = %s\n" % self.save_as_pam)
         return
 
-    
+
     def _getToolTipInfo_Dna(self):
         """
         Return the dna-related part of the tooltip string for this chunk
@@ -416,15 +416,15 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
         #bruce 090115 split this out of Chunk.getToolTipInfo
         strand = self.getDnaStrand()
         if strand:
-            return strand.getDefaultToolTipInfo()   
-        
+            return strand.getDefaultToolTipInfo()
+
         segment = self.getDnaSegment()
         if segment:
             return segment.getDefaultToolTipInfo()
-                    
+
         return ""
 
-    
+
     def _getAxis_of_self_or_eligible_parent_node_Dna(self, atomAtVectorOrigin = None):
         """
         Private helper for Chunk.getAxis_of_self_or_eligible_parent_node;
@@ -451,7 +451,7 @@ class Chunk_Dna_methods: ## (NodeWithAtomContents):
                     return axisVector, dnaSegment
 
         return None, None
-    
+
     pass # end of class Chunk_Dna_methods
 
 # end

@@ -1,4 +1,4 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 testdraw.py -- drawing code for testmode, which tests the exprs package.
 
@@ -161,7 +161,7 @@ def end_of_Enter(glpane):
     ## glpane.win.setViewHome() # not tested, might be wrong; redundant now (if home view is the default)
     init_glpane_vars(glpane)
     # print "did end_of_Enter on",glpane # works
-    
+
 def init_glpane_vars(glpane):
     # print "init_glpane_vars on glpane %r" % glpane # called by Draw and by end_of_Enter (as of 070103)
     glpane._glnames = []
@@ -169,7 +169,7 @@ def init_glpane_vars(glpane):
     glpane._testmode_stuff_2 = []
     glpane._testmode_stuff_3 = []
     glpane._alpha = 1.0
-    
+
 def leftDown(mode, event, glpane, superclass): # called from testmode.leftDown
     "[mode is needed to call superclass.leftDown]"
     ####@@@@ LOGIC BUG: when we reload, we replace one highlightable with a new one in the same place --
@@ -183,7 +183,7 @@ def render_scene(mode, glpane): # called by testmode.render_scene # 061208
     # print "calling glpane.render_scene from testdraw.render_scene" -- works
     glpane.render_scene()
     return
-    
+
 def Draw_preparation(mode, glpane, superclass): # called by testmode.Draw_preparation
     init_glpane_vars(glpane)
     return
@@ -252,7 +252,7 @@ def drawtest0(glpane):
         # anything that gets drawn can compare this with realtime
         # to get time so far in this frame, but it's up to it to be drawn
         # near the end of what we draw in the frame
-    
+
     try:
         if printdraw:
             print "drawfunc (redraw %d)" % env.redraw_counter

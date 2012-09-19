@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 shape_vertices.py - Geometric constructions of vertex lists used
                     by the drawing functions.
@@ -7,7 +7,7 @@ This includes vertices for the shapes of primitives that will go into display
 lists in the setup_drawer function in setup_draw.py .
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -101,7 +101,7 @@ def subdivide(tri,deep):
                subdivide((d,b,e), deep-1) + subdivide((f,e,c), deep-1)
     else: return [tri]
 
-## Get the specific detail level of triangles approximation of a sphere 
+## Get the specific detail level of triangles approximation of a sphere
 def getSphereTriangles(level):
     ocdec = []
     for i in icosix:
@@ -401,15 +401,15 @@ def init_motors():
     drawing_globals.halfEdge = halfEdge = 3.0 * scaleS * sin(pi/numSeg)
 
     arrow0Vertices = [
-        (rotS0n[-1][0]-halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
-        (rotS0n[-1][0]+halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
+        (rotS0n[-1][0]-halfEdge, rotS0n[-1][1], rotS0n[-1][2]),
+        (rotS0n[-1][0]+halfEdge, rotS0n[-1][1], rotS0n[-1][2]),
         (rotS0n[-1][0], rotS0n[-1][1] + 2.0*halfEdge, rotS0n[-1][2])]
     arrow0Vertices.reverse()
     drawing_globals.arrow0Vertices = arrow0Vertices
 
     drawing_globals.arrow1Vertices = [
-        (rotS1n[-1][0]-halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
-        (rotS1n[-1][0]+halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
+        (rotS1n[-1][0]-halfEdge, rotS1n[-1][1], rotS1n[-1][2]),
+        (rotS1n[-1][0]+halfEdge, rotS1n[-1][1], rotS1n[-1][2]),
         (rotS1n[-1][0], rotS1n[-1][1] + 2.0*halfEdge, rotS1n[-1][2])]
 
     drawing_globals.halfEdge = halfEdge = 1.0/3.0 ##1.0/8.0
@@ -506,7 +506,7 @@ def _makeLonsCell():
     lVp = [# 2 outward vertices
            [-ux, -2*uy, 0.0], [0.0, uy, 0.0],
            # Layer 1: 7 vertices
-           [ux, -2*uy, ul],   [-ux, -2*uy, ul],   [0.0, uy, ul], 
+           [ux, -2*uy, ul],   [-ux, -2*uy, ul],   [0.0, uy, ul],
            [ux, 2*uy, ul+dz], [-ux, 2*uy, ul+dz], [0.0, -uy, ul+dz],
            [-ux, 4*uy, ul],
            # Layer 2: 7 vertices
@@ -520,9 +520,9 @@ def _makeLonsCell():
             #  6 xy Edges for layer 1
             [lVp[2], lVp[7]], [lVp[3], lVp[7]], [lVp[7], lVp[4]],
             [lVp[4], lVp[6]], [lVp[4], lVp[5]],
-            [lVp[6], lVp[8]],        
+            [lVp[6], lVp[8]],
             #  2 outward vertical edges for layer 2
-            [lVp[14], lVp[7]],  [lVp[13], lVp[6]], 
+            [lVp[14], lVp[7]],  [lVp[13], lVp[6]],
             # 6 xy Edges for layer 2
             [lVp[14], lVp[9]], [lVp[14], lVp[10]], [lVp[14], lVp[11]],
             [lVp[11], lVp[13]], [lVp[11], lVp[12]],

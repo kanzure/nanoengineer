@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 GeneratorController.py - subclass of GeneratorBaseClass, which can control
 the interaction between a dialog and a plugin_generator
@@ -6,7 +6,7 @@ the interaction between a dialog and a plugin_generator
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note: this is presently used only by features that never got fully ported
 to Qt4, and which should be heavily rewritten when they do get ported
@@ -48,7 +48,7 @@ class GeneratorController(GeneratorBaseClass):
         # set some attrs our own methods need
         self.paramnames = gen.paramnames_order
         return
-    
+
     def meet_dialog(self, dialog):
         """
         Start controlling this dialog's appearance and implementing its buttons.
@@ -81,7 +81,7 @@ class GeneratorController(GeneratorBaseClass):
         self.gen = None
         #e anything needed in the superclasses?
         return
-    
+
     # These are defined in GeneratorBaseClass and don't need to be overridden here,
     # but they do need to be called from our dialog when its buttons are clicked on.
     # I think we'll also need to add a "restore defaults".
@@ -90,7 +90,7 @@ class GeneratorController(GeneratorBaseClass):
     ##def whatsthis_btn_clicked(self):
     ##def ok_btn_clicked(self):
     ##def cancel_btn_clicked(self):
-    
+
     def gather_parameters(self):
         getters = self.dialog.param_getters
         res = []

@@ -1,5 +1,5 @@
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 This script produces the sponsors.md5 file. It assumes the sponsors.xml file is

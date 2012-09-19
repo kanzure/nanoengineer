@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 files_mmp_registration.py - registration scheme for helper functions
 for parsing mmp record lines which start with specific recordnames.
@@ -26,9 +26,9 @@ class MMP_RecordParser(object): #bruce 071018
     mmp grammar using
 
       register_MMP_RecordParser('recordname', recordParser)
-    
+
     for one or more recordnames which that parser subclass can support.
-    
+
     Typically, each subclass knows how to parse just one kind of record,
     and is registered with only one recordname.
 
@@ -59,7 +59,7 @@ class MMP_RecordParser(object): #bruce 071018
         """
         @param readmmp_state: object which tracks state of one mmp reading operation.
         @type readmmp_state: class _readmmp_state (implem is private to files_mmp.py).
-        
+
         @param recordname: mmp record name for which this instance is registered.
         @type recordname: string (containing no whitespace)
         """
@@ -67,48 +67,48 @@ class MMP_RecordParser(object): #bruce 071018
         self.recordname = recordname
         self.assy = readmmp_state.assy
         return
-    
+
     def get_name(self, card, default):
         """
         [see docstring of same method in class _readmmp_state]
         """
         return self.readmmp_state.get_name(card, default)
-    
+
     def get_decoded_name_and_rest(self, card, default = None):
         """
         [see docstring of same method in class _readmmp_state]
         """
         return self.readmmp_state.get_decoded_name_and_rest(card, default)
-    
+
     def decode_name(self, name):
         """
         [see docstring of same method in class _readmmp_state]
         """
         return self.readmmp_state.decode_name(name)
-    
+
     def addmember(self, model_component):
         """
         [see docstring of same method in class _readmmp_state]
         """
         self.readmmp_state.addmember(model_component)
-        
+
     def set_info_object(self, kind, model_component):
         """
         [see docstring of same method in class _readmmp_state]
         """
         self.readmmp_state.set_info_object(kind, model_component)
-    
+
     def read_new_jig(self, card, constructor):
         """
         [see docstring of same method in class _readmmp_state]
         """
         self.readmmp_state.read_new_jig(card, constructor)
-    
+
     def read_record(self, card):
         msg = "subclass %r for recordname %r must implement method read_record" % \
                (self.__class__, self.recordname)
         self.readmmp_state.bug_error(msg)
-    
+
     pass # end of class MMP_RecordParser
 
 class _fake_MMP_RecordParser(MMP_RecordParser):
@@ -214,7 +214,7 @@ def find_registered_parser_class(recordname): #bruce 071019
     # Ideally, we'd behave differently during or after startup.
     # For now, we ignore this issue, except for the _fake_MMP_RecordParsers
     # registered for _RECORDNAMES_THAT_MUST_BE_REGISTERED above.
-    
+
     return _The_MMP_Grammar.get_registered_MMP_RecordParser( recordname)
 
 # end

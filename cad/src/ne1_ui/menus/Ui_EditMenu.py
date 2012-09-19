@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 """
@@ -49,5 +49,5 @@ def retranslateUi(win):
     """
     win.editMenu.setTitle(
         QtGui.QApplication.translate(
-            "MainWindow", "&Edit", 
+            "MainWindow", "&Edit",
             None, QtGui.QApplication.UnicodeUTF8))

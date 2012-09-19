@@ -1,11 +1,11 @@
-# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 utilities/Comparison.py - provides same_vals, for correct equality comparison.
 See also state_utils.py, which contains the closely related copy_val.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -46,7 +46,7 @@ SAMEVALS_SPEEDUP = True
     # If true, try to use the C extension version in samevals.c
     # [which is not yet fully correct, IIRC -- bruce 071005 comment];
     # will be set to False if "import samevals" fails below.
-    
+
     # Note: samevals.c [by wware] is still built and resides in cad/src,
     # not cad/src/utilities, as of 071005, but that should not
     # prevent import samevals from working here. If samevals.c is moved
@@ -87,7 +87,7 @@ def same_vals(v1, v2): #060303
      This method is the reference version, coded in Python.
      This version is used by some developers who don't build the C version
      for some reason.)
-    
+
     Efficiently scan v1 and v2 in parallel to determine whether they're the
     same, for purposes of undoable state or saved state.
 
@@ -101,7 +101,7 @@ def same_vals(v1, v2): #060303
     (For details, see bruce email to 'all' of 060302, partially included below.)
 
     It turns out that you can safely naively use != on Numeric arrays,
-    but not ==, since they both act elementwise, and this only 
+    but not ==, since they both act elementwise, and this only
     does what you usually want with != . I knew this in the past
     (and fixed some weird bugs caused by it) but forgot it recently,
     so Undo was thinking that atom position arrays had not changed
@@ -149,7 +149,7 @@ def same_vals(v1, v2): #060303
         # It's just as well we're not doing it in the recursive helper,
         # since it would probably slow us down when done at every level.
         # [060303 11pm]
-        return True 
+        return True
     try:
         _same_vals_helper(v1, v2)
     except _NotTheSame:
@@ -212,7 +212,7 @@ def _same_dict_helper(v1, v2):
 # but note that choice 2 is probably safer.
 # in fact, if I do that, i'd no longer need _eq_id_mixin just due to StateMixin.
 # (only when __getattr__ and someone calls '==') [060303]
-# 
+#
 # Update 060306: some objects will need _s_same_as(self, other) different from
 # __eq__, since __eq__ *might* want to compare some components with !=
 # (like int and float) rather than be as strict as same_vals.
@@ -325,7 +325,7 @@ def _same_Numeric_array_helper(obj1, obj2):
         # but it will be inefficient)
         for i in xrange(len(obj1)):
             # two PyObjects (if obj1 is 1-dim) or two lower-dim Numeric arrays
-            _same_vals_helper(obj1[i], obj2[i]) 
+            _same_vals_helper(obj1[i], obj2[i])
     else:
         if obj1 != obj2:
             # take pointwise !=, then boolean value of that (correct, but is
@@ -394,7 +394,7 @@ if _haveNumpy:
     assert numpy_ndarray_type != InstanceType
     _known_type_same_helpers[ numpy_ndarray_type ] = _same_numpy_ndarray_helper
     del numpy_ndarray_type
-    
+
 def _same_vals_helper(v1, v2): #060303
     """
     [private recursive helper for same_vals]
@@ -453,5 +453,5 @@ if SAMEVALS_SPEEDUP:
     # modifying the global before each test -- not presently worth
     # the trouble. [bruce 080922 comment]
     pass
-    
+
 # end

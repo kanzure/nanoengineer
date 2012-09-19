@@ -1,7 +1,7 @@
 class TrivalentGraphDrawingTool_OBS(Tool): # REVIEW: can it turn into HuntForNode with node = None to save coding?
     #doc - Active means we know the parent (pane or widget) as self.pane;
     # the pane is also what distributes events... it does so through the tool, on its event handler stack
-    
+
     # handlers for when we're applied to a pane
     def on_mouse_press(self, x, y, button, modifiers):
         # todo: care about button, modifiers

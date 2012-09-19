@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_find_chains.py - helper for dna_updater_chunks
 
@@ -64,7 +64,7 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
         res = PAM_atoms_allowed_in_same_ladder( bond.atom1, bond.atom2 )
         return res
     pass
-    
+
 class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
     _wrapper = AxisChain
     def atom_ok(self, atom):
@@ -177,7 +177,7 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
 
     if debug_flags.DEBUG_DNA_UPDATER:
         print "dna updater: %d axis atoms, %d strand atoms" % (len(axis_atoms), len(strand_atoms))
-    
+
     axis_chains = axis_analyzer.find_chains_or_rings( axis_atoms )
         # NOTE: this takes ownership of axis_atoms and trashes it.
         # NOTE: this only finds chains or rings which contain at least one
@@ -198,8 +198,8 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
 
     if debug_flags.DEBUG_DNA_UPDATER:
         print "dna updater: found %d axis chains or rings" % len(axis_chains)
-    
-    # 
+
+    #
     strand_chains = strand_analyzer.find_chains_or_rings( strand_atoms )
     assert not strand_atoms  # see warning on similar assert above
     if debug_flags.DEBUG_DNA_UPDATER:

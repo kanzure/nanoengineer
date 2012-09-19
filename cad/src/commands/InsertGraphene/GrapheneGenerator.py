@@ -1,4 +1,4 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GrapheneGenerator.py
 
@@ -12,8 +12,8 @@ Mark 2007-05-17: Implemented PropMgrBaseClass.
 Mark 2007-07-24: Now uses new PM module.
 Mark 2007-08-06: Renamed GrapheneGeneratorDialog to GrapheneGeneratorPropertyManager.
 
-Ninad 2008-07-23: Cleanup to port Graphene generator to the EditCommand API. 
-Now this class simply acts as a generator object called from the editcommand 
+Ninad 2008-07-23: Cleanup to port Graphene generator to the EditCommand API.
+Now this class simply acts as a generator object called from the editcommand
 while creating the structure.
 """
 
@@ -42,13 +42,13 @@ class GrapheneGenerator:
     """
     The Graphene Sheet Generator class for the "Build Graphene (Sheet)" command.
     """
-    def make(self, 
-             assy, 
-             name, 
-             params,              
+    def make(self,
+             assy,
+             name,
+             params,
              position = V(0, 0, 0),
              editCommand = None):
-        
+
         height, width, bond_length, endings = params
         PROFILE = False
         if PROFILE:
@@ -65,7 +65,7 @@ class GrapheneGenerator:
                                          (t, len(atoms.values()))))
         return mol
 
-    
+
     def populate(self, mol, height, width, z, bond_length, endings, position):
         """
         Create a graphene sheet chunk.
@@ -104,7 +104,7 @@ class GrapheneGenerator:
                 lst2 = bond_dict[(i, j+1)]
                 bond_atoms(lst1[0], lst2[1], bond_constants.V_GRAPHITE)
                 bond_atoms(lst1[3], lst2[2], bond_constants.V_GRAPHITE)
-                
+
         for i in range(imax - 1):
             for j in range(jmax):
                 lst1 = bond_dict[(i, j)]

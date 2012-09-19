@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 jigs_planes.py -- Classes for Plane jigs, including RectGadget,
 GridPlane, and (in its own module) ESPImage.
@@ -7,7 +7,7 @@ GridPlane, and (in its own module) ESPImage.
 @version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
-History: 
+History:
 
 050927. Split off Plane jigs from jigs.py into this file. Mark
 
@@ -58,19 +58,19 @@ class RectGadget(Jig):
 
     def __init__(self, assy, list, READ_FROM_MMP):
         Jig.__init__(self, assy, list)
-        
+
         self.width = 20
         self.height = 20
-        
+
         self.assy = assy
         self.cancelled = True # We will assume the user will cancel
 
         self.atomPos = []
         if not READ_FROM_MMP:
-            self.__init_quat_center(list)        
+            self.__init_quat_center(list)
 
     def _um_initargs(self):
-        #bruce 051013 [as of 060209 this is probably well-defined and correct 
+        #bruce 051013 [as of 060209 this is probably well-defined and correct
         # (for most Jig subclasses), but not presently used]
         """
         Return args and kws suitable for __init__.
@@ -85,16 +85,16 @@ class RectGadget(Jig):
         if self.atoms:
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
         self.atoms = list(atomlist)
-        
+
     def __init_quat_center(self, list):
-        
+
         for a in list:#[:3]:
             self.atomPos += [a.posn()]
-    
+
         planeNorm = self._getPlaneOrientation(self.atomPos)
         self.quat = Q(V(0.0, 0.0, 1.0), planeNorm)
         self.center = add.reduce(self.atomPos)/len(self.atomPos)
-    
+
     def __computeBBox(self):
         """
         Compute current bounding box.
@@ -104,9 +104,9 @@ class RectGadget(Jig):
         abs_pos = []
         for pos in corners_pos:
             abs_pos += [self.quat.rot(pos) + self.center]
-        
+
         return BBox(abs_pos)
-    
+
     def __getattr__(self, name): # in class RectGadget
         if name == 'bbox':
             return self.__computeBBox()
@@ -119,11 +119,11 @@ class RectGadget(Jig):
         else:
             raise AttributeError, 'RectGadget has no "%s"' % name
                 #bruce 060209 revised text
-        
+
     def getaxis(self):
         # todo: merge somehow with getaxis methods on other Nodes
         return self.planeNorm # axis is normal to plane of RectGadget.  Mark 060120
-        
+
     def move(self, offset):
         """
         Move the plane by <offset>, which is a 'V' object.
@@ -132,27 +132,27 @@ class RectGadget(Jig):
         # or should it do more invalidations / change notifications / updates?
         # [bruce 070501 question]
         self.center += offset
-    
+
     def rot(self, q):
         self.quat += q
-        
+
     def needs_atoms_to_survive(self): # [Huaicai 9/30/05]
         """
         Overrided method inherited from Jig. This is used to tell if the jig
         can be copied even if it doesn't have atoms.
         """
         return False
-        
+
     def _getPlaneOrientation(self, atomPos):
         assert len(atomPos) >= 3
         v1 = atomPos[-2] - atomPos[-1]
         v2 = atomPos[-3] - atomPos[-1]
-        
+
         return cross(v1, v2)
-    
+
     def _mmp_record_last_part(self, mapping):
         return ""
-    
+
 ##    def is_disabled(self):
 ##        """
 ##        """
@@ -178,7 +178,7 @@ class RectGadget(Jig):
         #  but since we can't easily tell that, we instead kill the copy
         #  in _copy_fixup_at_end if it has no atoms when that func is done.]
         return new
-    
+
     def _copy_fixup_at_end(self): # warning [bruce 050704]: some of this code is copied in jig_Gamess.py's Gamess.cm_duplicate method.
         """
         [Private method]
@@ -214,11 +214,11 @@ class RectGadget(Jig):
         # or use list of classnames to search for more and more specific methods to call...
         # or just let subclasses extend this method in the usual way (maybe not doing those dels above).
         return
-    
-    pass # end of class RectGadget        
+
+    pass # end of class RectGadget
 
 # == GridPlane
-        
+
 class GridPlane(RectGadget):
     """
     """
@@ -226,53 +226,53 @@ class GridPlane(RectGadget):
     own_mutable_attrs = ('grid_color', )
     mutable_attrs = own_mutable_attrs + RectGadget.mutable_attrs
     copyable_attrs = RectGadget.copyable_attrs + ('line_type', 'grid_type', 'x_spacing', 'y_spacing') + own_mutable_attrs
-    
+
     sym = "GridPlane" #bruce 070604 removed space (per Mark decision)
     icon_names = ["modeltree/Grid_Plane.png", "modeltree/Grid_Plane-hide.png"] # Added gridplane icons.  Mark 050915.
     mmp_record_name = "gridplane"
     featurename = "Grid Plane" #bruce 051203
-    
+
     def __init__(self, assy, list, READ_FROM_MMP = False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
-        
+
         self.color = black # Border color
         self.normcolor = black
         self.grid_color = gray
         self.grid_type = SQUARE_GRID # Grid patterns: "SQUARE_GRID" or "SiC_GRID"
         # Grid line types: "NO_LINE", "SOLID_LINE", "DASHED_LINE" or "DOTTED_LINE"
-        self.line_type = SOLID_LINE 
+        self.line_type = SOLID_LINE
         # Changed the spacing to 2 to 1. Mark 050923.
         self.x_spacing = 5.0 # 5 Angstroms
         self.y_spacing = 5.0 # 5 Angstroms
 
     def setProps(self, name, border_color, width, height, center, wxyz, grid_type, \
                            line_type, x_space, y_space, grid_color):
-        
+
         self.name = name; self.color = self.normcolor = border_color;
-        self.width = width; self.height = height; 
+        self.width = width; self.height = height;
         self.center = center; self.quat = Q(wxyz[0], wxyz[1], wxyz[2], wxyz[3])
         self.grid_type = grid_type; self.line_type = line_type; self.x_spacing = x_space;
         self.y_spacing = y_space;  self.grid_color = grid_color
-        
+
     def _getinfo(self):
         return  "[Object: Grid Plane] [Name: " + str(self.name) + "] "
 
     def getstatistics(self, stats):
-        stats.num_gridplane += 1  
+        stats.num_gridplane += 1
 
     def set_cntl(self):
         self.cntl = GridPlaneProp(self, self.assy.o)
-        
+
     def make_selobj_cmenu_items(self, menu_spec):
         """
         Add GridPlane specific context menu items to the <menu_spec> list when
-        self is the selobj (i.e. the selected object under the cursor when the 
+        self is the selobj (i.e. the selected object under the cursor when the
         context menu is displayed).
-        
+
         @param menu_spec: A list of context menu items, where each member is a
                           tuple (menu item string, method).
         @type  menu_spec: list
-        
+
         @note: This only works in "Build Atoms" (depositAtoms) mode.
         """
         item = ('Hide', self.Hide)
@@ -280,7 +280,7 @@ class GridPlane(RectGadget):
         menu_spec.append(None) # Separator
         item = ('Edit Properties...', self.edit)
         menu_spec.append(item)
-        
+
     def _draw_jig(self, glpane, color, highlighted = False):
         """
         Draw a Grid Plane jig as a set of grid lines.
@@ -293,46 +293,46 @@ class GridPlane(RectGadget):
 
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
-        
+
         if highlighted:
             grid_color = color
         else:
             grid_color = self.grid_color
-        
+
         if self.picked:
             drawLineLoop(self.color, corners_pos)
         else:
             drawLineLoop(color, corners_pos)
-            
+
         if self.grid_type == SQUARE_GRID:
             drawGPGrid(glpane, grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing,
                        q.unrot(self.assy.o.up), q.unrot(self.assy.o.right))
         else:
             drawSiCGrid(grid_color, self.line_type, self.width, self.height,
                         q.unrot(self.assy.o.up), q.unrot(self.assy.o.right))
-        
+
         glPopMatrix()
-    
-    
+
+
     def mmp_record_jigspecific_midpart(self):
         """
         format: width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb)
         """
         color = map(int, A(self.grid_color)*255)
-        
+
         dataline = "%.2f %.2f (%f, %f, %f) (%f, %f, %f, %f) %d %d %.2f %.2f (%d, %d, %d)" % \
-           (self.width, self.height, self.center[0], self.center[1], self.center[2], 
-            self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.grid_type, self.line_type, 
+           (self.width, self.height, self.center[0], self.center[1], self.center[2],
+            self.quat.w, self.quat.x, self.quat.y, self.quat.z, self.grid_type, self.line_type,
             self.x_spacing, self.y_spacing, color[0], color[1], color[2])
         return " " + dataline
-    
-    
+
+
     def writepov(self, file, dispdef):
         if self.hidden:
             return
         if self.is_disabled():
             return #bruce 050421
-        
+
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
         povPlaneCorners = []
@@ -341,9 +341,9 @@ class GridPlane(RectGadget):
         strPts = ' %s, %s, %s, %s ' % tuple(map(povpoint, povPlaneCorners))
         color = '%s>' % (povStrVec(self.color),)
         file.write('grid_plane(' + strPts + color + ') \n')
-        
-    pass # end of class GridPlane   
-    
+
+    pass # end of class GridPlane
+
 # ==
 
 def povStrVec(va): # review: refile in povheader or so? [bruce 071215 comment]
@@ -351,7 +351,7 @@ def povStrVec(va): # review: refile in povheader or so? [bruce 071215 comment]
     rstr = '<'
     for ii in range(size(va)):
         rstr += str(va[ii]) + ', '
-    
+
     return rstr
 
 #end

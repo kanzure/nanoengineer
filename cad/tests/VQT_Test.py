@@ -11,12 +11,12 @@ class GeometryFunctionsTestCase(unittest.TestCase):
         """Sets up any objects needed by this test case."""
         pass
 
-    
+
     def tearDown(self):
         """Releases any resources used by this test case."""
         pass
 
-    
+
     def testAngleBetween(self):
         vector1 = array((1, 0, 0))
         vector2 = array((0, 1, 0))
@@ -26,7 +26,7 @@ class GeometryFunctionsTestCase(unittest.TestCase):
                alltrue(vector2 == array((0, 1, 0))), \
                "Arguments were modified (recurrence of bug ####)"
 
-               
+
 if __name__ == "__main__":
     unittest.main() # Run all tests whose names begin with 'test'
 

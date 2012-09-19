@@ -1,9 +1,9 @@
-# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 graphics_card_info.py - def get_gl_info_string, to query OpenGL extensions
 
 @version: $Id$
-@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 

@@ -1,10 +1,10 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 drawing_constants.py - constants and helpers for graphics.drawing package
 
 @author: Russ, plus others if the code that belongs here is ever moved here
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 

@@ -1,4 +1,4 @@
-# Copyright 2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2009 Nanorex, Inc.  See LICENSE file for details.
 """
 TransformNode.py -- mutable transform classes, shared by TransformNodes
 
@@ -7,7 +7,7 @@ NOT YET USED as of 090204... declared obsolete as of bruce 090225:
 - much of the specific code is obsolete, since we abandoned the idea of a
   number-capped TransformControl object (no need to merge TCs when too many
   are used)
-  
+
 - the concept of a separated dynamic and static transform, and letting
   them be pointers to separate objects, potentially shared, is a good one,
   which will be used in some form if we ever optimize rigid drag of
@@ -19,7 +19,7 @@ NOT YET USED as of 090204... declared obsolete as of bruce 090225:
 
 Therefore, this file (and TransformState which it uses) are now scratch files.
 However, I'm leaving some comments that refer to TransformNode in place
-(in still-active files), since they also help point out the code which any 
+(in still-active files), since they also help point out the code which any
 other attempt to optimize rigid drags would need to modify. In those comments,
 dt and st refer to dynamic transform and static transform, as used herein.
 
@@ -54,7 +54,7 @@ class TransformNode(Node3D): # review superclass and its name
     of TransformNodes) and an inner "static transform" (often non-identity for
     long periods, so we needn't remake or transform all affected CSDLs after
     every drag operation).
-    
+
     Each transform component can be shared with other nodes. That is, several
     nodes can refer to the same mutable transform, so that changes to it affect
     all of them.
@@ -138,7 +138,7 @@ class TransformNode(Node3D): # review superclass and its name
         (These are the objects which might get distorted due to a change
         in self's dynamic transform value, if the other nodes have different
         dynamic transforms at the time.)
-        
+
         [subclasses should override as needed; overridden in class Chunk]
         """
         # note: implem is per-subclass, for now; might generalize later
@@ -148,7 +148,7 @@ class TransformNode(Node3D): # review superclass and its name
         # right now, I don't know if they'll be kept in the same dict as it is
         # or not.
         return ()
-    
+
     pass
 
 
@@ -184,7 +184,7 @@ def merge_dynamic_into_static_transform(nodes):
 
     # now, fold the value of dt into the static transforms on nodes,
     # splitting the ones that also cover unaffected nodes.
-    
+
     # get the affected static transforms and their counts
     statics = {} # maps static transform to number of times we see it in nodes
     for node in nodes:
@@ -205,7 +205,7 @@ def merge_dynamic_into_static_transform(nodes):
         else:
             straddlers[st] = st # None is always a straddler
         continue
-    
+
     # allocate more TCs (up to the externally known global limit)
     # for making more static transforms when we split the straddlers
     want_TCs = len(straddlers)
@@ -229,11 +229,11 @@ def merge_dynamic_into_static_transform(nodes):
 
         if _DEBUG:
             print "splitting %d straddlers" % want_TCs
-        
+
         replacements = {} # map old to new, for use on nodes
         for straddler, tc in zip(straddlers, new_TCs):
             # note: straddler might be None
-            replacements[straddler] = StaticTransform(straddler, tc) 
+            replacements[straddler] = StaticTransform(straddler, tc)
 
         for node in nodes:
             st = node.static_transform
@@ -245,9 +245,9 @@ def merge_dynamic_into_static_transform(nodes):
         if st in replacements:
             st = replacements[st]
         st.applyDataFrom(dt)
-    
+
     ### more... only if we need to wrap some some specialized code to inval just the right aspects of the nodes ###
-    
+
     return
 
 def allocate_TransformControls(number):

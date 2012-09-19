@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 builtin_command_loaders.py -- loaders for NE1 builtin commands, used in order.
 
@@ -30,7 +30,7 @@ we register the loading code herein, so it can load
 some commands lazily.
 """
 
-from commands.BuildCrystal.BuildCrystal_Command import BuildCrystal_Command 
+from commands.BuildCrystal.BuildCrystal_Command import BuildCrystal_Command
 from commands.Extrude.extrudeMode import extrudeMode
 from commands.Paste.PasteFromClipboard_Command import PasteFromClipboard_Command
 from commands.PartLibrary.PartLibrary_Command import PartLibrary_Command
@@ -58,7 +58,7 @@ from temporary_commands.RotateMode import RotateMode
 from temporary_commands.LineMode.Line_Command import Line_Command
 from temporary_commands.RotateAboutPoint_Command import RotateAboutPoint_Command
 
-# Carbon nanotube commands 
+# Carbon nanotube commands
 from cnt.commands.BuildNanotube.BuildNanotube_EditCommand import BuildNanotube_EditCommand
 from cnt.commands.InsertNanotube.InsertNanotube_EditCommand import InsertNanotube_EditCommand
 from cnt.commands.EditNanotube.EditNanotube_EditCommand import EditNanotube_EditCommand
@@ -92,7 +92,7 @@ from protein.commands.BuildProtein.SimulateProtein_Command import SimulateProtei
 from protein.commands.FixedBBProteinSim.FixedBBProteinSim_Command import FixedBBProteinSim_Command
 from protein.commands.BackrubProteinSim.BackrubProteinSim_Command import BackrubProteinSim_Command
 
-# Graphene commands 
+# Graphene commands
 from commands.InsertGraphene.Graphene_EditCommand import Graphene_EditCommand
 
 from commands.BuildAtoms.BondTool_Command import SingleBondTool
@@ -125,21 +125,21 @@ def preloaded_command_classes():
     # classes for builtin commands (or unsplit modes) which were preloaded
     # by toplevel imports above, in order of desired instantiation:
     command_classes = [
-        SelectChunks_Command, 
+        SelectChunks_Command,
         SelectAtoms_Command,
         BuildAtoms_Command,
         Move_Command,
-        BuildCrystal_Command, 
-        extrudeMode, 
-        movieMode, 
-        ZoomToAreaMode, 
+        BuildCrystal_Command,
+        extrudeMode,
+        movieMode,
+        ZoomToAreaMode,
         ZoomInOutMode,
-        PanMode, 
-        RotateMode, 
-        PasteFromClipboard_Command, 
-        PartLibrary_Command, 
-        Line_Command, 
-        DnaLineMode, 
+        PanMode,
+        RotateMode,
+        PasteFromClipboard_Command,
+        PartLibrary_Command,
+        Line_Command,
+        DnaLineMode,
         InsertDna_EditCommand,
         Plane_EditCommand,
         LinearMotor_EditCommand,
@@ -150,7 +150,7 @@ def preloaded_command_classes():
         JoinStrands_By_DND_RequestCommand,
         MakeCrossovers_Command,
         BuildDna_EditCommand,
-        DnaSegment_EditCommand, 
+        DnaSegment_EditCommand,
         DnaStrand_EditCommand,
         MultipleDnaSegmentResize_EditCommand,
         OrderDna_Command,
@@ -158,12 +158,12 @@ def preloaded_command_classes():
         DnaDisplayStyle_Command,
         BuildNanotube_EditCommand,
         InsertNanotube_EditCommand,
-        EditNanotube_EditCommand, 
+        EditNanotube_EditCommand,
         Graphene_EditCommand,
         RotateChunks_Command,
-        TranslateChunks_Command, 
+        TranslateChunks_Command,
         FuseChunks_Command,
-        RotateAboutPoint_Command,        
+        RotateAboutPoint_Command,
         StereoProperties_Command,
         TestGraphics_Command,
         QuteMol_Command,
@@ -185,11 +185,11 @@ def preloaded_command_classes():
         TripleBondTool,
         AromaticBondTool,
         GraphiticBondTool,
-        DeleteBondTool, 
-        AtomsTool_Command, 
+        DeleteBondTool,
+        AtomsTool_Command,
         BondTool_Command
     ]
-    
+
     # note: we could extract each one's commandName (class constant)
     # if we wanted to return them as commandName, commandClass pairs
     return command_classes

@@ -83,13 +83,13 @@ class _test_connectWithState_GM(ExampleCommand.GraphicsMode_class):
     """
     Custom GraphicsMode for test_connectWithState.
     """
-    
+
     # bruce 071022 split this out, leaving all attrs in self.command
     # [REVIEW -- do some attrs (and therefore some or all of the
     #  exprs overhead) belong here? Guess: yes.]
-    
+
     def Draw_other(self):
-        
+
         color = self.command.cylinderColor
         length = cylinder_height()
 ##        if self.command.cylinderVertical:
@@ -101,7 +101,7 @@ class _test_connectWithState_GM(ExampleCommand.GraphicsMode_class):
         end2 = ORIGIN + direction * length/2.0
         radius = self.command.cylinderWidth / 2.0
         capped = True
-        
+
         drawcylinder(color, end1, end2, radius, capped)
 
         if cylinder_round_caps():
@@ -122,7 +122,7 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     # class constants needed by mode API for example commands
     commandName = 'test_connectWithState-commandName'
     featurename = "Prototype: Test connectWithState"
-    
+
     PM_class = test_connectWithState_PM
 
     # tracked state -- this initializes specially defined instance variables
@@ -132,14 +132,14 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     cylinderWidth = State(float, CYLINDER_WIDTH_DEFAULT_VALUE)
         # TODO: soon this will be the only use of this constant, so it can be inlined
     cylinderColor = State('color-stub', pink) # type should be Color (nim), but type is not yet used
-    
+
         # note: you can add _e_debug = True to one or more of these State definitions
         # to see debug prints about some accesses to this state.
 
     GraphicsMode_class = _test_connectWithState_GM
-    
+
     # init methods
-    
+
     def __init__(self, commandSequencer):
         # I don't know why this method is needed. ##### REVIEW (super semantics), FIX or clean up
         # (note: that comment predates commandSequencer != glpane; after that, it's needed
@@ -169,7 +169,7 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     width_direction = _self.width_direction # so it can be used in formulae below
 
     # stub for handle test code [070912]
-    
+
     widthHandleEnabled = True # stub
     ## widthHandle = Instance(Rect()) # stub
     h_offset = 0.5 + 0.2 # get it from handle? nah (not good if that changes with time); just make it fit.
@@ -217,7 +217,7 @@ class test_connectWithState(State_preMixin, ExampleCommand):
         if cylinder_height() < 0.1:
             set_cylinder_height(0.1)
         return
-    
+
     pass
 
 # end

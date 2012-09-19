@@ -55,11 +55,11 @@ class Select_basicCommand(basicCommand):
 
     """
     # class constants
-    
+
     from utilities.constants import CL_ABSTRACT
     command_level = CL_ABSTRACT
 
-    
+
     # Don't highlight singlets. (This attribute is set to True in
     # SelectAtoms_Command)
     highlight_singlets = False
@@ -78,14 +78,14 @@ class Select_basicCommand(basicCommand):
         #  to have it for clarity, especially if there is more than one
         #  superclass.)
         return
-    
+
     def connect_or_disconnect_signals(self, connect):
         """
         Subclasses should override this method
         """
         pass
 
-    
+
 
     def makeMenus(self):
         """
@@ -96,98 +96,98 @@ class Select_basicCommand(basicCommand):
         @see: SelectChunks_EditCommand.makeMenus()
         """
         pass
-    
+
     def _makeEditContextMenus(self):
         """
-        Subclasses can call this method inside self.makeMenus() if they need 
-        context menu items for editing selected components such as Nanotube, 
+        Subclasses can call this method inside self.makeMenus() if they need
+        context menu items for editing selected components such as Nanotube,
         DnaStrand , DnaSegments.
-        
-        Creates a context menu items to edit a selected component. 
+
+        Creates a context menu items to edit a selected component.
         If more than one type of components are selected, the edit options
         are not added. Example: if a DnaStrand is selected, this method will
-        add a context menu 'Edit selected DnaStrand'. But if, along with 
-        DnaStrand, a DnaSegment is selected, it won't show options to edit 
-        the dna strand or dna segment.     
-        
+        add a context menu 'Edit selected DnaStrand'. But if, along with
+        DnaStrand, a DnaSegment is selected, it won't show options to edit
+        the dna strand or dna segment.
+
         @see: SelectChunks_EditCommand.makeMenus()
-        @see: se;f.makeMenus() 
+        @see: se;f.makeMenus()
         """
         selectedDnaSegments = self.win.assy.getSelectedDnaSegments()
-        selectedDnaStrands = self.win.assy.getSelectedDnaStrands() 
+        selectedDnaStrands = self.win.assy.getSelectedDnaStrands()
         selectedNanotubes = self.win.assy.getSelectedNanotubeSegments()
-        
-        
+
+
         numOfSegments = len(selectedDnaSegments)
         numOfStrands = len(selectedDnaStrands)
         numOfNanotubes = len(selectedNanotubes)
-        
-                
-        #If both DnaSegments and DnaStrands are selected, we will not show 
+
+
+        #If both DnaSegments and DnaStrands are selected, we will not show
         #context menu for editing the selected entities i.e. Edit DnaSegment..
-        #AND "Edit DnaStrands..". This is based on a discussion with Mark. This 
+        #AND "Edit DnaStrands..". This is based on a discussion with Mark. This
         #can be easily changed if we decide that way  -- Ninad 2008-07-10
         count = 0
-        for num in (numOfSegments, numOfStrands, numOfNanotubes): 
-           
+        for num in (numOfSegments, numOfStrands, numOfNanotubes):
+
             if num > 0:
                 count += 1
-            
+
             if count > 1:
-                return 
-                        
+                return
+
         if numOfSegments or numOfStrands:
             self._makeDnaContextMenus()
-        
+
         if numOfNanotubes:
             self._makeNanotubeContextMenus()
-            
+
         return
-               
-    
+
+
     def _makeDnaContextMenus(self):
         """
-        Make Dna specific context menu that allows editing a *selected* 
+        Make Dna specific context menu that allows editing a *selected*
         DnaStrand or DnaSegment.
         @see: self._makeEditContextMenu() which calls this method
         """
         contextMenuList = []
         selectedDnaSegments = self.win.assy.getSelectedDnaSegments()
         selectedDnaStrands = self.win.assy.getSelectedDnaStrands()
-        
-        #If both DnaSegments and DnaStrands are selected, we will not show 
+
+        #If both DnaSegments and DnaStrands are selected, we will not show
         #context menu for editing the selected entities i.e. Edit DnaSegment.. AND
-        #"Edit DnaStrands..". This is based on a discussion with Mark. This 
+        #"Edit DnaStrands..". This is based on a discussion with Mark. This
         #can be easily changed if we decide that way  -- Ninad 2008-07-10
-        if not selectedDnaStrands:     
+        if not selectedDnaStrands:
             if len(selectedDnaSegments) == 1:
                 segment = selectedDnaSegments[0]
-                item = (("Edit Selected DnaSegment..."), 
+                item = (("Edit Selected DnaSegment..."),
                             segment.edit)
                 contextMenuList.append(item)
-                contextMenuList.append(None) #adds a separator 
-                
+                contextMenuList.append(None) #adds a separator
+
             if len(selectedDnaSegments) > 1:
                 item = (("Resize Selected DnaSegments "\
-                         "(%d)..."%len(selectedDnaSegments)), 
+                         "(%d)..."%len(selectedDnaSegments)),
                         self.win.resizeSelectedDnaSegments)
                 contextMenuList.append(item)
                 contextMenuList.append(None)
-            
+
         if not selectedDnaSegments:
             if len(selectedDnaStrands) == 1:
                 strand = selectedDnaStrands[0]
-                item = (("Edit Selected DnaStrand..."), 
+                item = (("Edit Selected DnaStrand..."),
                             strand.edit)
                 contextMenuList.append(item)
 
-        self.Menu_spec.extend(contextMenuList)        
-                
+        self.Menu_spec.extend(contextMenuList)
+
         return
-    
+
     def _makeNanotubeContextMenus(self):
         """
-        Make Nanotube specific context menu that allows editing a *selected* 
+        Make Nanotube specific context menu that allows editing a *selected*
         Nanotube
         @see: self._makeEditContextMenu() which calls this method
         """
@@ -195,13 +195,13 @@ class Select_basicCommand(basicCommand):
         selectedNanotubes = self.win.assy.getSelectedNanotubeSegments()
         if len(selectedNanotubes) == 1:
             nanotube = selectedNanotubes[0]
-            item = (("Edit Selected Nanotube..."), 
+            item = (("Edit Selected Nanotube..."),
                         nanotube.edit)
             contextMenuList.append(item)
-            
+
         self.Menu_spec.extend(contextMenuList)
-            
-        return 
+
+        return
 
 
 class Select_Command(Select_basicCommand):

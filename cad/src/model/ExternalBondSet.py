@@ -1,4 +1,4 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 ExternalBondSet.py - keep track of external bonds, to optimize redraw
 
@@ -15,7 +15,7 @@ and not yet actually used.
 
 (Update: as of 090225 TransformNode is abandoned.
 However, I'm leaving some comments that refer to TransformNode in place
-(in still-active files), since they also help point out the code which any 
+(in still-active files), since they also help point out the code which any
 other attempt to optimize rigid drags would need to modify. In those comments,
 dt and st refer to dynamic transform and static transform, as used in
 scratch/TransformNode.py.)
@@ -31,7 +31,7 @@ scratch/TransformNode.py.)
 
 # for now, we just maintain them but do nothing else with them,
 # as of 080702 noon PT. update 080707: a debug_pref draws with them,
-# false by default since predicted to be a slowdown for now. 
+# false by default since predicted to be a slowdown for now.
 # Retesting this 090126, it seems to work. Put drawing code into
 # ExternalBondSetDrawer, but not yet doing any caching there (CSDLs).
 # When we do, not yet known how much inval/update code goes there vs. here.
@@ -43,7 +43,7 @@ from graphics.model_drawing.ExternalBondSetDrawer import ExternalBondSetDrawer
     # todo: this import shouldn't be needed once we have the right
     # GraphicsRule architecture
 
-_DEBUG_EBSET = False # ok to commit with True, until the debug_pref 
+_DEBUG_EBSET = False # ok to commit with True, until the debug_pref
     # that calls us is on by default
 
 
@@ -63,7 +63,7 @@ class ExternalBondSet(object):
             # and need not remain constant or relate to atom order in our bonds.
         # maybe todo: rename: _f_bonds
         self._bonds = {}
-        self._drawer = ExternalBondSetDrawer(self) 
+        self._drawer = ExternalBondSetDrawer(self)
             # review: make on demand? GL context not current now...
             # hopefully ok, since it will only make DL on demand during .draw.
         return
@@ -76,7 +76,7 @@ class ExternalBondSet(object):
                self.chunks # this is () if self is destroyed
               )
         return res
-    
+
     def is_currently_bridging_dynamic_transforms(self):
         """
         @return: whether not all of our nodes share the same dynamic
@@ -99,11 +99,11 @@ class ExternalBondSet(object):
         """
         self.invalidate_display_lists()
         return
-    
+
     def invalidate_display_lists(self):
         self._drawer.invalidate_display_lists()
         return
-        
+
     def invalidate_display_lists_for_style(self, style): #bruce 090217
         """
         @see: documentation of same method in class Chunk
@@ -121,7 +121,7 @@ class ExternalBondSet(object):
             return c1
         assert 0
         return
-    
+
     def add_bond(self, bond):
         """
         Add this bond to self, if not already there.
@@ -170,12 +170,12 @@ class ExternalBondSet(object):
             return False
         if bond not in bond.atom1.bonds:
             # This ought to be checked by bond.killed, but isn't yet!
-            # See comment therein. 
-            
+            # See comment therein.
+
             # REVIEW: Hopefully it works now and bond.killed can be fixed to
             # check it. Conversely, if it doesn't work right, this routine
             # will probably have bugs of its own.
-            
+
             # (Note: it'd be nice if that was faster, but there might be old
             # code that relies on looking at atoms of a killed bond, so we
             # can't just set the atoms to None. OTOH we don't want to waste
@@ -184,8 +184,8 @@ class ExternalBondSet(object):
         # bond's atoms must (still) point to both of our chunks
         c1 = bond.atom1.molecule
         c2 = bond.atom2.molecule
-        return (c1, c2) == self.chunks or (c2, c1) == self.chunks 
-            # REVIEW: too slow due to == ? 
+        return (c1, c2) == self.chunks or (c2, c1) == self.chunks
+            # REVIEW: too slow due to == ?
             # todo: optimize by sorting these when making bond?
             # (see also the kluge in draw, which can reverse them)
             # [bruce 090126]
@@ -208,7 +208,7 @@ class ExternalBondSet(object):
     # ==
 
     # methods needed only for drawing
-    
+
     def bounding_lozenge(self): #bruce 090306 unstubbed this
         # note: return this in abs coords, even after we have a
         # display list and permit relative motion.
@@ -284,7 +284,7 @@ class ExternalBondSet(object):
             self.chunks = (self.chunks[1], self.chunks[0])
             pass
         self._drawer.draw(glpane, drawLevel, highlight_color)
-    
+
     pass # end of class ExternalBondSet
 
 # end

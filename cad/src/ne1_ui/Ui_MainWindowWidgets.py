@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Ui_MainWindowWidgets.py
 
@@ -9,7 +9,7 @@ Creates all widgets use by the Main Window, including:
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -52,7 +52,7 @@ def setupUi(win):
     # Create the "Export" menu, a submenu of the "File" menu.
     win.exportMenu = QtGui.QMenu(win.fileMenu)
     win.exportMenu.setObjectName("exportMenu")
-    
+
     #Create the "Fetch" menu, a submenu of file menu
     win.fetchMenu = QtGui.QMenu(win.fileMenu)
     win.fetchMenu.setObjectName("fetchMenu")
@@ -76,10 +76,10 @@ def setupUi(win):
 
     win.fileImportIOSAction = QtGui.QAction(MainWindow)
     win.fileImportIOSAction.setObjectName("fileImportIOSAction")
-    
+
     win.fileFetchPdbAction = QtGui.QAction(MainWindow)
     win.fileFetchPdbAction.setObjectName("fileFetchPdbAction")
-    
+
     win.fileExportPdbAction = QtGui.QAction(MainWindow)
     win.fileExportPdbAction.setObjectName("fileExportPdbAction")
 
@@ -103,9 +103,9 @@ def setupUi(win):
 
     win.fileExportIOSAction = QtGui.QAction(MainWindow)
     win.fileExportIOSAction.setObjectName("fileExportIOSAction")
-    
-    
-    # This action (i.e. the "Set Working Directory" menu item) was removed from 
+
+
+    # This action (i.e. the "Set Working Directory" menu item) was removed from
     # the File menu for Alpha 9 since it was deemed undesireable.
     # If you want a full explanation, ask me. Mark 2007-12-30.
     win.fileSetWorkingDirectoryAction = QtGui.QAction(MainWindow)
@@ -191,17 +191,17 @@ def setupUi(win):
     win.dispObjectColorAction = QtGui.QAction(MainWindow)
     win.dispObjectColorAction.setIcon(geticon("ui/actions/Edit/Edit_Color.png"))
     win.dispObjectColorAction.setObjectName("dispObjectColorAction")
-    
+
     win.editDnaDisplayStyleAction = QtGui.QAction(MainWindow)
-    win.editDnaDisplayStyleAction.setText("DNA Display Style")       
+    win.editDnaDisplayStyleAction.setText("DNA Display Style")
     win.editDnaDisplayStyleAction.setIcon(
         geticon("ui/actions/Edit/EditDnaDisplayStyle.png"))
-    
+
     win.editProteinDisplayStyleAction = QtGui.QAction(MainWindow)
-    win.editProteinDisplayStyleAction.setText("Protein Display Style")       
+    win.editProteinDisplayStyleAction.setText("Protein Display Style")
     win.editProteinDisplayStyleAction.setIcon(
         geticon("ui/actions/Edit/EditProteinDisplayStyle.png"))
-        
+
     win.resetChunkColorAction = QtGui.QAction(MainWindow)
     win.resetChunkColorAction.setIcon(
         geticon("ui/actions/Edit/Reset_Chunk_Color.png"))
@@ -325,7 +325,7 @@ def setupUi(win):
     win.viewFlipViewVertAction.setIcon(
         geticon("ui/actions/View/FlipViewVert.png"))
     win.viewFlipViewVertAction.setObjectName("FlipViewVert")
-    
+
     win.viewFlipViewHorzAction = QtGui.QAction(MainWindow)
     win.viewFlipViewHorzAction.setIcon(
         geticon("ui/actions/View/FlipViewHorz.png"))
@@ -414,7 +414,7 @@ def setupUi(win):
     win.setViewOrthoAction = QtGui.QAction(MainWindow)
     win.setViewOrthoAction.setCheckable(True)
 
-    win.orthoPerpActionGroup = QtGui.QActionGroup(MainWindow)  
+    win.orthoPerpActionGroup = QtGui.QActionGroup(MainWindow)
     win.orthoPerpActionGroup.setExclusive(True)
     win.orthoPerpActionGroup.addAction(win.setViewPerspecAction)
     win.orthoPerpActionGroup.addAction(win.setViewOrthoAction)
@@ -459,7 +459,7 @@ def setupUi(win):
     win.viewSemiFullScreenAction.setText('Semi-Full Screen')
     win.viewSemiFullScreenAction.setCheckable(True)
     win.viewSemiFullScreenAction.setChecked(False)
-    win.viewSemiFullScreenAction.setShortcut('F11')  
+    win.viewSemiFullScreenAction.setShortcut('F11')
 
     win.viewFullScreenAction = QtGui.QAction(MainWindow)
     win.viewFullScreenAction.setText('Full Screen')
@@ -477,7 +477,7 @@ def setupUi(win):
     win.viewRulersAction.setChecked(env.prefs[displayRulers_prefs_key])
     win.viewRulersAction.setText('Rulers')
 
-    
+
     #= Insert (menu and toolbar) widgets.
 
     # Create the "Insert" menu.
@@ -488,27 +488,27 @@ def setupUi(win):
     #win.referenceGeometryMenu = QtGui.QMenu(win.insertMenu)
     #win.referenceGeometryMenu.setObjectName("referenceGeometryMenu")
 
-    win.jigsAtomSetAction = NE1_QWidgetAction(MainWindow, 
+    win.jigsAtomSetAction = NE1_QWidgetAction(MainWindow,
                                                 win = MainWindow)
     win.jigsAtomSetAction.setIcon(geticon("ui/actions/Tools/Atom_Set.png"))
     win.jigsAtomSetAction.setObjectName("jigsAtomSetAction")
 
-    win.fileInsertMmpAction = NE1_QWidgetAction(MainWindow, 
+    win.fileInsertMmpAction = NE1_QWidgetAction(MainWindow,
                                                   win = MainWindow)
     win.fileInsertMmpAction.setObjectName("fileInsertMmpAction")
     win.fileInsertMmpAction.setIcon(
         geticon('ui/actions/Insert/MMP.png'))
 
-    win.fileInsertPdbAction = NE1_QWidgetAction(MainWindow, 
+    win.fileInsertPdbAction = NE1_QWidgetAction(MainWindow,
                                                   win = MainWindow)
     win.fileInsertPdbAction.setObjectName("fileInsertPdbAction")
     win.fileInsertPdbAction.setIcon(geticon('ui/actions/Insert/PDB.png'))
 
-    win.fileInsertInAction = NE1_QWidgetAction(MainWindow, 
+    win.fileInsertInAction = NE1_QWidgetAction(MainWindow,
                                                   win = MainWindow)
     win.fileInsertInAction.setObjectName("fileInsertInAction")
 
-    win.partLibAction = NE1_QWidgetAction(MainWindow, 
+    win.partLibAction = NE1_QWidgetAction(MainWindow,
                                             win = MainWindow)
     win.partLibAction.setObjectName("partLibAction")
     win.partLibAction.setIcon(geticon('ui/actions/Insert/Part_Library.png'))
@@ -519,25 +519,25 @@ def setupUi(win):
         geticon("ui/actions/Insert/Comment.png"))
     win.insertCommentAction.setObjectName("insertCommentAction")
 
-    win.insertPovraySceneAction = NE1_QWidgetAction(MainWindow, 
+    win.insertPovraySceneAction = NE1_QWidgetAction(MainWindow,
                                                       win = MainWindow)
     win.insertPovraySceneAction.setIcon(
         geticon("ui/actions/Insert/POV-Ray_Scene.png"))
     win.insertPovraySceneAction.setObjectName("insertPovraySceneAction")
 
-    win.jigsGridPlaneAction = NE1_QWidgetAction(MainWindow, 
+    win.jigsGridPlaneAction = NE1_QWidgetAction(MainWindow,
                                                   win = MainWindow)
     win.jigsGridPlaneAction.setIcon(
         geticon("ui/actions/Insert/Reference Geometry/Grid_Plane.png"))
     win.jigsGridPlaneAction.setObjectName("jigsGridPlaneAction")
 
-    win.referencePlaneAction = NE1_QWidgetAction(MainWindow, 
+    win.referencePlaneAction = NE1_QWidgetAction(MainWindow,
                                                    win = MainWindow)
     win.referencePlaneAction.setIcon(
         geticon("ui/actions/Insert/Reference Geometry/Plane.png"))
     win.referencePlaneAction.setObjectName("referencePlaneAction")
 
-    win.referenceLineAction = NE1_QWidgetAction(MainWindow, 
+    win.referenceLineAction = NE1_QWidgetAction(MainWindow,
                                                   win = MainWindow)
     win.referenceLineAction.setIcon(
         geticon("ui/actions/Insert/Reference Geometry/Plane.png"))
@@ -566,40 +566,40 @@ def setupUi(win):
     win.selectionMenu = QtGui.QMenu(win.toolsMenu)
     win.selectionMenu.setObjectName("selectionMenu")
 
-    win.editPrefsAction = NE1_QWidgetAction(MainWindow, 
+    win.editPrefsAction = NE1_QWidgetAction(MainWindow,
                                               win = MainWindow)
     win.editPrefsAction.setIcon(geticon("ui/actions/Tools/Options.png"))
-    win.editPrefsAction.setObjectName("editPrefsAction")    
+    win.editPrefsAction.setObjectName("editPrefsAction")
 
      #Urmi background color scheme option 080522
     win.colorSchemeAction =  QtGui.QAction(MainWindow)
     win.colorSchemeAction.setIcon(geticon("ui/actions/View/ColorScheme.png"))
     win.colorSchemeAction.setObjectName("colorSchemeAction")
-    
+
     win.lightingSchemeAction = QtGui.QAction(MainWindow)
     win.lightingSchemeAction.setIcon(geticon("ui/actions/View/LightingScheme.png"))
     win.lightingSchemeAction.setObjectName("lightingSchemeAction")
-    
-    win.modifyAdjustSelAction = NE1_QWidgetAction(MainWindow, 
+
+    win.modifyAdjustSelAction = NE1_QWidgetAction(MainWindow,
                                                     win = MainWindow)
     win.modifyAdjustSelAction.setEnabled(True)
     win.modifyAdjustSelAction.setIcon(
         geticon("ui/actions/Tools/Adjust_Selection.png"))
     win.modifyAdjustSelAction.setObjectName("modifyAdjustSelAction")
 
-    win.modifyAdjustAllAction = NE1_QWidgetAction(MainWindow, 
+    win.modifyAdjustAllAction = NE1_QWidgetAction(MainWindow,
                                                     win = MainWindow)
     win.modifyAdjustAllAction.setIcon(
         geticon("ui/actions/Tools/Adjust_All.png"))
     win.modifyAdjustAllAction.setObjectName("modifyAdjustAllAction")
 
-    win.simMinimizeEnergyAction = NE1_QWidgetAction(MainWindow, 
+    win.simMinimizeEnergyAction = NE1_QWidgetAction(MainWindow,
                                                       win = MainWindow)
     win.simMinimizeEnergyAction.setIcon(
         geticon("ui/actions/Simulation/Minimize_Energy.png"))
     win.simMinimizeEnergyAction.setObjectName("simMinimizeEnergyAction")
 
-    win.checkAtomTypesAction = NE1_QWidgetAction(MainWindow, 
+    win.checkAtomTypesAction = NE1_QWidgetAction(MainWindow,
                                                       win = MainWindow)
     win.checkAtomTypesAction.setObjectName("checkAtomTypesAction")
 
@@ -674,7 +674,7 @@ def setupUi(win):
 
     #== "Tools > Build Tools" (menu and toolbar) widgets.
 
-    win.modifyHydrogenateAction = NE1_QWidgetAction(MainWindow, 
+    win.modifyHydrogenateAction = NE1_QWidgetAction(MainWindow,
                                                     win = MainWindow)
     win.modifyHydrogenateAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Hydrogenate.png"))
@@ -693,7 +693,7 @@ def setupUi(win):
     win.modifyDeleteBondsAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifyDeleteBondsAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Delete_Bonds.png"))
-    win.modifyDeleteBondsAction.setObjectName("modifyDeleteBondsAction")      
+    win.modifyDeleteBondsAction.setObjectName("modifyDeleteBondsAction")
 
     win.modifySeparateAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.modifySeparateAction.setIcon(
@@ -780,7 +780,7 @@ def setupUi(win):
         geticon("ui/actions/Tools/Select/Selection_Unlocked.png"))
     win.selectLockAction.setObjectName("selectLockAction")
     win.selectLockAction.setCheckable(True)
-    
+
     win.selectByNameAction = QtGui.QAction(MainWindow)
     win.selectByNameAction.setIcon(
         geticon("ui/actions/Tools/Select/Select_By_Name.png"))
@@ -818,7 +818,7 @@ def setupUi(win):
     win.rosettaSetupAction.setIcon(
         geticon("ui/actions/Simulation/Rosetta.png"))
     win.rosettaSetupAction.setObjectName("rosettaSetupAction")
-    
+
     win.simPlotToolAction = NE1_QWidgetAction(MainWindow, win = MainWindow)
     win.simPlotToolAction.setIcon(
         geticon("ui/actions/Simulation/PlotGraphs.png"))
@@ -882,7 +882,7 @@ def setupUi(win):
 
     win.helpMenu = QtGui.QMenu(win.MenuBar)
     win.helpMenu.setObjectName("helpMenu")
-    
+
     win.helpTutorialsAction = QtGui.QAction(MainWindow)
     win.helpTutorialsAction.setObjectName("helpAboutAction")
 
@@ -919,18 +919,18 @@ def setupUi(win):
         geticon("ui/actions/Misc/SelectChunks.png"))
 
     # Define an action grop for move molecules (translate and rotate components)
-    # actions ...to make them mutually exclusive. 
+    # actions ...to make them mutually exclusive.
     # -- ninad 070309
     win.toolsMoveRotateActionGroup = QtGui.QActionGroup(MainWindow)
     win.toolsMoveRotateActionGroup.setExclusive(True)
 
-    win.toolsMoveMoleculeAction = NE1_QWidgetAction(win.toolsMoveRotateActionGroup, 
+    win.toolsMoveMoleculeAction = NE1_QWidgetAction(win.toolsMoveRotateActionGroup,
                                                       win = MainWindow)
     win.toolsMoveMoleculeAction.setCheckable(1) # make the Move mode button checkable
     win.toolsMoveMoleculeAction.setIcon(
         geticon("ui/actions/Command Toolbar/MoveCommands/Translate.png"))
 
-    win.rotateComponentsAction = NE1_QWidgetAction(win.toolsMoveRotateActionGroup, 
+    win.rotateComponentsAction = NE1_QWidgetAction(win.toolsMoveRotateActionGroup,
                                                      win = MainWindow)
     win.rotateComponentsAction.setCheckable(1) # make the Move mode button checkable
     win.rotateComponentsAction.setIcon(
@@ -958,12 +958,12 @@ def setupUi(win):
     win.standardViewsAction.setText("Standard Views")
     win.standardViewsAction.setMenu(win.standardViewsMenu)
 
-    win.standardViews_btn = QtGui.QToolButton()            
+    win.standardViews_btn = QtGui.QToolButton()
     win.standardViews_btn.setPopupMode(QToolButton.MenuButtonPopup)
     win.standardViewsAction.setDefaultWidget(win.standardViews_btn)
     win.standardViews_btn.setDefaultAction(win.standardViewsAction)
 
-    
+
     # Dock widgets
     win.reportsDockWidget = Ui_ReportsDockWidget(win)
 
@@ -976,7 +976,7 @@ def retranslateUi(win):
     """
     """
     This function centralizes and sets UI text for main window QAction widgets
-    for the purpose of making it easier for the programmer to translate the 
+    for the purpose of making it easier for the programmer to translate the
     UI into other languages using Qt Linguist.
 
     @param MainWindow: The main window
@@ -984,8 +984,8 @@ def retranslateUi(win):
 
     @see: U{B{The Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
 
-    @attention: It is never OK to set the shortcut "Ctrl+H or Cmd+H on Mac)"  
-    via setShortcut() since this shortcut is reserved on Mac OS X for hiding a 
+    @attention: It is never OK to set the shortcut "Ctrl+H or Cmd+H on Mac)"
+    via setShortcut() since this shortcut is reserved on Mac OS X for hiding a
     window.
     """
 
@@ -998,7 +998,7 @@ def retranslateUi(win):
             "MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
     win.fileOpenAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Open(Ctrl+O)", None, QtGui.QApplication.UnicodeUTF8))      
+            "MainWindow", "Open(Ctrl+O)", None, QtGui.QApplication.UnicodeUTF8))
     win.fileOpenAction.setShortcut(
         QtGui.QApplication.translate(
             "MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
@@ -1013,7 +1013,7 @@ def retranslateUi(win):
             "MainWindow", "&Save", None, QtGui.QApplication.UnicodeUTF8))
     win.fileSaveAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Save (Ctrl+S)", None, QtGui.QApplication.UnicodeUTF8))    
+            "MainWindow", "Save (Ctrl+S)", None, QtGui.QApplication.UnicodeUTF8))
     win.fileSaveAction.setIconText(
         QtGui.QApplication.translate(
             "MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
@@ -1028,11 +1028,11 @@ def retranslateUi(win):
             "MainWindow", "Save As", None, QtGui.QApplication.UnicodeUTF8))
     win.fileImportOpenBabelAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Open Babel import...", 
+            "MainWindow", "Open Babel import...",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileImportOpenBabelAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Open Babel", 
+            "MainWindow", "Open Babel",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileImportOpenBabelAction.setToolTip(
         QtGui.QApplication.translate(
@@ -1040,84 +1040,84 @@ def retranslateUi(win):
 
     win.fileImportIOSAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "IOS import...", 
+            "MainWindow", "IOS import...",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileImportIOSAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "IOS", 
+            "MainWindow", "IOS",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileImportIOSAction.setToolTip(
         QtGui.QApplication.translate(
             "MainWindow", "IOS import", None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.fileExportPdbAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Protein Data Bank...", 
+            "MainWindow", "Protein Data Bank...",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileExportQuteMolXPdbAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Protein Data Bank for QuteMolX...", 
+            "MainWindow", "Protein Data Bank for QuteMolX...",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileExportJpgAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "JPEG image...", 
+            "MainWindow", "JPEG image...",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileExportPngAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "PNG image...", 
+            "MainWindow", "PNG image...",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileExportPovAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "POV-Ray...", 
+            "MainWindow", "POV-Ray...",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileExportAmdlAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Animation Master Model...", 
+            "MainWindow", "Animation Master Model...",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileExportOpenBabelAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Open Babel export...", 
+            "MainWindow", "Open Babel export...",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileExportOpenBabelAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Open Babel", 
+            "MainWindow", "Open Babel",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileExportOpenBabelAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Open Babel export", None, QtGui.QApplication.UnicodeUTF8))    
-    
+            "MainWindow", "Open Babel export", None, QtGui.QApplication.UnicodeUTF8))
+
     #ios export
     win.fileExportIOSAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "IOS export...", 
+            "MainWindow", "IOS export...",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileExportIOSAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "IOS", 
+            "MainWindow", "IOS",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileExportIOSAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "IOS export", None, QtGui.QApplication.UnicodeUTF8))   
-    
+            "MainWindow", "IOS export", None, QtGui.QApplication.UnicodeUTF8))
+
     #fetch pdb
     win.fileFetchPdbAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "PDB file from RCSB...", 
+            "MainWindow", "PDB file from RCSB...",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileFetchPdbAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Fetch PDB", 
+            "MainWindow", "Fetch PDB",
             None, QtGui.QApplication.UnicodeUTF8))
     win.fileFetchPdbAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Fetch a PDB file from RCSB", None, QtGui.QApplication.UnicodeUTF8))  
-    
+            "MainWindow", "Fetch a PDB file from RCSB", None, QtGui.QApplication.UnicodeUTF8))
+
     win.fileExitAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "E&xit", None, QtGui.QApplication.UnicodeUTF8))
@@ -1136,18 +1136,18 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))
     win.editUndoAction.setShortcut(
         QtGui.QApplication.translate(
-            "MainWindow", "Ctrl+Z", 
+            "MainWindow", "Ctrl+Z",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editUndoAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Undo (Ctrl+Z)", None, QtGui.QApplication.UnicodeUTF8))  
+            "MainWindow", "Undo (Ctrl+Z)", None, QtGui.QApplication.UnicodeUTF8))
     win.editRedoAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "&Redo", 
+            "MainWindow", "&Redo",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editRedoAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Redo", 
+            "MainWindow", "Redo",
             None, QtGui.QApplication.UnicodeUTF8))
 
     # Redo is a special case between Mac OS X and the other platforms:
@@ -1162,53 +1162,53 @@ def retranslateUi(win):
         redo_accel = "Ctrl+Y"
     win.editRedoAction.setShortcut(
         QtGui.QApplication.translate(
-            "MainWindow", redo_accel, 
+            "MainWindow", redo_accel,
             None, QtGui.QApplication.UnicodeUTF8))
     win.editRedoAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Redo (" + redo_accel + ")", 
-            None, QtGui.QApplication.UnicodeUTF8))    
+            "MainWindow", "Redo (" + redo_accel + ")",
+            None, QtGui.QApplication.UnicodeUTF8))
     win.editCutAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "&Cut", 
+            "MainWindow", "&Cut",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editCutAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Cut", 
+            "MainWindow", "Cut",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editCutAction.setShortcut(
         QtGui.QApplication.translate(
-            "MainWindow", "Ctrl+X", 
+            "MainWindow", "Ctrl+X",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editCutAction.setToolTip(
         QtGui.QApplication.translate(
             "MainWindow", "Cut (Ctrl+X)", None, QtGui.QApplication.UnicodeUTF8))
     win.editCopyAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "C&opy", 
+            "MainWindow", "C&opy",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editCopyAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Copy", 
+            "MainWindow", "Copy",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editCopyAction.setShortcut(
         QtGui.QApplication.translate(
-            "MainWindow", "Ctrl+C", 
+            "MainWindow", "Ctrl+C",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editCopyAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Copy (Ctrl+V)", None, QtGui.QApplication.UnicodeUTF8))    
+            "MainWindow", "Copy (Ctrl+V)", None, QtGui.QApplication.UnicodeUTF8))
     win.editPasteAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "&Paste", 
+            "MainWindow", "&Paste",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editPasteAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Paste", 
+            "MainWindow", "Paste",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editPasteAction.setShortcut(
         QtGui.QApplication.translate(
-            "MainWindow", "Ctrl+V", 
+            "MainWindow", "Ctrl+V",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editDeleteAction.setText(
         QtGui.QApplication.translate(
@@ -1216,27 +1216,27 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))
     win.editDeleteAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Delete", 
+            "MainWindow", "Delete",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editDeleteAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Delete (Del)", 
-            None, QtGui.QApplication.UnicodeUTF8))        
+            "MainWindow", "Delete (Del)",
+            None, QtGui.QApplication.UnicodeUTF8))
     win.editRenameAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Rename",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editRenameAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Rename", 
+            "MainWindow", "Rename",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editRenameAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Rename (Shift+R)", 
+            "MainWindow", "Rename (Shift+R)",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editRenameAction.setShortcut(
         QtGui.QApplication.translate(
-            "MainWindow", "Shift+R", 
+            "MainWindow", "Shift+R",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editRenameSelectionAction.setText(
         QtGui.QApplication.translate(
@@ -1244,11 +1244,11 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))
     win.editRenameSelectionAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Rename Selection", 
+            "MainWindow", "Rename Selection",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editRenameSelectionAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Rename Selection", 
+            "MainWindow", "Rename Selection",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.editAddSuffixAction.setText(
@@ -1257,83 +1257,83 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))
     win.editAddSuffixAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Add Suffixes", 
+            "MainWindow", "Add Suffixes",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editAddSuffixAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Add Suffixes", 
+            "MainWindow", "Add Suffixes",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.editMakeCheckpointAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Make Checkpoint", 
+            "MainWindow", "Make Checkpoint",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editAutoCheckpointingAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Automatic Checkpointing", 
+            "MainWindow", "Automatic Checkpointing",
             None, QtGui.QApplication.UnicodeUTF8))
     win.editClearUndoStackAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Clear Undo Stack", 
-            None, QtGui.QApplication.UnicodeUTF8))    
+            "MainWindow", "Clear Undo Stack",
+            None, QtGui.QApplication.UnicodeUTF8))
     win.dispObjectColorAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Change Color of Selection...", 
+            "MainWindow", "Change Color of Selection...",
             None, QtGui.QApplication.UnicodeUTF8))
     win.dispObjectColorAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Change Color of Selected Objects", 
+            "MainWindow", "Change Color of Selected Objects",
             None, QtGui.QApplication.UnicodeUTF8))
     win.dispObjectColorAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Change Color", 
+            "MainWindow", "Change Color",
             None, QtGui.QApplication.UnicodeUTF8))
 
-    
 
-    
-    
-    
+
+
+
+
     #= View (menu and toolbar) actions.
     win.viewOrientationAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Orientation Manager...", 
+            "MainWindow", "Orientation Manager...",
             None, QtGui.QApplication.UnicodeUTF8))
     win.viewOrientationAction.setShortcut(
         QtGui.QApplication.translate(
-            "MainWindow", "Space", 
+            "MainWindow", "Space",
             None, QtGui.QApplication.UnicodeUTF8))
     win.setViewFitToWindowAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "&Zoom to Fit", 
+            "MainWindow", "&Zoom to Fit",
             None, QtGui.QApplication.UnicodeUTF8))
     win.setViewFitToWindowAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom to Fit", 
+            "MainWindow", "Zoom to Fit",
             None, QtGui.QApplication.UnicodeUTF8))
     win.setViewFitToWindowAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom to Fit (Ctrl+F)", 
+            "MainWindow", "Zoom to Fit (Ctrl+F)",
             None, QtGui.QApplication.UnicodeUTF8))
     win.setViewFitToWindowAction.setShortcut(
         QtGui.QApplication.translate(
-            "MainWindow", "Ctrl+F", 
+            "MainWindow", "Ctrl+F",
             None, QtGui.QApplication.UnicodeUTF8))
     win.zoomToAreaAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "&Zoom to Area", 
+            "MainWindow", "&Zoom to Area",
             None, QtGui.QApplication.UnicodeUTF8))
     win.zoomToAreaAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom to Area", 
+            "MainWindow", "Zoom to Area",
             None, QtGui.QApplication.UnicodeUTF8))
     win.setViewZoomtoSelectionAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom To Selection", 
+            "MainWindow", "Zoom To Selection",
             None, QtGui.QApplication.UnicodeUTF8))
     win.setViewZoomtoSelectionAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom To Selection", 
+            "MainWindow", "Zoom To Selection",
             None, QtGui.QApplication.UnicodeUTF8))
     win.setViewZoomtoSelectionAction.setToolTip(
         QtGui.QApplication.translate(
@@ -1346,7 +1346,7 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))
     win.zoomInOutAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom", 
+            "MainWindow", "Zoom",
             None, QtGui.QApplication.UnicodeUTF8))
     win.zoomInOutAction.setToolTip(
         QtGui.QApplication.translate(
@@ -1377,17 +1377,17 @@ def retranslateUi(win):
     win.dispBallAction.setIconText(QtGui.QApplication.translate("MainWindow", "Ball and Stick", None, QtGui.QApplication.UnicodeUTF8))
     win.dispBallAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", 
-            "Apply <b>Ball and Stick</b> display style to the selection", 
-            None, 
+            "MainWindow",
+            "Apply <b>Ball and Stick</b> display style to the selection",
+            None,
             QtGui.QApplication.UnicodeUTF8))
     win.dispDefaultAction.setText(QtGui.QApplication.translate("MainWindow", "Default", None, QtGui.QApplication.UnicodeUTF8))
     win.dispDefaultAction.setIconText(QtGui.QApplication.translate("MainWindow", "Default", None, QtGui.QApplication.UnicodeUTF8))
     win.dispDefaultAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", 
-            "Apply <b>Default</b> display setting to the selection", 
-            None, 
+            "MainWindow",
+            "Apply <b>Default</b> display setting to the selection",
+            None,
             QtGui.QApplication.UnicodeUTF8))
     win.dispInvisAction.setText(QtGui.QApplication.translate("MainWindow", "Invisible", None, QtGui.QApplication.UnicodeUTF8))
     win.dispInvisAction.setIconText(QtGui.QApplication.translate("MainWindow", "Invisible", None, QtGui.QApplication.UnicodeUTF8))
@@ -1395,48 +1395,48 @@ def retranslateUi(win):
     win.dispLinesAction.setIconText(QtGui.QApplication.translate("MainWindow", "Lines", None, QtGui.QApplication.UnicodeUTF8))
     win.dispLinesAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", 
-            "Apply <b>Lines</b> display style to the selection", 
-            None, 
+            "MainWindow",
+            "Apply <b>Lines</b> display style to the selection",
+            None,
             QtGui.QApplication.UnicodeUTF8))
     win.dispTubesAction.setText(QtGui.QApplication.translate("MainWindow", "Tubes", None, QtGui.QApplication.UnicodeUTF8))
     win.dispTubesAction.setIconText(QtGui.QApplication.translate("MainWindow", "Tubes", None, QtGui.QApplication.UnicodeUTF8))
     win.dispTubesAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", 
-            "Apply <b>Tubes</b> display style to the selection", 
-            None, 
+            "MainWindow",
+            "Apply <b>Tubes</b> display style to the selection",
+            None,
             QtGui.QApplication.UnicodeUTF8))
     win.dispCPKAction.setText(QtGui.QApplication.translate("MainWindow", "CPK", None, QtGui.QApplication.UnicodeUTF8))
     win.dispCPKAction.setIconText(QtGui.QApplication.translate("MainWindow", "CPK", None, QtGui.QApplication.UnicodeUTF8))
     win.dispCPKAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", 
-            "Apply <b>CPK</b> display style to the selection", 
-            None, 
+            "MainWindow",
+            "Apply <b>CPK</b> display style to the selection",
+            None,
             QtGui.QApplication.UnicodeUTF8))
     win.dispHybridAction.setText(QtGui.QApplication.translate("MainWindow", "Hybrid Display", None, QtGui.QApplication.UnicodeUTF8))
     win.dispHybridAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hybrid", None, QtGui.QApplication.UnicodeUTF8))
     win.dispSurfaceAction.setIconText(QtGui.QApplication.translate("MainWindow", "Surface", None, QtGui.QApplication.UnicodeUTF8))
     win.dispSurfaceAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", 
-            "Apply <b>Surface</b> display style to the selection", 
-            None, 
+            "MainWindow",
+            "Apply <b>Surface</b> display style to the selection",
+            None,
             QtGui.QApplication.UnicodeUTF8))
     win.dispCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "Cylinder", None, QtGui.QApplication.UnicodeUTF8))
     win.dispCylinderAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", 
-            "Apply <b>Cylinder</b> display style to the selection", 
-            None, 
+            "MainWindow",
+            "Apply <b>Cylinder</b> display style to the selection",
+            None,
             QtGui.QApplication.UnicodeUTF8))
     win.dispDnaCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "DNA Cylinder", None, QtGui.QApplication.UnicodeUTF8))
     win.dispDnaCylinderAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", 
-            "Apply <b>DNA Cylinder</b> display style to the selection", 
-            None, 
+            "MainWindow",
+            "Apply <b>DNA Cylinder</b> display style to the selection",
+            None,
             QtGui.QApplication.UnicodeUTF8))
     win.dispHideAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hide", None, QtGui.QApplication.UnicodeUTF8))
     win.dispHideAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hide", None, QtGui.QApplication.UnicodeUTF8))
@@ -1468,12 +1468,12 @@ def retranslateUi(win):
     win.viewFlipViewVertAction.setIconText(QtGui.QApplication.translate("MainWindow", "Flip View Vertically", None, QtGui.QApplication.UnicodeUTF8))
     win.viewFlipViewVertAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Flip View Vertically", None, QtGui.QApplication.UnicodeUTF8))
     win.viewFlipViewVertAction.setStatusTip(QtGui.QApplication.translate("MainWindow", "Flip View Vertically", None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.viewFlipViewHorzAction.setText(QtGui.QApplication.translate("MainWindow", "Flip View Horizontally", None, QtGui.QApplication.UnicodeUTF8))
     win.viewFlipViewHorzAction.setIconText(QtGui.QApplication.translate("MainWindow", "Flip View Horizontally", None, QtGui.QApplication.UnicodeUTF8))
     win.viewFlipViewHorzAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Flip View Horizontally", None, QtGui.QApplication.UnicodeUTF8))
     win.viewFlipViewHorzAction.setStatusTip(QtGui.QApplication.translate("MainWindow", "Flip View Horizontally", None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.viewIsometricAction.setText(QtGui.QApplication.translate("MainWindow", "&Isometric", None, QtGui.QApplication.UnicodeUTF8))
     win.viewIsometricAction.setIconText(QtGui.QApplication.translate("MainWindow", "Isometric", None, QtGui.QApplication.UnicodeUTF8))
     win.resetChunkColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Reset Color of Selected Chunks", None, QtGui.QApplication.UnicodeUTF8))
@@ -1484,55 +1484,55 @@ def retranslateUi(win):
         "MainWindow",  "Atom Set",  None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertMmpAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "MMP file", 
+        "MainWindow", "MMP file",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertMmpAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "MMP file", 
+        "MainWindow", "MMP file",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertMmpAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert Molecular Machine Part (MMP) file", 
+        "MainWindow", "Insert Molecular Machine Part (MMP) file",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertPdbAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "PDB file", 
+        "MainWindow", "PDB file",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertPdbAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "PDB file", 
+        "MainWindow", "PDB file",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertPdbAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert Protein Data Bank (PDB) file", 
+        "MainWindow", "Insert Protein Data Bank (PDB) file",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertInAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "IN file", 
+        "MainWindow", "IN file",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertInAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "IN file", 
+        "MainWindow", "IN file",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.fileInsertInAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert AMBER .in file fragment", 
+        "MainWindow", "Insert AMBER .in file fragment",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.insertCommentAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Comment", 
+        "MainWindow", "Comment",
         None,  QtGui.QApplication.UnicodeUTF8))
 
     win.insertPovraySceneAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "POV-Ray Scene", 
+        "MainWindow", "POV-Ray Scene",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.insertPovraySceneAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert POV-Ray Scene file", 
+        "MainWindow", "Insert POV-Ray Scene file",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.jigsGridPlaneAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Grid Plane", 
+        "MainWindow", "Grid Plane",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.referencePlaneAction.setIconText(QtGui.QApplication.translate(
@@ -1541,239 +1541,239 @@ def retranslateUi(win):
 
     # Part Lib
     win.partLibAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "Part Library", 
+        "MainWindow", "Part Library",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.partLibAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Part from Part Library", 
+        "MainWindow", "Part from Part Library",
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.partLibAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert Part from Part Library", 
+        "MainWindow", "Insert Part from Part Library",
         None, QtGui.QApplication.UnicodeUTF8))
 
     #= Tools (menu and toolbar) actions.
     win.modifyAdjustSelAction.setText(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Adjust Selection",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.modifyAdjustSelAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Adjust Selection",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.modifyAdjustSelAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Adjust Selection",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.modifyAdjustAllAction.setText(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Adjust All",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.modifyAdjustAllAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Adjust All", 
-        None, 
+        "MainWindow",
+        "Adjust All",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.simMinimizeEnergyAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Minimize Energy", 
-        None, 
-        QtGui.QApplication.UnicodeUTF8))    
+        "MainWindow",
+        "Minimize Energy",
+        None,
+        QtGui.QApplication.UnicodeUTF8))
 
     win.checkAtomTypesAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Check AMBER AtomTypes", 
-        None, 
-        QtGui.QApplication.UnicodeUTF8))    
+        "MainWindow",
+        "Check AMBER AtomTypes",
+        None,
+        QtGui.QApplication.UnicodeUTF8))
 
     win.toolsExtrudeAction.setText(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Extrude",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.toolsFuseChunksAction.setText(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Fuse",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.toolsFuseChunksAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Fuse Chunks", 
-        None, 
+        "MainWindow",
+        "Fuse Chunks",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.toolsExtrudeAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Extrude", 
-        None, 
+        "MainWindow",
+        "Extrude",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.editPrefsAction.setText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Preferences...", 
-        None, 
+        "MainWindow",
+        "Preferences...",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.colorSchemeAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Color Scheme", 
+            "MainWindow", "Color Scheme",
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.lightingSchemeAction.setText(QtGui.QApplication.translate(
         "MainWindow",
         "Lighting Scheme",
         None,
         QtGui.QApplication.UnicodeUTF8))
-    
+
     win.modifyMirrorAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Mirror", 
-        None, 
+        "MainWindow",
+        "Mirror",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.modifyMirrorAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Mirror Chunks",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.modifyInvertAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "&Invert", 
-        None, 
+        "MainWindow", "&Invert",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.modifyInvertAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Invert",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.editPrefsAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Preferences...", 
-        None, 
+        "MainWindow",
+        "Preferences...",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.editPrefsAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Preferences", 
-        None, 
+        "MainWindow",
+        "Preferences",
+        None,
         QtGui.QApplication.UnicodeUTF8))
-    
+
     #Urmi background color chooser option 080522
-    
+
     win.colorSchemeAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Color Scheme", 
+            "MainWindow", "Color Scheme",
             None, QtGui.QApplication.UnicodeUTF8))
     win.colorSchemeAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Color Scheme", 
+            "MainWindow", "Color Scheme",
             None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.lightingSchemeAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Lighting Scheme", 
-        None, 
+        "MainWindow",
+        "Lighting Scheme",
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.lightingSchemeAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Lighting Scheme", 
-        None, 
+        "MainWindow",
+        "Lighting Scheme",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     #= Tools > Build Structures (menu and toolbar) actions.
     win.toolsDepositAtomAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Atoms", 
+            "MainWindow", "Atoms",
             None, QtGui.QApplication.UnicodeUTF8))
     win.toolsDepositAtomAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Build Atoms", 
-        None, 
+        "MainWindow",
+        "Build Atoms",
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.buildCrystalAction.setText(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Crystal",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.buildCrystalAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Build Crystal",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.nanotubeGeneratorAction.setIconText(QtGui.QApplication.translate(
         "MainWindow",
         "Nanotube",
-        None, 
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.nanotubeGeneratorAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Generate Nanotube (old)", 
+        "MainWindow",
+        "Generate Nanotube (old)",
         None,
         QtGui.QApplication.UnicodeUTF8))
     win.insertGrapheneAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Graphene", 
-        None, 
+        "MainWindow",
+        "Graphene",
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.insertGrapheneAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Generate Graphene", 
-        None, 
+        "MainWindow",
+        "Generate Graphene",
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.buildDnaAction.setText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "DNA", 
-        None, 
+        "MainWindow",
+        "DNA",
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.buildDnaAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "DNA",
         None,
         QtGui.QApplication.UnicodeUTF8))
     win.buildDnaAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow",
-        "Build DNA", 
-        None, 
+        "Build DNA",
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.buildNanotubeAction.setText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Nanotube", 
-        None, 
+        "MainWindow",
+        "Nanotube",
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.buildNanotubeAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
+        "MainWindow",
         "Nanotube",
         None,
         QtGui.QApplication.UnicodeUTF8))
     win.buildNanotubeAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow",
-        "Build Nanotube", 
-        None, 
+        "Build Nanotube",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     # Atom Generator example for developers.
     win.insertAtomAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Insert Atom", 
-        None, 
+        "MainWindow",
+        "Insert Atom",
+        None,
         QtGui.QApplication.UnicodeUTF8))
     win.insertAtomAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Insert Atom (Developer Example)", 
-        None, 
+        "MainWindow",
+        "Insert Atom (Developer Example)",
+        None,
         QtGui.QApplication.UnicodeUTF8))
 
     # Peptide Generator. piotr 080304
@@ -1782,44 +1782,44 @@ def retranslateUi(win):
     # This should be moved to "interactive builders" sections
     # on the Build Structures toolbar.
     from utilities.GlobalPreferences import ENABLE_PROTEINS
-    if ENABLE_PROTEINS:    
+    if ENABLE_PROTEINS:
         win.buildProteinAction.setIconText(QtGui.QApplication.translate(
-            "MainWindow", 
-            "Protein", 
-            None, 
+            "MainWindow",
+            "Protein",
+            None,
             QtGui.QApplication.UnicodeUTF8))
         win.buildProteinAction.setToolTip(QtGui.QApplication.translate(
-            "MainWindow", 
-            "Build Protein", 
-            None, 
+            "MainWindow",
+            "Build Protein",
+            None,
             QtGui.QApplication.UnicodeUTF8))
     else:
         win.buildProteinAction.setIconText(QtGui.QApplication.translate(
-            "MainWindow", 
-            "Peptide", 
-            None, 
+            "MainWindow",
+            "Peptide",
+            None,
             QtGui.QApplication.UnicodeUTF8))
         win.buildProteinAction.setToolTip(QtGui.QApplication.translate(
-            "MainWindow", 
-            "Generate Peptide", 
-            None, 
+            "MainWindow",
+            "Generate Peptide",
+            None,
             QtGui.QApplication.UnicodeUTF8))
-        
+
     #= "Tools > Build Tools" (menu and toolbar) actions.
 
-    win.modifyHydrogenateAction.setText(QtGui.QApplication.translate("MainWindow", "&Hydrogenate", 
+    win.modifyHydrogenateAction.setText(QtGui.QApplication.translate("MainWindow", "&Hydrogenate",
                                                                      None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyHydrogenateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hydrogenate", 
+    win.modifyHydrogenateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hydrogenate",
                                                                          None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyHydrogenateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hydrogenate", 
+    win.modifyHydrogenateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hydrogenate",
                                                                         None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyDehydrogenateAction.setText(QtGui.QApplication.translate("MainWindow", "&Dehydrogenate", 
+    win.modifyDehydrogenateAction.setText(QtGui.QApplication.translate("MainWindow", "&Dehydrogenate",
                                                                        None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyDehydrogenateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Dehydrogenate", 
+    win.modifyDehydrogenateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Dehydrogenate",
                                                                            None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyPassivateAction.setText(QtGui.QApplication.translate("MainWindow", "&Passivate", 
+    win.modifyPassivateAction.setText(QtGui.QApplication.translate("MainWindow", "&Passivate",
                                                                    None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyPassivateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Passivate", 
+    win.modifyPassivateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Passivate",
                                                                        None, QtGui.QApplication.UnicodeUTF8))
     win.modifyPassivateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Passivate",
                                                                       None, QtGui.QApplication.UnicodeUTF8))
@@ -1831,14 +1831,14 @@ def retranslateUi(win):
         "MainWindow","Combine",None,QtGui.QApplication.UnicodeUTF8))
 
     win.modifyMergeAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow","Combine Selected Chunks",None, 
+        "MainWindow","Combine Selected Chunks",None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.makeChunkFromSelectedAtomsAction.setText(QtGui.QApplication.translate(
         "MainWindow","New Chunk",None,QtGui.QApplication.UnicodeUTF8))
 
     win.makeChunkFromSelectedAtomsAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow","Create a new chunk for selected atoms",None, 
+        "MainWindow","Create a new chunk for selected atoms",None,
         QtGui.QApplication.UnicodeUTF8))
 
     win.modifySeparateAction.setText(QtGui.QApplication.translate(
@@ -1846,10 +1846,10 @@ def retranslateUi(win):
     win.modifySeparateAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", "Separate", None, QtGui.QApplication.UnicodeUTF8))
     win.modifyAlignCommonAxisAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "Align to &Common Axis",None, 
+        "MainWindow", "Align to &Common Axis",None,
         QtGui.QApplication.UnicodeUTF8))
     win.modifyAlignCommonAxisAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Align to Common Axis",None, 
+        "MainWindow", "Align to Common Axis",None,
         QtGui.QApplication.UnicodeUTF8))
     win.modifyCenterCommonAxisAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", "Center on Common Axis",None,
@@ -1892,13 +1892,13 @@ def retranslateUi(win):
     win.selectLockAction.setIconText(QtGui.QApplication.translate("MainWindow", "Lock", None, QtGui.QApplication.UnicodeUTF8))
     win.selectLockAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Selection Lock (Ctrl+L)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectLockAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+L", None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.selectByNameAction.setText(QtGui.QApplication.translate(
-        "MainWindow", 
-        "Select By Name", 
-        None, 
+        "MainWindow",
+        "Select By Name",
+        None,
         QtGui.QApplication.UnicodeUTF8))
-    
+
     #= "Simulation" (menu and toolbar) actions.
     win.simSetupAction.setText(QtGui.QApplication.translate(
         "MainWindow", " Run Dynamics...", None, QtGui.QApplication.UnicodeUTF8))
@@ -1909,19 +1909,19 @@ def retranslateUi(win):
     win.simMoviePlayerAction.setText(QtGui.QApplication.translate(
         "MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))
     win.simMoviePlayerAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8)) 
-    
+        "MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))
+
     win.rosettaSetupAction.setText(QtGui.QApplication.translate(
         "MainWindow", " Rosetta", None, QtGui.QApplication.UnicodeUTF8))
     win.rosettaSetupAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", "Rosetta", None, QtGui.QApplication.UnicodeUTF8))
     win.rosettaSetupAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", "Rosetta", None, QtGui.QApplication.UnicodeUTF8))
-    
+
     win.simPlotToolAction.setText(QtGui.QApplication.translate(
         "MainWindow", "Plot Graphs", None, QtGui.QApplication.UnicodeUTF8))
     win.simPlotToolAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Plot Graphs", None, QtGui.QApplication.UnicodeUTF8))    
+        "MainWindow", "Plot Graphs", None, QtGui.QApplication.UnicodeUTF8))
     win.jigsESPImageAction.setText(QtGui.QApplication.translate(
         "MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
     win.jigsESPImageAction.setIconText(QtGui.QApplication.translate(
@@ -1940,7 +1940,7 @@ def retranslateUi(win):
     win.jigsGamessAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", gms_str, None, QtGui.QApplication.UnicodeUTF8))
 
-    # Simulation Jigs 
+    # Simulation Jigs
     win.jigsLinearMotorAction.setText(QtGui.QApplication.translate(
         "MainWindow", "&Linear Motor", None, QtGui.QApplication.UnicodeUTF8))
     win.jigsLinearMotorAction.setIconText(QtGui.QApplication.translate(
@@ -1989,11 +1989,11 @@ def retranslateUi(win):
     win.viewDefviewAction.setIconText(QtGui.QApplication.translate("MainWindow", "Orientations", None, QtGui.QApplication.UnicodeUTF8))
     win.viewDefviewAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Default Views", None, QtGui.QApplication.UnicodeUTF8))
 
-    
-    
+
+
 
     win.modifyStretchAction.setText(QtGui.QApplication.translate("MainWindow", "S&tretch", None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyStretchAction.setIconText(QtGui.QApplication.translate("MainWindow", "Stretch", None, QtGui.QApplication.UnicodeUTF8))      
+    win.modifyStretchAction.setIconText(QtGui.QApplication.translate("MainWindow", "Stretch", None, QtGui.QApplication.UnicodeUTF8))
 
     win.dispSetEltable1Action.setText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Default", None, QtGui.QApplication.UnicodeUTF8))
     win.dispSetEltable1Action.setIconText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Default", None, QtGui.QApplication.UnicodeUTF8))
@@ -2046,7 +2046,7 @@ def retranslateUi(win):
         QtGui.QApplication.translate("MainWindow", "Select Chunks",
                                      None, QtGui.QApplication.UnicodeUTF8))
     win.toolsSelectMoleculesAction.setToolTip(
-        QtGui.QApplication.translate("MainWindow", "Select Chunks", 
+        QtGui.QApplication.translate("MainWindow", "Select Chunks",
                                      None, QtGui.QApplication.UnicodeUTF8))
     win.toolsMoveMoleculeAction.setText(
         QtGui.QApplication.translate("MainWindow", "Translate",

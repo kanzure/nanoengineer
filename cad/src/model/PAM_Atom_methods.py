@@ -1,4 +1,4 @@
-# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 PAM_Atom_methods.py - methods for class Atom, which are only meant
 to be called on PAM Atoms.
@@ -56,7 +56,7 @@ from model.bond_constants import find_bond
 
 from model.elements import Pl5
 
-from model.global_model_changedicts import _changed_otherwise_Atoms 
+from model.global_model_changedicts import _changed_otherwise_Atoms
 
 from dna.model.pam3plus5_math import baseframe_abs_to_rel
 from dna.model.pam3plus5_math import baseframe_rel_to_abs
@@ -156,9 +156,9 @@ class PAM_Atom_methods:
     # at all, we define them there. [bruce 080523]
     #
     # _PAM3plus5_Pl_Gv_data = ...
-    # 
+    #
     # _f_Pl_posn_is_definitive = ...
-    
+
     # == methods for either strand or axis PAM atoms
 
     def dna_updater_error_string(self,
@@ -345,10 +345,10 @@ class PAM_Atom_methods:
                     # -- after 080405 fix in _compute_bond_params this is no
                     # longer needed, but remains as a precaution)
                     # (doing it first is best for finding closest one)
-                    # (someday we might pass bond order or direction to help 
+                    # (someday we might pass bond order or direction to help
                     #  choose? then bond order would affect distance, perhaps)
 
-                    # passing baggage means only consider moving something 
+                    # passing baggage means only consider moving something
                     # in that list;
                     # remove = True means remove the moved one from that list;
                     # return value is the one moved, or None if none was found
@@ -361,7 +361,7 @@ class PAM_Atom_methods:
         elif self.element.role == 'strand': # might be Pl5 or Ss5 or Ss3
             if self.element.symbol == 'Ss3':
                 ### TODO: split this section into its own method
-                
+
                 # if we have one real strand bond, make the open directional
                 # bond opposite it (assume we have correct structure of
                 # directional bonds with direction set -- one in, one out)
@@ -383,7 +383,7 @@ class PAM_Atom_methods:
                     reference_strand_neighbor = self.next_atom_in_bond_direction(1)
                     # should exist, but no need to check here
                 if reference_strand_neighbor is not None:
-                    direction_to_it = find_bond(self, 
+                    direction_to_it = find_bond(self,
                         reference_strand_neighbor).bond_direction_from(self)
                     moveme = self.next_atom_in_bond_direction( - direction_to_it )
                     if moveme is not None and moveme in baggage:
@@ -420,21 +420,21 @@ class PAM_Atom_methods:
                         honorary_axis_neighbor = candidates[0]
                         # but which way should it point? just "not along the strand"?
                         # parallel to the next strand atom's? that makes sense...
-                        # we'll start with that if we have it (otherwise with 
+                        # we'll start with that if we have it (otherwise with
                         # whatever it already is),
                         # then correct it to be perp to our strand.
                         axisvecs_from_strand_neighbors = []
                         for sn in strand_neighbors: # real ones only
                             its_axisbond = None # might be set below
-                            its_rung_bonds = [b 
-                                              for b in sn.bonds 
+                            its_rung_bonds = [b
+                                              for b in sn.bonds
                                               if b.is_rung_bond() ]
                             if len(its_rung_bonds) == 1:
                                 its_axisbond = its_rung_bonds[0]
                             elif not its_rung_bonds:
                                 its_runglike_bonds = \
-                                    [b 
-                                     for b in sn.bonds 
+                                    [b
+                                     for b in sn.bonds
                                      if not b.bond_direction_from(sn) ]
                                     # might be rung bonds, might be open bonds with
                                     # no direction set
@@ -445,7 +445,7 @@ class PAM_Atom_methods:
                                 axisvec_sn = its_axisbond.spatial_direction_from(sn)
                                 # but correct it to be perpendicular to our bond to sn
                                 axisvec_sn = make_vec_perp_to_vec(
-                                                axisvec_sn, 
+                                                axisvec_sn,
                                                 sn.posn() - self.posn() )
                                 axisvecs_from_strand_neighbors += [axisvec_sn]
                             continue
@@ -453,14 +453,14 @@ class PAM_Atom_methods:
                         if axisvecs_from_strand_neighbors:
                             axisvec = average_value(axisvecs_from_strand_neighbors)
                         if axisvec is None: # i.e. no strand_neighbors
-                            axisvec = honorary_axis_neighbor.posn() - self.posn() 
+                            axisvec = honorary_axis_neighbor.posn() - self.posn()
                                 # this value (which it has now) would not change it
                             # print " for %r: axisvec %r starts as" % (self, axisvec,)
-                            # now remove the component parallel to the presumed 
+                            # now remove the component parallel to the presumed
                             # strand bonds' average direction
                             presumed_strand_baggage = filter( None,
                                 [reference_strand_neighbor, honorary_strand_neighbor] )
-                            vecs = [norm(find_bond(self, sn).bond_direction_vector()) 
+                            vecs = [norm(find_bond(self, sn).bond_direction_vector())
                                     for sn in presumed_strand_baggage]
                             if vecs:
                                 strand_direction = average_value(vecs)
@@ -522,7 +522,7 @@ class PAM_Atom_methods:
 ##        for candidate in candidates:
 ##            if ...:
 ##                return candidate
-        # all necessary tests were done above -- just return first one, 
+        # all necessary tests were done above -- just return first one,
         # if any are there
         if candidates:
             return candidates[0]
@@ -836,7 +836,7 @@ class PAM_Atom_methods:
         if self._dnaBaseName != dnaBaseName:
             self._dnaBaseName = dnaBaseName
             _changed_otherwise_Atoms[self.key] = self #bruce 080319
-            # todo: in certain display styles (which display dna base letters), 
+            # todo: in certain display styles (which display dna base letters),
             # call self.molecule.changeapp(0)
             self.changed() # bruce 080319
         return
@@ -845,7 +845,7 @@ class PAM_Atom_methods:
         """
         Returns the value of attr I{_dnaBaseName}.
 
-        @return: The DNA base name, or None if the attr I{_dnaBaseName} does 
+        @return: The DNA base name, or None if the attr I{_dnaBaseName} does
                  not exist.
         @rtype:  str
         """
@@ -858,10 +858,10 @@ class PAM_Atom_methods:
         #  the element type and return 'X' instead of "" for appropriate
         #  elements.)
 
-        #UPDATE: The following is now revised per above comment. i.e. if it 
+        #UPDATE: The following is now revised per above comment. i.e. if it
         #can't find a baseName for a valid element symbol (see list below)
-        #it makes the dnaBaseName as 'X' (unassigned base). This is useful 
-        #while reading in the strand sequence. 
+        #it makes the dnaBaseName as 'X' (unassigned base). This is useful
+        #while reading in the strand sequence.
         # See DnaStrand.getStrandSequence() for an example. --Ninad 2008-03-12
 
         valid_element_symbols = VALID_ELEMENTS_FOR_DNABASENAME
@@ -887,11 +887,11 @@ class PAM_Atom_methods:
 
     def get_strand_atom_mate(self):
         """
-        Returns the 'mate' of this dna pseudo atom (the atom on another strand 
+        Returns the 'mate' of this dna pseudo atom (the atom on another strand
         to which this atom is "base-paired"), or None if it has no mate.
-        @return: B{Atom} (PAM atom) 
+        @return: B{Atom} (PAM atom)
         """
-        #Note: This method was created to support assignment of strand sequence 
+        #Note: This method was created to support assignment of strand sequence
         #to strand chunks. This should be moved to dna_model and
         #can be revised further. -- Ninad 2008-01-14
         # (I revised it slightly, to support all kinds of single stranded
@@ -900,7 +900,7 @@ class PAM_Atom_methods:
             # REVIEW: return None, or raise exception? [bruce 080117 Q]
             return None
 
-        #First find the connected axis neighbor 
+        #First find the connected axis neighbor
         axisAtom = self.axis_neighbor()
         if axisAtom is None:
             # single stranded region without Ax; no mate
@@ -921,8 +921,8 @@ class PAM_Atom_methods:
         Set the Dna strand name. This is only valid for PAM atoms in the list
         'Se3', 'Pe5', 'Pl5' (all deprecated when the dna updater is active).
 
-        @param dnaStrandId_for_generators: The DNA strand id used by the 
-               dna generator 
+        @param dnaStrandId_for_generators: The DNA strand id used by the
+               dna generator
 
         @type  dnaStrandId_for_generators: str
 
@@ -952,61 +952,61 @@ class PAM_Atom_methods:
         ##                (dnaStrandId_for_generators, c)
 
         self._dnaStrandId_for_generators = dnaStrandId_for_generators
-        
+
     def getDnaStrand(self):
         """
-        Returns the DnaStrand(group) node to which this atom belongs to. 
-        
+        Returns the DnaStrand(group) node to which this atom belongs to.
+
         Returns None if there isn't a parent DnaStrand group.
-        @see: Chunk.getDnaStrand() which is used here. 
+        @see: Chunk.getDnaStrand() which is used here.
         """
         chunk = self.molecule
-        
+
         if chunk and not chunk.isNullChunk():
             return chunk.getDnaStrand()
-                    
+
         return None
-    
+
     def getDnaSegment(self):
         """
-        Returns the DnaSegment(group) node to which this atom belongs to. 
-        
+        Returns the DnaSegment(group) node to which this atom belongs to.
+
         Returns None if there isn't a parent DnaSegment group.
-        @see: Chunk.getDnaSegment() which is used here. 
+        @see: Chunk.getDnaSegment() which is used here.
         """
         chunk = self.molecule
-        
+
         if chunk and not chunk.isNullChunk():
             return chunk.getDnaSegment()
-                    
+
         return None
-    
+
 
     def getDnaStrandId_for_generators(self):
         """
-        Returns the value of attr I{_dnaStrandId_for_generators}, or "" 
+        Returns the value of attr I{_dnaStrandId_for_generators}, or ""
         if it doesn't exist.
 
-        @return: The DNA strand id used by dna generator, or "" if the attr 
+        @return: The DNA strand id used by dna generator, or "" if the attr
                  I{_dnaStrandId_for_generators} does not exist.
         @rtype:  str
         """
         # Note: this (and probably its calls) need revision for the
         # dna data model. [bruce 080225/080311 comment]
-        
+
         # Note: bruce 080311 revised all direct accesses of
         # atom._dnaStrandId_for_generators to go through this method, and
         # renamed it to make it private.
 
-        #UPDATE renamed previous attr dnastrandName to 
-        # dnaStrandId_for_generators based on a discussion with Bruce. 
-        #It was renamed to this new name 
-        #in order to avoid confusion with the dna strand name which can 
+        #UPDATE renamed previous attr dnastrandName to
+        # dnaStrandId_for_generators based on a discussion with Bruce.
+        #It was renamed to this new name
+        #in order to avoid confusion with the dna strand name which can
         #be acceesed as node.name.  The new name 'dnaStrandId_for_generators'
         #and this comment makes it clear enough that this will only be used
-        #by generators ... i.e. while creating a duplex from scratch by reading 
-        #in the standard mmp files in cad/plugins/PAM*/*.mmp. See 
-        #DnaDuplex._regroup to see how this is used.  -- Ninad 2008-03-12 
+        #by generators ... i.e. while creating a duplex from scratch by reading
+        #in the standard mmp files in cad/plugins/PAM*/*.mmp. See
+        #DnaDuplex._regroup to see how this is used.  -- Ninad 2008-03-12
 
         return self.__dict__.get('_dnaStrandId_for_generators', "")
 
@@ -1128,22 +1128,22 @@ class PAM_Atom_methods:
                 # (on open bonds anyway), to decide what to do.
                 #
                 # WARNING: this happens routinely at the end of a "bare strand"
-                # (no axis atoms), since it has one real and two open bonds, 
+                # (no axis atoms), since it has one real and two open bonds,
                 # all directional.
-                # 
+                #
                 # We might fix this by:
                 # - making that situation never occur [unlikely]
-                # - making bonds know whether they're directional even if 
+                # - making bonds know whether they're directional even if
                 #   they're open (bond subclass)
                 # - atom subclass for bondpoints
-                # - notice whether a direction is set on just one open bond 
+                # - notice whether a direction is set on just one open bond
                 #   [done below, 080212];
-                # - construct open bonds on directional elements so the right 
+                # - construct open bonds on directional elements so the right
                 #   number are set [dna updater does that now, but a user bond
                 #   dir change can make it false before calling us]
-                # - (or preferably, marked as directional bonds without a 
+                # - (or preferably, marked as directional bonds without a
                 #    direction being set)
-                
+
                 # REVIEW: return an error message string?
                 # [bruce 071112, 080212 updated comment]
                 if num_real < 2:
@@ -1151,7 +1151,7 @@ class PAM_Atom_methods:
                     # direction set (assume dna updater has made the local
                     # structure make sense) (only works if cmenu won't set dir
                     # on open bond to make 3 dirs set ### FIX)
-                    # kluge (bug): assume all real bonds have dir set. 
+                    # kluge (bug): assume all real bonds have dir set.
                     # Easily fixable in the lambda if necessary.
                     dirbonds_set = filter( lambda bond: bond._direction, dirbonds )
                         #k non-private method?
@@ -1173,7 +1173,7 @@ class PAM_Atom_methods:
         if not self.element.bonds_can_be_directional:
             return False # optimization
 
-        nextatom = self.next_atom_in_bond_direction(1) 
+        nextatom = self.next_atom_in_bond_direction(1)
         if nextatom is None or nextatom.is_singlet():
             return True # self is an end atom
 
@@ -1190,7 +1190,7 @@ class PAM_Atom_methods:
         if not self.element.bonds_can_be_directional:
             return False # optimization
 
-        nextatom = self.next_atom_in_bond_direction(-1) 
+        nextatom = self.next_atom_in_bond_direction(-1)
         if nextatom is None or nextatom.is_singlet():
             return True # self is an end atom
 
@@ -1238,7 +1238,7 @@ class PAM_Atom_methods:
         # can't be used naively?
         return filter(lambda bond: bond.is_directional(), self.bonds)
 
-    def bond_directions_are_set_and_consistent(self): #bruce 071204 
+    def bond_directions_are_set_and_consistent(self): #bruce 071204
         # REVIEW uses - replace with self._dna_updater__error??
         """
         Does self (a strand atom, base or base linker)
@@ -1355,16 +1355,16 @@ class PAM_Atom_methods:
                                              self.bonds )
                 def number_with_direction( bonds, dir1 ):
                     """
-                    return the number of bonds in bonds 
+                    return the number of bonds in bonds
                     which have the given direction from self
                     """
-                    return len( filter( 
-                        lambda bond: bond.bond_direction_from(self) == dir1, 
+                    return len( filter(
+                        lambda bond: bond.bond_direction_from(self) == dir1,
                         bonds ))
                 def fix_one( bonds, dir1):
                     "fix one of those bonds (by clearing its direction)"
-                    bond_to_fix = filter( 
-                        lambda bond: bond.bond_direction_from(self) == dir1, 
+                    bond_to_fix = filter(
+                        lambda bond: bond.bond_direction_from(self) == dir1,
                         bonds )[0]
                     if debug:
                         print "debug fyi: fix_open_bond_directions(%r) " \
@@ -1374,10 +1374,10 @@ class PAM_Atom_methods:
                     num_fixed[0] += 1
                     assert num_fixed[0] <= len(self.bonds) # protect against infloop
                 for dir_to_fix in (1, -1): # or, only fix bonds of direction want_dir?
-                    while ( number_with_direction( self.bonds, 
+                    while ( number_with_direction( self.bonds,
                                                    dir_to_fix ) > 1 and
-                            number_with_direction( fixable_open_bonds, 
-                                                   dir_to_fix ) > 0 
+                            number_with_direction( fixable_open_bonds,
+                                                   dir_to_fix ) > 0
                            ):
                         fix_one( fixable_open_bonds, dir_to_fix )
                     continue
@@ -1469,7 +1469,7 @@ class PAM_Atom_methods:
         self).
         """
         # review: should the return value also say in which direction each one lies,
-        # whether in terms of bond_direction or base_index_direction?       
+        # whether in terms of bond_direction or base_index_direction?
         assert 0, "nim"
 
     def strand_next_baseatom(self, bond_direction = None): #bruce 071204
@@ -1489,7 +1489,7 @@ class PAM_Atom_methods:
         assert bond_direction in (-1, 1)
         if self._dna_updater__error: #bruce 080131 new feature (part 1 of 3)
             return None
-        atom1 = self.next_atom_in_bond_direction(bond_direction) 
+        atom1 = self.next_atom_in_bond_direction(bond_direction)
             # might be None or a bondpoint
         if atom1 is None:
             return None
@@ -1502,14 +1502,14 @@ class PAM_Atom_methods:
         # might cause bugs. But I don't feel fully comfortable with
         # making this depend at runtime on dna_updater_is_enabled()
         # (not sure why). So leave it alone for now. [bruce 080320]
-        symbol = atom1.element.symbol 
+        symbol = atom1.element.symbol
             # KLUGE -- should use another element attr, or maybe Atom subclass
-        if symbol[0:2] not in ('Ss', 'Sj', 'Hp', 'Pl'): 
+        if symbol[0:2] not in ('Ss', 'Sj', 'Hp', 'Pl'):
             # base or base linker atoms (#todo: verify or de-kluge)
             return None
         if symbol.startswith('Pl'): # base linker atom
             # move one more atom to find the one to return
-            atom1 = atom1.next_atom_in_bond_direction(bond_direction) 
+            atom1 = atom1.next_atom_in_bond_direction(bond_direction)
                 # might be None or a bondpoint
             assert atom1 is not self
                 # (false would imply one bond had two directions,
@@ -1573,9 +1573,9 @@ class PAM_Atom_methods:
         if not fake_Pls:
             fake_Pls = self._fake_Pls = [None, None]
         assert direction in (1, -1)
-        direction_index = (direction == 1) # arbitrary map from direction to [0,1] 
+        direction_index = (direction == 1) # arbitrary map from direction to [0,1]
             ### clean up dup code when we have some
-            
+
             # review: change this to data_index, store a Fake_Gv in the same
             # array?? (don't know yet if writemmp pam5 conversion will need
             # one -- maybe not, or if it does it can probably be a flyweight,
@@ -1624,7 +1624,7 @@ class PAM_Atom_methods:
         [private helper, used for Pl and Gv methods]
         """
         #bruce 080402, split 080409
-        if not self.element.symbol.startswith('Ss'): 
+        if not self.element.symbol.startswith('Ss'):
             # kluge? needs to match Ss3 and Ss5, and not Pl.
             # not necessarily an error
             print "fyi: _store_PAM3plus5_abspos%r is a noop for this element" % \
@@ -1641,7 +1641,7 @@ class PAM_Atom_methods:
             return
 
         origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self)
-        relpos = baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos) 
+        relpos = baseframe_abs_to_rel(origin, rel_to_abs_quat, abspos)
         if not self._PAM3plus5_Pl_Gv_data:
             self._PAM3plus5_Pl_Gv_data = [None, None, None]
         self._PAM3plus5_Pl_Gv_data[data_index] = relpos
@@ -1650,7 +1650,7 @@ class PAM_Atom_methods:
                   (self, data_index, relpos)
             # todo: use these prints to get constants for
             # default_Pl_relative_position (and Gv) [review: done now?]
-        return 
+        return
 
     def _f_recommend_PAM3plus5_Pl_abs_position(self,
                                                direction,
@@ -1711,7 +1711,7 @@ class PAM_Atom_methods:
         if not self.can_make_up_Pl_abs_position(direction):
             return None
         relpos = default_Pl_relative_position(direction)
-        origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self) 
+        origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self)
         return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
 
     def can_make_up_Pl_abs_position(self, direction): #bruce 080413
@@ -1728,7 +1728,7 @@ class PAM_Atom_methods:
             # probably can't happen
             print "bug? can_make_up_Pl_abs_position sees ladder of None for %r" % \
                   (self,)
-            return True 
+            return True
                 # should be False (see comment above)
         return ladder.can_make_up_Pl_abs_position_for(self, direction)
 
@@ -1781,7 +1781,7 @@ class PAM_Atom_methods:
         """
         relpos = default_Gv_relative_position() # (a constant)
         # following code is the same as for the Pl version
-        origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self) 
+        origin, rel_to_abs_quat, y_m_junk = _f_baseframe_data_at_baseatom(self)
         return baseframe_rel_to_abs(origin, rel_to_abs_quat, relpos)
 
     # == end of PAM strand atom methods

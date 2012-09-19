@@ -19,13 +19,13 @@ class BuildProtein_EditCommand(EditCommand):
     BuildProtein_EditCommand provides a convenient way to edit or create
     a Protein object
     """
-    
+
     #Property Manager
     PM_class = BuildProtein_PropertyManager
-    
+
     #Flyout Toolbar
     FlyoutToolbar_class = ProteinFlyout
-    
+
     cmd              =  greenmsg("Build Protein: ")
     prefix           =  'ProteinGroup'   # used for gensym
     cmdname          = "Build Protein"
@@ -38,14 +38,14 @@ class BuildProtein_EditCommand(EditCommand):
     command_has_its_own_PM = True
     create_name_from_prefix  =  True
     call_makeMenus_for_each_event = True
-        
+
     def runCommand(self):
         """
         Overrides EditCommand.runCommand
         """
         self.struct = None
         self.existingStructForEditing = False
-        
+
 
     def keep_empty_group(self, group):
         """

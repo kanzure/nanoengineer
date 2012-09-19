@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 """
@@ -12,7 +12,7 @@ def setupUi(win):
     @param win: NE1's main window object.
     @type  win: Ui_MainWindow
     """
-    
+
     # Populate the "Dimensions" menu.
     win.dimensionsMenu.addAction(win.jigsDistanceAction)
     win.dimensionsMenu.addAction(win.jigsAngleAction)
@@ -20,7 +20,7 @@ def setupUi(win):
 
 def retranslateUi(win):
     """
-    Sets text related attributes for the "Dimensions" submenu, 
+    Sets text related attributes for the "Dimensions" submenu,
     which is a submenu of the "Tools" menu.
 
     @param win: NE1's mainwindow object.
@@ -28,5 +28,5 @@ def retranslateUi(win):
     """
     win.dimensionsMenu.setTitle(
         QtGui.QApplication.translate(
-            "MainWindow", "&Dimensions", 
+            "MainWindow", "&Dimensions",
             None, QtGui.QApplication.UnicodeUTF8))

@@ -34,17 +34,17 @@ def import_all_modules_cmd(glpane): #bruce 080721
     """
     """
     del glpane
-    
+
     _original_cwd = os.getcwd() # so we can restore it before returning
-    
+
     try:
         os.chdir(CAD_SRC_PATH)
-        
+
         # this doesn't work, don't know why:
         ## pipe = os.popen("./tools/AllPyFiles.sh")
         ## modules = pipe.readlines() # IOError: [Errno 4] Interrupted system call
         ## pipe.close()
-        
+
         # so try this instead:
         tmpfile = _tempfilename( "_all_modules")
         os.system("./tools/AllPyFiles.sh > '%s'" % tmpfile)
@@ -62,7 +62,7 @@ def import_all_modules_cmd(glpane): #bruce 080721
 
         import_these = []
         cinit = 0
-        
+
         for module in modules:
             module = module.strip()
             if module.startswith("./"):
@@ -100,12 +100,12 @@ def import_all_modules_cmd(glpane): #bruce 080721
 
         print "done importing all modules"
         print
-        
+
     except:
         print_compact_traceback("ignoring exception: ")
-        
+
     os.chdir(_original_cwd)
-    
+
     return # from import_all_modules_cmd
 
 # ==
@@ -128,7 +128,7 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
             _this_module.export_command_table_cmd(glpane, _might_reload = False)
             return
         pass
-    
+
     del glpane
 
     global_values = {} # id(val) -> val (not all vals are hashable)
@@ -179,7 +179,7 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
     print "found %d command_packages" % len(all_command_packages_dict) # a dict, from and to their names
     all_command_packages_list = all_command_packages_dict.values()
     all_command_packages_list.sort()
-    
+
     # print "\n".join( all_command_packages_list)
     # print
 
@@ -207,7 +207,7 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
         if not cp in command_packages_with_commands:
             d = otherCommandPackage_Descriptor(cp)
             descriptors[d] = d
-    
+
     # change descriptors into a list, and sort it
     items = [ ( descriptor.sort_key(), descriptor) for descriptor in descriptors]
         ### or call sort_by or sorted_by, if it exists?
@@ -215,14 +215,14 @@ def export_command_table_cmd(glpane, _might_reload = True): #bruce 080721, unfin
     descriptors = [ descriptor for junk, descriptor in items ]
 
     # print results
-    
+
     print "found %d commands:" % len(descriptors)
     print
 
     for descriptor in descriptors:
         descriptor.print_plain() # todo: add more info to that; print into a file
         print
-    
+
     print "done"
 
     return # from export_command_table_cmd

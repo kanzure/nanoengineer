@@ -673,19 +673,19 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
-        
+
         connect_checkbox_with_boolean_pref( self.display_confirmation_corner_checkbox, displayConfirmationCorner_prefs_key )
         connect_checkbox_with_boolean_pref( self.enable_antialiasing_checkbox, enableAntiAliasing_prefs_key )
-        
+
         # Cursor text font point size spinbox
         self.connect(self.cursorTextFontSizeSpinBox, SIGNAL("valueChanged(int)"), self.change_cursorTextFontSize)
-        
+
         # Cursor text font size reset button.
         self.connect(self.cursorTextFontSizeResetButton, SIGNAL("clicked()"), self.reset_cursorTextFontSize)
         self.cursorTextFontSizeResetButton.setIcon(geticon('ui/dialogs/Reset.png'))
         self.cursorTextFontSizeSpinBox.setValue(env.prefs[ cursorTextFontSize_prefs_key ] )
         self.change_cursorTextFontSize(env.prefs[cursorTextFontSize_prefs_key]) # Needed to update the reset button.
-        
+
         # Cursor text color
         connect_colorpref_to_colorframe(cursorTextColor_prefs_key, self.cursorTextColorFrame)
         self.connect(self.cursorTextColorButton, SIGNAL("clicked()"), self.change_cursorTextColor)
@@ -730,7 +730,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             env.prefs[zoomOutAboutScreenCenter_prefs_key])
 
         self.hhTimeoutIntervalDoubleSpinBox.setValue(env.prefs[mouseWheelTimeoutInterval_prefs_key])
-        
+
         # Pan settings
         direction = env.prefs[panArrowKeysDirection_prefs_key]
         #  1 = View direcgion (default)
@@ -916,16 +916,16 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         Setup the "DNA" page.
         """
         # Connections for "DNA defaults" groupbox widgets.
-        
-        connect_doubleSpinBox_with_pref(self.dnaBasesPerTurnDoubleSpinBox, 
+
+        connect_doubleSpinBox_with_pref(self.dnaBasesPerTurnDoubleSpinBox,
                                         bdnaBasesPerTurn_prefs_key
                                         )
-        
+
         connect_doubleSpinBox_with_pref(self.dnaRiseDoubleSpinBox,
                                         bdnaRise_prefs_key)
-                                        
-        
-               
+
+
+
         self.connect(self.dnaRestoreFactoryDefaultsPushButton, SIGNAL("clicked()"), self.dnaRestoreFactoryDefaults)
 
         connect_colorpref_to_colorframe(dnaDefaultStrand1Color_prefs_key, self.dnaDefaultStrand1ColorFrame)
@@ -1263,12 +1263,12 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.connect(self.rosetta_checkbox, SIGNAL("toggled(bool)"), self.enable_rosetta)
         self.connect(self.rosetta_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_rosetta_path)
         self.connect(self.rosetta_choose_btn, SIGNAL("clicked()"), self.choose_rosetta_path)
-        
+
         # Rosetta database signal-slots connections.
         self.connect(self.rosetta_db_checkbox, SIGNAL("toggled(bool)"), self.enable_rosetta_db)
         self.connect(self.rosetta_db_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_rosetta_db_path)
         self.connect(self.rosetta_db_choose_btn, SIGNAL("clicked()"), self.choose_rosetta_db_path)
-        
+
         # NanoVision-1 signal-slots connections.
         self.connect(self.nv1_checkbox, SIGNAL("toggled(bool)"), self.enable_nv1)
         self.connect(self.nv1_path_lineedit, SIGNAL("textEdited(const QString&)"), self.set_nv1_path)
@@ -1383,7 +1383,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                                   self.gamess_lbl,
                                   self.gamess_path_lineedit,
                                   self.gamess_choose_btn]
-        
+
         for widget in gms_and_esp_widgetList:
             if debug_pref("Show GAMESS and ESP Image UI options",
                           Choice_boolean_False,
@@ -1391,17 +1391,17 @@ class Preferences(QDialog, Ui_PreferencesDialog):
                 widget.show()
             else:
                 widget.hide()
-        
-        # NanoVision-1 
+
+        # NanoVision-1
         nv1_widgetList = [self.nv1_checkbox,
                           self.nv1_label,
                           self.nv1_path_lineedit,
                           self.nv1_choose_btn]
-        
+
         for widget in nv1_widgetList:
             widget.hide()
-        
-        # Rosetta 
+
+        # Rosetta
         rosetta_widgetList = [self.rosetta_checkbox,
                               self.rosetta_label,
                               self.rosetta_path_lineedit,
@@ -1601,16 +1601,16 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         self.glpane.compassPosition = val
         self.glpane.gl_update()
         return
-    
+
     # "Cursor text" slots (on Graphics Area page)
-    
+
     def change_cursorTextColor(self):
         """
         Change the cursor text color.
         """
         self.usual_change_color( cursorTextColor_prefs_key)
         return
-    
+
     def change_cursorTextFontSize(self, ptSize):
         """
         Change the cursor text font size.
@@ -1618,7 +1618,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         env.prefs[ cursorTextFontSize_prefs_key ] = ptSize
         self._updateResetButton(self.cursorTextFontSizeResetButton, cursorTextFontSize_prefs_key)
         return
-    
+
     def reset_cursorTextFontSize(self):
         """
         Slot called when pressing the Font size reset button.
@@ -1626,7 +1626,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         env.prefs.restore_defaults([cursorTextFontSize_prefs_key])
         self.cursorTextFontSizeSpinBox.setValue(env.prefs[cursorTextFontSize_prefs_key])
-    
+
     # End "Cursor text" slots.
 
     def change_pasteOffsetScaleFactorForChunks(self, val):
@@ -1948,7 +1948,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         """
         env.prefs[mouseWheelTimeoutInterval_prefs_key] = interval
         return
-    
+
     def set_pan_arrow_keys_direction(self, direction):
         """
         Slot for Pan setting "Arrow Keys Direction" combo box.
@@ -1963,7 +1963,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         else:
             env.prefs[panArrowKeysDirection_prefs_key] = -1
         return
-        
+
 
     # = Ruler slot methods
 
@@ -2228,7 +2228,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
 
     ########## Slot methods for "DNA" page widgets ################
 
-   
+
     def dnaRestoreFactoryDefaults(self):
         """
         Slot for I{Restore Factory Defaults} button.
@@ -3032,7 +3032,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             #env.prefs[nv1_path_prefs_key] = ''
             env.prefs[nv1_enabled_prefs_key] = False
         return
-    
+
     # Rosetta slots #######################################
 
     def choose_rosetta_path(self):
@@ -3086,9 +3086,9 @@ class Preferences(QDialog, Ui_PreferencesDialog):
             self.rosetta_choose_btn.setEnabled(False)
             env.prefs[rosetta_enabled_prefs_key] = False
         return
-    
+
     # Rosetta DB slots #######################################
-    
+
     def choose_rosetta_db_path(self):
         """
         Slot for Rosetta DB path "Choose" button.
@@ -3451,7 +3451,7 @@ class Preferences(QDialog, Ui_PreferencesDialog):
         env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] = value
 
     ########## End of slot methods for "ToolTips" page widgets ###########
-    
+
     ########## Slot methods for "Window" (former name "Caption") page widgets ################
 
     #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]

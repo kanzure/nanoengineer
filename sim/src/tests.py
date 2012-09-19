@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2006 Nanorex, Inc.  See LICENSE file for details.
 
 """Regression and QA test script for the simulator
 
@@ -1363,7 +1363,7 @@ try:
             finally:
                 try: TimedTest.finish(self)
                 except EarlyTermination: pass
-        
+
     baseClass = PyrexUnitTests
 except ImportError:
     baseClass = unittest.TestCase
@@ -1373,7 +1373,7 @@ class Tests(baseClass):
 
     def test_minimize_h2(self):
         StructureTest(dir="minimize", test="h2")
-        
+
     def test_dynamics_0001(self):
         # rotary motor test
         FailureExpectedTest(dir="dynamics", test="0001",

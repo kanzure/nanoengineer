@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 CS_draw_primitives.py - Public entry points for ColorSorter drawing primitives.
 
@@ -7,7 +7,7 @@ data for sorting, including the object color and an eventual call on the
 appropriate drawing worker function.
 
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -56,9 +56,9 @@ def drawsphere(color, pos, radius, detailLevel,
     @type detailLevel: int (0, 1, or 2)
     """
     ColorSorter.schedule_sphere(
-        color, 
-        pos, 
-        radius, 
+        color,
+        pos,
+        radius,
         detailLevel, # see: _NUM_SPHERE_SIZES, len(drawing_globals.sphereList)
         opacity = opacity,
         testloop = testloop )
@@ -97,7 +97,7 @@ def drawcylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
 ##                        (color[0], color[1], color[2]))
             return
         pass
-    ColorSorter.schedule_cylinder(color, pos1, pos2, radius, 
+    ColorSorter.schedule_cylinder(color, pos1, pos2, radius,
                                   capped = capped, opacity = opacity)
 
 def drawcylinder_wireframe(color, end1, end2, radius): #bruce 060608
@@ -129,49 +129,49 @@ def drawcylinder_wireframe(color, end1, end2, radius): #bruce 060608
     glPolygonMode(GL_BACK, GL_FILL) # could probably use GL_FRONT_AND_BACK
     return
 
-def drawDirectionArrow(color, 
-                       tailPoint, 
-                       arrowBasePoint, 
+def drawDirectionArrow(color,
+                       tailPoint,
+                       arrowBasePoint,
                        tailRadius,
-                       scale,  
+                       scale,
                        tailRadiusLimits = (),
                        flipDirection = False,
                        opacity = 1.0,
                        numberOfSides = 20,
-                       glpane = None, 
+                       glpane = None,
                        scale_to_glpane = False
                        ):
     """
     Draw a directional arrow staring at <tailPoint> with an endpoint decided
-    by the vector between <arrowBasePoint> and <tailPoint> 
+    by the vector between <arrowBasePoint> and <tailPoint>
     and the glpane scale <scale>
     @param color : The arrow color
     @type  color: Array
-    @param tailPoint: The point on the arrow tail where the arrow begins. 
+    @param tailPoint: The point on the arrow tail where the arrow begins.
     @type   tailPoint: V
     @param arrowBasePoint: A point on the arrow where the arrow head begins(??
     @type  arrowBasePoint: V
-    @param tailRadius: The radius of the arrow tail (cylinder radius 
+    @param tailRadius: The radius of the arrow tail (cylinder radius
                        representing the arrow tail)
     @type  tailRaius: float
     @param opacity: The opacity decides the opacity (or transparent display)
-                    of the rendered arrow. By default it is rendered as a solid 
-                    arrow. It varies between 0.0 to 1.0 ... 1.0 represents the 
+                    of the rendered arrow. By default it is rendered as a solid
+                    arrow. It varies between 0.0 to 1.0 ... 1.0 represents the
                     solid arrow renderring style
     @type opacity: float
-    @param numberOfSides: The total number of sides for the arrow head 
-                        (a glePolycone) The default value if 20 (20 sided 
+    @param numberOfSides: The total number of sides for the arrow head
+                        (a glePolycone) The default value if 20 (20 sided
                         polycone)
     @type  numberOfSides: int
 
-    @param scale_to_glpane: If True, the arrow size will be determined by the 
-                            glpane scale. 
+    @param scale_to_glpane: If True, the arrow size will be determined by the
+                            glpane scale.
     """
-    #@See DnaSegment_ResizeHandle to see how the tailRadiusLimits 
-    #are defined. See also exprs.Arrow. Note that we are not using 
-    #argument 'scale' for this purpose because the 
+    #@See DnaSegment_ResizeHandle to see how the tailRadiusLimits
+    #are defined. See also exprs.Arrow. Note that we are not using
+    #argument 'scale' for this purpose because the
     if scale_to_glpane and glpane is not None:
-        scaled_tailRadius = tailRadius*0.05*glpane.scale     
+        scaled_tailRadius = tailRadius*0.05*glpane.scale
         if tailRadiusLimits:
             min_tailRadius = tailRadiusLimits[0]
             max_tailRadius = tailRadiusLimits[1]
@@ -180,7 +180,7 @@ def drawDirectionArrow(color,
             elif scaled_tailRadius > max_tailRadius:
                 tailRadius = max_tailRadius
             else:
-                tailRadius = scaled_tailRadius                
+                tailRadius = scaled_tailRadius
         else:
             tailRadius = scaled_tailRadius
 
@@ -192,10 +192,10 @@ def drawDirectionArrow(color,
     arrowHeight =  arrowBase*1.5
     axis = norm(vec)
 
-    #as of 2008-03-03 scaledBasePoint is not used so commenting out. 
+    #as of 2008-03-03 scaledBasePoint is not used so commenting out.
     #(will be removed after more testing)
     ##scaledBasePoint = tailPoint + vlen(vec)*axis
-    drawcylinder(color, tailPoint, arrowBasePoint, tailRadius, capped = True, 
+    drawcylinder(color, tailPoint, arrowBasePoint, tailRadius, capped = True,
                  opacity = opacity)
 
     ##pos = scaledBasePoint
@@ -204,16 +204,16 @@ def drawDirectionArrow(color,
     gleSetNumSides(numberOfSides)
     drawpolycone(color,
                  # Point array (the two endpoints not drawn.)
-                 [[pos[0] - 1 * axis[0], 
+                 [[pos[0] - 1 * axis[0],
                    pos[1] - 1 * axis[1],
                    pos[2] - 1 * axis[2]],
-                  [pos[0],# - axis[0], 
-                   pos[1], #- axis[1], 
+                  [pos[0],# - axis[0],
+                   pos[1], #- axis[1],
                    pos[2]], #- axis[2],
-                  [pos[0] + arrowHeight * axis[0], 
+                  [pos[0] + arrowHeight * axis[0],
                    pos[1] + arrowHeight * axis[1],
                    pos[2] + arrowHeight * axis[2]],
-                  [pos[0] + (arrowHeight + 1) * axis[0], 
+                  [pos[0] + (arrowHeight + 1) * axis[0],
                    pos[1] + (arrowHeight + 1) * axis[1],
                    pos[2] + (arrowHeight + 1) * axis[2]]],
                  [arrowRadius, arrowRadius, 0, 0], # Radius array
@@ -242,27 +242,27 @@ def drawsurface(color, pos, radius, tm, nm):
     """
     ColorSorter.schedule_surface(color, pos, radius, tm, nm)
 
-def drawsurface_wireframe(color, pos, radius, tm, nm): 
+def drawsurface_wireframe(color, pos, radius, tm, nm):
     glPolygonMode(GL_FRONT, GL_LINE)
     glPolygonMode(GL_BACK, GL_LINE)
     glDisable(GL_LIGHTING)
-    glDisable(GL_CULL_FACE) 
+    glDisable(GL_CULL_FACE)
     try:
-        drawsurface(color, pos, radius, tm, nm) 
+        drawsurface(color, pos, radius, tm, nm)
     except:
         debug.print_compact_traceback("bug, ignored: ")
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)
     glPolygonMode(GL_FRONT, GL_FILL)
-    glPolygonMode(GL_BACK, GL_FILL) 
+    glPolygonMode(GL_BACK, GL_FILL)
     return
 
-def drawline(color, 
-             endpt1, 
-             endpt2, 
-             dashEnabled = False, 
+def drawline(color,
+             endpt1,
+             endpt2,
+             dashEnabled = False,
              stipleFactor = 1,
-             width = 1, 
+             width = 1,
              isSmooth = False):
     """
     Draw a line from endpt1 to endpt2 in the given color.  Actually, schedule
@@ -289,8 +289,8 @@ def drawline(color,
     @note: Whether the line is antialiased is determined by GL state variables
     which are not set in this function.
 
-    @warning: Some callers pass dashEnabled as a positional argument rather 
-    than a named argument.    
+    @warning: Some callers pass dashEnabled as a positional argument rather
+    than a named argument.
     """
     ColorSorter.schedule_line(color, endpt1, endpt2, dashEnabled,
                               stipleFactor, width, isSmooth)
@@ -300,15 +300,15 @@ def drawtriangle_strip(color, triangles, normals, colors):
 
 def drawTag(color, basePoint, endPoint, pointSize = 20.0):
     """
-    Draw a tag (or a 'flag') as a line ending with a circle (like a balloon 
-    with a string). Note: The word 'Flag' is intentionally not used in the 
+    Draw a tag (or a 'flag') as a line ending with a circle (like a balloon
+    with a string). Note: The word 'Flag' is intentionally not used in the
     method nameto avoid potential confusion with a boolean flag.
 
-    @param color: color of the tag 
+    @param color: color of the tag
     @type color: A
-    @param basePoint: The base point of the tag 
+    @param basePoint: The base point of the tag
     @type basePoint: V
-    @param endPoint: The end point of the tag 
+    @param endPoint: The end point of the tag
     @type endPoint: V
     @param pointSize: The pointSize of the point to be drawin at the <endPoint>
     @type  pointSize: float
@@ -318,60 +318,60 @@ def drawTag(color, basePoint, endPoint, pointSize = 20.0):
     """
     drawline(color, basePoint, endPoint)
     drawPoint(color, endPoint, pointSize = 20.0)
-    
+
 def draw3DFlag(glpane,
-              color, 
-              basePoint, 
-              cylRadius, 
+              color,
+              basePoint,
+              cylRadius,
               cylHeight,
               direction = None,
               opacity = 1.0):
     """
-    Draw a 3D flag with its base as a 'cylinder' and the head as a sphere. 
-    
+    Draw a 3D flag with its base as a 'cylinder' and the head as a sphere.
+
     @param glpane: The GLPane object
     @type glpane: B{GLPane}
-    
-    @param color: color of the tag 
+
+    @param color: color of the tag
     @type color: A
-    
-    @param basePoint: The base point of the tag 
+
+    @param basePoint: The base point of the tag
     @type basePoint: V
-    
+
     @param cylRadius: Radius of the base cylinder  of the flag
     @type  cylRadius: float
-    
+
     @param cylHeight: Height of the base cylinder of the flag
     @type  clyHeight: float
-    
-    @param direction: direction in which to draw the 3D flag. If this is not 
+
+    @param direction: direction in which to draw the 3D flag. If this is not
                       spcified, it draws the flag using glpane.up
     @type direction: V  (or None)
-    
+
     @param opacity: Flag opacity (a value bet 0.0 to 1.0)
     @type opacity: float
     """
     if direction is None:
         direction = glpane.up
-        
+
     scale = glpane.scale
-    
+
     height = cylHeight
     endPoint = basePoint + direction*height
-        
+
     sphereRadius = cylHeight*0.7
     sphereCenter = endPoint + direction*0.8*sphereRadius
     SPHERE_DRAWLEVEL = 2
-    
-    drawcylinder(color, 
+
+    drawcylinder(color,
                  basePoint,
                  endPoint,
-                 cylRadius, 
+                 cylRadius,
                  capped = True,
                  opacity = opacity)
-    
-    drawsphere(color, 
-               sphereCenter, 
+
+    drawsphere(color,
+               sphereCenter,
                sphereRadius,
                SPHERE_DRAWLEVEL,
                opacity = opacity)

@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Column.py - provide SimpleColumn and SimpleRow, and someday, fancier Column and Row
 
@@ -62,13 +62,13 @@ class SimpleColumn_NEW(Widget2D): #061115, revised 070321 to use new ArgList -- 
             print "following exception concerns self = %r, args = %r" % (self, args)
             raise
         return
-    
+
     ## gap = Option(Width, 3 * PIXELS)
     pixelgap = Option(float, 3) # 070104 int -> float
     gap = pixelgap * PIXELS
 
     print_lbox = Option(bool, False) #061127 for debugging; should be harmless; never tested (target bug got diagnosed in another way)
-    
+
     drawables = call_Expr(lambda args: filter(None, args) , args)
     ## empty = not drawables ###e BUG: needs more Expr support, I bet; as it is, likely to silently be a constant False; not used internally
     empty = not_Expr(drawables)
@@ -126,13 +126,13 @@ class SimpleColumn(Widget2D): #061115
     args = list_Expr(a0,a1,a2,a3,a4,a5, a6,a7,a8,a9,a10, # could say or_Expr(a0, Spacer(0)) but here is not where it matters
                      and_Expr(a11, toomany)
                      )
-    
+
     ## gap = Option(Width, 3 * PIXELS)
     pixelgap = Option(float, 3) # 070104 int -> float
     gap = pixelgap * PIXELS
 
     print_lbox = Option(bool, False) #061127 for debugging; should be harmless; never tested (target bug got diagnosed in another way)
-    
+
     drawables = call_Expr(lambda args: filter(None, args) , args)
     ## empty = not drawables ###e BUG: needs more Expr support, I bet; as it is, likely to silently be a constant False; not used internally
     empty = not_Expr(drawables)
@@ -163,7 +163,7 @@ class SimpleColumn(Widget2D): #061115
 
 class SimpleRow(Widget2D):
     # copy of SimpleColumn, but bbottom <-> bright, btop <-> bleft, width <- height, and 0,-dy -> dx,0, basically
-    a0 = Arg(Widget2D, None) 
+    a0 = Arg(Widget2D, None)
     a1 = Arg(Widget2D, None)
     a2 = Arg(Widget2D, None)
     a3 = Arg(Widget2D, None)
@@ -179,10 +179,10 @@ class SimpleRow(Widget2D):
     args = list_Expr(a0,a1,a2,a3,a4,a5, a6,a7,a8,a9,a10,
                      and_Expr(a11, toomany)
                      )
-    
+
     pixelgap = Option(int, 3)
     gap = pixelgap * PIXELS
-    
+
     drawables = call_Expr(lambda args: filter(None, args) , args)
     empty = not_Expr( drawables)
     btop = call_Expr(lambda drawables: max([arg.btop for arg in drawables] + [0]) , drawables)

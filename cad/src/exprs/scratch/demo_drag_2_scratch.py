@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 demo_drag_2_scratch.py
 
@@ -7,11 +7,11 @@ $Id$
 scratch file about how to rewrite demo_drag in a higher level way
 """
 
-Vertex = DataType("Vertex", 
+Vertex = DataType("Vertex",
                   Arg("pos", Position), # relative to what?
                   Option("guide", ModelObject)
          )
-   # this is not a correct set of attrs 
+   # this is not a correct set of attrs
 
 
 DataType(pos = Arg(Position))(guide = Option(ModelObject)) # nah
@@ -25,7 +25,7 @@ DataType("Vertex",
          "guide", Option(ModelObject),
         ) # surprisingly tolerable. hmm.
 
-# define IntrinsicVertex as extended/subtype of Vertex, with more data and ways to see it as Vertex 
+# define IntrinsicVertex as extended/subtype of Vertex, with more data and ways to see it as Vertex
 
 IntrinsicVertex = Vertex(pos = RelativePos(_params.lpos, <coordsys>), <other customization>)
 
@@ -33,7 +33,7 @@ IntrinsicVertex = Vertex(pos = RelativePos(_params.lpos, <coordsys>), <other cus
 
 Create(IntrinsicVertex(lpos = <formula>, guide = <formula>, policy = <formula>)(<data args, opts>))
 
-## Move( some_vertex, from = pos1, to = pos2) # typical Move command 
+## Move( some_vertex, from = pos1, to = pos2) # typical Move command
   # [unless from or to is py keyword -- rats, 'from' is! Ok, change it:]
 
 Move( some_vertex, _from = pos1, to = pos2)
@@ -58,7 +58,7 @@ IntrinsicVertex = ...
     and a policy option says whether we grab a snapshot of those coords from that obj, or continuously regrab them, as obj moves
     (but even in first case a cmenu item would let us regrab them -- so it still knows the obj)
     (but it does have its own copy of the coords, I guess -- and the precise type of those depends on the nature of the obj)
-    
+
     note: coords is correct but don't be fooled -- it's a semiarb map from some coords to others -- not an affine map!
     so for a point on a sphere, the intrinsic coords are a surface point on unit sphere and a radius ratio...
     or a radius offset if you prefer -- different types.
@@ -79,7 +79,7 @@ IntrinsicVertex = ...
     # (a list of different ways to change it, each having a list in priority order of things to keep fixed or set as requested;
     #  in this case the list would say, supply pos, fix coords, derive lpos, I guess...
     # or that you can derive lpos from pos?
-    
+
     # goal: know what can be specified, to get what -- and how to do this (at least, what to ask to do it, ie coords)
 
     # does it relate to what data's type needs to know the code to do it? ie it's not just lpos + coords = pos, solved for lpos --
@@ -142,6 +142,6 @@ myVert = GuideShapeVertex(coordsys_update = True)
 def makeone(): # wrong use of Create as executable function!
     Create( myVert(lpos1) )
     Create( myVert(pos = pos1) ) # dubious -- the idea is, pos is not an option, so using it as one must mean setting it in constructor...
-    
+
     # btw are we going to let people in general use Args (with known names, as they always have) as Options? at least for customization? #e
     # when that happens, are they removed from the remaining arglist?

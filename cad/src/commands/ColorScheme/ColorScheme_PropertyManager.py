@@ -325,17 +325,17 @@ class ColorScheme_PropertyManager(Command_PropertyManager):
         """
         Constructor for the property manager.
         """
-        
+
         self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
 
-        _superclass.__init__(self, command)        
+        _superclass.__init__(self, command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         msg = "Edit the color scheme for NE1, including the background color, "\
             "hover highlighting and selection colors, etc."
         self.updateMessage(msg)
-        
+
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -427,10 +427,10 @@ class ColorScheme_PropertyManager(Command_PropertyManager):
 
     def show(self):
         """
-        Shows the Property Manager. Extends superclass method. 
+        Shows the Property Manager. Extends superclass method.
         """
         self._updateAllWidgets()
-        _superclass.show(self)    
+        _superclass.show(self)
 
     def _addGroupBoxes( self ):
         """
@@ -629,7 +629,7 @@ class ColorScheme_PropertyManager(Command_PropertyManager):
         backgroundNames   = ["Blue Sky (default)", "Evening Sky", "Sea Green",
                              "Black", "White", "Gray", "Custom..."]
 
-        backgroundIcons   = ["Background_BlueSky", "Background_EveningSky", 
+        backgroundIcons   = ["Background_BlueSky", "Background_EveningSky",
                              "Background_SeaGreen",
                              "Background_Black",   "Background_White",
                              "Background_Gray",    "Background_Custom"]

@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 This is a Property Manager dialog for the "Insert Peptide" command.
@@ -9,10 +9,10 @@ This is a Property Manager dialog for the "Insert Peptide" command.
 
 History:
 
-Piotr 2008-01-11: Implemented Peptide Generator dialog using PropMgrBaseClass 
+Piotr 2008-01-11: Implemented Peptide Generator dialog using PropMgrBaseClass
                   (just copied most stuff from NanotubeGeneratorPropertyManager).
 
-Piotr 2008-03-02: Re-written the Property Manager dialogs to allow it working in 
+Piotr 2008-03-02: Re-written the Property Manager dialogs to allow it working in
                   the interactive mode.
 
 Piotr 080407: Fixed minor bugs in sequence text editor window.
@@ -85,7 +85,7 @@ AA_BUTTON_LIST = [
 _superclass = EditCommand_PM
 class InsertPeptide_PropertyManager(EditCommand_PM):
     """
-    The InsertPeptide_PropertyManager class provides a Property Manager 
+    The InsertPeptide_PropertyManager class provides a Property Manager
     for the "Insert > Peptide" command.
     """
     # The title that appears in the property manager header.
@@ -102,23 +102,23 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
     chirality = 1
     secondary = SS_HELIX
     current_amino_acid = 7 # Glycine
-    
+
     # DEPRECATED ATTRS
     #peptide_cache = []
     #peptide_cache.append((0, 0, 0))
-        
+
     def __init__( self, command ):
         """
         Construct the Property Manager.
         """
         _superclass.__init__( self, command )
-               
-               
+
+
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_CANCEL_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
         return
-        
+
     def show(self):
         """
         Extends superclass method.
@@ -128,14 +128,14 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
                            "two endpoints in the graphics area to insert a "\
                            "peptide chain.")
         return
-    
+
     def getParameters(self):
         """
         Return the parameters from this property manager
         to be used to create the  peptide.
         @return: A tuple containing the parameters
         @rtype: tuple
-        @see: L{InsertPeptide_EditCommand._gatherParameters()} where this is used        
+        @see: L{InsertPeptide_EditCommand._gatherParameters()} where this is used
         """
         return (self.secondary, self.phi, self.psi, self.current_amino_acid)
 
@@ -144,7 +144,7 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
         Add the group boxe to the Peptide Property Manager dialog.
         """
         self.pmGroupBox1 = \
-            PM_GroupBox( self, 
+            PM_GroupBox( self,
                          title          = "Peptide Parameters" )
 
         # Add group box widgets.
@@ -156,19 +156,19 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
         Load widgets in the group box.
         """
 
-        memberChoices = ["Custom", 
-                         "Alpha helix", 
+        memberChoices = ["Custom",
+                         "Alpha helix",
                          "Beta strand",
-                         "Pi helix", 
-                         "3_10 helix", 
+                         "Pi helix",
+                         "3_10 helix",
                          "Polyproline-II helix",
                          "Fully extended"]
 
         self.aaTypeComboBox= \
             PM_ComboBox( inPmGroupBox,
-                         label        = "Conformation:", 
-                         choices      = memberChoices, 
-                         index        = 1, 
+                         label        = "Conformation:",
+                         choices      = memberChoices,
+                         index        = 1,
                          setAsDefault = True,
                          spanWidth    = False )
 
@@ -178,13 +178,13 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
 
         self.phiAngleField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Phi angle:", 
-                              value        = self.phi, 
+                              label        = "Phi angle:",
+                              value        = self.phi,
                               setAsDefault = True,
-                              minimum      = -180.0, 
-                              maximum      = 180.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 1, 
+                              minimum      = -180.0,
+                              maximum      = 180.0,
+                              singleStep   = 1.0,
+                              decimals     = 1,
                               suffix       = " degrees")
 
         self.connect( self.phiAngleField,
@@ -195,23 +195,23 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
 
         self.psiAngleField = \
             PM_DoubleSpinBox( inPmGroupBox,
-                              label        = "Psi angle:", 
-                              value        = self.psi, 
+                              label        = "Psi angle:",
+                              value        = self.psi,
                               setAsDefault = True,
-                              minimum      = -180.0, 
-                              maximum      = 180.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 1, 
+                              minimum      = -180.0,
+                              maximum      = 180.0,
+                              singleStep   = 1.0,
+                              decimals     = 1,
                               suffix       = " degrees" )
 
         self.connect( self.psiAngleField,
                       SIGNAL("valueChanged(double)"),
                       self._aaPsiAngleChanged)
 
-        self.psiAngleField.setEnabled(False)        
+        self.psiAngleField.setEnabled(False)
 
         self.aaTypesButtonGroup = \
-            PM_ToolButtonGrid( inPmGroupBox, 
+            PM_ToolButtonGrid( inPmGroupBox,
                                buttonList   = AA_BUTTON_LIST,
                                label        = "Amino acids",
                                checkedId    = self.current_amino_acid, # Glycine
@@ -221,10 +221,10 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
                       SIGNAL("buttonClicked(int)"),
                       self._setAminoAcidType)
         return
-    
+
     def _addWhatsThisText(self):
         """
-        What's This text for widgets in this Property Manager.  
+        What's This text for widgets in this Property Manager.
         """
         from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_InsertPeptide_PropertyManager
         whatsThis_InsertPeptide_PropertyManager(self)
@@ -232,7 +232,7 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
 
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in this Property Manager.  
+        Tool Tip text for widgets in this Property Manager.
         """
         from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_InsertPeptide_PropertyManager
         ToolTip_InsertPeptide_PropertyManager(self)
@@ -240,7 +240,7 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
 
     def _aaChiralityChanged(self):
         """
-        Set chirality of the peptide chain. 
+        Set chirality of the peptide chain.
         """
 
         # This feature is currently disable as it was confusing to the users
@@ -256,9 +256,9 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
 
     def _aaTypeChanged(self, idx):
         """
-        Slot for Peptide Structure Type combo box. Changes phi/psi angles 
+        Slot for Peptide Structure Type combo box. Changes phi/psi angles
         for secondary structure.
-        
+
         @param idx: index of secondary structure combo box
         @type idx: int
         """
@@ -299,20 +299,20 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
             self.phi = self.phiAngleField.value()
             self.psi = self.psiAngleField.value()
             self.secondary = SS_COIL
-            
+
         self.phi *= self.chirality
         self.psi *= self.chirality
 
         self.command.secondary = self.secondary
-        
+
         self.phiAngleField.setValue(self.phi)
         self.psiAngleField.setValue(self.psi)
         return
 
     def _aaPhiAngleChanged(self, phi):
         """
-        Called when phi angle spin box has changed. 
-        
+        Called when phi angle spin box has changed.
+
         @param phi: phi angle value
         @type phi: float
         """
@@ -322,8 +322,8 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
 
     def _aaPsiAngleChanged(self, psi):
         """
-        Called when psi angle spin box has changed. 
-        
+        Called when psi angle spin box has changed.
+
         @param psi: psi angle value
         @type psi: float
         """
@@ -336,31 +336,31 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
         """
         self.current_amino_acid = index
         return
-    
+
     # --------------------------------------------------------------------
     # Deprecated methods to keep until we're certain this is working.
     # --Mark 2008-12-12.
-    
+
     def addAminoAcid_DEPRECATED(self, index):
         """
-        Adds a new amino acid to the peptide molecule.        
+        Adds a new amino acid to the peptide molecule.
         """
 
         # This commened out code is obsolete in interactive peptide builder.
         # The interactive peptide builder creates homopeptides.
-        
+
         # add a new amino acid and chain conformation to the peptide cache
         #self.peptide_cache.append((index,self.phi,self.psi))
         #self.peptide_cache[0] = (index,self.phi,self.psi)
-        
+
         self.current_amino_acid = index
         return
-    
+
     def _setAminoAcidType_DEPRECATED(self, aaTypeIndex):
         """
         Adds a new amino acid to the peptide molecule.
         """
-        # piotr 080911: this method is obsolete as of 080911. It was used in 
+        # piotr 080911: this method is obsolete as of 080911. It was used in
         # the old Peptide Generator.
         button, idx, short_name, dum, name, symbol, x, y = AA_BUTTON_LIST[aaTypeIndex]
         if self.ss_idx==1:
@@ -382,4 +382,3 @@ class InsertPeptide_PropertyManager(EditCommand_PM):
         #self.sequenceEditor.insertHtml(aa_txt, False, 4, 10, False)
         return
 
-    

@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Node_as_MT_DND_Target.py -- controller for a Node as a Model Tree DND target
 
@@ -61,14 +61,14 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
         @type node: Node (can be Group or not).
         """
         self.node = node
-        
+
     def drop_on_ok(self, drag_type, nodes): #bruce 080303 revised return value
         """
         Say whether "drag and drop" should be allowed to drop the given set
         of nodes onto self.node, when they are dragged in the given way
         ('move' or 'copy' -- nodes arg has the originals, not the copies),
         and if not, why not.
-        
+
         (Typically, self.node (if it says ok by returning True from this method)
         would insert the moved or copied nodes inside itself as new members,
         or below itself as new siblings if it's a leaf node (until we support
@@ -78,7 +78,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
         @return: ( ok, whynot ), i.e. (False, whynot) or (True, arbitrary).
         @rtype: 2-tuple of ( boolean, string), with string suitable for use
                 in a statusbar message.
-        
+
         [some subclasses should override this]
         """
         # someday: return ( True, what ) where what describes what we would do,
@@ -106,7 +106,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
         drag_type), perform the drop of the given list of nodes
         onto self.node. The list always contains the original nodes --
         for drag_type == 'copy', this method should make the copies itself.
-        
+
         Exactly how to do this depends on whether self.node is a leaf or group;
         subclasses of Node can override this to change the UI behavior.
         (As of 050307, only the Clipboard overrides this. Update 071025:
@@ -164,7 +164,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
             # doing move or copy, so these flags are used in the right
             # place below.
 ##            reverse_moveto = True
-            
+
             reverse_addmember = True # for either addchild or addsibling
             pass
         else:
@@ -176,22 +176,22 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
             # UNLESS drop_onto_Group_at_top is set, which means, we put nodes dropped
             # on groups at the beginning of their members list.
             # REVIEW: are there any other things that need to be changed for that? ###
-            
+
             ## assert not debug_pref_DND_drop_at_start_of_groups()
 ##            reverse_moveto = drop_onto_Group_at_top
-            
+
             reverse_addmember = drop_onto_Group_at_top
-            
+
             #bruce 060203 removing this, to implement one aspect of NFR 932:
             ## self.node.open = True # open groups which have nodes dropped on them [bruce 050528 new feature]
             pass
-        
+
         if drag_type == 'move':
             # TODO: this code is now the same as the end of the copy case;
             # after the release, clean this up by moving the common code
             # outside of (after) this move/copy 'if' statement.
             # [bruce 080414 comment]
-            
+
             if reverse_addmember: # [bruce 080414 post-rc0 code cleanup: reverse_moveto -> reverse_addmember]
                 nodes = nodes[::-1]
             for node in nodes[:]:
@@ -241,7 +241,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
                     self.node.addsibling(node, before = False)
                 continue
             pass
-        
+
         self.node.assy.update_parts() #e could be optimized to scan only what's needed (same for most other calls of update_parts)
 
         return res
@@ -278,7 +278,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
         for node in nodes:
             self.node.addchildren(nodes, after = after) ###@@@ IMPLEM (and make it not matter if they are homeless? for addchild)
         return
-    
+
     pass
 
 # ==
@@ -288,7 +288,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
 ##from debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
 ##    # this is not really needed, can remove if necessary
 ##
-##def debug_pref_DND_drop_at_start_of_groups(): 
+##def debug_pref_DND_drop_at_start_of_groups():
 ##    #bruce 070525 -- this is so we can experiment with this NFR someday.
 ##    # The code that needs to be affected by this is not yet implemented (but has a commented out call to it).
 ##    # If we implement that and it works and we like it,

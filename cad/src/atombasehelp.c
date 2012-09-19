@@ -1,4 +1,4 @@
-// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 // to build: make shared
 
@@ -64,15 +64,15 @@ struct atomstruct {
      */
     /* struct atomType * */ void *type;
     /* enum hybridization */ int hybridization;
-  
+
     struct atom **vdwBucket;
     struct atom *vdwPrev;
     struct atom *vdwNext;
     double inverseMass;
-    
+
     // non-zero if this atom is in any ground jigs
     int isGrounded;
-    
+
     int index;
     int atomID;
     int num_bonds;
@@ -98,12 +98,12 @@ static void print_pointerlist(struct pointerlist *L)
     int i;
     printf("POINTERLIST %p <<\n", L);
     for (i = 0; i < L->size; i++)
-	if (L->lst[i] == NULL) {
-	    printf("Entry %d, entry is NULL\n", i);
-	} else {
-	    printf("Entry %d, entry = %p, key = %d\n",
-		   i, L->lst[i], L->lst[i]->key);
-	}
+    if (L->lst[i] == NULL) {
+        printf("Entry %d, entry is NULL\n", i);
+    } else {
+        printf("Entry %d, entry = %p, key = %d\n",
+           i, L->lst[i], L->lst[i]->key);
+    }
     printf(">> POINTERLIST\n");
 }
 
@@ -121,8 +121,8 @@ static struct key_thing *has_key(struct pointerlist *n, unsigned int key)
 {
     int i;
     for (i = 0; i < n->size; i++) {
-	if (n->lst[i]->key == key)
-	    return n->lst[i];
+    if (n->lst[i]->key == key)
+        return n->lst[i];
     }
     return NULL;
 }
@@ -137,38 +137,38 @@ static PyObject * add_to_pointerlist(struct pointerlist *n, struct key_thing *ot
     HEX(other->self);
     XX(print_pointerlist(n));
     if (n == NULL) {
-	PyErr_SetString(PyExc_RuntimeError,
-			"add_to_pointerlist: null list??");
-	return NULL;
+    PyErr_SetString(PyExc_RuntimeError,
+            "add_to_pointerlist: null list??");
+    return NULL;
     }
     if (other == NULL) {
-	PyErr_SetString(PyExc_RuntimeError,
-			"add_to_pointerlist: second arg is NULL");
-	return NULL;
+    PyErr_SetString(PyExc_RuntimeError,
+            "add_to_pointerlist: second arg is NULL");
+    return NULL;
     }
     if (other->key == 0) {
-	printf("BADNESS: ");
-	PyObject_Print(other->self, stdout, 0);
-	printf("\n");
+    printf("BADNESS: ");
+    PyObject_Print(other->self, stdout, 0);
+    printf("\n");
 
-	PyErr_SetString(PyExc_RuntimeError,
-			"add_to_pointerlist: key is zero");
-	return NULL;
+    PyErr_SetString(PyExc_RuntimeError,
+            "add_to_pointerlist: key is zero");
+    return NULL;
     }
     /* we already have somebody with the same key, so remove it */
     if (has_key(n, other->key) != NULL) {
-	if (remove_from_pointerlist(n, other->key) == NULL)
-	    return NULL;
+    if (remove_from_pointerlist(n, other->key) == NULL)
+        return NULL;
     }
-	n->size++;
+    n->size++;
     if (n->size > n->arraysize) {
-	printf("GROW LIST FROM %d to %d\n", n->arraysize, 2 * n->arraysize);
-	n->arraysize *= 2;
-	n->lst = (struct key_thing **)
-	    realloc(n->lst, n->arraysize * sizeof(struct key_thing *));
+    printf("GROW LIST FROM %d to %d\n", n->arraysize, 2 * n->arraysize);
+    n->arraysize *= 2;
+    n->lst = (struct key_thing **)
+        realloc(n->lst, n->arraysize * sizeof(struct key_thing *));
     }
-	n->lst[n->size-1] = other;
-	Py_INCREF(other->self);
+    n->lst[n->size-1] = other;
+    Py_INCREF(other->self);
 
     MARK();
     XX(print_pointerlist(n));
@@ -184,31 +184,31 @@ static PyObject *remove_from_pointerlist(struct pointerlist *head, unsigned int 
     INT(otherkey);
     XX(print_pointerlist(head));
     if (head == NULL) {
-	PyErr_SetString(PyExc_RuntimeError,
-			"remove_from_pointerlist: empty list");
-	return NULL;
+    PyErr_SetString(PyExc_RuntimeError,
+            "remove_from_pointerlist: empty list");
+    return NULL;
     }
     MARK();
     /* find item to be removed, if it's here */
     for (i = 0; i < head->size; i++) {
-	if (otherkey == head->lst[i]->key)
-	    break;
+    if (otherkey == head->lst[i]->key)
+        break;
     }
     MARK();
     if (i == head->size) {
-	PyErr_SetString(PyExc_RuntimeError,
-			"remove_from_pointerlist: no such entry");
-	return NULL;
+    PyErr_SetString(PyExc_RuntimeError,
+            "remove_from_pointerlist: no such entry");
+    return NULL;
     }
     MARK();
     if (head->lst[i]->self == NULL) {
-	PyErr_SetString(PyExc_RuntimeError,
-			"remove_from_pointerlist: object to be removed is null");
-	return NULL;
+    PyErr_SetString(PyExc_RuntimeError,
+            "remove_from_pointerlist: object to be removed is null");
+    return NULL;
     }
     Py_DECREF(head->lst[i]->self);
     memmove(&head->lst[i], &head->lst[i+1],
-	    (head->size - 1 - i) * sizeof(void*));
+        (head->size - 1 - i) * sizeof(void*));
     head->size--;
     MARK();
     XX(print_pointerlist(head));
@@ -220,9 +220,9 @@ static PyObject *pointerlist_lookup(struct pointerlist *root, unsigned int key)
 {
     struct key_thing *r = has_key(root, key);
     if (r == NULL) {
-	PyErr_SetString(PyExc_KeyError,
-			"pointerlist_lookup: no such key");
-	return NULL;
+    PyErr_SetString(PyExc_KeyError,
+            "pointerlist_lookup: no such key");
+    return NULL;
     }
     Py_INCREF(r->self);
     return r->self;
@@ -236,7 +236,7 @@ static unsigned int qsort_partition(struct key_thing **y, unsigned int f, unsign
     struct key_thing *piv = y[f];
     up = f;
     down = l;
-    do { 
+    do {
         while (y[up]->key <= piv->key && up < l) {
             up++;
         }
@@ -244,7 +244,7 @@ static unsigned int qsort_partition(struct key_thing **y, unsigned int f, unsign
             down--;
         }
         if (up < down) {
-	    struct key_thing *temp;
+        struct key_thing *temp;
             temp = y[up];
             y[up] = y[down];
             y[down] = temp;
@@ -260,8 +260,8 @@ static void quicksort(struct key_thing **x, unsigned int first, unsigned int las
     if (first < last) {
         unsigned int pivIndex = qsort_partition(x, first, last);
         if (pivIndex > 0)
-	    quicksort(x, first, pivIndex-1);
-	quicksort(x, pivIndex+1, last);
+        quicksort(x, first, pivIndex-1);
+    quicksort(x, pivIndex+1, last);
     }
 }
 
@@ -274,23 +274,23 @@ static PyObject *extract_list(struct pointerlist *root, int values)
     MARK();
     XX(print_pointerlist(root));
     if (root->size > 0) {
-	quicksort(root->lst, 0, root->size-1);
+    quicksort(root->lst, 0, root->size-1);
     }
     MARK();
     if (values) {
-	retval = PyList_New(0);
-	for (i = 0; i < root->size; i++) {
-	    PyList_Append(retval, root->lst[i]->self);
-	    XX(PyObject_Print(root->lst[i]->self, stdout, 0));
-	    XX(printf(" at address %p\n", root->lst[i]->self));
-	}
-	MARK();
-	return retval;
+    retval = PyList_New(0);
+    for (i = 0; i < root->size; i++) {
+        PyList_Append(retval, root->lst[i]->self);
+        XX(PyObject_Print(root->lst[i]->self, stdout, 0));
+        XX(printf(" at address %p\n", root->lst[i]->self));
+    }
+    MARK();
+    return retval;
     }
     retval = PyArray_FromDims(1, (int*)&(root->size), PyArray_INT);
     kdata = (unsigned int *) ((PyArrayObject*) retval)->data;
     for (i = 0; i < root->size; i++) {
-	kdata[i] = root->lst[i]->key;
+    kdata[i] = root->lst[i]->key;
     }
     MARK();
     return PyArray_Return((PyArrayObject*) retval);
@@ -418,7 +418,7 @@ static int _init_bitmap_font(void)
     fontOffset = glGenLists(128);
     for (i = 32; i < 127; i++) {
         glNewList(i + fontOffset, GL_COMPILE);
-	glBitmap(8, 13, 0.0, 2.0, 10.0, 0.0, rasters[i - 32]);
+    glBitmap(8, 13, 0.0, 2.0, 10.0, 0.0, rasters[i - 32]);
         glEndList();
     }
     return fontOffset;

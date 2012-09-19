@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 prefs_widgets.py -- Utilities related to both user preferences and Qt widgets.
 Note: also includes some code related to "connect with state"
@@ -63,14 +63,14 @@ def widget_connectWithState(widget, state, connection_class, **options):
     Connect the given widget with the given state, using the given
     connection_class, which must be chosen to be correct for both
     the widget type and the state type / value format.
-    
+
     @param widget: a QWidget of an appropriate type, or anything
                    which works with the given connection_class.
     @type widget: QWidget (usually).
-    
+
     @param state: bla
     @type state: bla
-    
+
     @param connection_class: the constructor for the connection. Must be correct for
                              both the widget type and state type / value format.
     @type connection_class: bla
@@ -123,7 +123,7 @@ def colorpref_edit_dialog( parent, prefs_key, caption = "choose"): #bruce 050805
     # or what/how to update anything when the color is changed,
     # or where the color is stored besides in env.prefs.
     # That knowledge now resides with the code that defines it, or in central places.
-    
+
     old_color = RGBf_to_QColor( env.prefs[prefs_key] )
     c = QColorDialog.getColor(old_color, parent) # In Qt3 this also had a caption argument
     if c.isValid():
@@ -141,7 +141,7 @@ def connect_colorpref_to_colorframe( prefs_key, colorframe ): #bruce 050805; rev
     """
     # first destroy any prior connection trying to control the same colorframe widget
     widget_destroyConnectionWithState( colorframe)
-    
+
     # For Qt4, to fix bug 2320, we need to give the colorframe a unique palette, in which we can modify the background color.
     # To get this to work, it was necessary to make a new palette each time the color changes, modify it, and re-save into colorframe
     # (done below). This probably relates to "implicit sharing" of QPalette (see Qt 4.2 online docs).
@@ -173,11 +173,11 @@ def connect_colorpref_to_colorframe( prefs_key, colorframe ): #bruce 050805; rev
                 # fyi: in Qt4, like in Qt3, colorframe is a QFrame
             print_compact_traceback( "bug (ignored): exception in formula-setter: " ) #e include formula obj in this msg?
         pass
-    
+
     conn = Formula( lambda: env.prefs.get( prefs_key) , colorframe_bgcolor_setter )
         # this calls the setter now and whenever the lambda-value changes, until it's destroyed
         # or until there's any exception in either arg that it calls.
-    
+
     widget_setConnectionWithState( colorframe, conn)
     return
 
@@ -221,7 +221,7 @@ def connect_checkbox_with_boolean_pref_OLD( qcheckbox, prefs_key ): #bruce 05081
     """
     # first destroy any prior connection trying to control the same thing
     widget_destroyConnectionWithState( qcheckbox)
-    
+
     # make a one-way connection from prefs value to checkbox, using Formula (active as soon as made)
     setter = qcheckbox.setChecked #e or we might prefer a setter which wraps this with .blockSignals(True)/(False)
     conn1 = Formula( lambda: env.prefs.get( prefs_key) , setter )
@@ -234,7 +234,7 @@ def connect_checkbox_with_boolean_pref_OLD( qcheckbox, prefs_key ): #bruce 05081
         val = not not val
         env.prefs[prefs_key] = val
     conn2 = destroyable_Qt_connection( qcheckbox, SIGNAL("toggled(bool)"), prefsetter )
-    
+
     # package up both connections as a single destroyable object, and store it
     conn = list_of_destroyables( conn1, conn2)
     widget_setConnectionWithState(qcheckbox, conn)
@@ -258,7 +258,7 @@ class StateRef_API(object): ### TODO: FILL THIS IN, rename some methods
     # - self.defaultValue could be the default value (a constant value,
     #   not an expr, though in a *type* it might be an expr),
     #   and maybe some flag tells whether it's really known or just guessed.
-    
+
     # TODO: add default implems of methods like set_value and get_value
     # (which raise NIM exceptions). But rename them as mentioned elsewhere
     pass
@@ -345,7 +345,7 @@ class Setter_StateRef(StateRef_API): #bruce 080930 experimental, not known to be
             assert 0, "can't get value from %r" % self
         return self.getter()
     pass
-    
+
 def ObjAttr_StateRef( obj, attr, *moreattrs): #bruce 070815 experimental; plan: use it with connectWithState for mode tracked attrs
     ###e refile -- staterefs.py? StateRef_API.py? a staterefs package?
     """
@@ -356,7 +356,7 @@ def ObjAttr_StateRef( obj, attr, *moreattrs): #bruce 070815 experimental; plan: 
         assert 0, "a serial chain of attrs is not yet supported"
         ## ref1 = ObjAttr_StateRef( obj, attr)
         ## return ObjAttr_StateRef( ref1, *moreattrs) ### WRONG -- ref1 is a ref, not an obj which is its value!
-    
+
     assert obj is not None #k might be redundant with checks below
 
     # Let's ask obj to do this. If it doesn't know how, use a fallback method.
@@ -377,7 +377,7 @@ def ObjAttr_StateRef( obj, attr, *moreattrs): #bruce 070815 experimental; plan: 
     # since otherwise the retval of get_value would change sooner than the change-track message was sent.
     # Alternatively, all get_value calls could cause it to be compared at that time... but I'm not sure that's a good idea --
     # it might cause invals at the wrong times (inside update methods calling get_value).
-    
+
     # For some purposes, it might be useful to produce a "write only" reference,
     # useable for changing the referred-to attribute, but not for subscribing to
     # other changes of it. Or better, able to get the value but not to subscribe
@@ -407,16 +407,16 @@ def connect_doubleSpinBox_with_pref(qDoubleSpinBox, prefs_key): # by Ninad
     """
     Cause the QDoubleSpinbox to track the value of the given preference key AND
     causes changes to the Double spinbox to change the value of that prefs_key.
-    
+
     @param qDoubleSpinBox: QDoublespinbox  object which needs to be 'connected'
         to the given <prefs_key> (preference key)
     @type qDoubleSpinBox: B{QDoubleSpinBox}
-    
+
     @param prefs_key: The preference key to be assocuated with <qDoubleSpinBox>
 
     @see: B{connect_checkbox_with_boolean_pref()}
     @see: B{QDoubleSpinBox_ConnectionWithState}
-    @see: Preferences._setupPage_Dna() for an example use.  
+    @see: Preferences._setupPage_Dna() for an example use.
     @see: connect_spinBox_with_pref()
     """
     stateref = Preferences_StateRef( prefs_key) # note: no default value specified
@@ -427,16 +427,16 @@ def connect_spinBox_with_pref(qSpinBox, prefs_key): # by Ninad
     """
     Cause the QSpinbox to track the value of the given preference key AND
     causes changes to the Double spinbox to change the value of that prefs_key.
-    
+
     @param qSpinBox: QSpinBox  object which needs to be 'connected'
         to the given <prefs_key> (preference key)
     @type qSpinBox: B{QSpinBox}
-    
+
     @param prefs_key: The preference key to be assocuated with <qSpinBox>
 
     @see: B{connect_checkbox_with_boolean_pref()}
     @see: B{QSpinBox_ConnectionWithState}
-    @see: Preferences._setupPage_Dna() for an example use.  
+    @see: Preferences._setupPage_Dna() for an example use.
     @see: connect_doubleSpinBox_with_pref()
     """
     stateref = Preferences_StateRef( prefs_key) # note: no default value specified
@@ -448,15 +448,15 @@ def connect_comboBox_with_pref(qComboBox, prefs_key): # by Ninad
     """
     Cause the QComboBox to track the value of the given preference key AND
     causes changes to the combobox  to change the value of that prefs_key.
-    
+
     @param qComboBox: QComboBox  object which needs to be 'connected'
         to the given <prefs_key> (preference key)
     @type qComboBox B{QComboBox}
-    
+
     @param prefs_key: The preference key to be assocuated with <qSpinBox>
 
     @see: B{connect_checkbox_with_boolean_pref()}
-    @see: B{QComboBox_ConnectionWithState}    
+    @see: B{QComboBox_ConnectionWithState}
     @see: connect_doubleSpinBox_with_pref()
     """
     stateref = Preferences_StateRef( prefs_key) # note: no default value specified
@@ -562,7 +562,7 @@ class _twoway_Qt_connection(object):
                 # to be silently ok, smaller message, or error? If this destroy worked
                 # then I think it should be silently ok, but might not be now,
                 # depending on how refs to self continue to be used.
-            pass 
+            pass
         else:
             self.connect()
             ### WARNING: .connect is slow, since it runs our Python code to set up an undo wrapper
@@ -595,12 +595,12 @@ class QDoubleSpinBox_ConnectionWithState( _twoway_Qt_connection):
                                        stateref,
                                        widget_setter)
         return
-    
-    
+
+
 class QSpinBox_ConnectionWithState( _twoway_Qt_connection): # by Ninad
     # review: add a def connectWithState to a suitable PM class, which uses this? [bruce 080811 comment]
     def __init__(self, qspinbox, stateref):
-        widget_setter = qspinbox.setValue           
+        widget_setter = qspinbox.setValue
         self.qspinbox = qspinbox # review: is this reference needed?
         _twoway_Qt_connection.__init__(self, qspinbox, SIGNAL("valueChanged(int)"),
                                        stateref,
@@ -615,19 +615,19 @@ class QPushButton_ConnectionWithAction(destroyable_Qt_connection):
         slot = wrap_callable_for_undo( aCallable, cmdname = cmdname) # need to keep a ref to this
         destroyable_Qt_connection.__init__( self, sender, signal, slot) # this keeps a ref to slot
         return
-    
+
 class QComboBox_ConnectionWithState( _twoway_Qt_connection): # by Ninad
     # review: add a def connectWithState to a suitable PM class, which uses this? [bruce 080811 comment]
     def __init__(self, qcombobox, stateref):
-        widget_setter = qcombobox.setCurrentIndex           
+        widget_setter = qcombobox.setCurrentIndex
         self.qcombobox = qcombobox # review: is this reference needed?
-        _twoway_Qt_connection.__init__(self, 
-                                       qcombobox, 
+        _twoway_Qt_connection.__init__(self,
+                                       qcombobox,
                                        SIGNAL("currentIndexChanged(int)"),
                                        stateref,
                                        widget_setter)
         return
-    
+
     pass
 
 # still needed:

@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 node_indices.py
 
@@ -104,7 +104,7 @@ def node_new_index(node, root, after_these):
         res = grouppos + [ind]
         assert is_list_of_ints(res)
     return res
-    
+
 def just_after(extended_index): # not presently used
     """
     return the index of the position (which may not presently exist)
@@ -119,7 +119,7 @@ def fix_one_node(node, root):
     Given node somewhere under root, ask it whether it needs moving
     (to be after some other nodes under root), and if so, move it.
     Return value says whether we moved it.
-    
+
     Error if it needs moving after some nodes *not* under root;
     in that case, raise ValueError with a suitable error message.
 
@@ -130,9 +130,9 @@ def fix_one_node(node, root):
 
     @param root: top of a Node tree which caller says node is in and belongs in
     @type: Node (usually or always a Group)
-    
+
     @note: moving this node changes the indices in the tree of many other nodes.
-    
+
     @return: 1 if we moved it, 0 if we did not. (Numbers, not booleans!)
     """
     after_these = node.node_must_follow_what_nodes()
@@ -221,7 +221,7 @@ def node_at(root, pos):
 def fix_one_or_complain(node, root, errmsgfunc): # TODO: rename
     """
     [public]
-    
+
     Move node to a different position under root, if it says it needs
     to come after certain other nodes under root. See self.fix_one_node
     for details. Return 1 if we moved it, 0 if we did not.

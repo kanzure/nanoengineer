@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 PM_Utilities.py
@@ -19,7 +19,7 @@ def getSizePolicyName(sizepolicy):
     QSizePolicy.IgnoreFlag = 8
     """
     assert isinstance(sizepolicy, QSizePolicy)
-    
+
     if sizepolicy == QSizePolicy.Fixed:
         name = "SizePolicy.Fixed"
     if sizepolicy == QSizePolicy.GrowFlag:
@@ -55,6 +55,6 @@ def printSizeHints(widget):
     print "Widget name =", widget.objectName()
     print "Current Width, Height =", widget.width(), widget.height()
     minSize = widget.minimumSizeHint()
-    print "Min Width, Height =", minSize.width(), minSize.height() 
+    print "Min Width, Height =", minSize.width(), minSize.height()
     sizeHint = widget.sizeHint()
     print "SizeHint Width, Height =", sizeHint.width(), sizeHint.height()

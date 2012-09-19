@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 drawing_globals.py - A module containing global state within the
 graphics.drawing suite (which is, in principle, mostly specific to
@@ -8,7 +8,7 @@ is not in principle specific to a resource context but is either a
 constant or ought to be part of an argument passed to drawing routines.
 
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 WARNINGS:
 
@@ -110,7 +110,7 @@ def setup_desired_shaders(glprefs): #bruce 090303
     """
     if glprefs.sphereShader_desired():
         sphereShaderGlobals.setup_if_needed_and_not_failed()
-        
+
     if glprefs.cylinderShader_desired():
         cylinderShaderGlobals.setup_if_needed_and_not_failed()
 
@@ -130,7 +130,7 @@ def enabled_shaders(glpane): #bruce 090303
     """
     Return a list of the shaders that are enabled for use during this
     drawing frame (in a deterministic order), in this glpane.
-    
+
     "enabled" means three things are true:
     * desired for its types of primitives in CSDLs (re glpane.glprefs),
     * available for use (re shader setup errors; see shader_available),

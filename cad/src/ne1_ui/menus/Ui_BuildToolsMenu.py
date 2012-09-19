@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 $Id$
 """
@@ -24,12 +24,12 @@ def setupUi(win):
     win.buildToolsMenu.addSeparator()
     win.buildToolsMenu.addAction(win.modifyAlignCommonAxisAction)
     win.buildToolsMenu.addAction(win.modifyCenterCommonAxisAction)
-    win.buildToolsMenu.addSeparator() 
+    win.buildToolsMenu.addSeparator()
     win.buildToolsMenu.addAction(win.jigsAtomSetAction)
 
 def retranslateUi(win):
     """
-    Sets text related attributes for the "Build Tools" submenu, 
+    Sets text related attributes for the "Build Tools" submenu,
     which is a submenu of the "Tools" menu.
 
     @param win: NE1's mainwindow object.
@@ -37,5 +37,5 @@ def retranslateUi(win):
     """
     win.buildToolsMenu.setTitle(
         QtGui.QApplication.translate(
-            "MainWindow", "Build Tools", 
+            "MainWindow", "Build Tools",
             None, QtGui.QApplication.UnicodeUTF8))

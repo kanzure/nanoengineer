@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 convert_from_PAM5.py - detect PAM5 atoms and convert (some of) them to PAM3+5
 
@@ -43,7 +43,7 @@ def convert_from_PAM5( changed_atoms): # might be misnamed, if it turns out it d
         return
 
     pam5_atoms = [] #k needed? not yet used, might not be useful until we have ladders... ###
-    
+
     for atom in changed_atoms.itervalues():
         chunk = atom.molecule
         if chunk is None or atom.key not in chunk.atoms:
@@ -76,7 +76,7 @@ def _convert_Pl5(atom):
 
     ### NOTE: the code starting from here has been copied and modified
     #### into a new function in pam3plus5_ops.py by bruce 080408.
-    
+
     assert atom.element is Pl5 # remove when works
 
     # could also assert no dna updater error
@@ -84,7 +84,7 @@ def _convert_Pl5(atom):
     # Note: we optimize for the common case (nothing wrong, conversion happens)
 
     bonds = atom.bonds
-    
+
     # change these during the loop
     bad = False
     saw_plus = saw_minus = False
@@ -97,12 +97,12 @@ def _convert_Pl5(atom):
         neighbors += [other]
         element = other.element
         direction = bond.bond_direction_from(atom)
-        
+
         if direction == 1:
             saw_plus = True
         elif direction == -1:
             saw_minus = True
-        
+
         if element is Singlet:
             num_bondpoints += 1
         elif element.symbol in ('Ss3', 'Ss5'):
@@ -120,11 +120,11 @@ def _convert_Pl5(atom):
         env.history.deferred_summary_message( orangemsg(summary_format) )
         return
 
-    del saw_plus, saw_minus, num_bondpoints, bad    
+    del saw_plus, saw_minus, num_bondpoints, bad
 
     # Now we know it is either Ss-Pl-Ss or X-Pl-Ss,
     # with fully set and consistent bond_directions.
-    
+
     # But we'd better make sure the neighbors are not already bonded!
     #
     # (This is weird enough to get its own summary message, which is red.
@@ -141,13 +141,13 @@ def _convert_Pl5(atom):
     b0, b1 = bonds
     del bonds # it might be mutable and we're changing it below,
         # so be sure not to use it again
-    
+
     if find_bond(n0, n1):
         summary_format = \
             "Error: dna updater noticed [N] Pl5 pseudoatom(s) whose neighbors are directly bonded"
         env.history.deferred_summary_message( redmsg(summary_format) )
         return
-        
+
     # Pull out the Pl5 and directly bond its neighbors,
     # reusing one of the bonds for efficiency.
     # (This doesn't preserve its bond_direction, so set that again.)
@@ -156,7 +156,7 @@ def _convert_Pl5(atom):
     # (since bond.bust on an open bond kills the bondpoint),
     # and fixing that would require inlining and modifying a
     # few Atom methods,
-    # so to avoid this case, reverse everything if needed.    
+    # so to avoid this case, reverse everything if needed.
     if n1.element is Singlet:
         direction = - direction
         n0, n1 = n1, n0
@@ -178,7 +178,7 @@ def _convert_Pl5(atom):
 
     old_nbonds_neighbor1 = len(n1.bonds) # for assert
     old_nbonds_neighbor0 = len(n0.bonds) # for assert
-    
+
     b1.bust(make_bondpoints = False) # n1 is now missing one bond; so is atom
     b0.rebond(atom, n1) # now n1 has enough bonds again; atom is missing both bonds
 
@@ -193,18 +193,18 @@ def _convert_Pl5(atom):
     # which is the overall direction from n0 thru b0 to atom thru b1 to n1,
     # so use this to optimize recording the Pl info below.
     # (Of course we really ought to just rewrite this whole conversion in Pyrex.)
-    
+
     ## assert direction == b1.bond_direction_from(atom) # too slow to enable by default
 
     # not needed, rebond preserves it:
     ## b0.set_bond_direction_from(n0, direction)
     ## assert b0.bond_direction_from(n0) == direction # too slow to enable by default
-        
+
     # now save the info we'll need later (this uses direction left over from for-loop)
 
     if n0.element is not Singlet:
         _save_Pl_info( n0, direction, atom_posn)
-    
+
     if n1.element is not Singlet:
         _save_Pl_info( n1, - direction, atom_posn) # note the sign on direction
 
@@ -213,16 +213,16 @@ def _convert_Pl5(atom):
     atom.kill()
         # (let's hope this happened before an Undo checkpoint ever saw it --
         #  sometime verify that, and optimize if it's not true)
-    
+
     # summarize our success -- we'll remove this when it becomes the default,
     # or condition it on a DEBUG_DNA_UPDATER flag ###
 
     debug_flags.DEBUG_DNA_UPDATER # for use later
-    
+
     summary_format = \
         "Note: dna updater converted [N] Pl5 pseudoatom(s)"
     env.history.deferred_summary_message( graymsg(summary_format) )
-    
+
     return
 
 # ==

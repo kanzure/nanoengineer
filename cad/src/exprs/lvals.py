@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 lvals.py - various kinds of "lvalue" objects (slots for holding attribute values)
 with special behavior such as usage-tracking and invalidation/update.
@@ -107,7 +107,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
     #   - SelfUsageTrackingMixin: track_use, track_change == track_inval --
     #       for tracking how our value is used, is changed, is indirectly invalled.
     #   - SubUsageTrackingMixin: begin_tracking_usage, end_tracking_usage -- for tracking which values we use when we recompute.
-    #   - They're the same mixins used for displists used by chunk/GLPane and defined in chunk, and for changes to env.prefs, 
+    #   - They're the same mixins used for displists used by chunk/GLPane and defined in chunk, and for changes to env.prefs,
     #     so these Lvals will work with those (except for chunk not yet propogating invals or tracking changes to its display list).
     #   - See comments near those methods in changes.py for ways they'll someday need extension/optimization for this use.
     valid = False # public attribute
@@ -192,7 +192,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     # ... status, 061121 late: it didn't fix the bug, later stuff did, and I suspect it's right in theory
                     # to track the use here, but that it won't matter in the near future. So, at some point, put this back
                     # and see if it works or breaks, but no hurry to put it back in general. But recall it as a possible bug cause,
-                    # and if it seems to not break anything, leave it in, unlike now. 
+                    # and if it seems to not break anything, leave it in, unlike now.
                 raise
             self.valid = True
         # do standard usage tracking into env (whether or not it was invalid & recomputed) -- API is compatible with env.prefs
@@ -238,7 +238,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 print msg, "(reraising)" #070131 no traceback, to reduce verbosity
             else:
                 msg = "AttributeError in %r._compute_method turned into a RuntimeError" % self
-                print_compact_traceback(msg + ": ")            
+                print_compact_traceback(msg + ": ")
             self.end_tracking_usage( match_checking_code, self.inval )
             ## raise RuntimeError, msg ##e change to our own kind of exception, subclass of RuntimeError, NOT of AttributeError
             ## raise RuntimeError(e) # this fails to include the part of the traceback from e... that info is now lost. fix sometime.
@@ -273,7 +273,7 @@ def exc_info_summary(): #070131 #e refile
     type, value, traceback = sys.exc_info()
     del traceback # not needed now, but important to del it asap if we make this fancier
     return "%s: %s" % (type, value) ###k
-    
+
 # ==
 
 class Lval_which_recomputes_every_time(Lval): #070108; SEVERELY DEPRECATED (see docstring)
@@ -361,7 +361,7 @@ class StateRefInterface( object): #070312; experimental; see also staterefs.py
     [Maybe someday it can usefully provide them when used in some other way to "add glue code for an interface". #e]
     """
     pass
-    
+
 class LvalForState(Lval, StateRefInterface): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since split out from its superclass, and initvals enabled)
     """A variant of Lval for containing mutable state.
     Can be given an initval compute method -- but that's required
@@ -452,7 +452,7 @@ class LvalForState(Lval, StateRefInterface): #061117 -- NOT REVIEWED AS WELL AS 
         # it's indeed a bug that they asked that before we were initialized, but it's not so bad that they'll
         # get invalled when something changes us later.)
         printnim("assert no current inval-subscribers")
-        
+
         mc = changes.begin_disallowing_usage_tracking('_set_defaultValue in %r' % self)
             # note: the argument is just an explanation for use in error messages ##e OPTIM: don't precompute that arg
         try:

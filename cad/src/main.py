@@ -1,5 +1,5 @@
 #! /usr/bin/python
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 main.py -- the initial startup file for NanoEngineer-1, treated specially
 by the release-building process.
@@ -114,7 +114,7 @@ except:
         # happens routinely on other platforms' release builds
 
 def _start_NE1():
-    
+
     if _alternateSourcePath is not None:
         print
         print "WILL USE ALTERNATE_CAD_SRC_PATH = %r" % ( _alternateSourcePath,)
@@ -129,15 +129,15 @@ def _start_NE1():
     import utilities.EndUser as EndUser
 
     EndUser.setAlternateSourcePath(_alternateSourcePath)
-    
+
     _main_globals = globals() # needed by startup_script
 
     from ne1_startup.main_startup import startup_script
-    
+
     startup_script( _main_globals )
 
     return
-    
+
 if __name__ == '__main__':
     _start_NE1()
 

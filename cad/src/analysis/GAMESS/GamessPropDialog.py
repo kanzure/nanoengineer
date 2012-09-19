@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 # Form implementation generated from reading ui file 'C:\Atom\qt4\cad\src\GamessPropDialog.ui'
 #
 # Created: Fri May 04 10:49:03 2007
@@ -439,12 +439,12 @@ class Ui_GamessPropDialog(object):
         QtCore.QMetaObject.connectSlotsByName(GamessPropDialog)
 
     def retranslateUi(self, GamessPropDialog):
-        
+
         if sys.platform == "win32":
             gms_str = "PC GAMESS"
         else:
             gms_str = "GAMESS"
-        
+
         GamessPropDialog.setWindowTitle(QtGui.QApplication.translate("GamessPropDialog", gms_str + " Properties", None, QtGui.QApplication.UnicodeUTF8))
         self.runtyp_combox.setToolTip(QtGui.QApplication.translate("GamessPropDialog", "\"Energy\" = Energy Minina, \"Optimization\" = Equilibrium Geometry", None, QtGui.QApplication.UnicodeUTF8))
         self.runtyp_combox.addItem(QtGui.QApplication.translate("GamessPropDialog", "Energy", None, QtGui.QApplication.UnicodeUTF8))

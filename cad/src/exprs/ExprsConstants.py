@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ExprsConstants.py -- define constants and simple functions used by many files in this package
 
@@ -16,8 +16,8 @@ from geometry.VQT import V
 # compass positions, also usable for DrawInCorner
 
 from utilities.prefs_constants import UPPER_RIGHT
-from utilities.prefs_constants import UPPER_LEFT 
-from utilities.prefs_constants import LOWER_LEFT 
+from utilities.prefs_constants import UPPER_LEFT
+from utilities.prefs_constants import LOWER_LEFT
 from utilities.prefs_constants import LOWER_RIGHT
 
     # note: their values are ints -- perhaps hard to change since they might correspond to Qt radiobutton indices (guess)

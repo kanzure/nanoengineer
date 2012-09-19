@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 DragBehavior.py - the DragBehavior API and some useful specific behaviors
 
@@ -70,7 +70,7 @@ class SimpleDragBehavior(DragBehavior): #works circa 070317; revised 070318
     # (best arg order unclear; it may turn out that the DragEvent to ask is our delegate in the future -- so let it come first)
 
     highlightable = Arg(Anything)
-        # for current_event_mousepoint (coordsys) -- will this always be needed? at least a DragEvent will be! 
+        # for current_event_mousepoint (coordsys) -- will this always be needed? at least a DragEvent will be!
     translation_ref = Arg(StateRef,
                           doc = "ref to translation state, e.g. call_Expr( LvalueFromObjAndAttr, some_obj, 'translation')" )
 
@@ -83,12 +83,12 @@ class SimpleDragBehavior(DragBehavior): #works circa 070317; revised 070318
     # note: the following methods are heavily modified from the ones in DraggableObject.
     # [They are the methods of some interface, informal so far,
     #  but I don't know if it's exactly the one I've elsewhere called Draggable.]
-    
+
     def on_press(self):
         self.saved_coordsys.copy_from( self.highlightable) # needed, since self.highlightable's coordsys changes during the drag!
         point = self.current_event_mousepoint() # the touched point on the visible object (hitpoint)
         self.oldpoint = self.startpoint = point
-        
+
     def on_drag(self):
         # Note (for any on_drag method -- really about the interface it's in [###e refile]):
         # we can assume this is a "real drag",
@@ -98,10 +98,10 @@ class SimpleDragBehavior(DragBehavior): #works circa 070317; revised 070318
         point = self.current_event_mousepoint(plane = self.startpoint)
         self.translation_ref.value = self.translation_ref.value + (point - oldpoint)
         self.oldpoint = point
-        
+
     def on_release(self):
         pass
-    
+
     pass # end of class SimpleDragBehavior
 
 # end

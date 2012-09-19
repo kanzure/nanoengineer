@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 SplitDotInFile.py
@@ -57,7 +57,7 @@ def parseInFile(fileName):
             nextIndex = 1
             inFile = True
             warned = False
-        
+
         if (inFile):
             # Within the residue itself, column 0 is an index number
             # which usually increments sequentially.

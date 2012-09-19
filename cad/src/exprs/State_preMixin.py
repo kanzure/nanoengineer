@@ -32,7 +32,7 @@ class State_preMixin( IorE_guest_mixin):
     _e_has_args = True # not needed -- only purpose is to remove "w/o a" from repr(self)
 
     def __init__(self, glpane, *args, **kws):
-        DEBUG_INIT = False # if True, enables some debug prints in console 
+        DEBUG_INIT = False # if True, enables some debug prints in console
         if DEBUG_INIT:
             print "State_preMixin.__init__", glpane, args, kws
         IorE_guest_mixin.__init__(self, glpane)
@@ -52,7 +52,7 @@ class State_preMixin( IorE_guest_mixin):
             ## State_preMixin.__init__ will call <bound method DnaSegment_EditCommand.__init__ of <DnaSegment_EditCommand#6986(i)>>
             ## State_preMixin.__init__ returned from calling <bound method DnaSegment_EditCommand.__init__ of <DnaSegment_EditCommand#6987(i)>>
             ##debug fyi: inside DnaSegment_EditCommand.__init__, returned from State_preMixin.__init__
-            
+
         super(State_preMixin, self).__init__(glpane, *args, **kws)
             # this is not calling ExampleCommand.__init__ as I hoped it would. I don't know why. ###BUG
             # (but is it calling anything? i forget. clarify!)

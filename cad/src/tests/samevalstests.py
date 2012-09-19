@@ -1,9 +1,9 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 @author: EricM
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import unittest
@@ -105,7 +105,7 @@ class SameValsTests(unittest.TestCase):
         assert same_vals(a, b)
         b = Numeric.array(["abc", "defg"], Numeric.PyObject)
         assert not same_vals(a, b)
-        
+
 def test():
     suite = unittest.makeSuite(SameValsTests, 'test')
     runner = unittest.TextTestRunner()

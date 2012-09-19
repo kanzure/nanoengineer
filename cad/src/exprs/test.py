@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 exprs/test.py - tests of exprs package, accessible from testmode UI;
 also some exprs/testmode support code (which ought to be refiled)
@@ -262,7 +262,7 @@ testexpr_6f = TextRect(format_Expr( "%r", _this(TextRect).ipath ),4,60) # printe
     # Guess at the cause: I wanted this to be delegated, but that won't work since it's defined in the proxy (the _this object)
     # so __getattr__ will never run, and will never look for the delegate. This problem exists for any attr normally found
     # in an InstanceOrExpr. Solution: make it instantiate/eval to some other class, not cluttered with attrs. [done now, 061114]
-    # 
+    #
     # update 061114: now it works differently and does find right thing, but the printed ipath looks wrong [WRONG - it's not wrong]
     # Is it ipath of the pure expr (evalled too soon),
     # or is the ipath (of the right instance) wrong? Or are we asking too early, before the right one is set?
@@ -270,7 +270,7 @@ testexpr_6f = TextRect(format_Expr( "%r", _this(TextRect).ipath ),4,60) # printe
     # A: it wasn't wrong, it was the top expr so of course it was None -- now I redefined it to  'NullIPath'.
     # But a good test is for an expr in which it's not None, so try this, which will also verify ipaths are different:
 testexpr_6f2 = Overlay(testexpr_6f, Translate(testexpr_6f, (0,-2))) # works!
-    
+
 testexpr_6g = TextRect(format_Expr( "%r", _this(TextRect) ),4,60) # seems to work, 061114
 testexpr_6g2 = TextRect(format_Expr( "%r", (_this(TextRect),_this(TextRect)) ),4,60) # should be the same instance - works (best test)
 
@@ -283,7 +283,7 @@ testexpr_6h2 = TextRect(format_Expr( "%r", getattr_Expr(_this(TextRect),'_e_is_i
 
 testexpr_6j = TextRect(format_Expr( "%r", (_this(TextRect),_this(TextRect).ncols) ),4,60) # works: prints (<textrect...>, 60)
 
-    #e more kinds of useful TextRect msg-formulae we'd like to know how to do: 
+    #e more kinds of useful TextRect msg-formulae we'd like to know how to do:
     #e how to access id(something), or env.redraw_counter, or in general a lambda of _self
 
 # Boxed   (_7 and _7a were TestIterator, now deferred)
@@ -335,7 +335,7 @@ testexpr_9b = Button(
                         ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
                     IsocelesTriangle(1.5, 1, green),
                     IsocelesTriangle(1.5, 1, yellow),#e lightgreen better than yellow, once debugging sees the difference
-                        ###@@@ sbar_text = "button, pressed", 
+                        ###@@@ sbar_text = "button, pressed",
                     # actions (other ones we don't have include baremotion_in, baremotion_out (rare I hope) and drag)
                     on_press = print_Expr('pressed'),
                     on_release_in = print_Expr('release in'), # had a bug (did release_out instead), fixed by 'KLUGE 061116'
@@ -394,12 +394,12 @@ testexpr_9fx4 = Highlightable( Rect(1, 1, If_expr(_this(Highlightable).transient
     # Or did I click in those tests?
     # 070122 update: I don't know if it means that, but recently they failed in EVAL_REFORM but this is probably expected.
     # This one, testexpr_9fx4, had a bug in ER, apparently due to no local ipath mod, fixed some days ago by adding one. So it works now.
-    
+
 testexpr_9fx5 = Highlightable( Rect(color = If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works with warning
     # so it turns out the If_expr was a total red herring -- once fixed, the no-args form now warns us, but works anyway.
 testexpr_9fx6 = Highlightable( Rect(color = If_expr(_this(Highlightable).transient_state.in_drag, purple, lightblue))() ) # works
 
-                               
+
 # ToggleShow
 testexpr_10a = ToggleShow( Rect(2,3,lightgreen) ) # test use of Rules, If, toggling... works
 testexpr_10b = ToggleShow( Highlightable(Rect(2,3,green)) ) # use Highlightable on rect - avoid redraw per mousemotion on it - works
@@ -454,7 +454,7 @@ testexpr_11k = testexpr_11h(tex_origin = (-1,-1)) # works; latest stable test in
 
 ## testexpr_11l_asfails = testexpr_11k(courierfile) # can I re-supply args? I doubt it. indeed, this asfails as expected.
     # note, it asfails when parsed (pyevalled), so I have to comment out the test -- that behavior should perhaps be changed.
-    
+
 imagetest = Image(tex_origin = (-1,-1), clamp = True, nreps = 3, use_mipmaps = True) # customized [see also IconImage, imagetest_x2]
 
 testexpr_11m = imagetest(courierfile) # works
@@ -602,7 +602,7 @@ testexpr_11pd5a = test_translucent_icons(_files2, _dir2) # test Mark's latest im
 ok_image = trans_image( shape = 'upper-left-half') # further customization
 ok_image_2 = trans_image( shape = [(1,1),(0,1),(0.5,0.75)]) # upper quarter, but only upper half of that again, just for testing
 
-cancel_image = trans_image( shape = 'lower-right-half') 
+cancel_image = trans_image( shape = 'lower-right-half')
 
 testexpr_11pd6 = DraggableObject( ok_image( _dir1 + "OK_Cancel_TrianglesOutline_100x100.png", alpha_test = False )) # works (grabs in too many places)
     # also confirms that the sharp edge is a bit too close for antialiasing, at least on the border with the other button (but that's ok on that edge)
@@ -646,7 +646,7 @@ testexpr_11q5cx2_g4 = imagetest_x2("/Nanorex/DNA/paul notebook pages/stages1-4.j
 ##        ## could confirm theory by putting it in a column, predict we'd show prior one in its place. ##e
 ##        ## WAIT, WRONG, it's just the lastresort file, since this one is only found under that name on g4!!!
     # That lastresort file needs to look different and/or print error message when found! Ok, now it prints error msg at least.
-    
+
 testexpr_11q5cx2_g5 = imagetest_x2("/Nanorex/DNA/pwkr-user-story/notebook page images/stages1-4.jpg") # works, but poor resolution
 testexpr_11q5cx2_g5_bigbad = imagetest_x2("/Nanorex/DNA/pwkr-user-story/notebook page images/stages1-4.jpg",
                                           ideal_width = 1275,
@@ -654,8 +654,8 @@ testexpr_11q5cx2_g5_bigbad = imagetest_x2("/Nanorex/DNA/pwkr-user-story/notebook
 
     #e also try bigger ideal sizes for that one, or try loading a subregion of the image.
     # but for now, if we need it, just grab smaller images out of it using an external program.
-    
-    
+
+
 testexpr_11q6 = imagetest("/Users/bruce/untitled.jpg") # glpane screenshot saved by NE1, jpg # works (note clamping artifact -- it's ok)
 testexpr_11q7 = imagetest("/Users/bruce/untitled.png") # glpane screenshot saved by NE1, png # works
     # note: those are saved by a specific filetype option in "File -> Save As..."
@@ -705,7 +705,7 @@ testexpr_11u2 = Image("storyV4b-p15.png", rescale = False, use_mipmaps = True) #
 testexpr_11u3 = Image("storyV4b-p15.png", use_mipmaps = True) # works, poor res
 testexpr_11u4 = Image("storyV4b-p15.png", use_mipmaps = True, ideal_width = -1, ideal_height = -1) # works, but aspect ratio wrong
     # fyi: before the new feature letting -1 mean native size [kluge070304, ###UNTESTED] it failed like this:
-    ## bug: exception in <Overlay#31692(i)>.drawkid(<Image#31695(i)>): exceptions.MemoryError:  
+    ## bug: exception in <Overlay#31692(i)>.drawkid(<Image#31695(i)>): exceptions.MemoryError:
     ##  [instance_helpers.py:949] [images.py:283] [images.py:273] [images.py:109] [ExprsMeta.py:272] [ExprsMeta.py:382]
     ##   [lvals.py:170] [lvals.py:210] [images.py:91] [testdraw.py:743] [ImageUtils.py:142] [ImageUtils.py:182] [Image.py:1051]
     ##   .*** malloc_zone_calloc[2545]: arguments too large: 4294967295,4
@@ -790,7 +790,7 @@ for i in range(5): # 4 is enough unless you set 'if 1' above
         try:
             res[i][j] = hide_icons[i * 6 + j]
             res[i][j] = IconImage(res[i][j])
-            if not ((i + j ) % 3): # with 3 -> 2 they line up vertically, but that's only a coincidence -- this is not a real Table. 
+            if not ((i + j ) % 3): # with 3 -> 2 they line up vertically, but that's only a coincidence -- this is not a real Table.
                 pass ## res[i][j] = Boxed(res[i][j])
         except IndexError:
             res[i][j] = nevermind(Boxed)(Spacer(1 * PIXELS)) ## None   ###e Spacer should not need any args to be size 0
@@ -821,7 +821,7 @@ testexpr_15a = ChoiceColumn(6,2, background = Rect(3,1,green), background_off = 
     # (text not over rect, hanging instead over infinite depth empty space).
 
     # see also bug comments in controls.py.
-    
+
 testexpr_15b = ChoiceColumn(6,2, background = Rect(3,1,green), background_off = IconImage("espwindow-hide.png"))
 
 ##e ChoiceColumn should be an InstanceMacro, not a def! doesn't work to be customized this way.
@@ -858,7 +858,7 @@ checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 *
 class checkbox_v1(InstanceMacro):
     var = State(int, 0) #e bool, False?
     _value = Highlightable(
-        list_Expr( 
+        list_Expr(
             checkbox_image('mac_checkbox_off.png'),
             checkbox_image('mac_checkbox_on.png'),
         )[ mod_Expr(var,2) ],
@@ -866,8 +866,8 @@ class checkbox_v1(InstanceMacro):
         on_press = Set(var, mod_Expr(var+1,2) ) #e or use not_Expr
     )
     pass
-testexpr_16a = SimpleColumn( 
-    SimpleRow(checkbox_v1(), TextRect("option 1",1,10)), 
+testexpr_16a = SimpleColumn(
+    SimpleRow(checkbox_v1(), TextRect("option 1",1,10)),
     SimpleRow(checkbox_v1(), TextRect("option 2",1,10)),
   ) # works
 
@@ -885,7 +885,7 @@ class checkbox_v2(InstanceMacro):
         on_press = Set(var, not_Expr(var) )
     )
     pass
-testexpr_16b = SimpleColumn( 
+testexpr_16b = SimpleColumn(
     SimpleRow(checkbox_v2(), TextRect("option 1a",1,10)), #e need to be able to specify specific external state, eg a prefs variable
     SimpleRow(checkbox_v2(defaultValue = True)(), TextRect("option 2a",1,10)), # that 2nd () is to tell it "yes, we supplied args"
   ) # works
@@ -958,7 +958,7 @@ testexpr_19f = eval_Expr( call_Expr( lambda thing:
     # So for the time being I won't try to fix this for EVAL_REFORM.
     # (At one time it didn't work without EVAL_REFORM unless testbed was enabled. I'm guessing that was an old bug (predating EVAL_REFORM)
     # and I fixed it -- for details see cvs revs prior to 1.202 (Qt3 branch).)
-    
+
 # hmm, what would happen if we just tried to tell it to instantiate, in the simplest way we might think of?
 # It may not work but it just might -- at least it'll be interesting to know why it fails... [070122 945a]
 # fails because Instance wants to make one using _self._i_instance, but _self has no binding here, evals to itself.
@@ -1198,7 +1198,7 @@ class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr
             elif not yword:
                 word = xword + 'X' # CenterX
         if not word:
-            return Spacer() 
+            return Spacer()
         ## return ChoiceButton(word, choiceref, content = xxx )
         return ChoiceButton(word, choiceref, content = TextRect( format_Expr("%s", _this(ChoiceButton).choiceval), 1,12 ) )
     # now pass what we need to mybutton, direct from the class namespace -- will this work now, or do we need to do it before the staticmethod call??
@@ -1218,7 +1218,7 @@ class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr
         # and returned by our ad-hoc external function, aligntest_by_name).
         #
         # Maybe refile these comments into class eval_Expr: ##e
-        # 
+        #
         # The best fix would probably be to invalidate the instance at that fixed index, letting the index stay fixed, saying it's ok
         # for the expr there to change. This requires inval access to the LvalDict2 used by _CV__i_instance_CVdict.
         # It's best because it'll take care of all cases of "bug: expr or lvalflag for instance changed",
@@ -1425,7 +1425,7 @@ testexpr_30h = eval_Expr( call_Expr( lambda world_ui: #070206
                                      call_Expr( _app.Instance, testexpr_30b, "#30bh")
                                      ))
 
-testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h except MT_try1 -> MT_try2 
+testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h except MT_try1 -> MT_try2
                                      Overlay( world_ui,
                                               DrawInCorner(
                                                   Boxed( eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) ),
@@ -1442,7 +1442,7 @@ testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h e
 # Then, it remakes the world_ui (desired effect) but also the world itself (undesired effect, makes it lose its objects).
 # Could be fixed by making the world separately; ultimately we want buttons for remaking various obj layers (incl model and ui);
 # for now just live with it, meaning this _30ix is only useful rarely, for debugging.
-testexpr_30ix = eval_Expr( call_Expr( lambda world_ui: 
+testexpr_30ix = eval_Expr( call_Expr( lambda world_ui:
                                      Overlay( world_ui,
                                               DrawInCorner(
                                                   Boxed( eval_Expr( call_Expr( dna_ribbon_view_toolcorner_expr_maker, world_ui )) ),
@@ -1567,7 +1567,7 @@ testexpr_36f = DraggablyBoxed( Kluge_DrawTheModel( highlightable = False), resiz
     # The other problems could then be fixed in some straightforward way.
     # Even now, this could probably be used to get a screenshot of a specific clipped model.
     # (So it might even be useful sometimes, if it was user-accessible, but it can't be until some of those bugs are fixed.)
-    
+
 # == demo_draw_on_surface.py
 
 from exprs.demo_draw_on_surface import our_testexpr
@@ -1603,7 +1603,7 @@ testexpr = testexpr_39a ## testexpr_35b ### testexpr_11pd5a # testexpr_36f # tes
     # The delegate autoInstance takes care of the last known bug in ER (IIRC, which is far from certain),
     # but a lot of tests have never been done in it.
     # Later: also _21g, _14, others.
-    
+
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d
@@ -1642,7 +1642,7 @@ testexpr = testexpr_39a ## testexpr_35b ### testexpr_11pd5a # testexpr_36f # tes
 
     # latest stable tests: _11k, _10c
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
-    
+
     # currently under devel [061126]: demo_MT, and need to revamp instantiation, but first make test framework, thus finish PixelGrabber
 
     # some history:
@@ -1712,7 +1712,7 @@ class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 expe
                 # See comments in widget_env.py about needed lexical/dynamic cleanup.
         return env
     pass
-        
+
 def testbed(expr):
     """
     this turns the current testexpr into the actual expr to render
@@ -1722,7 +1722,7 @@ def testbed(expr):
     ## return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)) ))
     return AppOuterLayer( # [note: defines _app in dynenv]
         Overlay( expr,
-                 
+
 ##                 ## or maybe: WithEnv(expr, _env = access to app state, env module, etc ...) or, intercept .draw and run special code...
 ##                 ## _WrapDrawMethod(expr, ...)... with code to copy app state into instance State -- of what instance? smth in env...
                  DrawInCorner( top_left_corner, (-1,1)), # some sort of MT on top left
@@ -1809,7 +1809,7 @@ def _testexpr_and_testnames_were_changed():
     assert is_Expr(testexpr)
 
     global _recent_tests
-    
+
     if testnames:
         this_test = testnames[-1] # just a local var
         _recent_tests = _add_recent_test( _recent_tests, this_test)
@@ -1827,7 +1827,7 @@ def _set_test(test):
         ###BUG: this can fail if you eval a new testname after handediting this file (to add that name)
         # but not reloading it before doing this cmenu command. Maybe catch NameError and try reloading then?? ##e
         # Also, when that happens the test does not get saved in _recent_tests -- good and bad, but more bad than good
-        # if it was hard to type (tho main importance only comes after we add editing of the text in _recent_files entries). 
+        # if it was hard to type (tho main importance only comes after we add editing of the text in _recent_files entries).
     testnames = [test]
     print "set testexpr to %r" % (testexpr,)
     _testexpr_and_testnames_were_changed()
@@ -1842,11 +1842,11 @@ def _set_test_from_dialog( ): # see also grab_text_using_dialog in another file;
     title = "title"
     label = "testexpr_xxx, or any 1-line expr\n(or use @@@ to fake \\n for more lines)"
         ## not applicable i think: \n(or use execfile)
-    
+
     # Qt4 version [070329; similar code in another exprs-module file]
     parent = None
     text, ok = QInputDialog.getText(parent, title, label) # parent arg needed only in Qt4
-    
+
     if ok:
         # fyi: type(text) == <class '__main__.qt.QString'>
         command = str(text)
@@ -1953,7 +1953,7 @@ debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -
             # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
     If( call_Expr(get_pref, "A9 devel/exprs/show redraw_counter?", True),
         # 070124 disabled both orders of Highlightable(DisplayListChunk(, since fuzzy during highlighting after my testdraw.py fixes
-        ##Highlightable(DisplayListChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )), 
+        ##Highlightable(DisplayListChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
         ## DisplayListChunk (Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
         # 070124 just don't use a displist, since it'd be remade on every draw anyway (except for glselect and main in same-counted one)
         ## Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ),
@@ -1962,8 +1962,8 @@ debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -
         # Just removing outer CenterY sped it up to about 117 msec for entire frame, i.e. removed 26 msec from this!
         # Then splitting it into two TextRects in a Row, one in a DisplayListChunk, changed it to total 107, i.e. removed 10 more msec.
         # (So either the CenterY was the slowness not the TextRect, or, the extra SimpleRow computations use up most of the savings.)
-        # But it still costs (107 - 36.5 == 70.5) msec per frame to turn this on!!  
-        Highlightable( SimpleRow(DisplayListChunk(TextRect("current redraw ")), 
+        # But it still costs (107 - 36.5 == 70.5) msec per frame to turn this on!!
+        Highlightable( SimpleRow(DisplayListChunk(TextRect("current redraw ")),
                            TextRect( format_Expr("%r", _app.redraw_counter)) ) ),
             # should be properly usage/change tracked
             # note: used to have continuous redraw bug, never yet fully understood...
@@ -1983,7 +1983,7 @@ debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -
     # and reload is pretty slow since we're not caching all this testbed stuff (at least I guess that's why)
 
 top_left_corner = None # testexpr_18i
-    # testexpr_10c # nested ToggleShow. -- works, usual 
+    # testexpr_10c # nested ToggleShow. -- works, usual
     # testexpr_18 # (MT_try1) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
     # update 070206: testexpr_18 mostly works, but has a funny alignment issue. ###BUG (but can ignore for now)
 
@@ -2055,10 +2055,10 @@ def drawtest1_innards(glpane):
         # is not used. So I am changing those things now to fix it,
         # even though it may reactivate the older bug mentioned above.
         # [bruce 081211]
-    
+
     staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
         #e it has: place to store transient state, [nim] ref to model state
-    
+
     inst = find_or_make_main_instance(glpane, staterefs, testexpr, testbed)
         # for testbed changes to have desired effect, we'll need to switch them among __eq__-comparable choices (like exprs)
         # rather than among defs, or editing one def, like we do now... not sure it's easy to make it an expr though;
@@ -2066,7 +2066,7 @@ def drawtest1_innards(glpane):
 
     global _kluge_current_testexpr_instance
     _kluge_current_testexpr_instance = inst
-    
+
 # no longer needed, 070408
 ##    if 'kluge':
 ##        #### KLUGE: get back to the standard drawing coords
@@ -2186,7 +2186,7 @@ class _find_or_make: #061217 from find_or_make_main_instance etc #e refile ### N
      of this class itself, e.g. upon module reload... Or maybe we'll let you do
      it, and have this class store its data elsewhere... that might be more
      convenient, especially during development of this class. ###doc better)
-    
+
     If you want a "remake button" for such a thing, let the button increment
     a counter which is part of the input data.
 
@@ -2240,7 +2240,7 @@ class _find_or_make: #061217 from find_or_make_main_instance etc #e refile ### N
     def make(self):
         assert 0, "subclass should implement" ### or use a self.func
     pass
-    
+
 # ==
 
 # old comments:
@@ -2284,7 +2284,7 @@ if 0:
         attr1 = Arg(int)
         attr2 = attr1 # do we get a warning? yes (but it's not understandable -- that could be fixed).
         ## formula <...> already in replacements -- error?? its rhs is <..._self.attr1...>; new rhs would be for attr 'attr2'
-        pass    
+        pass
 if 0:
     # above warning mentions in order attr1, attr2. does that depend on this order here? let's find out in this next test:
     class something(InstanceOrExpr):

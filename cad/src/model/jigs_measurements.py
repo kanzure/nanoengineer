@@ -1,11 +1,11 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 jigs_measurements.py -- Classes for measurement jigs.
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
-History: 
+History:
 
 060324 wware - with a debug pref, we can now get a drawing style for
 the distance measuring jig that looks like a dimension on a mechanical
@@ -71,7 +71,7 @@ class MeasurementJig(Jig):
     """
     # constructor moved to base class, wware 051103
     def __init__(self, assy, atomlist):
-        Jig.__init__(self, assy, atomlist)        
+        Jig.__init__(self, assy, atomlist)
         self.font_name = "Helvetica"
         self.font_size = 10.0 # pt size
         self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
@@ -149,7 +149,7 @@ class MeasurementJig(Jig):
     # So we can use parentheses to delimit them.
     def mmp_record_jigspecific_midpart(self):
         return " (%s) %d" % (self.font_name, self.font_size)
-        
+
     # unify text-drawing to base class, wware 051103
     def _drawtext(self, text, color):
         # use atom positions to compute center, where text should go
@@ -163,7 +163,7 @@ class MeasurementJig(Jig):
             pos2 = self.atoms[-1].posn()
             pos = (pos1 + pos2) / 2
             drawtext(text, color, pos, self.font_size, self.assy.o)
-    
+
     # move into base class, wware 051103
     def set_cntl(self):
         from command_support.JigProp import JigProp
@@ -172,7 +172,7 @@ class MeasurementJig(Jig):
     # move into base class, wware 051103
     def writepov(self, file, dispdef):
         sys.stderr.write(self.__class__.__name__ + ".writepov() not implemented yet")
-    
+
     def will_copy_if_selected(self, sel, realCopy):
         """
         copy only if all my atoms are selected [overrides Jig.will_copy_if_selected]
@@ -232,42 +232,42 @@ class MeasureDistance(MeasurementJig):
         else:
             return pos
 
-    def _getinfo(self): 
+    def _getinfo(self):
         return  "[Object: Measure Distance] [Name: " + str(self.name) + "] " + \
                     "[Nuclei Distance = " + str(self.get_nuclei_distance()) + " ]" + \
                     "[VdW Distance = " + str(self.get_vdw_distance()) + " ]"
-                    
+
     def _getToolTipInfo(self): #ninad060825
         """
         Return a string for display in Dynamic Tool tip
         """
         #honor user preferences for digit after decimal
-        distPrecision = env.prefs[dynamicToolTipAtomDistancePrecision_prefs_key] 
+        distPrecision = env.prefs[dynamicToolTipAtomDistancePrecision_prefs_key]
         nucleiDist = round(self.get_nuclei_distance(),distPrecision)
         vdwDist =  round(self.get_vdw_distance(),distPrecision)
-        
+
         attachedAtoms = str(self.atoms[0]) + "-" + str(self.atoms[1])
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Measure Distance"\
         +  "<br>" + "<font color=\"#0000FF\">Atoms: </font>" + attachedAtoms+"<br>"\
          +"<font color=\"#0000FF\">Nuclei Distance: </font>" + str(nucleiDist) +  " A" \
         +  "<br>" + "<font color=\"#0000FF\">VdW Distance: </font> " + str(vdwDist)  + " A"
-        
+
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mdistance += 1
-        
+
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
     def get_nuclei_distance(self):
         """
         Returns the distance between two atoms (nuclei)
         """
         return vlen (self.atoms[0].posn()-self.atoms[1].posn())
-        
+
     def get_vdw_distance(self):
         """
         Returns the VdW distance between two atoms
         """
         return self.get_nuclei_distance() - self.atoms[0].element.rvdw - self.atoms[1].element.rvdw
-        
+
     # Measure Distance jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
     def _draw_jig(self, glpane, color, highlighted=False):
@@ -282,9 +282,9 @@ class MeasureDistance(MeasurementJig):
                             self.atoms[0].posn(), self.atoms[1].posn(), text, highlighted=highlighted)
 
     mmp_record_name = "mdistance"
-    
+
     pass # end of class MeasureDistance
-        
+
 # == Measure Angle
 
 class MeasureAngle(MeasurementJig): # new class.  wware 051031
@@ -305,24 +305,24 @@ class MeasureAngle(MeasurementJig): # new class.  wware 051031
         return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2])) + \
                     "[Angle = " + str(self.get_angle()) + " ]"
-                 
+
     def _getToolTipInfo(self): #ninad060825
         """
         Return a string for display in Dynamic Tool tip
         """
         #honor user preferences for digit after decimal
-        anglePrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key] 
+        anglePrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key]
         bendAngle = round(self.get_angle(),anglePrecision)
-             
+
         attachedAtoms = str(self.atoms[0]) + "-" + str(self.atoms[1]) + "-" + str(self.atoms[2])
-        
+
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type: </font>Measure Angle"\
         +  "<br>" + "<font color=\"#0000FF\">Atoms: </font>" + attachedAtoms + "<br>"\
         + "<font color=\"#0000FF\">Angle </font> " + str(bendAngle)  + " Degrees"
-        
+
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mangle += 1
-        
+
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
     def get_angle(self):
         """
@@ -331,7 +331,7 @@ class MeasureAngle(MeasurementJig): # new class.  wware 051031
         v01 = self.atoms[0].posn()-self.atoms[1].posn()
         v21 = self.atoms[2].posn()-self.atoms[1].posn()
         return angleBetween(v01, v21)
-        
+
     # Measure Angle jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
     def _draw_jig(self, glpane, color, highlighted=False):
@@ -348,9 +348,9 @@ class MeasureAngle(MeasurementJig): # new class.  wware 051031
                            text, highlighted=highlighted)
 
     mmp_record_name = "mangle"
-    
+
     pass # end of class MeasureAngle
-        
+
 # == Measure Dihedral
 
 class MeasureDihedral(MeasurementJig): # new class. wware 051031
@@ -375,24 +375,24 @@ class MeasureDihedral(MeasurementJig): # new class. wware 051031
         return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2], self.atoms[3])) + \
                     "[Dihedral = " + str(self.get_dihedral()) + " ]"
-                    
+
     def _getToolTipInfo(self): #ninad060825
         """
         Return a string for display in Dynamic Tool tip
         """
         #honor user preferences for digit after decimal
-        anglePrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key] 
+        anglePrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key]
         dihedral = round(self.get_dihedral(),anglePrecision)
-             
+
         attachedAtoms = str(self.atoms[0]) + "-" + str(self.atoms[1]) + "-" + str(self.atoms[2]) + "-" + str(self.atoms[3])
-        
+
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type: </font>Measure Dihedral"\
         +  "<br>" + "<font color=\"#0000FF\">Atoms: </font>" + attachedAtoms + "<br>"\
         + "<font color=\"#0000FF\">Angle </font> " + str(dihedral)  + " Degrees"
-        
+
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mdihedral += 1
-        
+
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
     def get_dihedral(self):
         """
@@ -408,7 +408,7 @@ class MeasureDihedral(MeasurementJig): # new class. wware 051031
             return -angleBetween(u, v)  # use new acos(dot) func, wware 051103
         else:
             return angleBetween(u, v)
-        
+
     # Measure Dihedral jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
     def _draw_jig(self, glpane, color, highlighted=False):
@@ -424,9 +424,9 @@ class MeasureDihedral(MeasurementJig): # new class. wware 051031
                               self.atoms[0].posn(), self.atoms[1].posn(),
                               self.atoms[2].posn(), self.atoms[3].posn(),
                               text, highlighted=highlighted)
-    
+
     mmp_record_name = "mdihedral"
-    
+
     pass # end of class MeasureDihedral
-        
+
 # end of module jigs_measurements.py

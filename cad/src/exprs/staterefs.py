@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 staterefs.py - facilities for defining and referencing state,
 in widget exprs which display it, edit it, operate on it, produce it
@@ -40,7 +40,7 @@ class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130
     def get_value(self):
         #e should coerce this to self.type before returning it -- or add glue code wrt actual type, or....
         return self.transient_state.value ###e let transient_state not be the only option? does the stateplace even matter??
-    def set_value(self, val): 
+    def set_value(self, val):
         self.transient_state.value = val #e should coerce that to self.type, or add glue code...
         return
     value = property(get_value, set_value)
@@ -69,7 +69,7 @@ class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
         # often than the prefs value itself, causing needless inval propogation into the get_value caller,
         # and thus needless recomputation of an arbitrary amount of memoized results which care about the prefs value.
         # (But for all I know, the usual constant case would slow down due to the overhead of discarding usage tracking.
-        #  Actually that's not an issue since we'd also rarely recompute it, not nearly on every get_value.) 
+        #  Actually that's not an issue since we'd also rarely recompute it, not nearly on every get_value.)
     printnim("need a way to declare that this arg should not be usage-tracked, or have its use as default val do that for that use")
         # [older version of the comment above; contains still-useful suggestions:]
         ###e we need a way to declare that this arg should not be usage-tracked re time-variation!!! or to assert it uses nothing.
@@ -84,7 +84,7 @@ class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
         assert type(prefs_key) == type("") #k redundant?
         import foundation.env as env
         return env.prefs.get( prefs_key, self.defaultValue ) # note: this computes defaultValue at least once, even if not needed.
-    def set_value(self, val): 
+    def set_value(self, val):
         #e should coerce that to self.type, or add glue code...
         prefs_key = self.prefs_key
         assert type(prefs_key) == type("") #k redundant?
@@ -113,9 +113,9 @@ class LocalState(InstanceOrExpr_Stub): #e stub, just reserve the name and let se
      so the state is seen using locally desired types & in local coordinate systems).
        Usage:
        - if x is already defined as a Symbol, e.g. by from __Symbols__ import x : maybe:
-       
+
            LocalState( (x,type/location/etc), body(x) )
-           
+
        - otherwise: maybe:
 
            LocalState( lambda x = XXX(type/location/etc): body(x) )
@@ -127,7 +127,7 @@ class LocalState(InstanceOrExpr_Stub): #e stub, just reserve the name and let se
 """
     # e.g. code, scratch area [bruce 070817 made this a string, since as 'if 0' it was causing
     # a traceback in pychecker, according to Eric M mail to cad list.]
-    
+
     LocalState( lambda x = State(int, 1): body(x.value, x.value = 1) ) # note, x.value = 1 is not allowed in a lambda anyway!
 
     # in a class:

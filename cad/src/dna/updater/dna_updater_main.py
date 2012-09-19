@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_main.py - enforce rules on newly changed DNA-related model objects,
 including DnaGroups, AxisChunks, PAM atoms, etc.
@@ -76,13 +76,13 @@ def _full_dna_update_0( _runcount):
     # TODO: process _f_baseatom_wants_pam: (or maybe a bit later, after delete bare, and error finding?)
     # - extend to well-structured basepairs; drop structure error atoms (as whole basepairs)
     # - these and their baseatom neighbors in our changed atoms, maybe even real .changed_structure
-    
+
     changed_atoms = get_changes_and_clear()
 
     debug_prints_as_dna_updater_starts( _runcount, changed_atoms)
         # note: this function should not modify changed_atoms.
         # note: the corresponding _ends call is in our caller.
-    
+
     if not changed_atoms and not _f_are_there_any_homeless_dna_markers():
         # maybe: also check _f_baseatom_wants_pam, invalid ladders, here and elsewhere
         # (or it might be more efficient to officially require _changed_structure on representative atoms,
@@ -118,7 +118,7 @@ def _full_dna_update_0( _runcount):
             # This should remove all remaining atoms from closed files.
             # Note: only allowed when no killed atoms are present in changed_atoms;
             # raises exceptions otherwise.
-        
+
     if changed_atoms:
         update_PAM_atoms_and_bonds( changed_atoms)
             # this can invalidate DnaLadders as it changes various things
@@ -133,7 +133,7 @@ def _full_dna_update_0( _runcount):
             #  wrong too, since the existence of that upcoming step
             #  might be enough reason to not be able to change the policy yet.
             #  [bruce 080529 addendum/Q])
-    
+
     if not changed_atoms and not _f_are_there_any_homeless_dna_markers() and not _f_invalid_dna_ladders:
         return # optimization
 
@@ -147,13 +147,13 @@ def _full_dna_update_0( _runcount):
         # NOTE: it can include fewer markers than are noticed by _f_are_there_any_homeless_dna_markers
         # since that does not check whether they are truly homeless.
     assert not _f_are_there_any_homeless_dna_markers() # since getting them cleared them
-    
+
     new_chunks, new_wholechains = update_PAM_chunks( changed_atoms, homeless_markers)
         # note: at the right time during this or a subroutine, it sets
         # dnaladder_inval_policy to DNALADDER_INVAL_IS_ERROR
 
     # review: if not new_chunks, return? wait and see if there are also new_markers, etc...
-    
+
     update_DNA_groups( new_chunks, new_wholechains)
         # review:
         # args? a list of nodes, old and new, whose parents should be ok? or just find them all, scanning MT?

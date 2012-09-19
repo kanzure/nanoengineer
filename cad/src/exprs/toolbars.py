@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 toolbars.py - OpenGL toolbars, basically serving as "working mockups" for Qt toolbars
 (but someday we should be able to turn the same toolbar configuration code
@@ -39,7 +39,7 @@ class MainCommandToolButton(DelegatingInstanceOrExpr): #e rename?
     # args
     toolbar = Arg(Toolbar) # our parent - #e rename parent_toolbar? to distinguish from our flyout_toolbar.
     toolname = Arg(str) #e.g. "Build"
-    command = Arg(Command, doc = "the command invoked by pressing this toolbutton (might be transient or long lasting)") ###k type ok? 
+    command = Arg(Command, doc = "the command invoked by pressing this toolbutton (might be transient or long lasting)") ###k type ok?
     subtools = Arg(list_Expr) # list of subtools (for cmenu or flyout), with None as a separator -- or as an ignored missing elt??
         # like menu_spec items?
         # Q: can they contain their own conditions, or just let the list be made using Ifs or filters?
@@ -100,7 +100,7 @@ class MainToolbar(Toolbar): ###e how is the Main one different from any other on
     # formulae
     # appearance
     delegate = SimpleRow(
-        MapListToExpr( _self.toolbutton_for_toolname,                       
+        MapListToExpr( _self.toolbutton_for_toolname,
                       toolnames,
                       KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr(SimpleRow) ),
         TextRect("flyout goes here")
@@ -129,7 +129,7 @@ class MainToolbar(Toolbar): ###e how is the Main one different from any other on
         ###STUB - do the following:
         #e decide if legal at this time
         #e set it as the next running button
-        
+
         #e unpress other buttons (and finish or cancel their runs if needed) (maybe only if their actions are incompat in parallel??)
         # e.g. something like:
         ## while toolstack_ref.get_value()[-1].is_incompatible_with(something):
@@ -137,7 +137,7 @@ class MainToolbar(Toolbar): ###e how is the Main one different from any other on
         ##    if not didit:
         ##        # oops, still in some prior command (and what about some we already popped out of? restore them?
         ##        # no, don't pop out yet, unless we want that...)
-        
+
         #e start a new ToolRun of this button's command
         #e put it on the stack we were passed (that way its flyout gets displayed, and its pm gets displayed)
         #e update our flyout and PM if needed (for example, by figuring out what subcommands have been registered with this name)

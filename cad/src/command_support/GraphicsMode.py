@@ -125,9 +125,9 @@ class basicGraphicsMode(GraphicsMode_API):
     # for details.
     _tagPositions = ()
     _tagColor = yellow
-    
+
     picking = False # used as instance variable in some mouse methods
-    
+
     def __init__(self, glpane):
         """
         """
@@ -165,16 +165,16 @@ class basicGraphicsMode(GraphicsMode_API):
         Perform side effects in self (a GraphicsMode) when entering it
         or reentering it. Typically this involves resetting or initializing
         state variables.
-        
+
         @note: Called in self.command.command_entered.
-        
+
         @see: B{baseCommand.command_entered}
         """
         #NOTE: See a comment in basicCommand.Enter for things still needed
         # to be done
 
         self.picking = False
-        
+
     def isCurrentGraphicsMode(self): #bruce 071010, for GraphicsMode API
         """
         Return a boolean to indicate whether self is the currently active GraphicsMode.
@@ -190,7 +190,7 @@ class basicGraphicsMode(GraphicsMode_API):
         return self.command.parentCommand.graphicsMode
 
     parentGraphicsMode = property(__get_parentGraphicsMode)
-    
+
     def _setup_menus_in_init(self):
         if not self.command.call_makeMenus_for_each_event:
             self._setup_menus( )
@@ -248,7 +248,7 @@ class basicGraphicsMode(GraphicsMode_API):
         # requires exprs module and Python Imaging Library
         if not env.prefs[displayConfirmationCorner_prefs_key]:
             return
-        
+
         # which command should control the confirmation corner?
         command = self.command #bruce 071015 to fix bug 2565
             # (originally done inside find_or_make_confcorner_instance)
@@ -257,10 +257,10 @@ class basicGraphicsMode(GraphicsMode_API):
             # they have a 1-1 correspondence, it may not matter much.
             # But in the future if weird GraphicsModes needed their own
             # conf. corner styles or implems, it might need revision.
-       
-        #bruce 080905 fix bug 2933 
+
+        #bruce 080905 fix bug 2933
         command = command.command_that_supplies_PM()
-        
+
         # figure out what kind of confirmation corner command wants, and draw it
         import graphics.behaviors.confirmation_corner as confirmation_corner
         cctype = command.want_confirmation_corner_type()
@@ -360,7 +360,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
         (A potential use for this method is to decide what needs to be
         drawn at all by other Draw_ methods during the same paintGL call.)
-        
+
         [subclasses should extend as needed]
         """
         # bruce 040929/041103 debug code -- for developers who enable this
@@ -429,20 +429,20 @@ class basicGraphicsMode(GraphicsMode_API):
         (but it's ok to compile and/or call OpenGL display lists)
         which need to be drawn before the model, but which lie in
         the same 3d space as the model.
-        
+
         @see: Draw_model (for more info about what goes in what method)
         @see: Draw_other (for drawing after the model)
-        
+
         [subclasses should extend as needed]
         """
         # TODO: detect error of using CSDLs in this method
         return
-    
+
     def Draw_model(self): #bruce 090310-11 split .Draw API
         """
         Draw whatever part of the model (or anything else in the same 3d space)
         is desired by self, using CSDLs and DrawingSets (if they are enabled).
-        
+
         @note: the base implementation draws nothing,
                since not all modes want to always draw the model.
 
@@ -473,14 +473,14 @@ class basicGraphicsMode(GraphicsMode_API):
         # modes having to call that themselves); or we might add a class attr
         # about whether to draw it.
         return
-    
+
     def Draw_other(self): #bruce 090310-11 split .Draw API
         """
         Draw things in immediate mode OpenGL (not using CSDLs/DrawingSets)
         (but it's ok to compile and/or call OpenGL display lists)
         which need to be drawn after the model, but which lie in
         the same 3d space as the model.
-        
+
         @see: Draw_model (for more info about what goes in what method)
 
         @note: this is typically used for things like handles, cursor text,
@@ -488,7 +488,7 @@ class basicGraphicsMode(GraphicsMode_API):
             but that's only because they are not presently drawn using
             CSDLs/DrawingSets. If they are drawn that way in the future,
             they should be moved out of Draw_other and into Draw_model.
-        
+
         [subclasses should extend as needed, and/or extend the methods
          called by the base implementation (which are part of this class's
          API for its subclasses, but are not part of the GraphicsMode_interface
@@ -507,12 +507,12 @@ class basicGraphicsMode(GraphicsMode_API):
 
         #Draw Special indicators if any (subclasses can draw custom indicators)
         self._drawSpecialIndicators()
-        
-        #Draw labels if any 
+
+        #Draw labels if any
         self._drawLabels()
 
         return
-        
+
     # ==
 
     def setDrawTags(self, tagPositions = (), tagColor = yellow): # by Ninad
@@ -524,17 +524,17 @@ class basicGraphicsMode(GraphicsMode_API):
         not actually draw them -- that is done later by self._drawTags().
         Thus, this method is safe to call outside of self.Draw_*() and without
         ensuring that self.glpane is the current OpenGL context.
-        
+
         @param tagPositions: The client can provide a list or tuple of tag
                             base positions. The default value for this parameter
                             is an empty tuple. Thus, if no tag position is
                             specified, it won't draw any tags and will also
                             clear the previously drawn tags.
         @type tagPositions: list or tuple
-        
+
         @param tagColor: The color of the tags
         @type tagColor:  B{A}
-        
+
         @see: self._drawTags
         @see: InsertDna_PropertyManager.clearTags for an example
         """
@@ -582,25 +582,25 @@ class basicGraphicsMode(GraphicsMode_API):
         similar but the actual implementation is different.
         """
         return
-    
+
     def _drawLabels(self):
         """
         Subclasses should override this method. Default implementation does
         nothing. Many times, the graphics mode needs to draw some labels on the
         top of everything. Called in self.Draw_other().
-        
-        Example: For a DNA, user may want to turn on the labels next to the 
-        atoms indicating the base numbers. 
-        
-        @see: BreakOrJoinStrands_GraphicsMode._drawLabels() for an example.   
-        
+
+        Example: For a DNA, user may want to turn on the labels next to the
+        atoms indicating the base numbers.
+
+        @see: BreakOrJoinStrands_GraphicsMode._drawLabels() for an example.
+
         @see: self._drawSpecialIndicators()
         @see: self.Draw_other()
         """
         return
 
     # ==
-    
+
     def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
         """
         Do more drawing, after the main drawing code has completed its
@@ -636,10 +636,10 @@ class basicGraphicsMode(GraphicsMode_API):
     def selobj_still_ok(self, selobj):
         """
         [overrides GraphicsMode_API method]
-        
+
         Say whether a highlighted mouseover object from a prior draw
         (done by the same GraphicsMode) is still ok.
-        
+
         In this implementation: if our special cases of various classes
         of selobj don't hold, we ask selobj (using a method of the same name
         in the selobj API, though it's not defined in Selobj_API for now);
@@ -700,11 +700,11 @@ class basicGraphicsMode(GraphicsMode_API):
     def draw_glpane_label(self, glpane):
         """
         [part of the GraphicsMode API for drawing into a GLPane]
-        
+
         This is called with model coordinates, but outside of stereo loops,
         once per paintGL call, after model drawing. It is meant to allow
         the GraphicsMode to draw a text label for the entire GLPane.
-        
+
         The default implementation determines the text by calling
         glpane.part.glpane_label_text() and draws it using
         glpane.draw_glpane_label_text (which uses a standard
@@ -712,7 +712,7 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         #bruce 090219 moved this here from part.py, renamed from draw_text_label
         # (after refactoring it the prior day, 090218)
-        
+
         # (note: caller catches exceptions, so we don't have to bother)
         # (not named with a capital 'D' since not inside stereo loop [bruce 090311])
 
@@ -722,7 +722,7 @@ class basicGraphicsMode(GraphicsMode_API):
         return
 
     # ==
-    
+
     def end_selection_from_GLPane(self):
         """
         GraphicsMode API method that decides whether to do some additional
@@ -760,17 +760,17 @@ class basicGraphicsMode(GraphicsMode_API):
         res = self.o.dragstart_using_GL_DEPTH(event, **kws) # note: res is a tuple whose length depends on **kws
         return res
 
-    def dragstart_using_plane_depth(self, 
-                                    event, 
+    def dragstart_using_plane_depth(self,
+                                    event,
                                     plane= None,
-                                    planeAxis = None, 
-                                    planePoint = None, 
+                                    planeAxis = None,
+                                    planePoint = None,
                                     ):
-        
-        res = self.o.dragstart_using_plane_depth(event, 
+
+        res = self.o.dragstart_using_plane_depth(event,
                                                  plane= plane,
-                                                 planeAxis = planeAxis, 
-                                                 planePoint = planePoint, 
+                                                 planeAxis = planeAxis,
+                                                 planePoint = planePoint,
                                                  ) # note: res is a tuple whose length depends on **kws
         return res
 
@@ -789,7 +789,7 @@ class basicGraphicsMode(GraphicsMode_API):
         """
         #bruce 041123 split this from two methods, and bugfixed to make dragging
         # parallel to screen. (I don't know if there was a bug report for that.)
-        # Should be moved into modes.py and used in Move_Command too. 
+        # Should be moved into modes.py and used in Move_Command too.
         #[doing that, 060316]
         p1, p2 = self.o.mousepoints(event)
         if perp is None:
@@ -833,7 +833,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
     # middle mouse button actions -- these support a trackball, and
     # are the same for all GraphicsModes (with a few exceptions)
-    
+
     def middleDown(self, event):
         """
         Set up for rotating the view with MMB+Drag.
@@ -1123,7 +1123,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
         if key == Qt.Key_Delete:
             self.w.killDo()
-        
+
         # Zoom in & out for Eric and Paul:
         # - Eric D. requested Period/Comma keys for zoom in/out.
         # - Paul R. requested Minus/Equal keys for zoom in/out.

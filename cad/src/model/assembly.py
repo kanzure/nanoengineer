@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 assembly.py -- provides class Assembly, for everything stored in one mmp file,
 including one main part and zero or more clipboard items; see also part.py.
@@ -132,7 +132,7 @@ class Assembly( StateMixin, Assembly_API):
     # (e.g. isinstance( node, assy.DnaGroup)) and also as arguments
     # to Node.parent_node_of_class. Using them can avoid import cycles
     # (compared to other code importing these classes directly)
-    # 
+    #
     # Note that these imports must not be moved to toplevel,
     # and are not redundant with toplevel imports of the same symbols,
     # if they exist. [bruce 080310]
@@ -141,9 +141,9 @@ class Assembly( StateMixin, Assembly_API):
     from model.chem       import Atom
     from model.jigs       import Jig
     from model.Plane      import Plane
-    
+
     from foundation.Utility import Node
-    
+
     from dna.model.DnaGroup   import DnaGroup
     from dna.model.DnaSegment import DnaSegment
     from dna.model.DnaStrand  import DnaStrand
@@ -151,9 +151,9 @@ class Assembly( StateMixin, Assembly_API):
     from dna.model.DnaLadderRailChunk import DnaLadderRailChunk
     from dna.model.DnaLadderRailChunk import DnaStrandChunk
     from dna.model.DnaStrandOrSegment import DnaStrandOrSegment
-    
+
     from cnt.model.NanotubeSegment import NanotubeSegment # --mark 2008-03-09
-    
+
     #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
     #bruce 071026 inheriting Assembly_API so isinstance tests need only import that file
     #bruce 071026 added docstring
@@ -164,7 +164,7 @@ class Assembly( StateMixin, Assembly_API):
     # model changes (all changes that affect mmp file and should mark it in UI as needing to be saved)
     # (includes all structural changes and many display changes)
     # (note that a few changes are saved but don't mark it as needing save, like "last view" (always equals current view))
-    
+
     _model_change_indicator = 0 #bruce 060121-23; sometimes altered by self.changed() (even if self._modified already set)
         #bruce 060227 renamed this from _change_indicator to
         # _model_change_indicator, but don't plan to rename self.changed().
@@ -176,7 +176,7 @@ class Assembly( StateMixin, Assembly_API):
         # [bruce 080808 comment]
 
     _selection_change_indicator = 0
-    
+
     _view_change_indicator = 0 # also includes changing current part, glpane display mode
         # [mostly nim as of 060228, 080805]
 
@@ -186,7 +186,7 @@ class Assembly( StateMixin, Assembly_API):
         state, suitable for later passing to self.reset_changed_for_undo().
 
         (Presently, this means all of our change indicators except the
-        one returned by command_stack_change_indicator.) 
+        one returned by command_stack_change_indicator.)
 
         The order is guaranteed to be:
 
@@ -241,13 +241,13 @@ class Assembly( StateMixin, Assembly_API):
     def view_change_indicator(self): #bruce 080731
         """
         NOT YET IMPLEMENTED
-        
+
         @see: all_change_indicators
         """
         # todo: ensure it's up to date
         assert 0, "don't use this yet, the counter attr is mostly NIM" #bruce 080805
         return self._view_change_indicator
-    
+
     def command_stack_change_indicator(self): #bruce 080903
         """
         @see: same-named method in class CommandSequencer.
@@ -256,10 +256,10 @@ class Assembly( StateMixin, Assembly_API):
                self.all_change_indicators().
         """
         return self.commandSequencer.command_stack_change_indicator()
-    
+
     # state declarations:
     # (the change counters above should not have ordinary state decls -- for now, they should have none)
-    
+
     _s_attr_tree = S_CHILD #bruce 060223
     _s_attr_shelf = S_CHILD
     #e then more, including current_movie, temperature, etc (whatever else goes in mmp file is probably all that's needed);
@@ -276,7 +276,7 @@ class Assembly( StateMixin, Assembly_API):
 
     _s_attr_selwhat = S_DATA #bruce 060302 fix bug 1607
     _s_attr__last_set_selwhat = S_DATA # avoids debug warning when undo changes self.selwhat without this decl
-    
+
     # initial values of some instance variables
     undo_manager = None #bruce 060127
 
@@ -284,7 +284,7 @@ class Assembly( StateMixin, Assembly_API):
 
     assy_closed = False # whether this assy has been closed by calling self.close_assy [bruce 080314]
         # todo: use this more.
-    
+
     permanently_disable_updaters = False # whether the running of updaters on objects
         # in this assy has been permanently disabled. Note that once this is set
         # to True, it might cause errors to ever reset it to False.
@@ -293,7 +293,7 @@ class Assembly( StateMixin, Assembly_API):
         # (e.g. the assys used in MMKit) if desired.
         # Not yet implemented in all updaters. Implemented in dna updater.
         # [bruce 080314]
-    
+
     def __init__(self,
                  win,
                  name = None,
@@ -308,12 +308,12 @@ class Assembly( StateMixin, Assembly_API):
 
         if not run_updaters: #bruce 080403
             self.permanently_disable_updaters = True
-        
+
         # ignore changes to this Assembly during __init__, and after it,
         # until the client code first calls our reset_changed method.
         # [bruce 050429 revised that behavior and this comment, re bug 413]
-        self._modified = 1 
-        
+        self._modified = 1
+
         # the MWsemantics displaying this Assembly (or None, when called from ThumbView)
         self.w = win # deprecated but widely used [bruce 071008]
         self.win = win #bruce 071008
@@ -322,7 +322,7 @@ class Assembly( StateMixin, Assembly_API):
         # self.set_modelTree:
         #   self.mt = win.modelTreeView [or win.mt, probably the same thing, not 100% clear -- bruce 070503 comment]
         #   self.o = win.glpane
-        
+
         # the name if any
         self.name = str(name or gensym("Assembly"))
             # note: we intentionally don't pass an assy argument to gensym.
@@ -353,7 +353,7 @@ class Assembly( StateMixin, Assembly_API):
             _assy_owning_win = self
 
             want_undo_manager = True #bruce 060223: don't actually make one until init of all state attrs is complete
-        
+
         # the Clipboard... this is replaced by another one later (of a different class),
         # once or twice each time a file is opened. ####@@@@ should clean up
         self.shelf = Group("Clipboard", self, None, [])
@@ -395,7 +395,7 @@ class Assembly( StateMixin, Assembly_API):
         # when opening files. #k]
         self.selwhat = SELWHAT_CHUNKS # initial value for new assy
         self._last_set_selwhat = self.selwhat
-        
+
         #bruce 050131 for Alpha:
         self.kluge_patch_toplevel_groups( )
         self.update_parts( do_post_event_updates = False)
@@ -403,7 +403,7 @@ class Assembly( StateMixin, Assembly_API):
 
         #bruce 050429 as part of fixing bug 413, no longer resetting self._modified here --
         # client code should call reset_changed instead, when appropriate.
-        
+
         # the current version of the MMP file format
         # this is set in files_mmp_writing.writemmpfile_assy. Mark 050130
         # [bruce 050325 comments: it's not clear to me what this means
@@ -432,7 +432,7 @@ class Assembly( StateMixin, Assembly_API):
 
         if debug_assy_changes:
             print "debug_assy_changes: creating", self
-        
+
         # make sure these exist [bruce 050418]:
         assert self.tree
         assert self.tree.part
@@ -445,7 +445,7 @@ class Assembly( StateMixin, Assembly_API):
             #obs older comment (can be mostly removed soon):
             #bruce 051005: create object for tracking changes in our model, before creating any
             # model objects (ie nodes for tree and shelf). Since this is not initially used except
-            # to record changes as these objects are created, the fact that self is still incomplete 
+            # to record changes as these objects are created, the fact that self is still incomplete
             # (e.g. lacks important attributes like tree and root and part) should not matter. [#k I hope]
             menus = (win.editMenu,) # list of menus containing editUndo/editRedo actions (for aboutToShow signal) [060122]
             self.undo_manager = undo_manager.AssyUndoManager(self, menus) # be sure to call init1() on this within self.__init__!
@@ -476,7 +476,7 @@ class Assembly( StateMixin, Assembly_API):
             # expects us to have self.commandSequencer accessible
         if commandSequencerClass: #bruce 080813
             # make and own a command sequencer of the given class
-            
+
             # Note: importing the usual class directly causes import cycle
             # problems, for legitimate or at least hard-to-avoid reasons --
             # it knows a lot of command classes, and some of them know how
@@ -484,7 +484,7 @@ class Assembly( StateMixin, Assembly_API):
             #  sequencers, as it happens for now, but that might not be
             #  fundamental). So we make the caller tell us, to avoid that,
             # and since it makes perfect sense.
-            
+
             # Review: is class Assembly not the ideal object to own a
             # command sequencer?? Other candidates: partwindow; or a
             # specialized subclass of Assembly.
@@ -495,11 +495,11 @@ class Assembly( StateMixin, Assembly_API):
             self.commandSequencer = commandSequencerClass(self) #bruce 080813
 
         self.assy_valid = True
-                        
+
         return # from Assembly.__init__
 
     # ==
-    
+
     def set_glpane(self, glpane): #bruce 080216
         self.o = glpane # historical name for our glpane, widely used
         self.glpane = glpane # clearer name, added 080216
@@ -508,7 +508,7 @@ class Assembly( StateMixin, Assembly_API):
     def set_modelTree(self, modelTree): #bruce 080216
         self.mt = modelTree
         return
-    
+
     def __repr__(self):
         #bruce 080117
         # report _assy_number & main-ness, bruce 080219
@@ -546,7 +546,7 @@ class Assembly( StateMixin, Assembly_API):
                self.name,
                id(self))
         return res
-    
+
     def deinit(self): # bruce 060122
         """
         make sure assys don't fight over control of main menus, etc
@@ -559,7 +559,7 @@ class Assembly( StateMixin, Assembly_API):
             print "\nbug: deinit with no close_assy of %r" % self
             self.close_assy()
             pass
-        
+
         ###e should this be extended into a full destroy method, and renamed? guess: yes. [bruce 060126]
         if self.undo_manager:
             self.undo_manager.deinit()
@@ -570,7 +570,7 @@ class Assembly( StateMixin, Assembly_API):
         """
         self is no longer being actively used, and never will be again.
         (I.e. it's being discarded.)
-        
+
         Record this state in self, and do (or permit later code to do,
         by recording it) various optimizations and safety changes for
         closed assys.
@@ -580,11 +580,11 @@ class Assembly( StateMixin, Assembly_API):
         self.assy_closed = True
         self.permanently_disable_updaters = True
         return
-    
+
     # ==
 
     _glselect_name_dict = None # in case of access before init
-    
+
     def _init_glselect_name_dict(self): #bruce 080220
         if 0:
             # use this code as soon as:
@@ -610,17 +610,17 @@ class Assembly( StateMixin, Assembly_API):
         Allocate a GL_SELECT name for obj to pass to glPushName
         during its OpenGL drawing, and record obj as its owner
         for purposes of hit-testing by our GLPane.
-        
+
         @see: glselect_name_dict.alloc_my_glselect_name for details.
         @see: our method dealloc_my_glselect_name
         """
         return self._glselect_name_dict.alloc_my_glselect_name(obj)
-    
+
     def dealloc_my_glselect_name(self, obj, name): #bruce 080220
         """
         Deallocate the GL_SELECT name which was allocated for obj
         using self.alloc_my_glselect_name.
-        
+
         @see: glselect_name_dict.dealloc_my_glselect_name for details.
         """
         return self._glselect_name_dict.dealloc_my_glselect_name(obj, name)
@@ -663,7 +663,7 @@ class Assembly( StateMixin, Assembly_API):
         #bruce 050131 for Alpha:
         # this is now also called in Assembly.__init__ and in readmmp,
         # not only from the mtree.
-        
+
         ## oldmod = assy_begin_suspend_noticing_changes(self)
         oldmod = self.begin_suspend_noticing_changes()
         # does doing it this soon help? don't know why, was doing before root mod...
@@ -722,7 +722,7 @@ class Assembly( StateMixin, Assembly_API):
         # [bruce 051031]
         self._select_cmd_counter += 1
         return
-    
+
     def set_selwhat(self, selwhat): #bruce 050517
         ## print_compact_stack( "set_selwhat to %r: " % (selwhat,))
         assert selwhat in (SELWHAT_ATOMS, SELWHAT_CHUNKS)
@@ -801,7 +801,7 @@ class Assembly( StateMixin, Assembly_API):
         res = "%s %d" % (prefix, self.next_clipboard_item_number)
         self.next_clipboard_item_number += 1 # also don't reuse this number in this session
         return res
-    
+
     # == Parts
 
     def topnode_partmaker_pairs(self): #bruce 050602
@@ -832,14 +832,14 @@ class Assembly( StateMixin, Assembly_API):
         has been run since the last time assy's node tree structure changed.
         """
         return [topnode.part for topnode in self.topnodes_with_own_parts()]
-    
+
     def update_parts(self,
                      do_post_event_updates = True,
                      do_special_updates_after_readmmp = False ):
         """
         For every node in this assy, make sure it's in the correct Part,
         creating new parts as necessary (of the correct classes).
-        
+
         Also break any inter-part bonds, and set the current selgroup
         (fixing it if necessary).
 
@@ -856,7 +856,7 @@ class Assembly( StateMixin, Assembly_API):
         (which happens when updaters are enabled by kluge_main_assy.assy_valid)
         after readmmp or insertmmp modifies assy.
 
-        [See also the checkparts method.]        
+        [See also the checkparts method.]
         """
         #bruce 080319 added option do_special_updates_after_readmmp
         #
@@ -878,7 +878,7 @@ class Assembly( StateMixin, Assembly_API):
         #bruce 050602 revised the following:
         for (node, part_constructor) in self.topnode_partmaker_pairs():
             self.ensure_one_part( node, part_constructor)
-        
+
         # now all nodes have correct parts, so it's safe to break inter-part bonds.
         # in the future we're likely to do this separately for efficiency (only on nodes that might need it).
         partnodes = self.topnodes_with_own_parts() # do this again in case the nodes changed (though I doubt that can happen)
@@ -890,14 +890,14 @@ class Assembly( StateMixin, Assembly_API):
             # but rather than not do it then, I'll just make it fast, since it should be able to be fast
             # (except for needing to recompute externs, but probably something else would need to do that anyway).
             # [bruce 050513] [####@@@@ review this decision later]
-        
+
         # now make sure current_selgroup() runs without errors, and also make sure
         # its side effects (from fixing an out of date selgroup, notifying observers
         # of any changes (e.g. glpane)) happen now rather than later.
         sg = self.current_selgroup()
         # and make sure selgroup_part finds a part from it, too
         assert self.selgroup_part(sg)
-        
+
         if do_special_updates_after_readmmp:
             # do the "pre-updaters" updates of this kind.
             # initial kluge: don't use registration, or pass new args to
@@ -906,20 +906,20 @@ class Assembly( StateMixin, Assembly_API):
             # (self).
             from dna.updater.fix_after_readmmp import fix_after_readmmp_before_updaters
             fix_after_readmmp_before_updaters(self)
-        
+
         if do_post_event_updates:
             # 050519 new feature: since bonds might have been broken above
             # (by break_interpart_bonds), do this too:
             ## self.update_bonds() #e overkill -- might need to be optimized
             env.do_post_event_updates() #bruce 050627 this replaces update_bonds
-        
+
         if do_special_updates_after_readmmp:
             # Do the "post-updaters" updates of this kind.
             # For now, there is only one (hardcoded), for the dna updater.
             # And [bruce 080319 bugfix] it's only safe if the last potential run
             # of the dna updater (in env.do_post_event_updates, above)
             # actually happened, and succeeded.
-            from dna.updater.fix_after_readmmp import fix_after_readmmp_after_updaters            
+            from dna.updater.fix_after_readmmp import fix_after_readmmp_after_updaters
             import model.global_model_changedicts as global_model_changedicts
             from model.global_model_changedicts import LAST_RUN_SUCCEEDED
             if global_model_changedicts.status_of_last_dna_updater_run == LAST_RUN_SUCCEEDED:
@@ -939,7 +939,7 @@ class Assembly( StateMixin, Assembly_API):
                    "see console prints. Will try to continue."
             env.history.redmsg( msg2 )
             pass
-        
+
         return # from update_parts
 
     def ensure_one_part(self, node, part_constructor): #bruce 050420 revised this to help with bug 556; revised again 050527
@@ -990,7 +990,7 @@ class Assembly( StateMixin, Assembly_API):
         # in the internal model tree. (One such bug turned out to have another
         # cause, and it's unconfirmed that any bug has this cause, but it's
         # possible in principle, or could happen for some new bug.)
-        # 
+        #
         # This kind of bug is bad enough to always check for (since the check
         # can be fast), and if found, to always report and fix. The initial check
         # shouldn't be too slow, since we've already scanned every atom (in the
@@ -1098,7 +1098,7 @@ class Assembly( StateMixin, Assembly_API):
             print
             pass # end of case for errors detected and fixed
         return # from fix_nodes_that_occur_twice
-                
+
     # == Part-related debugging functions
 
     def checkparts(self, when = ""):
@@ -1170,7 +1170,7 @@ class Assembly( StateMixin, Assembly_API):
         if self.part is not None: #k not None condition needed??
             self.part.draw(glpane)
         return
-    
+
     # == current selection group (see it and/or change it)
 
     def current_selgroup_iff_valid(self):
@@ -1277,7 +1277,7 @@ class Assembly( StateMixin, Assembly_API):
         return sg.part
 
     # ==
-    
+
     def current_selgroup_index(self): #bruce 060125 so Undo can store "current part" w/o doing update_parts [guess; wisdom unreviewed]
         """
         Return the index of the current selgroup, where 0 means self.tree and 1, 2, etc refer to
@@ -1306,7 +1306,7 @@ class Assembly( StateMixin, Assembly_API):
             print_compact_traceback("bug in selgroup_at_index(%d), returning self.tree: " % (i,) )
             return self.tree
         pass
-    
+
     # == changing the current selection group
 
     ##e move this lower down?
@@ -1329,7 +1329,7 @@ class Assembly( StateMixin, Assembly_API):
 
     def set_current_part(self, part):
         self.set_current_selgroup( part.topnode)
-    
+
     def set_current_selgroup(self, node): #bruce 050131 for Alpha; heavily revised 050315; might need options wrt history msg, etc
         """
         Set our current selection group to node, which should be a valid one.
@@ -1354,7 +1354,7 @@ class Assembly( StateMixin, Assembly_API):
         self._last_current_selgroup = node
         self.current_selgroup_changed(prior = prior) # as of 050315 this is the only call of that method
         return
-    
+
     def current_selgroup_changed(self, prior = 0): #bruce 050131 for Alpha
         """
         #doc; caller has already stored new valid one; prior == 0 means unknown -- caller might pass None
@@ -1371,7 +1371,7 @@ class Assembly( StateMixin, Assembly_API):
         # notify observers of changes to our current selgroup (after the side effect of the unpick!)
         self.o.set_part( self.part)
         ## done by that: self.o.gl_update()
-        
+
         # print a history message about a new current Part, if possible #####@@@@@ not when initing to self.tree!
         try:
             # during init, perhaps lots of things could go wrong with this, so catch them all
@@ -1402,7 +1402,7 @@ class Assembly( StateMixin, Assembly_API):
                 msg = "Warning: deselected %s, %s" % (what, why)
             except:
                 if debug_flags.atom_debug:
-                    raise 
+                    raise
                 msg = "Warning: deselected some previously selected items"
             try:
                 env.history.message( orangemsg( msg))
@@ -1436,13 +1436,13 @@ class Assembly( StateMixin, Assembly_API):
 
     # can we use the decorator @staticmethod instead?
     initialize = staticmethod(initialize)
-    
+
     def __getattr__(self, attr): # in class Assembly
         if attr.startswith('_'): # common case, be fast
             raise AttributeError, attr
         elif attr == 'part':
             sg = self.current_selgroup() # this fixes it if possible; should always be a node but maybe with no Part during init
-            ## return self.parts[node_id(sg)]           
+            ## return self.parts[node_id(sg)]
 #bruce 050528 removing this since it prevents clipboard from opening in MT once it's closed, when displaying a clipboard item!
 ##            if 1:
 ##                # open all containing nodes below assy.root (i.e. the clipboard, if we're a clipboard item)
@@ -1500,9 +1500,9 @@ class Assembly( StateMixin, Assembly_API):
             return
         self._view_change_indicator = env.change_counter_for_changed_objects()
         return
-    
+
     # == change-tracking [needs to be extended to be per-part or per-node, and for Undo]
-    
+
     def has_changed(self):
         """
         Report whether this Assembly (or something it contains)
@@ -1514,7 +1514,7 @@ class Assembly( StateMixin, Assembly_API):
         before it's saved.
         """
         return self._modified
-    
+
     def changed(self): # by analogy with other methods this would be called changed_model(), but we won't rename it [060227]
         """
         Record the fact that this Assembly (or something it contains)
@@ -1541,9 +1541,9 @@ class Assembly( StateMixin, Assembly_API):
 
         if self._suspend_noticing_changes:
             return #bruce 060121 -- this changes effective implem of begin/end_suspend_noticing_changes; should be ok
-        
+
         newc = env.change_counter_for_changed_objects() #bruce 060123
-        
+
         if debug_assy_changes:
             oldc = self._model_change_indicator
             print
@@ -1553,7 +1553,7 @@ class Assembly( StateMixin, Assembly_API):
             else:
                 print_compact_stack("debug_assy_changes: self._model_change_indicator %d -> %d: " % (oldc, newc) )
             pass
-        
+
         self._model_change_indicator = newc
             ###e should optimize by feeding new value from changed children (mainly Nodes) only when needed
             ##e will also change this in some other routine which is run for changes that are undoable but won't set _modified flag
@@ -1573,14 +1573,14 @@ class Assembly( StateMixin, Assembly_API):
                 print time.asctime(), self, self.name
                 print_compact_stack("atom_debug: part now has unsaved changes")
             pass
-        
+
         # If you think you need to add a side-effect *here* (which runs every
         # time this method is called, not just the first time after each save),
         # that would probably be too slow -- we'll need to figure out a different
         # way to get the same effect (like recording a "modtime" or "event counter").
-        
+
         self.modflag_asserts() #e should speed-optimize this eventually
-        
+
         return # from Assembly.changed()
 
     def modflag_asserts(self): #bruce 060123; revised 060125
@@ -1606,7 +1606,7 @@ class Assembly( StateMixin, Assembly_API):
         #bruce 060121 for Undo; depends on proper matching and lack of nesting of following methods,
         # which looks true at the moment; see also use of this in self.changed(), which changes
         # effective implem of following methods.
-    
+
     def begin_suspend_noticing_changes(self): #bruce 060121 revised implem, see comment above and in self.changed()
         """
         See docstring of end_suspend_noticing_changes.
@@ -1644,7 +1644,7 @@ class Assembly( StateMixin, Assembly_API):
         return
 
     _change_indicator_when_reset_changed = -1 #bruce 060123 for Undo; as of 060125 it should no longer matter whether the value is even
-    
+
     def reset_changed(self): # bruce 050107
         """
         [private method] #doc this... see self.changed() docstring...
@@ -1705,9 +1705,9 @@ class Assembly( StateMixin, Assembly_API):
         if self.w:
             self.w.update_mainwindow_caption_properly()
         return
-    
+
     # ==
-    
+
     ## bruce 050308 disabling checkpicked for assy/part split; they should be per-part
     ## and they fix errors in the wrong direction (.picked is more fundamental)
     def checkpicked(self, always_print = 0):
@@ -1728,7 +1728,7 @@ class Assembly( StateMixin, Assembly_API):
             ##e when there can be more than one, perhaps catch exceptions here and/or "or" the retvals together...
             func( self.current_movie)
         return
-    
+
     # ==
 
     def __str__(self):
@@ -1740,14 +1740,14 @@ class Assembly( StateMixin, Assembly_API):
         _options = dict(addshelf = True)
         _options.update(options)
         writemmpfile_assy( self, filename, **_options)
-        
+
     def get_cwd(self):
         """
         Returns the current working directory for assy.
         """
-        if self.filename: 
+        if self.filename:
             cwd, file = os.path.split(self.filename)
-        else: 
+        else:
             cwd = env.prefs[workingDirectory_prefs_key]
         return cwd
 
@@ -1803,7 +1803,7 @@ class Assembly( StateMixin, Assembly_API):
         self.tree.apply2all(func)
         self.shelf.apply2all(func)
         return res
-        
+
     def get_part_files_directory(self): # Mark 060703.
         """
         Returns the Part Files directory for this Assembly, even if it doesn't exist.
@@ -1814,30 +1814,30 @@ class Assembly( StateMixin, Assembly_API):
             return 0, os.path.abspath(os.path.normpath(path_wo_ext + " Files"))
         else:
             return 1, "I cannot do this until this part is saved."
-        
+
     def find_or_make_part_files_directory(self, make=True):
         """
         Return the Part Files directory for this Assembly. Make it if it doesn't already exist.
         If <make> is False, return the Part Files directory if it already exists. If it doesn't exist, return None.
-        
+
         Specifically, return:
-            - on success, return (0, part files directory), 
+            - on success, return (0, part files directory),
               or if <make> is False and the Part Files directory does not exist, return (0, None).
             - on error, return (1, errormsg).
-        
+
         About the "Part Files" directory:
-        
+
         The Part Files directory exists next to the current MMP file and has the same name as
-        the MMP file (without the .mmp extension) but with the ' Files' suffix. For example, 
+        the MMP file (without the .mmp extension) but with the ' Files' suffix. For example,
         the MMP file "DNA Shape.mmp" will have "DNA Shape Files" as its Part Files directory.
-        
+
         The Part Files directory contains all the associated subdirectories and files for this MMP part,
         such as POV-Ray Scene files (*.pov), movie files (*.dpb), GAMESS files (*.gms), etc.
-        
+
         The Part Files directory currently supports:
-            - POV-Ray Scene files (*.pov). 
-        
-        To be implemented: 
+            - POV-Ray Scene files (*.pov).
+
+        To be implemented:
             - Movie files (*.dpb)
             - GAMESS files (*.gms)
             - ESP Image files (*.png)
@@ -1854,10 +1854,10 @@ class Assembly( StateMixin, Assembly_API):
             else:
                 # The current file has not been saved, but since <make> = False, no error.
                 return 0, None
-        
+
     def find_or_make_pov_files_directory(self, make=True):
         """
-        Return the POV-Ray Scene Files directory for this Assembly. 
+        Return the POV-Ray Scene Files directory for this Assembly.
         The POV-Ray Scene Files directory is a subdirectory under the current MMP file's Part Files directory
         and contains all the associated POV-Ray files for this Assembly.
         For any error, return (1, errortext); on success return (0, full_path_of_pov_files_dir).
@@ -1866,10 +1866,10 @@ class Assembly( StateMixin, Assembly_API):
         errorcode, dir_or_errortext = self.find_or_make_part_files_directory(make = make)
         if errorcode:
             return errorcode, dir_or_errortext
-        
+
         povfiles_dir  = os.path.join(dir_or_errortext, "POV-Ray Scene Files")
         return find_or_make_any_directory(povfiles_dir, make = make)
-    
+
     pass # end of class Assembly
 
 ## Assembly = assembly #bruce 060224 thinks this should become the preferred name for the class (and the only one, when practical)
@@ -2028,7 +2028,7 @@ class ClipboardShelfGroup(Group):
         """
         [overridden from Group method]
         """
-        return "Clipboard"    
+        return "Clipboard"
     def getPastables(self):
         """
         """

@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 moviefile.py -- classes and other code for interpreting movie files
 (of various formats, once we have them)
@@ -92,7 +92,7 @@ class OldFormatMovieFile_startup:
             # several things here can fail if file is changing on disk in various ways
             if not self.fileobj:
                 # this might not yet ever happen, not sure.
-                self.open_file() #e check for error? check length still the same, etc? 
+                self.open_file() #e check for error? check length still the same, etc?
             self.fileobj.seek( filepos) ####@@@@ failure here might be possible if file got shorter after size measured -- not sure
             res = self.fileobj.read(nbytes)
             assert len(res) == nbytes # this can fail, if file got shorter after we measured its size...
@@ -111,9 +111,9 @@ class OldFormatMovieFile_startup:
     def destroy(self):
         self.close()
         return # no other large state in this object
-    pass 
+    pass
 
-class OldFormatMovieFile: #bruce 050426 
+class OldFormatMovieFile: #bruce 050426
     """
     Know the filename and format of an existing moviefile, and enough about it to read requested frames from it
     and report absolute atom positions (even if those frames, or all frames in the file, are differential frames).
@@ -181,7 +181,7 @@ class OldFormatMovieFile: #bruce 050426
         [This is meant to be the main external method for retrieving our atom positions,
          when the caller cares about speed but doesn't need to keep this array
          (e.g. when it's playing us as a movie).]
-        
+
         Return a Numeric array containing the absolute atom positions for frame n.
         Caller promises not to modify this array, and to never use it again after
         the next time anything calls any(??) method of this object. (Since we might
@@ -201,7 +201,7 @@ class OldFormatMovieFile: #bruce 050426
             # being valid and constant right now, and until the next method
             # on self is called sometime after we return.
         return res
-    
+
     def copy_of_frame(self, n):
         """
         Return the array of absolute atom positions corresponding to
@@ -277,7 +277,7 @@ class OldFormatMovieFile: #bruce 050426
             # note: we only need one per n! so don't worry if this replaces an older one.
         ###e do something to affect the retval of nearest_knownposns_frame_index??
         return
-    
+
     def copy_of_known_frame_or_None(self, n):
         """
         If we have a mutable known frame at index n, return it
@@ -379,6 +379,6 @@ class OldFormatMovieFile: #bruce 050426
 
     def close_file(self):
         self.filereader.close_file() # but don't forget about it!
-    
+
     pass # end of class MovieFile
 

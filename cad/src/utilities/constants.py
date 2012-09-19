@@ -28,7 +28,7 @@ PLANE_ORIGIN_UPPER_RIGHT = 3
 LABELS_ALONG_ORIGIN = 0
 LABELS_ALONG_PLANE_EDGES = 1
 
-MULTIPANE_GUI = True 
+MULTIPANE_GUI = True
     # enable some code which was intended to permit the main window to contain
     # multiple PartWindows. Unfortunately we're far from that being possible,
     # but we're also (I strongly suspect, but am not sure) now dependent on
@@ -40,7 +40,7 @@ MULTIPANE_GUI = True
 
 DIAMOND_BOND_LENGTH = 1.544
     #bruce 051102 added this based on email from Damian Allis:
-    # > The accepted bond length for diamond is 1.544 ("Interatomic  
+    # > The accepted bond length for diamond is 1.544 ("Interatomic
     # > Distances,' The Chemical Society, London, 1958, p.M102)....
 
 # ==
@@ -90,7 +90,7 @@ debugModifiers = cntlModifier | shiftModifier | altModifier
 #  and their names always need to be suitable for using up in every module.)
 
 
-def noop(*args, **kws): 
+def noop(*args, **kws):
     pass
 
 def intRound(num): #bruce 080521
@@ -154,12 +154,12 @@ def _fix_gensym_prefix(prefix): #bruce 070604
         # contains ' ', and/or also do this if prefix ends with a letter (so
         # most gensym callers can rely on this rule rather than adding '-'
         # themselves).
-        
+
         # NOTE: this special rule is still needed, even if we never want
         # default new node names to contain '-' or ' '. It's ok since they
         # also won't include digits in the prefix, so this rule won't happen.
         # [bruce 080407 comment]
-        prefix = prefix + '-' 
+        prefix = prefix + '-'
     return prefix
 
 def gensym(prefix, assy = None):
@@ -188,7 +188,7 @@ def gensym(prefix, assy = None):
     """
     # REVIEW: maybe: move this code into a new method in class Assembly
     prefix = _fix_gensym_prefix(prefix)
-    names_to_avoid = {} 
+    names_to_avoid = {}
         # maps name -> anything, for 0 or more names we don't want to generate
     # fill names_to_avoid with node names from assy, if provided
     if assy is not None:
@@ -215,14 +215,14 @@ def permit_gensym_to_reuse_name(prefix, name): #bruce 070604
     if name == last_used_name:
         # this is the only case in which we can safely do anything.
         corrected_last_used_value = last_used_value - 1
-        assert corrected_last_used_value >= 0 
+        assert corrected_last_used_value >= 0
             # can't happen if called on names actually returned from gensym
         _gensym_counters[prefix] = corrected_last_used_value
     return
 
 # ==
 
-def average_value(seq, default = 0.0): 
+def average_value(seq, default = 0.0):
     """
     Return the numerical average value of seq (a Python sequence or equivalent),
     or (by default) 0.0 if seq is empty.
@@ -234,7 +234,7 @@ def average_value(seq, default = 0.0):
     # WARNING: this uses <built-in function sum>, not Numeric.sum.
     if not seq:
         return default
-    return sum(seq) / len(seq) 
+    return sum(seq) / len(seq)
 
 # ==
 
@@ -273,7 +273,7 @@ def common_prefix( seq1, *moreseqs ):
 # from before it's modified, by external init code. [bruce 080324 comment]
 # [that has a grammar error, not quite sure what was intended -- bruce 090116]
 
-# The global variables are: remap_atom_dispdefs, dispNames, new_dispNames, 
+# The global variables are: remap_atom_dispdefs, dispNames, new_dispNames,
 # dispLabel.
 
 remap_atom_dispdefs = {} #bruce 080324 moved this here from displaymodes.py
@@ -282,13 +282,13 @@ remap_atom_dispdefs = {} #bruce 080324 moved this here from displaymodes.py
 # representation. They are indices of dispNames and dispLabel. [Josh 11/2]
 diDEFAULT = 0 # the fact that diDEFAULT == 0 is public. [bruce 080206]
 diINVISIBLE = 1
-diTrueCPK = 2 # CPK 
+diTrueCPK = 2 # CPK
     # [renamed from old name diVDW, bruce 060607; corresponding UI change was
     # by mark 060307] (This is not yet called diCPK, to avoid confusion, since
     # that name was used for diBALL until today. After some time goes by, we
     # can rename this to just diCPK.)
 diLINES = 3
-diBALL = 4 # "Ball and Stick" 
+diBALL = 4 # "Ball and Stick"
     # [renamed from old incorrect name diCPK, bruce 060607; corresponding UI
     #  change was by mark 060307]
 diTUBES = 5
@@ -320,7 +320,7 @@ new_dispNames = ["def", "Invisible", "CPK", "Lines", "BallAndStick", "Tubes"]
 
 # <properDisplayNames> used by write_qutemol_pdb_file() in qutemol.py only.
 # Set _qxDNACYLINDER to "def" until "dnacylinder" is supported in QuteMolX.
-_qxDNACYLINDER = "def" 
+_qxDNACYLINDER = "def"
 properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub", _qxDNACYLINDER]
 
 #dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
@@ -348,7 +348,7 @@ def _f_add_display_style_code( disp_name, disp_label, allowed_for_atoms):
     assert len(dispNames) == len(dispLabel)
     assert len(dispNames) == len(new_dispNames) #bruce 080415
     dispNames.append(disp_name)
-    new_dispNames.append(disp_name) #bruce 080415 fix bug 2809 in 
+    new_dispNames.append(disp_name) #bruce 080415 fix bug 2809 in
         # saving nodes with "chunk display styles" set (not in .rc1)
     dispLabel.append(disp_label)
     ind = dispNames.index(disp_name) # internal value used by setDisplayStyle
@@ -383,10 +383,10 @@ diDNACYLINDER_SigmaBondRadius = 1.3
 #  in spite of the term "atom content" we might also add some for nodes,
 #  e.g. all the same ones mentioned for atoms.)
 
-ATOM_CONTENT_FOR_DISPLAY_STYLE = [] 
+ATOM_CONTENT_FOR_DISPLAY_STYLE = []
     # modified by the loop below to be same length as dispNames
 AC_HAS_INDIVIDUAL_DISPLAY_STYLE = 1
-AC_INVISIBLE = 1 << diINVISIBLE 
+AC_INVISIBLE = 1 << diINVISIBLE
     # note: fewer bits than ATOM_CONTENT_FOR_DISPLAY_STYLE[diINVISIBLE]
 for _disp in range(len(dispNames)):
     # WARNING:
@@ -397,11 +397,11 @@ for _disp in range(len(dispNames)):
         _content_for_disp = 0
     elif _disp == diINVISIBLE:
         # don't redundantly count this as "individual display style"
-        _content_for_disp = AC_INVISIBLE 
+        _content_for_disp = AC_INVISIBLE
     else:
         _content_for_disp = \
                           (AC_HAS_INDIVIDUAL_DISPLAY_STYLE + (1 << _disp))
-        # this uses bits 1 through len(dispNames) - 1, 
+        # this uses bits 1 through len(dispNames) - 1,
         # plus bit 0 for "any of those"
     ATOM_CONTENT_FOR_DISPLAY_STYLE.append(_content_for_disp)
 
@@ -413,7 +413,7 @@ for _disp in range(len(dispNames)):
 # The maximum VdW atom radius is 5.0 A.
 # It can be increased by 25% in User Preferences.
 # Highlighting increases this radius by 0.2A.
-# Total = 5.0A * 1.25 + 0.2A = 6.2A 
+# Total = 5.0A * 1.25 + 0.2A = 6.2A
 MAX_ATOM_SPHERE_RADIUS = 6.2
 
 # Margin value for bounding box (used in BoundingBox.py)
@@ -482,7 +482,7 @@ def filesplit(pathname):
 
 # ==
 
-def remove_prefix(str1, prefix): 
+def remove_prefix(str1, prefix):
     # TODO: put this into a new file, utilities.string_utils?
     """
     Remove an optional prefix from a string:
@@ -509,7 +509,7 @@ def remove_prefix(str1, prefix):
 # but is here so it is defined early enough for use in computing
 # default values of user preferences in prefs_constants.py.
 
-def ave_colors(weight, color1, color2): 
+def ave_colors(weight, color1, color2):
     """
     Return a weighted average of two colors,
     where weight gives the amount of color1 to include.
@@ -531,7 +531,7 @@ def ave_colors(weight, color1, color2):
     #bruce 050805 moved this here from handles.py, and revised it
     #e (perhaps we could optimize this using some Numeric method)
     weight = float(weight)
-    return tuple([weight * c1 + (1 - weight) * c2 
+    return tuple([weight * c1 + (1 - weight) * c2
                   for c1, c2 in zip(color1, color2)])
 
 def colors_differ_sufficiently(color1, color2, minimum_difference = 0.51 ):
@@ -563,7 +563,7 @@ def getTextHaloColor(textColor):
     else:
         return darkgray
     pass
-    
+
 # colors
 # [note: some of the ones whose names describe their function
 #  are default values for user preferences]
@@ -588,11 +588,11 @@ lightgray = (0.8, 0.8, 0.8)
 gray =   (0.5, 0.5, 0.5)
 darkgray = (0.3, 0.3, 0.3)
 navy =   (0.0, 0.09, 0.44)
-darkred = (0.6, 0.0, 0.2) 
+darkred = (0.6, 0.0, 0.2)
 violet = (0.6, 0.1, 0.9)
 purple = (0.4, 0.0, 0.6)
 darkpurple = (0.3, 0.0, 0.3)
-pink = (0.8, 0.4, 0.4) 
+pink = (0.8, 0.4, 0.4)
 olive = (0.3, 0.3, 0.0)
 steelblue = (0.3, 0.4, 0.5)
 brass = (0.5, 0.5, 0.0)
@@ -611,13 +611,13 @@ lightblue = ave_colors(0.03, white, blue)
     # consider also lighterblue
 lighterblue = ave_colors( 0.5, white, blue)
 
-# Following color is used to draw the back side of a reference plane. 
-#Better call it brownish yellow or greenish brown?? lets just call it brown 
+# Following color is used to draw the back side of a reference plane.
+#Better call it brownish yellow or greenish brown?? lets just call it brown
 #(or suggest better name by looking at it. ) - ninad 20070615
-brown = ave_colors(0.5, black, yellow) 
+brown = ave_colors(0.5, black, yellow)
 
 # The background gradient types/values.
-# Gradient values are one more than the gradient constant values in 
+# Gradient values are one more than the gradient constant values in
 # Preferences.py (i.e. bgBLUE_SKY =  BG_BLUE_SKY + 1).
 bgSOLID = 0
 bgBLUE_SKY = 1
@@ -631,9 +631,9 @@ bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0)
 eveningsky = (0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.3), (0.0, 0.0, 0.3)
 
 # GLPane "Sea Green" gradient
-bg_seagreen = ((0.905, 0.905, 0.921), 
-               (0.905, 0.905, 0.921), 
-               (0.6, 0.8, 0.8), 
+bg_seagreen = ((0.905, 0.905, 0.921),
+               (0.905, 0.905, 0.921),
+               (0.6, 0.8, 0.8),
                (0.6, 0.8, 0.8) )
 
 bg_seagreen_UNUSED_FOR_DEBUG = (0.894, 0.949, 0.894), (0.862, 0.929, 0.862), \
@@ -680,7 +680,7 @@ SELSHAPE_RECT = 'RECTANGLE'
 
 # mark 060206 adding named constants for selection logic.
 SUBTRACT_FROM_SELECTION = 'Subtract Inside'
-OUTSIDE_SUBTRACT_FROM_SELECTION = 'Subtract Outside' 
+OUTSIDE_SUBTRACT_FROM_SELECTION = 'Subtract Outside'
     # OUTSIDE_SUBTRACT_FROM_SELECTION is used only in CrystalShape.py
 ADD_TO_SELECTION = 'Add'
 START_NEW_SELECTION = 'New'
@@ -737,7 +737,7 @@ except:
     # CAD_SRC_PATH can't be determined (by the present code)
     # (does this ever happen?)
     print "can't determine CAD_SRC_PATH"
-    CAD_SRC_PATH = None 
+    CAD_SRC_PATH = None
 else:
     CAD_SRC_PATH = os.path.dirname(__file__)
     assert os.path.basename(CAD_SRC_PATH) == "utilities"
@@ -749,5 +749,5 @@ else:
     # (spelling?) should also be available (only in a release and only on Mac),
     # and might make more sense to use then.]
     pass
-    
+
 # end

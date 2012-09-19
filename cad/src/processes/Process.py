@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Process.py
 
@@ -7,7 +7,7 @@ and a convenience function run_command() for using it to run external commands.
 
 @author: Bruce, EricM
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -102,7 +102,7 @@ class Process(QProcess):
         #exit_code = self.exitCode()
         #exit_status = self.exitStatus()
         #print "%s exited, code: %d, status: %d" % (self.processName, exit_code, exit_status)
-        
+
     ##def setArguments(self, args): #k needed?
         ##"Overrides QProcess.setArguments so it can accept a Python list as well as a QStringList."
         ##args = ensure_QStringList(args)
@@ -150,7 +150,7 @@ class Process(QProcess):
 
     def setProcessName(self, name):
         self.processName = name
-        
+
     def standardOutputLine(self, bytes):
         if self.stdout is not None:
             self.stdout.write(bytes)
@@ -200,7 +200,7 @@ class Process(QProcess):
         else:
             err = ""
         return state + "[" + err + "]"
-        
+
     def wait_for_exit(self, abortHandler, pollFunction = None):
         """
         Wait for the process to exit (sleeping by 0.05 seconds in a
@@ -241,32 +241,32 @@ class Process(QProcess):
 
     def run(self, program, args = None, background = False, abortHandler = None, pollFunction = None):
         """
-        Starts the program I{program} in a new process, passing the command 
+        Starts the program I{program} in a new process, passing the command
         line arguments in I{args}.
 
         On Windows, arguments that contain spaces are wrapped in quotes.
-        
+
         @param program: The program to start.
         @type  program: string
-        
+
         @param args: a list of arguments.
         @type  args: list
-        
-        @param background: If True, starts the program I{program} in a new 
-                           process, and detaches from it. If NE1 exits, the 
-                           detached process will continue to live. 
+
+        @param background: If True, starts the program I{program} in a new
+                           process, and detaches from it. If NE1 exits, the
+                           detached process will continue to live.
                            The default is False (not backgrounded).
         @type  background: boolean
-        
+
         @param abortHandler: The abort handler.
         @type  abortHandler: L{AbortHandler}
 
         @param pollFunction: Called once every 0.05 seconds while process is running.
         @type  pollFunction: function.
-        
+
         @return: 0 if the process starts successfully.
         @rtype:  int
-        
+
         @note: processes are started asynchronously, which means the started()
         and error() signals may be delayed. If this is not a backgrounded
         process, run() makes sure the process has started (or has failed to
@@ -275,11 +275,11 @@ class Process(QProcess):
         if (args is None):
             args = []
         self.currentError = None
-        
+
         if background:
             print "\n%s [%s]: starting in the background with args:\n%s" \
                   % (self.processName, program, args)
-            # Run 'program' as a separate process. 
+            # Run 'program' as a separate process.
             # startDetached() returns True on success.
             rval = not self.startDetached(program, args)
         else:
@@ -288,11 +288,11 @@ class Process(QProcess):
             # Run 'program' as a child process.
             self.start(program, args) #k ok that we provide no stdin? #e might need to provide an env here
             rval = self.getExitValue(abortHandler, pollFunction)
-        
+
         if 1:
             print "%s: started. Return val=%d" % (self.processName, rval)
         return rval
-        
+
     pass
 
 def run_command( program, args = [], stdout = None, stderr = None, cwd = None ):
@@ -315,7 +315,7 @@ def run_command( program, args = [], stdout = None, stderr = None, cwd = None ):
 # == test code
 
 class ProcessTest(object):
-    
+
     def _test(self, program, args = None, wd = None):
         import sys
         pp = Process()

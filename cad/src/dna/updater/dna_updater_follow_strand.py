@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_follow_strand.py - helper function for dna_updater_ladders.
 
@@ -19,7 +19,7 @@ _FAKE_AXIS_FOR_BARE_STRANDS = [1]
 def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break_strand, axis_break_between_Q = None):
     """
     If phase is 1:
-    
+
     Loop over strand's base atoms, watching the strand join and leave
     axis chains and move along them; break both axis and strand
     whenever it joins, leaves, or moves discontinuously
@@ -84,7 +84,7 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
     # (axis rail is ring, strand rail is not), it's probably best to
     # ignore this on ladders and just follow the individual chains as
     # needed.)
-    
+
     # To get started, we're in the state of having left some axis
     # (all done with it) and about to enter a new one. The loop body
     # can't know that, so record an impossible value of which axis
@@ -103,7 +103,7 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
         # so for now, permit it (with debug print) and see if it causes any other trouble.
         print "fyi: dna_updater_follow_strand bailing on 0-length strand %r" % (strand,)
         return
-    
+
     assert phase in (1,2)
     if phase == 2:
         break_strand_phase2 = break_strand
@@ -114,10 +114,10 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
     else:
         assert axis_break_between_Q is None
         break_strand_phase2 = None # not used, but mollify pylint
-    
+
     assert callable(break_axis)
     assert callable(break_strand)
-    
+
     prior_axis = None
     prior_index = None
     prior_direction = None # normally, -1 or 1, or 0 for "just entered"
@@ -142,7 +142,7 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
                 axis = _FAKE_AXIS_FOR_BARE_STRANDS
                 index = s_index # always acts like continuous motion
             pass
-            
+
         # set the variables jumped, new_direction, changed_direction;
         # these are their values unless changed explicitly just below:
         jumped = False
@@ -169,7 +169,7 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
         else:
             jumped = True
         # (after this, jumped, new_direction, changed_direction are final)
-        
+
         # We need helper routines to do a jump, since there are two
         # different jumps we might do. We need them in pieces since
         # we can't always call them all at once for one jump.

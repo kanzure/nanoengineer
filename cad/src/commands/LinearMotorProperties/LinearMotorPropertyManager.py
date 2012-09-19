@@ -35,7 +35,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Simulation/LinearMotor.png"
 
-    
+
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -63,8 +63,8 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         change_connect(self.spokeRadiusDblSpinBox,
                      SIGNAL("valueChanged(double)"),
                      self.change_motor_size)
-        change_connect(self.motorColorComboBox, 
-                       SIGNAL("editingFinished()"), 
+        change_connect(self.motorColorComboBox,
+                       SIGNAL("editingFinished()"),
                        self.change_jig_color)
         return
 
@@ -106,7 +106,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         self.motorWidthDblSpinBox.setValue(width)
         self.spokeRadiusDblSpinBox.setValue(spoke_radius)
         return
-    
+
     def change_motor_size(self, gl_update=True):
         """
         Slot method to change the jig's length, width and/or spoke radius.
@@ -166,7 +166,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
                           text = "Reverse",
                           spanWidth = False)
         return
-    
+
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in groubox 2.
@@ -231,7 +231,7 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         from ne1_ui.WhatsThisText_for_PropertyManagers import whatsThis_LinearMotorPropertyManager
         whatsThis_LinearMotorPropertyManager(self)
         return
-    
+
     def _addToolTipText(self):
         """
         What's Tool Tip text for widgets in this Property Manager.

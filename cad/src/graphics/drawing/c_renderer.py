@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 c_renderer.py - Interface to the experimental C++ renderer:
 
@@ -14,7 +14,7 @@ being kept around for now.
 
 @author: Brad G, Will
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -177,7 +177,7 @@ class ShapeList_inplace:
         #     float m_cappedBool;
         #     float m_pos1[3];
         #     float m_pos2[3];
-        #     float m_radius; 
+        #     float m_radius;
         # };
 
         if (len(self.cylinders) == 0 or
@@ -375,7 +375,7 @@ def test_pyrex_opengl(test_type): # not tested since major refactoring
         ###   loop of Draw calls. [bruce 070917 comment]
 
         #self.w.win_update()
-        ## sys.path.append("./experimental/pyrex-opengl") # no longer 
+        ## sys.path.append("./experimental/pyrex-opengl") # no longer
         ##needed here -- always done in drawer.py
         binPath = os.path.normpath(os.path.dirname(
             os.path.abspath(sys.argv[0])) + '/../bin')
@@ -417,15 +417,15 @@ def test_pyrex_opengl(test_type): # not tested since major refactoring
             from bearing_data import cylinderCapped, cylinderColors
             glPushMatrix()
             glTranslate(-0.001500, -0.000501, 151.873627)
-            result = quux.shapeRendererDrawSpheres(1848, 
-                                                   sphereCenters, 
-                                                   sphereRadii, 
+            result = quux.shapeRendererDrawSpheres(1848,
+                                                   sphereCenters,
+                                                   sphereRadii,
                                                    sphereColors)
-            result = quux.shapeRendererDrawCylinders(5290, 
+            result = quux.shapeRendererDrawCylinders(5290,
                                                      cylinderPos1,
-                                                     cylinderPos2, 
-                                                     cylinderRadii, 
-                                                     cylinderCapped, 
+                                                     cylinderPos2,
+                                                     cylinderRadii,
+                                                     cylinderCapped,
                                                      cylinderColors)
             glPopMatrix()
         quux.shapeRendererFinishDrawing()

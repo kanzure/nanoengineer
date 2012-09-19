@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 # Form implementation generated from reading ui file 'JobManagerDialog.ui'
 #
 # Created: Wed Sep 20 08:10:41 2006

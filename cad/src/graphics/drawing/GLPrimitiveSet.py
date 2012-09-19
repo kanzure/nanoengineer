@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLPrimitiveSet.py -- Cached data structure for rapidly drawing a set of batched
 primitives collected from the CSDLs in a DrawingSet, along with any other kind
@@ -70,7 +70,7 @@ class GLPrimitiveSet:
         """
         """
         self.CSDLs = csdl_list
-        
+
         # Collect lists of primitives to draw in batches, and those CSDLs with
         # display lists to draw as well.  (A given CSDL may have both.)
         self.spheres = []            # Generalize to a dict of lists?
@@ -92,7 +92,7 @@ class GLPrimitiveSet:
             #  If that's done, draw the immediate-mode-parts first here, in case
             #  any of them also want to recompile DLs which are called in the
             #  ok-for-inside-one-big-DL parts.)
-        
+
         for csdl in self.CSDLs:
             self.spheres += csdl.spheres
             self.cylinders += csdl.cylinders
@@ -185,7 +185,7 @@ class GLPrimitiveSet:
             continue
         if lastTC is not None:
             glPopMatrix()
-        
+
         return
 
     pass # end of class GLPrimitiveSet

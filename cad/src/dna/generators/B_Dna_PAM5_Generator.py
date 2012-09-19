@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 DnaDuplex.py -- DNA duplex generator helper classes, based on empirical data.
 
@@ -49,7 +49,7 @@ RIGHT_HANDED = -1
 LEFT_HANDED  =  1
 
 
-from geometry.VQT import V, Q, norm, cross  
+from geometry.VQT import V, Q, norm, cross
 from geometry.VQT import  vlen
 from Numeric import dot
 
@@ -126,14 +126,14 @@ class B_Dna_PAM5_Generator(B_Dna_Generator):
         """
         # This implem depends on the specifics of how the end-representations
         # are terminated. If that's changed, it might stop working or it might
-        # start giving wrong results. In the current representation, 
+        # start giving wrong results. In the current representation,
         # baseList[0] (a chunk) has two bonds whose directions we must set,
-        # which will determine the directions of their strands: 
+        # which will determine the directions of their strands:
         #   Ss5 -> Sh5, and Ss5 <- Pe5.
         # Just find those bonds and set the strand directions (until such time
         # as they can be present to start with in the end1 mmp file).
-        # (If we were instead passed all the atoms, we could be correct if we 
-        # just did this to the first Pe5 and Sh5 we saw, or to both of each if 
+        # (If we were instead passed all the atoms, we could be correct if we
+        # just did this to the first Pe5 and Sh5 we saw, or to both of each if
         # setting the same direction twice is allowed.)
         atoms = baseList[0].atoms.values()
         Pe_list = filter( lambda atom: atom.element.symbol in ('Pe5'), atoms)
@@ -154,10 +154,10 @@ class B_Dna_PAM5_Generator(B_Dna_Generator):
             env.history.message( orangemsg( msg))
 
             # Note: It turns out this bug is caused by a bug in the rest of the
-            # generator (which I didn't try to diagnose) -- for number of 
+            # generator (which I didn't try to diagnose) -- for number of
             # bases == 1 it doesn't terminate the strands, so the above code
             # can't find the termination atoms (which is how it figures out
-            # what to do without depending on intimate knowledge of the base 
+            # what to do without depending on intimate knowledge of the base
             # mmp file contents).
 
             # print "baseList = %r, its len = %r, atoms in [0] = %r" % \
@@ -166,19 +166,19 @@ class B_Dna_PAM5_Generator(B_Dna_Generator):
             ## its len = 1, atoms in [0] = [Ax1, X2, X3, Ss4, Pl5, X6, X7, Ss8, Pl9, X10, X11]
 
             # It would be a mistake to fix this here (by giving it that
-            # intimate knowledge) -- instead we need to find and fix the bug 
+            # intimate knowledge) -- instead we need to find and fix the bug
             # in the rest of generator when number of bases == 1.
         return
 
     def _create_atomLists_for_regrouping(self, dnaGroup):
         """
-        Creates and returns the atom lists that will be used to regroup the 
-        chunks  within the DnaGroup. 
+        Creates and returns the atom lists that will be used to regroup the
+        chunks  within the DnaGroup.
 
-        @param dnaGroup: The DnaGroup whose atoms will be filtered and put into 
+        @param dnaGroup: The DnaGroup whose atoms will be filtered and put into
                          individual strand A or strandB or axis atom lists.
-        @return: Returns a tuple containing three atom lists 
-                 -- two atom lists for strand chunks and one for axis chunk. 
+        @return: Returns a tuple containing three atom lists
+                 -- two atom lists for strand chunks and one for axis chunk.
         @see: self._regroup()
         """
         _strandA_list  =  []
@@ -186,30 +186,30 @@ class B_Dna_PAM5_Generator(B_Dna_Generator):
         _axis_list     =  []
         # Build strand and chunk atom lists.
         for m in dnaGroup.members:
-            for atom in m.atoms.values():                
+            for atom in m.atoms.values():
                 if atom.element.symbol in ('Pl5', 'Pe5'):
-                    if atom.getDnaStrandId_for_generators() == 'Strand1':                        
+                    if atom.getDnaStrandId_for_generators() == 'Strand1':
                         _strandA_list.append(atom)
-                        # Following makes sure that the info record 
-                        #'dnaStrandId_for_generators' won't be written for 
+                        # Following makes sure that the info record
+                        #'dnaStrandId_for_generators' won't be written for
                         #this atom that the dna generator outputs. i.e.
-                        #the info record 'dnaStrandId_for_generators' is only 
+                        #the info record 'dnaStrandId_for_generators' is only
                         #required while generating the dna from scratch
                         #(by reading in the strand base files in 'cad/plugins'
                         #see more comments in Atom.getDnaStrandId_for_generators
                         atom.setDnaStrandId_for_generators('')
                     elif atom.getDnaStrandId_for_generators() == 'Strand2':
                         atom.setDnaStrandId_for_generators('')
-                        _strandB_list.append(atom)                        
+                        _strandB_list.append(atom)
                 if atom.element.symbol in ('Ss5', 'Sh5'):
                     if atom.getDnaBaseName() == 'a':
                         _strandA_list.append(atom)
-                        #Now reset the DnaBaseName for the added atom 
+                        #Now reset the DnaBaseName for the added atom
                         # to 'unassigned' base i.e. 'X'
                         atom.setDnaBaseName('X')
                     elif atom.getDnaBaseName() == 'b':
                         _strandB_list.append(atom)
-                        #Now reset the DnaBaseName for the added atom 
+                        #Now reset the DnaBaseName for the added atom
                         # to 'unassigned' base i.e. 'X'
                         atom.setDnaBaseName('X')
                     else:

@@ -2,7 +2,7 @@
 printFunc.py: print method that can be called after populating DOM in order to
 see the XML objects in human readable format.
 
-Based on the original files from the pyXML 0.8.4 dom/ext module. 
+Based on the original files from the pyXML 0.8.4 dom/ext module.
 
 @author: Urmi
 @version: $Id$
@@ -167,7 +167,7 @@ class PrintVisitor(Visitor):
         return
 
     def visitDocumentType(self, doctype):
-        if not doctype.systemId and not doctype.publicId: 
+        if not doctype.systemId and not doctype.publicId:
             return
         self._tryIndent()
         self._write('<!DOCTYPE %s' % doctype.name)
@@ -276,13 +276,13 @@ class PrintVisitor(Visitor):
                 if not self._namespaces[-1].has_key(prefix) or self._namespaces[-1][prefix] != nss[prefix]:
                     nsuri, delimiter = TranslateCdataAttr(nss[prefix])
                     if prefix:
-                        
+
                         xmlns = " xmlns:%s=%s%s%s" % (prefix, delimiter,nsuri,delimiter)
                         namespaces = namespaces + xmlns
                     else:
-                         
+
                         xmlns = " xmlns=%s%s%s" % (delimiter,nsuri,delimiter)
-                   
+
 
                 self._namespaces[-1][prefix] = nss[prefix]
             self._write(namespaces)

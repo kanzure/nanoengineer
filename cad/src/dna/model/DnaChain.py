@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 DnaChain.py - Dna-aware AtomChainOrRing subclasses, AxisChain and StrandChain
 
@@ -47,11 +47,11 @@ class DnaChain(object):
     just has baseatoms (which must be set by subclass),
     index_direction, and methods that only depend on those.
     """
-    
+
     # default values of public instance variables:
 
     strandQ = None # will be set to a boolean saying whether we're made of strand or axis atoms
-    
+
     baseatoms = () # public for read; sequence of all our atoms with a baseindex
         # (whether in strand or axis) (leaves out Pl, bondpoints, termination atoms)
         # note: subclass-specific __init__ must set this; used in __repr__
@@ -60,7 +60,7 @@ class DnaChain(object):
         # neighboring baseatom (in a directly connected chain, possibly self
         # if self is a ring)
         # note: set by _f_update_neighbor_baseatoms, some doc is there
-    
+
     index_direction = 1 # instances negate this when they reverse baseatoms
         # (and thus its indexing) using reverse_baseatoms. It records the
         # relation between the current and original baseindex direction.
@@ -87,7 +87,7 @@ class DnaChain(object):
         res = "<%s (%d %s bases) at %#x>" % \
               (classname, len(self), basetype, id(self))
         return res
-    
+
     def _reverse_neighbor_baseatoms(self):
         self.neighbor_baseatoms = list(self.neighbor_baseatoms)
         self.neighbor_baseatoms.reverse()
@@ -97,7 +97,7 @@ class DnaChain(object):
                 msg = "reversed %r.neighbor_baseatoms to get %r" % (self, self.neighbor_baseatoms)
                 print_compact_stack( "\n" + msg + ": ")
         return
-    
+
     def baseatom_index_pairs(self):
         """
         Return a list of pairs (baseatom, baseindex) for every pseudoatom
@@ -106,7 +106,7 @@ class DnaChain(object):
         to how we store the atoms, which is arbitrary until something corrects it;
         ###REVIEW whether to correct it by list reversal or setting index_direction,
         and whether to also store a base_offset for use by this function.
-        
+
         (This skips PAM5 Pl atoms in strands, and would skip any bondpoint-like
         termination atoms if we still had them. [###REVIEW -- do we, in PAM5? nim if so?])
         """
@@ -117,13 +117,13 @@ class DnaChain(object):
 
     def start_baseindex(self):
         return 0
-    
+
     def baselength(self):
         return len(self.baseatoms)
 
     def __len__(self):
         return self.baselength()
-    
+
     def __nonzero__(self): # 080311
         # avoid Python calling __len__ for this [review: need __eq__ as well?]
         return True
@@ -144,10 +144,10 @@ class DnaChain(object):
         return
 
     # ==
-    
+
     # kluge: bond direction code/attrs are also here, even though it only applies to strands,
     # since strands can have different classes with no more specific common superclass.
-    
+
     _bond_direction = 0 # 0 = not yet computed, or error (unset or inconsistent);
         # 1 or -1 means it was set by _recompute_bond_direction
         # (see bond_direction docstring for meaning)
@@ -156,11 +156,11 @@ class DnaChain(object):
 
         # to interpret those: if both are default, we've never run _recompute_bond_direction,
         # since it either sets a specific direction or signals an error.
-        
+
     def bond_direction(self):
         """
         Only legal if self is a chain of strand base atoms.
-        
+
         If self has a known, consistently set bond direction,
         throughout its length and also in the directional bonds
         to the next strand base atoms just outside it
@@ -231,7 +231,7 @@ class DnaChain(object):
             return
         assert self._bond_direction
         assert not self._bond_direction_error
-        
+
         if self.bond_direction_is_arbitrary():
             return # no way to check it
 
@@ -239,7 +239,7 @@ class DnaChain(object):
 
         if when:
             when = " (%s)" % when
-        
+
         # STUB: only works fully for PAM3
         atom1 = self.baseatoms[0]
         atom2 = self.baseatoms[1]
@@ -279,13 +279,13 @@ class DnaChain(object):
             summary_format = "DNA updater: bug: [N] failure(s) of debug_check_bond_direction, see console prints"
             env.history.deferred_summary_message( redmsg(summary_format))
         return
-        
+
     # ==
-    
+
     def _f_update_neighbor_baseatoms(self):
         """
         [friend method for dna updater]
-        
+
         This must be called at least once per ladder rail chain
         (i.e. _DnaChainFragment object, I think, 080116),
         during each dna updater run which encounters it (whether as a
@@ -314,12 +314,12 @@ class DnaChain(object):
         If this doesn't force an order, then if this had already been set
         before this call and either of the same non-None atoms are still
         in it now, preserve their position.
-        
+
         The attrs we set are subsequently reversed by our methods
         _f_reverse_arbitrary_bond_direction and reverse_baseatoms.
         [###REVIEW whether it's correct in _f_reverse_arbitrary_bond_direction;
         see comment there.]
-        
+
         @note: the ordering/reversal scheme described above may need
         revision. The special case for length==1 axis described above is
         meant to ensure
@@ -421,7 +421,7 @@ class DnaChain(object):
             next_atoms = filter( lambda atom: not atom._dna_updater__error , next_atoms )
             while len(next_atoms) < 2:
                 next_atoms.append(None)
-            
+
             # if order matters, reverse this here, if either strand
             # in the same ladder indicates we ought to, by its next atom
             # bonding to one of these atoms (having no nick); I think any
@@ -475,9 +475,9 @@ class DnaChain(object):
                       (next_atoms, self, end_atom)
                 print_compact_traceback( msg + ": " )
                 pass
-            
+
             reverse_count = 0 # for debug prints only
-            
+
             if not order_was_forced_by_strands:
                 # For stability of arbitrary choices in case self.neighbor_baseatoms
                 # was already set, let non-None atoms still in it determine the order
@@ -488,9 +488,9 @@ class DnaChain(object):
                         assert old_atom != -1 # next_atoms can't contain -1
                         next_atoms.reverse() # (this can't happen twice)
                         reverse_count += 1
-            
+
             self.neighbor_baseatoms = next_atoms
-            
+
             if DEBUG_NEIGHBOR_BASEATOMS:
                 msg = "set %r.neighbor_baseatoms = next_atoms %r, " \
                       "order_was_forced_by_strands = %r, reverse_count = %r" % \
@@ -498,7 +498,7 @@ class DnaChain(object):
                 print_compact_stack( "\n" + msg + ": ")
                 pass
             pass
-        
+
         # we're done
         assert len(self.neighbor_baseatoms) == 2
         assert type(self.neighbor_baseatoms) == type([])
@@ -536,7 +536,7 @@ class DnaChain(object):
             res.append(self.baseatoms[-1])
         # note: for a len 1 wholechain, this has two copies of same atom -- good, i think
         return res
-            
+
     pass # end of class DnaChain
 
 # ==
@@ -570,7 +570,7 @@ class _DnaChainFragment(DnaChain): #e does it need to know ringQ? is it misnamed
 
 # ==
 
-class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code is on this vs what is on a higher-level WholeChain 
+class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code is on this vs what is on a higher-level WholeChain
     #e inherit ChainAPI? (we're passed to a DnaMarker as its chain -- no, more likely, as an element of a list which is that@@@)
     """
     Abstract class, superclass of AxisChain and StrandChain.
@@ -606,12 +606,12 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
 ##    controlling_marker = None
 
     # REVIEW: need to delegate ringQ, or any other vars or methods, to self.chain_or_ring?
-    
+
     def __init__(self, chain_or_ring):
-        
+
         self.chain_or_ring = chain_or_ring
         self.ringQ = chain_or_ring.ringQ
-        
+
         #e possible optim: can we discard the bonds stored in chain_or_ring, and keep only the atomlist,
         # maybe not even in that object?
         # (but we do need ringQ, and might need future chain_or_ring methods that differ for it.)
@@ -620,13 +620,13 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
         # use a method name that makes that explicit.
         # For now, just store a separate list of baseatoms (in each subclass __init__ method).
         return
-    
+
     def iteratoms(self): # REVIEW: different if self.index_direction < 0?
         """
         # get doc from calling method
         """
         return self.chain_or_ring.iteratoms()
-    
+
     _chain_id = None
     def chain_id(self): #k this is used, but as of 071203 i'm not sure the use will survive, so review later whether it's needed @@
         """
@@ -653,7 +653,7 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
 ##        and it might be only valid during the dna updater run, before
 ##        more model changes are made. [#todo: update docstring when known]
 ##        """
-##        
+##
 ##        # NOTE/TODO: if useful, this might record a list of all live markers
 ##        # found on that chain in the chain, as well as whatever marker
 ##        # is chosen or made to control it. (But note that markers might
@@ -702,7 +702,7 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
                                  strandQ = self.strandQ
                                )
             #e more args? does it know original indices? (i doubt it)
-        
+
     pass # end of class DnaChain_AtomChainWrapper
 
 # ==
@@ -717,7 +717,7 @@ def merged_chain(baseatoms,
                              strandQ = strandQ
                             )
     return res
-    
+
 # ==
 
 class AxisChain(DnaChain_AtomChainWrapper):
@@ -743,7 +743,7 @@ class StrandChain(DnaChain_AtomChainWrapper):
 
     @warning: as of 080116, these are *not* used directly as DnaLadder rail chains.
     Instead, objects returned by self.virtual_fragment are used for that.
-    
+
     Knows to skip Pl atoms when indexing or iterating over "base atoms"
     (but covers them in iteratoms). Also knows to look at bond_direction
     on all the bonds (in self and to neighbors), for being set and consistent,
@@ -835,12 +835,12 @@ class StrandChain(DnaChain_AtomChainWrapper):
             # and if it didn't, later code would have bugs,
             # so we might as well assert dir_so_far above [done],
             # and really we ought to fix that error here or earlier.
-            # So decide which is best: #### @@@@ 
+            # So decide which is best: #### @@@@
             # - find wholechains w/o knowing bond dir, then fix it;
             # - or fix it earlier when we notice local bond direction
-            #   errors (also requires propogation; not too hard). 
+            #   errors (also requires propogation; not too hard).
         return # atoms bonds
-        
+
     pass
 
 # end

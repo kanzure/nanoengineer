@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 A_Dna_PAM3_Generator.py -- DNA duplex generator helper class, based on empirical data.
 

@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 op_select_doubly.py -- workhorse function for the Select Doubly operation.
 
@@ -30,7 +30,7 @@ __author__ = "bruce"
 
 class twoconner: #e rename
     """Scan connected parts of a graph to find out which edges are cut-edges for those parts.
-    Later, use that info to traverse doubly-connected subgraphs from given nodes. 
+    Later, use that info to traverse doubly-connected subgraphs from given nodes.
     Also keep info which would later let you quickly report whether two nodes are 1-connected, if anyone asked.
     (More generally, info which would let you quickly map any node to a fixed representative node in its connected component.)
     (But no method for making this query is implemented yet, and not quite enough info is kept,
@@ -57,12 +57,12 @@ class twoconner: #e rename
         diredge = (priornode, N1) # the first diredge to traverse
         num, i = self.traverse_nonrec( diredge, i) ### need retval??
         self.i = i
-        # print "that conncomp had %d nodes" % (i - i1) 
+        # print "that conncomp had %d nodes" % (i - i1)
         assert num == i1
         # i - i1 is the number of nodes seen in N1's connected component
         # but the main result at this point is the dict self.cutedges
         return True #e could return i - i1
-    
+
     def traverse_nonrec(self, diredge, i): #bruce 050629, part of fixing bug 725
         "non-recursive version of traverse method (see original method below for more extensive comments/docstring)"
         stack = [(0, diredge)] # this stack of partly-done traverse calls replaces the Python stack.
@@ -116,7 +116,7 @@ class twoconner: #e rename
             continue
         # done
         return retval
-    
+
     def traverse_OLD_RECURSIVE_VERSION(self, diredge, i):
         # no longer used, but keep for docstring and comments, for now [bruce 050629]
         # to optimize(??), pass the instvars rather than self (like for i), and split diredge in two
@@ -163,7 +163,7 @@ class twoconner: #e rename
         if num == Ni:
             self.cutedges[diredge] = 1 #k could an edge get entered into this twice (once in each direction)?? ###k [i don't think so]
         return num, i
-    
+
     def neighbors_except(self, N, priornode): # morally this should be an init param or subclass method (but speed > abstractness here)
         "Return all N's neighbors except priornode (or all of them, if priornode is None) [assume they can be compared using 'is']"
         #e assume N is an atom; this justifies using 'is' and also is why we want to (for speed)
@@ -175,7 +175,7 @@ class twoconner: #e rename
             # Anyway, we *do* need to chop singlets! And we might as well chop monovalent neighbors if we make sure N1 in .start is never one
             # ie specialcase if it is. ####@@@@ DOIT.
 
-    def apply_to_2connset_nonrec( self, N, func): #bruce 050629, part of fixing bug 725 
+    def apply_to_2connset_nonrec( self, N, func): #bruce 050629, part of fixing bug 725
         """Non-recursive version of apply_to_2connset.
         (Ought to be rewritten to use a non-recursive transcloser helper function
         made from Select Connected code.)
@@ -195,7 +195,7 @@ class twoconner: #e rename
                     didem[neighbor] = 1
             todo = newtodo
         return
-        
+
     def apply_to_2connset_OLD_RECURSIVE_VERSION( self, N, func, didem = None):
         # no longer used, but keep for docstring and comments, for now [bruce 050629]
         """Apply func to the 2-connected set including N (or to N alone if all its edges are cutedges).

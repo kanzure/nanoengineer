@@ -110,7 +110,7 @@ class Edge(ModelComponent):
             return True
         return False
     pass
-    
+
 class TrivalentGraphModel(object):
     # REVISE: rename, then split out superclass Model
     """
@@ -118,11 +118,11 @@ class TrivalentGraphModel(object):
     """
     Node = Node
     Edge = Edge
-    
+
     def __init__(self):
         self.nodes = {}
         self.edges = {}
-        
+
     def cmd_addNode(self, x, y):
         n = self.Node(self, x, y)
         self.nodes[n] = n
@@ -134,7 +134,7 @@ class TrivalentGraphModel(object):
             e.destroy()
         del self.nodes[n]
         return True # only needed due to an assert that is wrong in general
-    
+
     def cmd_addEdge(self, n1, n2):
         e = self.Edge(self, n1, n2)
         self.edges[e] = e
@@ -169,7 +169,7 @@ class TrivalentGraphModel(object):
             if n is not node2 and not n.connected_to(node2):
                 self.cmd_addEdge(n, node2)
         return True
-    
+
     def hit_test_objects(self): # front to back
         for node in self.nodes.itervalues():
             yield node

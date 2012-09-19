@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ToggleShow.py
 
@@ -54,7 +54,7 @@ class ToggleShow(InstanceMacro):
     # args
     thing = Arg(Widget2D)
     label = Arg(Widget2D, TextRect("label")) #e or coerce text into a 1-line TextRect -- how do we declare that intent??
-    
+
     if 0: # first make it work with a self-made stateref only, imitating Highlightable, using transient state
         stateref = Arg(StateRef, Automatic) ###k assumes the dflt can be a way to make one, not a literal one
 
@@ -74,8 +74,8 @@ class ToggleShow(InstanceMacro):
         ####k is ipath local to something like _self, or only rel to the entire model?? his matters if we name the statepath here!
 
         stateref = Arg(StateRef(bool), _my_node.open) ###k assumes _my_node.open can be an lval even after _my_node is bound! ####k
-        
-    
+
+
         ##e or we could spell out the default stateref as _self.ipath, assuming that can be coerced into one --
         # of course it can't, we also need to say it's boolean (openQ: open is true, closed is false) and with what encoding.
         # but come to think of it, that is not part of the arg, right? the arg is "some boolean state"... hmm, i guess it is.
@@ -110,7 +110,7 @@ class ToggleShow(InstanceMacro):
 
         # see if this gets the expected asfail: it does! [061121 late]
         ## set_default_attrs( transient_state, open = True)
-        
+
     if 0: # this will be real code someday when no longer nim, but use an easier way first.
         open = State(bool, True) # default 'kind' of state depends on which layer this object is in, or something else about its class
             # but for now make it always transient_state
@@ -128,7 +128,7 @@ class ToggleShow(InstanceMacro):
             return
         open = property(get_open, set_open)
         pass
-    
+
     def _init_instance(self):
         super(ToggleShow, self)._init_instance()
         set_default_attrs( self.transient_state, open = True)
@@ -136,7 +136,7 @@ class ToggleShow(InstanceMacro):
     # constants
     # Note, + means openable (ie closed), - means closable (ie open) -- this is the Windows convention (I guess; not sure about Linux)
     # and until now I had them reversed. This is defined in two files and in more than one place in one of them. [bruce 070123]
-    
+
     open_icon   = Overlay(Rect(0.4), TextRect('-',1,1))
     closed_icon = Overlay(Rect(0.4), TextRect('+',1,1))
 
@@ -158,7 +158,7 @@ class ToggleShow(InstanceMacro):
             closed_icon = Overlay(Rect(0.4), TextRect('+',1,1)) #061120 changed impicit 1 -> 0.5
 
     # _value, and helper formulae
-    
+
     ## open = stateref.value # can we make it work to say Set(open, newval) after this?? ####k
         # the hard part would be: eval arg1, but not quite all the way. we'd need a special eval mode for lvals.
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
@@ -181,7 +181,7 @@ class ToggleShow(InstanceMacro):
     #
     # Soon, the needed or not of the above workarounds should be sorted out,
     # and most of the following debugging-log commentary should be removed. #e
-    
+
     if 1:
         openclose = Highlightable( If_kluge( open, open_icon, closed_icon ),
                                    on_press = _self.toggle_open,
@@ -225,7 +225,7 @@ class ToggleShow(InstanceMacro):
           Highlightable(open_icon,   on_press = _self.toggle_open, sbar_text = _this(Highlightable).ipath),
           Highlightable(closed_icon, on_press = _self.toggle_open, sbar_text = _this(Highlightable).ipath),
                     )
-        pass    
+        pass
 
     def toggle_open(self):
         if 'yet another shot in the dark 061120 1001p':
@@ -259,7 +259,7 @@ class ToggleShow(InstanceMacro):
             # [but, that bug aside, there is still a real problem with whatever usage tracking this
             #  set_default_attrs is doing. [fixed now]]
 
-            
+
         if 0: #061121 822p i've been using if 1 forever, let's see if if 0 works here: it does! either is ok, given the open property.
             old = self.transient_state.open
             self.transient_state.open = new = not old
@@ -280,7 +280,7 @@ class ToggleShow(InstanceMacro):
         # some way to have lvals representing displist contents or frame buffer contents, whose inval means an update is needed.
         printnim("toggle_open might do a setattr which is not legal yet, and (once that's fixed) might not properly gl_update yet")
         return
-    
+
     _value = SimpleRow(
         openclose,
         SimpleColumn(
@@ -300,11 +300,11 @@ class ToggleShow(InstanceMacro):
 ##        ##e do we want to make the height always act as if it's open? I think not... but having a public open_height attr
 ##        # (and another one for closed_height) might be useful for some callers (e.g. to draw a fixed-sized box that can hold either state).
 ##        # Would the following defns work:?
-##        
+##
 ##        # (They might not work if SimpleRow(...).attr fails to create a getattr_Expr! I suspect it doesn't. ####k )
 ##
 ##        # [WARNING: too inefficient even if they work, due to extra instance of thing -- see comment for a fix]
-##        open_height = SimpleRow(   
+##        open_height = SimpleRow(
 ##            open_icon,
 ##            SimpleColumn(
 ##                label,
@@ -317,8 +317,8 @@ class ToggleShow(InstanceMacro):
 ##                        # of label), then display one of them, report height of both. (More efficient, too -- only one instance of thing.)
 ##                        # (Will the shared instance of label have an ipath taken from one of its uses, or something else?
 ##                        #  Guess: from the code that creates it separately.)
-##        
-##        closed_height = SimpleRow(   
+##
+##        closed_height = SimpleRow(
 ##            closed_icon,
 ##            SimpleColumn( # this entire subexpr is probably equivalent to label, but using this form makes it more clearly correct
 ##                label,

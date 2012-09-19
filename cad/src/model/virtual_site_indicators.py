@@ -47,13 +47,13 @@ class VisualFeedbackJig(Jig):
     """
 
     # Jig or Node API class constants:
-    
+
     copyable_attrs = Jig.copyable_attrs + ('_props', )
 
     # default values of instance variables
 
     _props = None
-    
+
     # == Jig or Node API methods
 
     def remove_atom(self, atom, **opts):
@@ -69,7 +69,7 @@ class VisualFeedbackJig(Jig):
             # (I don't know why that doesn't have the same recursion problem
             #  that this does, as used in VirtualSiteJig.)
         return
-    
+
     def changed_structure(self, atom):
         # review: should we disable self by user choice??
         # make the site_atom color more gray [in some subclasses]???
@@ -77,7 +77,7 @@ class VisualFeedbackJig(Jig):
         # (note: this is called at least once during or shortly after
         # construction of the VirtualSiteJig, not sure why.)
         return
-        
+
     # == other methods
 
     def setProps(self, props):
@@ -115,7 +115,7 @@ class VisualFeedbackJig(Jig):
             if atom.is_hidden():
                 return True
         return False
-    
+
     pass # end of class VisualFeedbackJig
 
 # ==
@@ -136,11 +136,11 @@ class VirtualSiteJig( VisualFeedbackJig):
     """
 
     # Jig or Node API class constants:
-    
+
     sym = "VirtualSiteJig"
 
     icon_names = ('border/dna.png', 'border/dna.png') # stubs, not correct
-    
+
     # == Jig or Node API methods, and other methods
 
     def __init__(self, assy, atomlist):
@@ -158,7 +158,7 @@ class VirtualSiteJig( VisualFeedbackJig):
 
         (Appears when user highlights this jig's drawing,
          but unrelated to tooltip on our site_atom itself.)
-        
+
         [overridden from class Jig]
         """
         self._update_props() # doesn't yet matter in this method
@@ -213,7 +213,7 @@ class VirtualSiteJig( VisualFeedbackJig):
         else:
             print "%r.setProps: don't recognize those props" % self, props
         return
-    
+
     def site_position(self):
         ## return average_value( [a.posn() for a in self.parent_atoms()] )
         ##     # STUB, actually use self._function_id and _x and _y, or self._props
@@ -234,7 +234,7 @@ class VirtualSiteJig( VisualFeedbackJig):
             print "bug: unsupported kind of virtual site:", self._props
             return average_value( [a.posn() for a in self.parent_atoms()] )
         pass
-    
+
     def moved_atom(self, atom):
         """
         [extends Jig method]
@@ -245,7 +245,7 @@ class VirtualSiteJig( VisualFeedbackJig):
 
     def _update_site_atom_position(self):
         self.site_atom().setposn( self.site_position() )
-    
+
     pass # end of class VirtualSiteJig
 
 # ==
@@ -255,11 +255,11 @@ class VirtualBondJig( VisualFeedbackJig):
     For virtual bonds, including PAM5 FF "struts".
     """
     # Jig or Node API class constants:
-    
+
     sym = "VirtualBondJig"
 
     icon_names = ('border/dna.png', 'border/dna.png') # stubs, not correct
-    
+
     # == Jig or Node API methods, and other methods
 
     def __init__(self, assy, atomlist):
@@ -272,7 +272,7 @@ class VirtualBondJig( VisualFeedbackJig):
     def _getToolTipInfo(self): # VirtualBondJig
         """
         Return a string for display in self's Dynamic Tool tip.
-        
+
         [overridden from class Jig]
         """
         self._update_props()
@@ -323,7 +323,7 @@ class VirtualBondJig( VisualFeedbackJig):
 
     def _should_draw(self):
         return not self._any_atom_is_hidden() #080520 new feature
-    
+
     def _should_draw_thicker(self): # not yet used
         return self.picked or \
                self.atoms[0].molecule.picked or \
@@ -341,7 +341,7 @@ class VirtualBondJig( VisualFeedbackJig):
         length_in_Angstroms = vlen( self.atoms[0].posn() - self.atoms[1].posn() )
         length = 100.0 * length_in_Angstroms # in pm == picometers
         return length
-        
+
     def _drawing_color(self):
         r0 = self._r0 # pm
         ks = self._ks # N/m
@@ -363,7 +363,7 @@ class VirtualBondJig( VisualFeedbackJig):
             frac = 1.0
         color = ave_colors( frac, limit_color, neutral_color )
         return color
-        
+
     pass # end of class VirtualBondJig
 
 # ==
@@ -390,7 +390,7 @@ class VirtualSiteChunk(Chunk):
 
     Nothing prevents a user from merging several of these chunks
     into one. Its jig-drawing code will still work then.
-    
+
     Nothing prevents merging it into a regular chunk, but doing that
     would break that code (i.e. stop drawing the VirtualSiteJigs),
     so users shouldn't do that.

@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 utilities/TimeUtilities.py Stuff related to processing time values.
@@ -7,7 +7,7 @@ Not called utilities/time.py because of the python time package.
 
 @author: EricM
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 

@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 startup_misc.py - miscellaneous application startup functions
 which are free to do whatever imports they need to.
@@ -163,8 +163,8 @@ def _initialize_custom_display_modes(win):
     import graphics.display_styles.CylinderChunks as CylinderChunks #bruce 060609
     from utilities.debug_prefs import debug_pref, Choice_boolean_False
     enable_CylinderChunks = debug_pref("enable CylinderChunks next session?",
-                                       Choice_boolean_False, 
-                                       non_debug = True, 
+                                       Choice_boolean_False,
+                                       non_debug = True,
                                        prefs_key = True)
     win.dispCylinderAction.setText("Cylinder (experimental)")
     win.dispCylinderAction.setEnabled(enable_CylinderChunks)
@@ -175,7 +175,7 @@ def _initialize_custom_display_modes(win):
     # diSURFACE
     import graphics.display_styles.SurfaceChunks as SurfaceChunks #mark 060610
     enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?",
-                                      Choice_boolean_False, 
+                                      Choice_boolean_False,
                                       ## non_debug = True,
                                           # bruce 080416 hiding this since it's
                                           # broken at the moment when CSDL is
@@ -192,7 +192,7 @@ def _initialize_custom_display_modes(win):
     # diPROTEIN display style
     # piotr 080624
     import graphics.display_styles.ProteinChunks as ProteinChunks
-        
+
     return
 
 # ==
@@ -206,10 +206,10 @@ def post_main_show( win):
     @type  win: L{MWsemantics}
     """
     # NOTE: if possible, new code should be added into one of the following
-    # functions, or into a new function called by this one, rather than 
+    # functions, or into a new function called by this one, rather than
     # directly into this function.
 
-    # TODO: rebuild pyx modules if necessary and safe -- but only for 
+    # TODO: rebuild pyx modules if necessary and safe -- but only for
     # developers, not end-users
     # TODO: initialize Python extensions: ## import experimental/pyrex_test/extensions.py
     _initialize_plugin_generators()
@@ -225,11 +225,11 @@ def _init_experimental_commands():
     Initialize experimental commands in the UI.
     This is called after the main window is shown.
     """
-    # Note: if you are not sure where to add init code for a new command in 
+    # Note: if you are not sure where to add init code for a new command in
     # the UI, this is one possible place. But if it's more complicated than
-    # importing and calling an initialize function, it's best if the 
+    # importing and calling an initialize function, it's best if the
     # complicated part is defined in some other module and just called from
-    # here. See also the other places from which initialize functions are 
+    # here. See also the other places from which initialize functions are
     # called, for other places that might be better for adding new command
     # initializers. This place is mainly for experimental or slow-to-initialize
     # commands.
@@ -240,27 +240,27 @@ def _init_experimental_commands():
     _init_test_commands()
     return
 
-def _init_command_Atom_Generator(): 
+def _init_command_Atom_Generator():
     # TODO: this function should be moved into AtomGenerator.py
     # Atom Generator debug pref. Mark and Jeff. 2007-06-13
     from utilities.debug_prefs import debug_pref, Choice_boolean_False
     from commands.BuildAtom.AtomGenerator import enableAtomGenerator
     _atomGeneratorIsEnabled = \
-                            debug_pref("Atom Generator example code: enabled?", 
-                                       Choice_boolean_False, 
-                                       non_debug = True, 
+                            debug_pref("Atom Generator example code: enabled?",
+                                       Choice_boolean_False,
+                                       non_debug = True,
                                        prefs_key = "A9/Atom Generator Visible",
                                        call_with_new_value = enableAtomGenerator )
     enableAtomGenerator(_atomGeneratorIsEnabled)
     return
 
-def _init_command_Peptide_Generator(): # piotr 080304 
+def _init_command_Peptide_Generator(): # piotr 080304
     # This function enables an experimental peptide generator.
     from utilities.debug_prefs import debug_pref, Choice_boolean_True
     from protein.commands.InsertPeptide.PeptideGenerator import enablePeptideGenerator
     _peptideGeneratorIsEnabled = \
-                               debug_pref("Peptide Generator: enabled?", 
-                                          Choice_boolean_True, 
+                               debug_pref("Peptide Generator: enabled?",
+                                          Choice_boolean_True,
                                           prefs_key = "A10/Peptide Generator Visible",
                                           call_with_new_value = enablePeptideGenerator )
     enablePeptideGenerator(_peptideGeneratorIsEnabled)
@@ -275,10 +275,10 @@ def _init_command_Select_Bad_Atoms():
     return
 
 def _init_test_commands():
-    #bruce 070613 
+    #bruce 070613
     from utilities.debug_prefs import debug_pref, Choice_boolean_False
-    if debug_pref("test_commands enabled (next session)", 
-                  Choice_boolean_False, 
+    if debug_pref("test_commands enabled (next session)",
+                  Choice_boolean_False,
                   prefs_key = True):
         import prototype.test_commands_init as test_commands_init
         test_commands_init.initialize()
@@ -291,7 +291,7 @@ def _init_miscellaneous_commands():
 
     import operations.ops_debug as ops_debug
     ops_debug.initialize() #bruce 080722
-    
+
     return
 
 def _initialize_plugin_generators(): #bruce 060621
@@ -311,7 +311,7 @@ def just_before_event_loop():
     #bruce 081003
     from utilities.debug_prefs import debug_pref, Choice_boolean_False
     if debug_pref("startup in Test Graphics command (next session)?",
-                  Choice_boolean_False, 
+                  Choice_boolean_False,
                   prefs_key = True ):
         import foundation.env as env
         win = env.mainwindow()

@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 fusechunksMode.py - helpers for Fuse Chunks command and related functionality
 
@@ -76,18 +76,18 @@ class fusechunksBase:
         # For "Make Bonds", tol is the distance between two bondable singlets
         # For "Fuse Atoms", tol is the distance between two atoms to be considered overlapping
 
-    def find_bondable_pairs(self, 
-                            chunk_list = None, 
+    def find_bondable_pairs(self,
+                            chunk_list = None,
                             selmols_list = None,
                             ignore_chunk_picked_state = False
                             ):
         """
         Checks the bondpoints of the selected chunk to see if they are close enough
         to bond with any other bondpoints in a list of chunks.  Hidden chunks are skipped.
-        
+
         @param ignore_chunk_picked_state: If True, this method treats selected
-        or unselected chunks without any difference. i.e. it finds bondable 
-        pairs even for a chunk that is 'picked' 
+        or unselected chunks without any difference. i.e. it finds bondable
+        pairs even for a chunk that is 'picked'
         """
         self.bondable_pairs = []
         self.ways_of_bonding = {}
@@ -96,21 +96,21 @@ class fusechunksBase:
             chunk_list = self.o.assy.molecules
         if not selmols_list:
             selmols_list = self.o.assy.selmols
-            
+
 
         for chunk in selmols_list:
-            if chunk.hidden or chunk.display == diINVISIBLE: 
+            if chunk.hidden or chunk.display == diINVISIBLE:
                 # Skip selected chunk if hidden or invisible. Fixes bug 970. mark 060404
                 continue
 
             # Loop through all the mols in the part to search for bondable pairs of singlets.
             # for mol in self.o.assy.molecules:
             for mol in chunk_list:
-                if chunk is mol: 
+                if chunk is mol:
                     continue # Skip itself
                 if mol.hidden or mol.display == diINVISIBLE:
                     continue # Skip hidden and invisible chunks.
-                if mol.picked and not ignore_chunk_picked_state: 
+                if mol.picked and not ignore_chunk_picked_state:
                     continue # Skip selected chunks
 
                 # Skip this mol if its bounding box does not overlap the selected chunk's bbox.
@@ -128,7 +128,7 @@ class fusechunksBase:
 
                             # I substituted the line below in place of mergeable_singlets_Q_and_offset,
                             # which compares the distance between s1 and s2.  If the distance
-                            # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
+                            # is <= tol, then we have a bondable pair of singlets.  I know this isn't
                             # a proper use of tol, but it works for now.   Mark 050327
                             if vlen (s1.posn() - s2.posn()) <= self.tol:
 
@@ -153,23 +153,23 @@ class fusechunksBase:
         mbonds, singlets_not_bonded, singlet_pairs = self.multibonds()
         tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds, mbonds, singlet_pairs)
         return tol_str
-    
+
     def find_bondable_pairs_in_given_atompairs(self, atomPairs):
         """
-        This is just a convience method that doesn't need chunk lists as an 
+        This is just a convience method that doesn't need chunk lists as an
         arguments.
-        
-        Finds the bondable pairs between the atom pairs provided in the 
-        atom pair list. The format is [(a1, a2), (a3, a4) ...]. 
+
+        Finds the bondable pairs between the atom pairs provided in the
+        atom pair list. The format is [(a1, a2), (a3, a4) ...].
         This method is only used internally (no direct user interation involved)
         It skips the checks such as atom's display while finding the bondable
-        pairs.. 
-        As of 2008-04-07 this method is not used. 
-        
+        pairs..
+        As of 2008-04-07 this method is not used.
+
         """
         self.bondable_pairs = []
         self.ways_of_bonding = {}
-        
+
         for atm1, atm2 in atomPairs:
             #Skip the pair if its one and the same atom.
             if atm1 is atm2:
@@ -190,7 +190,7 @@ class fusechunksBase:
                             self.ways_of_bonding[s2.key] += 1
                         else:
                             self.ways_of_bonding[s2.key] = 1
-                        
+
 
     def make_bonds(self, assy = None):
         """

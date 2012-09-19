@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 fix_after_readmmp.py - helpers to fix dna-related structure after readmmp
 
@@ -27,7 +27,7 @@ def fix_after_readmmp_before_updaters(assy):
 
         # note: this happens before updaters like dna updater and bond updater,
         # but not before update_parts has fixed the .part structure of assy.
-        
+
         for part in assy.all_parts():
             part.enforce_permitted_members_in_groups( pre_updaters = True )
         pass

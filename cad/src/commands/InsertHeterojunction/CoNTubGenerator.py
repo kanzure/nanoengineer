@@ -1,4 +1,4 @@
-# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 CoNTubGenerator.py - Generator functions which use cad/plugins/CoNTub.
 
@@ -107,7 +107,7 @@ class PluginlikeGenerator:
     what_we_generate = "Something"
 
     # init methods
-    
+
     def register(subclass): # staticmethod
         win = env.mainwindow()
         try:
@@ -151,19 +151,19 @@ class PluginlikeGenerator:
 
         # All these submethods should call self.fatal to report permanent fatal errors.
         # And after calling the ones that can, we should check self.errorcode before continuing.
-        
+
         # Find plugin dir -- if we can't, it has to be a fatal error,
         # since (once this is using a real plugin API) we won't have the metadata
         # needed to install the plugin in the UI.
-        
+
         path = self.find_plugin_dir()
-        if self.errorcode: 
+        if self.errorcode:
             return
         self.plugin_dir = path # for error messages, and used by runtime methods
-        
+
         # make sure the stuff we need is in the plugin dir (and try to use it to set up the dialogs, commands, etc)
         self.setup_from_plugin_dir() # this prints error msgs if it needs to
-        if self.errorcode: 
+        if self.errorcode:
             return
 
         # don't create a working directory until the plugin is first used
@@ -185,7 +185,7 @@ class PluginlikeGenerator:
             self.fatal( errortext)
             return None
         pass
-    
+
     def setup_from_plugin_dir(self):
         """
         Using self.plugin_dir, setup dialogs, commands, etc. Report errors to self.fatal as usual.
@@ -193,7 +193,7 @@ class PluginlikeGenerator:
         # The following will someday read metainfo from the plugin.desc file,
         # but for now we just grab that info from constants set by the subclass
         # (the subclass which won't exist when this is a real public plugin API).
-        
+
         # param desc file (must exist)
         param_desc_path = os.path.join(self.plugin_dir, self.parameter_set_filename)
         self.param_desc_path = param_desc_path
@@ -220,7 +220,7 @@ class PluginlikeGenerator:
             return self.fatal("can't find executable; looked for %s" % (executable_names,))
 
         self.setup_commandline_info() # this is far below, just before the code that uses what it computes
-        
+
         ###e maybe get the param set, create the dialog, etc
         # (even run a self test if it defines one? or wait 'til first used?)
         return
@@ -248,7 +248,7 @@ class PluginlikeGenerator:
         """
         assert self.ok_to_install_in_UI
         #e create whatever we want to be persistent which was not already done in setup_from_plugin_dir (nothing yet?)
-        
+
         #e install the necessary commands in the UI (eg in insert menu)
         ### WRONG -- menu text should not contain Insert, but undo cmdname should (so separate option is needed), and needs icon
         ###e add options for things like tooltip text, whatsthis text, iconset
@@ -269,9 +269,9 @@ class PluginlikeGenerator:
             icon_path = "modeltree/junk.png"
         # icon_path will be found later by imagename_to_pixmap I think; does it work with an abspath too?? #####@@@@@
         return icon_path
-    
+
     # runtime methods
-    
+
     def create_working_directory_if_needed(self):
         """
         If it hasn't been done already, create a temporary directory (fixed pathname per plugin per session)
@@ -290,7 +290,7 @@ class PluginlikeGenerator:
 
     dialog = None
     param_desc_path_modtime = None
-    
+
     def make_dialog_if_needed(self):
         """
         Create self.dialog if necessary.
@@ -298,7 +298,7 @@ class PluginlikeGenerator:
         # For developers, remake the dialog from its description file each time that file changes.
         # (The point of only remaking it then is not speed, but to test the code when it doesn't get remade,
         #  since that's what always happens for non-developers.)
-        # (Someday, when remaking it, copy its window geometry from the old one. Then put that code into the MMKit too. ###e)        
+        # (Someday, when remaking it, copy its window geometry from the old one. Then put that code into the MMKit too. ###e)
         # For others, only make it the first time.
 
         if (EndUser.enableDeveloperFeatures() or env.debug()) and self.dialog:
@@ -346,7 +346,7 @@ class PluginlikeGenerator:
         if not path:
             path = imagename # use relative name
         return imagename_to_pixmap(path)
-    
+
     def command_for_insert_menu(self):
         """
         Run an Insert Whatever menu command to let the user generate things using this plugin.
@@ -362,7 +362,7 @@ class PluginlikeGenerator:
         self.make_dialog_if_needed()
         dialog = self.dialog
         ###e Not yet properly handled: retaining default values from last time it was used. (Should pass dict of them to the maker.)
-        dialog.set_defaults({}) ### IMPLEM 
+        dialog.set_defaults({}) ### IMPLEM
         controller = GeneratorController(self.win, dialog, self)
             # Note: this needs both self and the dialog, to be inited.
             # So it takes care of telling the dialog to control it (and not some prior controller).
@@ -372,7 +372,7 @@ class PluginlikeGenerator:
         # and it means the undo wrapping was ok... but what do we do here to make it modal?
         # 1. find out by test if other generators are modal.
         # 2. find out from code, how.
-        
+
         pass###e
 
     def build_struct(self, name, params, position):
@@ -427,23 +427,23 @@ class PluginlikeGenerator:
         # examples:
         ## outputfiles_pattern = "$out1.mmp"
         ## executable_args_pattern = "$n1 $m1 $L1 $n2 $m2 $L2 $T 1 $out1.mmp"
-        
+
         self.outputfiles_pattern # make sure subclass defines these
         self.executable_args_pattern
 
         self.outfile_pats = map( parse_arg_pattern, self.outputfiles_pattern.split())
         self.cmdline_pats = map( parse_arg_pattern, self.executable_args_pattern.split())
-        
-        if debug_install: 
+
+        if debug_install:
             print "got these parsed argpats: %r\nand outfiles: %r" % (self.cmdline_pats, self.outfile_pats)
-        
+
         self.paramnames_dict = {} # for now, maps pn -> $pn
         self.outfile_paramname_extension_pairs = []
             # one or more pairs of ($paramname_for_filebasename, extension), e.g. [('$out1', '.mmp')]
         self.paramnames_order = []
             # needed for defining order of tuples from gather_parameters; leave out outfile params;
             # this attr will be used directly by our GeneratorController
-        
+
         for pat in self.outfile_pats:
             assert len(pat) <= 2 # ok if no extension, at least for now
             try:
@@ -477,7 +477,7 @@ class PluginlikeGenerator:
             print "paramnames_dict", self.paramnames_dict
             print "outfile_paramnames", self.outfile_paramnames
             print "paramnames_order", self.paramnames_order
-        
+
         # see command_line_args_and_outfiles() for how all this is used
         return
 
@@ -567,7 +567,7 @@ class PluginlikeGenerator:
             return simProcess.exitStatus()
         else:
             return -1
-    
+
     def insert_output(self, outfiles, params, name):
         ## return self.create_methane_test(params, name)
         if debug_run():
@@ -627,7 +627,7 @@ class PluginlikeGenerator:
         mol.name = name
         ## assy.addmol(mol)
         return mol
-    
+
     pass # end of class PluginlikeGenerator
 
 class HeterojunctionGenerator(PluginlikeGenerator):
@@ -650,7 +650,7 @@ class HeterojunctionGenerator(PluginlikeGenerator):
     executable = "HJ" # no .exe, we'll add that if necessary on Windows ## this might not be required of every class
     outputfiles_pattern = "$out1.mmp"
     executable_args_pattern = "$n1 $m1 $L1 $n2 $m2 $L2 $T 1 $out1.mmp"
-    
+
     pass # end of class HeterojunctionGenerator
 
 def initialize():

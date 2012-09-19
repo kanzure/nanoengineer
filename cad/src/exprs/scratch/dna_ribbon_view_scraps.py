@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_ribbon_view_scraps.py
 
@@ -35,7 +35,7 @@ class Ribbon_oldcode_for_edges(Corkscrew): # generates a sequence of rects (quad
             # (guess: some kluge with lighting and normals could fix this)
             Corkscrew.draw(self, color = interior_color)
             if 0:
-                glTranslate(offset, 0,0)            
+                glTranslate(offset, 0,0)
                 Corkscrew.draw(self, color = interior_color) ### maybe we should make the two edges look different, since they are (major vs minor groove)
                 glTranslate(-offset, 0,0)
 
@@ -114,7 +114,7 @@ class Ribbon2_try1(Macro): ###e perhaps needs some axis -> axisvector
         # are kid instances. They are self-contained in ability to use color. So parent would have to modify them -- presumably when it makes them.
         # So parent(color = cust) would have to instantiate, not its normal kid delegate, but kid(color = cust), I guess. I don't see an
         # easy implem, and I'm also suspicious it's the right idea.
-        
+
         # So maybe the only soln is to do the color cust first, as the docstring had to say to describe the intent, anyway.
     pass
 
@@ -167,7 +167,7 @@ class obs:
     path.someattr = Option(Something, 'dflt') # set path.someattr to Option(...) -- ExprsMeta scanner would need to see this --
         # but what attrname would it use in the Option?? maybe the _try1 version is better since it says the name,
         # or maybe you can give it in Option as string arg1.
-    
+
 class todo:
     # might need other state, like some colors
 

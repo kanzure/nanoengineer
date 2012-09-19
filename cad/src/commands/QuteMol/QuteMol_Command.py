@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 QuteMol_Command.py
 
@@ -22,14 +22,13 @@ class QuteMol_Command(SelectChunks_Command):
     featurename = "QuteMol"
     from utilities.constants import CL_EXTERNAL_ACTION
     command_level = CL_EXTERNAL_ACTION
-    
+
     GraphicsMode_class = SelectChunks_GraphicsMode
-    
+
     PM_class = QuteMolPropertyManager
 
-    command_should_resume_prevMode = True 
+    command_should_resume_prevMode = True
     command_has_its_own_PM = True
 
     flyoutToolbar = None
-    
-  
+

@@ -1,5 +1,5 @@
 
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 This script encodes the .png file piped in to text suitable for use in the

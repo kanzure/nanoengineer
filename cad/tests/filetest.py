@@ -1,4 +1,4 @@
-# Copyright 2005, 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005, 2007 Nanorex, Inc.  See LICENSE file for details.
 import unittest
 import chem
 import assembly
@@ -52,7 +52,7 @@ class FileTest(unittest.TestCase):
         #foo.fileOpen("../partlib/pumps/Pump.mmp")
         foo.fileOpen(self.TESTDATA["filename"])
 
-    def tearDown(self): 
+    def tearDown(self):
         foo.fileClose()
 
     def getLines(self, searchterm, fileExt):

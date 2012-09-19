@@ -1,4 +1,4 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 ExternalBondSetDrawer.py - can draw an ExternalBondSet, and keep drawing caches
 for it (e.g. display lists, perhaps for multiple drawing styles)
@@ -27,12 +27,12 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         # review: GL context not current now... could revise caller so it was
 
         TransformedDisplayListsDrawer.__init__(self)
-        
+
         self._ebset = ebset # the ExternalBondSet we'll draw
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self._ebset)
-    
+
     def destroy(self):
         """
         remove cyclic refs, free display lists, etc
@@ -60,11 +60,11 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         #### TODO: revise this when we can cache display lists even for
         # non-current display styles, to revise any cached style-including
         # display lists, whether or not that's the current style.
-        
+
         # note: this is needed in principle, but might not be needed in
         # practice for the current calls. If it's slow, consider
         # a style-specific optim. [bruce 090217]
-        
+
         c1, c2 = self._ebset.chunks
         if not self.glpane or \
            c1.get_dispdef(self.glpane) == style or \
@@ -81,24 +81,24 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
 
         color = self._ebset.bondcolor()
         disp = self._ebset.get_dispdef(glpane)
-        
+
         if 0: ##  debug_pref:
             # initial testing stub -- just draw in immediate mode, in the same way
             # as if we were not being used.
 
             # modified from Chunk._draw_external_bonds:
-            
+
             use_outer_colorsorter = True # not sure whether/why this is needed
 
             if highlight_color is not None:
                 color = highlight_color # untested, also questionable cosmetically
-            
+
             if use_outer_colorsorter:
                 ColorSorter.start(glpane, None)
 
             for bond in self._ebset._bonds.itervalues():
                 bond.draw(glpane, disp, color, drawLevel)
-            
+
             if use_outer_colorsorter:
                 ColorSorter.finish(draw_now = True)
 
@@ -110,7 +110,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         ### DUPLICATED CODE WARNING:
         # the following is similar in many ways to ChunkDrawer.draw.
         # See related comment there.
-        
+
         # KLUGE: we'll use disp and color below, even though they come
         # from whichever of our chunks gets drawn first (i.e. occurs first
         # in Model Tree order). [After changing how we get them, bruce 090227,
@@ -135,25 +135,25 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         # implement highlighting themselves, whether or not it's a solid color.
         #
         # [bruce 090217 comments & revisions]
-        
+
         # first, return early if no need to draw self at all
 
         self.glpane = glpane # needed, for superclass displist deallocation
-        
+
         ebset = self._ebset
-        
+
         if ebset.empty():
             print "fyi: should never happen: drawing when empty: %r" % self
             return
 
         chunks = ebset.chunks
         c1, c2 = chunks
-        
+
         if c1.hidden and c2.hidden:
             return
 
         highlighted = highlight_color is not None
-        
+
         # TODO: return if disp (from both chunks) doesn't draw bonds
         # and none of our bonds' atoms
         # have individual display styles set; for now, this situation will result
@@ -163,7 +163,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         # ChunkDrawer._draw_external_bonds, but only when its chunk
         # was culled. (It uses self._ebset.bounding_lozenge.)
         # So there is no need to do it here.
-        
+
         # make sure self's CSDLs (display lists) are up to date, then draw them
 
         c1.basepos # for __getattr__ effect (precaution, no idea if needed)
@@ -194,7 +194,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 # be sure it's not a Numeric array (so we can avoid bug
                 # for '==' without having to use same_vals)
         havelist_data = (disp, color, elt_mat_prefs)
-        
+
         # note: havelist_data must be boolean true
 
         # note: in the following, the only difference from the chunk case is:
@@ -210,7 +210,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         # - maybe, disp and color
 
         draw_outside = [] # csdls to draw
-        
+
         if self.havelist == havelist_data:
             # self.displist is still valid -- use it
             draw_outside += [self.displist]
@@ -249,7 +249,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                 draw_outside += [self.displist]
                 self.end_tracking_usage( match_checking_code, self.invalidate_display_lists )
                 self.havelist = havelist_data
-                
+
                 # always set the self.havelist flag, even if exception happened,
                 # so it doesn't keep happening with every redraw of this Chunk.
                 #e (in future it might be safer to remake the display list to contain
@@ -268,7 +268,7 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
                                  # (which is not equivalent)
                              highlight_color = highlight_color)
         return
-    
+
     def _draw_for_main_display_list(self, glpane, disp, color, drawLevel, wantlist):
         """
         Draw graphics primitives into the display list (actually CSDL)
@@ -281,8 +281,8 @@ class ExternalBondSetDrawer(TransformedDisplayListsDrawer):
         # reorder atoms in each bond to correspond to that order
         # (easy if we always use chunk id sorting for that),
         # and draw things in a sensible way given both (disp, color) pairs.
-        # This is mainly waiting for that "sensible way" to be designed. 
-        
+        # This is mainly waiting for that "sensible way" to be designed.
+
         for bond in self._ebset._bonds.itervalues():
             bond.draw(glpane, disp, color, drawLevel)
         return

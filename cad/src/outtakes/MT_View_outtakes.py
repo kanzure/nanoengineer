@@ -28,7 +28,7 @@ class unused_methods_in_class_MT_View: #removed from it, bruce 081216
         # So an initial fix might just ignore the "incremental" issue
         # except for deferring the mt_update effects themselves
         # (but I'm not sure if those effects are legal inside paintEvent!).
-        
+
         if not self._painted:
             # called too early; not an error
             return
@@ -58,7 +58,7 @@ class unused_methods_in_class_MT_View: #removed from it, bruce 081216
     # _our_QItemDelegate in the other MT implem, far above [now removed].
     # Also, they are mostly not yet used (still true, 070612). They might be
     # used to help make in-place node-label-edit work again.
-    
+
     def createEditor(self, node):
         """
         Create and return a QLineEdit child widget to serve as an editor for the given node; initialize its text.

@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 """
 GromacsLog.py
@@ -9,7 +9,7 @@ various components as they change, and report their final values.
 
 @author: Eric M
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 
 GROMACS is not very computer friendly about its output formats.  In
 this case, table headings and values appear on alternate lines, and
@@ -70,7 +70,7 @@ class GromacsLog(object):
     def __init__(self):
         self.state = 0
         self._resetColumns()
-        
+
     def addLine(self, line):
         columns = line.split()
 
@@ -127,7 +127,7 @@ class GromacsLog(object):
             else:
                 env.history.message(quote_html(line.rstrip()))
             return
-            
+
     def _extractColumns(self, line):
         columns = []
         while (len(line) >= 15):
@@ -135,7 +135,7 @@ class GromacsLog(object):
             line = line[15:]
             columns.append(col.strip())
         return columns
-    
+
     def _resetColumns(self):
         self._values = {}
         self.step = "-"
@@ -157,7 +157,7 @@ class GromacsLog(object):
     def kJ_per_mol_to_zJ(self, kJ_per_mol):
         joules = kJ_per_mol * 1000.0 / AVOGADRO
         return joules * 1e21
-        
+
     def _getSingleEnergy(self, key):
         if (self._values.has_key(key)):
             try:

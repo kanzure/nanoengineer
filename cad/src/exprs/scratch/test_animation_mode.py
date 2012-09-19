@@ -144,28 +144,28 @@ class test_animation_mode_PM(ExampleCommand1_PM):
     [does not use GBC; at least Done & Cancel should work]
     """
     title = "test_animation_mode PM"
-    
+
     def __init__(self, command): #bruce 080909/080910, remove win arg
         ExampleCommand1_PM.__init__(self, command)
-    
+
     def _addGroupBoxes(self):
         """
         Add the groupboxes for this Property Manager.
         """
         self.pmGroupBox1 = \
-            PM_GroupBox( self, 
+            PM_GroupBox( self,
                          title           =  "test_animation_mode globals",
                          )
         self._loadGroupBox1(self.pmGroupBox1)
         self.pmGroupBox2 = \
-            PM_GroupBox( self, 
+            PM_GroupBox( self,
                          title           =  "commands",
                          )
         self._loadGroupBox2(self.pmGroupBox2)
         return
 
     _sMaxCannonHeight = 20
-    
+
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets into groupbox 1 (passed as pmGroupBox)
@@ -185,7 +185,7 @@ class test_animation_mode_PM(ExampleCommand1_PM):
         # but then when we adjust this does it affect all cannons or only a current one? either is possibly desirable...
         # and if both can work, it means cannon instances have formulas for their height,
         # some referring to default from class or maker...
-        
+
         self.cannonHeightSpinbox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "cannon height:", #e try ending that label with " :" rather than ":", too
@@ -202,7 +202,7 @@ class test_animation_mode_PM(ExampleCommand1_PM):
         self.cannonHeightSpinbox.connectWithState(
             Preferences_StateRef_double( CANNON_HEIGHT_PREFS_KEY, CANNON_HEIGHT_DEFAULT_VALUE )
             )
-        
+
         self.cannonWidthSpinbox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "cannon width:",
@@ -221,10 +221,10 @@ class test_animation_mode_PM(ExampleCommand1_PM):
                 # but this, also tested there, still fails. ... What could be different in these two cases?
             # Is there an API mismatch in the lval we get for this, with get_value not doing usage tracking?
             )
-        
+
         self.cannonOscillatesCheckbox = \
             PM_CheckBox(pmGroupBox,
-                        text       = 'oscillate cannon during loop' , 
+                        text       = 'oscillate cannon during loop' ,
                         ## value = CANNON_OSCILLATES_DEFAULT_VALUE ### BUG: not working as default value for restore defaults
                         # in fact, worse bug -- TypeError: __init__() got an unexpected keyword argument 'value'
                         )
@@ -240,7 +240,7 @@ class test_animation_mode_PM(ExampleCommand1_PM):
                            text      = "Start",
                            spanWidth = False ) ###BUG: button spans PM width, in spite of this setting
         self.startButton.setAction( self.cmd_Start, cmdname = "Start")
-        
+
         self.stopButton = \
             PM_PushButton( pmGroupBox,
                            label     = "",
@@ -257,7 +257,7 @@ class test_animation_mode_PM(ExampleCommand1_PM):
         ## or just do this?? call_often(update_GroupBox2) -- a few times per sec, and explicit calls on the buttons... seems worse...
 
         self._keepme = Formula( self.update_GroupBox2, self.update_GroupBox2 ) ### hmm.....
-        
+
         return
 
     def update_GroupBox2(self, junk = None):
@@ -268,20 +268,20 @@ class test_animation_mode_PM(ExampleCommand1_PM):
         self.startButton.setEnabled( not in_loop) ### TODO: make something like setEnabledFormula for this... pass it a function??
         self.stopButton.setEnabled( in_loop)
         return
-        
+
     def cmd_Start(self):
         self.command.cmd_Start()
 
     def cmd_Stop(self):
         self.command.cmd_Stop()
-        
+
     def _addWhatsThisText(self):
         """
         What's This text for some of the widgets in the Property Manager
         """
         self.cannonHeightSpinbox.setWhatsThis("cannon height")
         return
-    
+
     pass # test_animation_mode_PM
 
 
@@ -419,7 +419,7 @@ class myTrackball:
         self.oldmouse = newmouse
         ## print "trackball quat would rotate V(0,0,1) to",quat.rot(V(0,0,1))
         showquat("trackball quat", quat, where = V(-3,0,0))
-        
+
         ## drawline(white, self.origin, endpoint)
         return quat
     pass
@@ -534,7 +534,7 @@ class CyberTextNode(Node):
       and new owners can also kick out old ones
     - this node, when selected, takes it over unless it's locked, or always if some cmenu command is used or if it's unlocked
     - this locking is controlled by a cmenu on the text widget, or a checkbox, or equivalent
-    
+
     """
 
 # see Macintosh HD:Nanorex:code, work notes:060401 code snippets
@@ -752,7 +752,7 @@ BIRD_SPEED = 11 # not yet used
 
 class cannonball(shelvable_graphic):
     motion = V(0,0,0) # caller may want to use CANNONBALL_SPEED when setting this
-    
+
     position = None
     velocity = None
     last_update_time = None
@@ -788,13 +788,13 @@ class cannonball(shelvable_graphic):
 class cannon(shelvable_graphic): # one of these is self.cannon in test_animation_mode; created with mode = that mode
 
     direction = norm(DY - DX) #070821
-    
+
     def basepos(self):
         mode = self.space
         ## pos = mode.origin
         pos = self.pos # changed by .move()
         return pos + V(mode.brickpos, 0, 0) - DY * 9
-    
+
     def draw(self): # needs glpane arg if ever occurs in object list
         mode = self.space # note: uses mode.brickpos for position, updated separately -- should bring that in here
 
@@ -822,11 +822,11 @@ class cannon(shelvable_graphic): # one of these is self.cannon in test_animation
         if SILLY_TEST:
             self.grow_cannon()
         return
-    
+
     def grow_cannon(self):
         set_cannon_height(cannon_height()+1) # test of whether pm gets updated -- it does!
         self.space.cannonWidth += 0.5 # ditto - in this case it doesn't! bug [fixed now]
-        
+
     pass # class cannon
 
 class guy(shelvable_graphic):
@@ -866,7 +866,7 @@ class guy(shelvable_graphic):
         ## but = event.stateAfter()  ### BUG: not available in Qt4 [070811]
         ## but = event.state()  ### BUG: not available in Qt4 [070811]
         but = -1
-        
+
         self.shift = but & shiftButton # not set correctly at the moment; used to control whether to makeonehere
         self.control = but & controlButton # not yet used
         try:
@@ -890,7 +890,7 @@ class guy(shelvable_graphic):
         ## print "data:", asc, key, chrkey, self.colorkeys # asc = 114, key = 82, chr(key) = 'R'
 
         arrowdir = interpret_arrow_key(key)
-        
+
         if chrkey in colorkeys:
             self.color = colorkeys[chrkey]
         ### 060402 new arrow keys [not done., disabled]
@@ -977,13 +977,13 @@ _superclass_for_GM = GraphicsMode
 # print "_superclass = %r, _superclass_for_GM = %r" % (_superclass, _superclass_for_GM)####
 
 class test_animation_mode_GM( _superclass_for_GM ):
-    
+
     def leftDown(self, event):
         pass
 
     def leftDrag(self, event):
         pass
-    
+
     def leftUp(self, event):
         pass
 
@@ -1111,7 +1111,7 @@ class test_animation_mode_GM( _superclass_for_GM ):
 
 ##        # can we use smth lke mousepoints to print model coords of eyeball?
 ##        print "glpane says eyeball is now at", glpane.eyeball(), "and cov at", - glpane.pov, " ." ####@@@@
-        
+
         origin = self.command.origin
         endpoint = origin + self.command.right * 10.0
         drawline(white, origin, endpoint)
@@ -1147,10 +1147,10 @@ class test_animation_mode_GM( _superclass_for_GM ):
             self.command.cannon.grow_cannon() # useful for testing PM update
         else:
             self.command.guy.keyPressEvent(event) ## wrong anyway : or thing.keyPressEvent(event)
-            
+
         ## self.incrkluge = thing.keyPressEvent(event)
         self.redraw()
-    
+
     def keyReleaseEvent(self, event):
         pass ## thing.keyReleaseEvent(event)
 
@@ -1217,7 +1217,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
     ## _in_loop = False ###TODO: unset this when we're suspended due to some temp commands -- but not all??
     _in_loop = State(bool, False)
     cannonWidth = State(float, 2.0) ## add , _e_debug = True to see debug prints about some accesses to this state
-    
+
     # initial values of instance variables
     now = 0.0 #070813 [still used? maybe simtime has replaced it?]
     brickpos = 2.5
@@ -1250,7 +1250,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
             expr = Rect() # works
         if 1:
             expr = Image("/Users/bruce/Desktop/IMG_0560 clouds g5 2.png", size = Rect(), two_sided = True)
-        
+
         # note: this code is similar to _expr_instance_for_imagename in confirmation_corner.py
         ih = get_glpane_InstanceHolder(glpane)
         index = (id(self),) # WARNING: needs to be unique, we're sharing this InstanceHolder with everything else in NE1
@@ -1280,12 +1280,12 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         self._clear_command_state()
         _superclass.command_will_exit(self)
         return
-    
+
     def command_enter_PM(self):
         if not self.propMgr:
             self.propMgr = self.PM_class(self) # [080910 change]
         return
-    
+
     def _command_enter_effects(self):
         print
         print "entering test_animation_mode again", time.asctime()
@@ -1301,7 +1301,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         self.glpane.scale = 20.0 #### 070813 # note: using 20 (int not float) may have caused AssertionError:
             ## in GLPane.py 3473 in typecheckViewArgs
             ## assert isinstance(s2, float)
-        
+
         print "self.glpane.scale changed to", self.glpane.scale
         self.right = V(1,0,0) ## self.glpane.right
         self.up = V(0,1,0)
@@ -1312,7 +1312,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         self.origin = - self.glpane.pov ###k replace with V(0,0,0)
         self.guy = guy(self)
         self.cannon = cannon(self)
-        
+
         ##self.glbufstates = [0, 0] # 0 = unknown, number = last drawn model state number
         self.modelstate = 1
         # set perspective view -- no need, just do it in user prefs
@@ -1322,7 +1322,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         _superclass.command_entered(self)
         self._command_enter_effects()
         return
-        
+
     def command_enter_misc_actions(self): #bruce 080909 guess
         self.hidethese = hidethese = []
         for tbname in annoyers:
@@ -1334,12 +1334,12 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
             except:
                 print_compact_traceback("hmm %s: " % tbname) # someone might rename one of them
         return
-    
+
     def command_exit_misc_actions(self): #bruce 080909 guess
         for tb in self.hidethese:
             tb.show()
         return
-    
+
 # not used now, but keep (was used to append DebugNodes):
 ##    def placenode(self, node):
 ##        "place newly made node somewhere in the MT"
@@ -1365,7 +1365,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         #060218 bugfix: left -> down
         self.glpane.quat += Q(self.down, amount * 2 * pi) # does something, but not yet what i want. need to transform to my model...###@@@
         ## self.redraw() - do in caller
-        
+
     def makeMenus(self):
         _superclass.makeMenus(self)
         self.Menu_spec = [

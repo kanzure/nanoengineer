@@ -1,9 +1,9 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 CS_workers.py - Drawing functions for primitives drawn by the ColorSorter.
 
 @version: $Id$
-@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -39,7 +39,7 @@ from OpenGL.GL import glBegin
 from OpenGL.GL import glCallList
 from OpenGL.GL import glColor3fv
 from OpenGL.GL import GL_COLOR_MATERIAL
-from OpenGL.GL import GL_CULL_FACE 
+from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import GL_CURRENT_BIT
 from OpenGL.GL import glDisable
 from OpenGL.GL import glDisableClientState
@@ -242,7 +242,7 @@ def drawcylinder_worker(params):
     axis = norm(vec)
     glTranslatef(pos1[0], pos1[1], pos1[2])
 
-    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
+    ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes
     ## display problem on some platforms
     angle = -acos(axis[2])*180.0/pi
     if (axis[2]*axis[2] >= 1.0):
@@ -279,7 +279,7 @@ def drawpolycone_multicolor_worker(params):
     piotr 080311: this variant accepts a color array as an additional parameter
     """
     # Note: See the code in class ColorSorter for GL_COLOR_MATERIAL objects.
-    
+
     (pos_array, color_array, rad_array) = params
     glEnable(GL_COLOR_MATERIAL) # have to enable GL_COLOR_MATERIAL for
                                 # the GLE function
@@ -290,7 +290,7 @@ def drawpolycone_multicolor_worker(params):
     glPopAttrib() # This fixes the 'disappearing cylinder' bug
                     # glPopAttrib doesn't take any arguments
                     # piotr 080415
-    glDisable(GL_COLOR_MATERIAL)    
+    glDisable(GL_COLOR_MATERIAL)
     return
 
 def drawsurface_worker(params):
@@ -316,7 +316,7 @@ def drawline_worker(params):
 
     ###glDisable(GL_LIGHTING)
     ###glColor3fv(color)
-    if dashEnabled: 
+    if dashEnabled:
         glLineStipple(stipleFactor, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
     if width != 1:
@@ -331,32 +331,32 @@ def drawline_worker(params):
         glDisable(GL_LINE_SMOOTH)
     if width != 1:
         glLineWidth(1.0) # restore default state
-    if dashEnabled: 
+    if dashEnabled:
         glDisable(GL_LINE_STIPPLE)
     ###glEnable(GL_LIGHTING)
     return
 
 def drawtriangle_strip_worker(params):
-    """ 
+    """
     Draw a triangle strip using a list of triangle vertices
     and (optional) normals.
     """
     # Note: See the code in class ColorSorter for GL_COLOR_MATERIAL objects.
-    
+
     # piotr 080904 - This method could be optimized by using vertex
     # arrays or VBOs.
-    
+
     (triangles, normals, colors) = params
 
     # It needs to support two-sided triangles, therefore we disable
-    # culling and enable two-sided lighting. These settings have to be 
+    # culling and enable two-sided lighting. These settings have to be
     # turned back to default setting.
-    
+
     glDisable(GL_CULL_FACE)
     glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
 
     # Use color material mode if colors are present.
-    
+
     if colors:
         glEnable(GL_COLOR_MATERIAL)
 

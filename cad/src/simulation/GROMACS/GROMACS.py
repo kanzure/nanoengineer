@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 GROMACS.py - defines class GROMACS, for a temporary demo of
 atomic-level-DNA GROMACS simulation
@@ -23,15 +23,15 @@ from datetime import datetime
 
 
 class GROMACS:
-    
+
     def __init__(self, part):
         self.part = part
-        
+
         # Note: This GROMACS build doesn't work if there are any spaces in its
         # path, so don't put any.
         #
         self.gmxHome = 'C:/11Nano/CVS-D/cad/plugins/GROMACS/'
-        
+
         # These are the GROMACS AMBER03 atom types for nucleotide residues in
         # the order they are written out by the DNA generator. We can re-create
         # the PDB-style structure with these, and it works if nothing is done
@@ -53,7 +53,7 @@ class GROMACS:
             'O4\'', 'C3\'', 'C2\'', 'C1\'', 'N1', 'C2', 'O', 'N3', 'C4', 'O4',
             'C5', 'C7', 'C6', 'H5\'1', 'H5\'2', 'H4\'', 'H1\'', 'H2\'1',
             'H2\'2', 'H3\'', 'H6', 'H71', 'H72', 'H73', 'H3', 'O3\'']
-            
+
         # Pseudo-atom tables
         #
         self.pseudoAtomTypes = \
@@ -62,24 +62,24 @@ class GROMACS:
             [0.0,  0.0,  0.0,  0.0,  0.0, -1.0, -2.0,  0.0,  0.0]
         self.pseudoAtomMasses = \
             [0.0,  100,  100,  100,  100,  100,  100,  100,  100]
-            
+
         self.atomKeyToIndexMap = {}
-        
+
         self.debug = False
-        
+
         return
-            
-        
+
+
     def run(self, operation):
         """
         Creates a temp directory, generates a structure files from the part,
         pre-processes them with GROMACS tools, spawns the GROMACS simulation,
         and spawns an HK_Simulation process to view it with.
-        
+
         operation - either "em" to perform an energy minimization, or "md" to
                     perform molecular dynamics simulation
         """
-        
+
         # Create a unique directory under the Nanorex/SimFiles directory for our
         # files: Nanorex/SimFiles/GMX-<timestamp>
         #
@@ -90,7 +90,7 @@ class GROMACS:
             os.path.join(simFilesPath,
                          "GMX-%s" % timestamp.strftime("%Y%m%d%H%M%S"))
         os.mkdir(self.tempFilePath)
- 
+
         # Create the structure files from our part.
         #
         self.atomIndex = 1
@@ -121,26 +121,26 @@ class GROMACS:
             self.bondsFileHandle.close()
         if self.anglesFileHandle != 0:
             self.anglesFileHandle.close()
-        
+
         script = ""
         if partType == "pseudo":
             # Combine the fragments of the topology into the topol.top file,
             # tweak with GROMACS tools, and run the operation.
             script = "pseudo_" + operation + ".bat"
-            
+
         else:
             # Pre-process the .pdb file with the GROMACS tools and run the
             # operation.
             #
             script = "atomic_" + operation + ".bat"
-            
+
         os.spawnl(os.P_NOWAIT, os.path.join(self.gmxHome, script),
                   os.path.join(self.gmxHome, script),
                   os.path.normpath(self.gmxHome),
                   '"' + os.path.normpath(self.tempFilePath) + '"')
         return
 
-                
+
     def writeStructure_Helper(self, node):
         partType = "pseudo"
         if self.debug: print "node.name=%s" % node.name
@@ -148,7 +148,7 @@ class GROMACS:
             if self.debug: print "\t atomic helper"
             self.writeAtomicPDB(node)
             partType = "atomic"
-            
+
         else:
             for childNode in node.members:
                 if childNode.is_group():
@@ -157,8 +157,8 @@ class GROMACS:
                     if self.debug: print "\t p-atom write"
                     self.writePseudoAtomStructure(childNode)
         return partType
-                    
-                    
+
+
     def writePseudoAtomStructure(self, node):
 
         if self.pseudoPass == 1:
@@ -171,23 +171,23 @@ class GROMACS:
                     open(os.path.join(self.tempFilePath, "atoms.frag"), "w")
                 self.atomsFileHandle.write("[ atoms ]\n")
                 self.atomsFileHandle.write("; atomId  atomType  residue#  residue  atom  chargeGroup#     charge    mass\n")
-            
+
             for atom in node.atoms_in_mmp_file_order():
                 if atom.element.eltnum == 0:
                     continue
-    
+
                 atomTypeIndex = self.getAtomTypeIndex(atom.element.eltnum)
-                    
+
                 self.atomsFileHandle.write("%8d%10s%10d      BAS%6s%14d   %8.3f%8.3f\n" % \
                     (self.atomIndex, self.pseudoAtomTypes[atomTypeIndex],
                      self.residueIndex, self.pseudoAtomTypes[atomTypeIndex],
                      self.atomIndex, self.pseudoAtomCharges[atomTypeIndex],
                      self.pseudoAtomMasses[atomTypeIndex]))
-    
+
                 self.atomKeyToIndexMap[atom.key] = self.atomIndex
                 self.atomIndex += 1
             self.residueIndex += 1
-            
+
         else:
             # Process bonds, angles, and generate the conf.gro file
             #
@@ -198,7 +198,7 @@ class GROMACS:
                     open(os.path.join(self.tempFilePath, "bonds.frag"), "w")
                 self.bondsFileHandle.write("\n[ bonds ]\n")
                 self.bondsFileHandle.write(";   ai    aj  function\n")
-                
+
             # Open the topol.top angles fragment file if not already open
             #
             if self.anglesFileHandle == 0:
@@ -206,7 +206,7 @@ class GROMACS:
                     open(os.path.join(self.tempFilePath, "angles.frag"), "w")
                 self.anglesFileHandle.write("\n[ angles ]\n")
                 self.anglesFileHandle.write(";   ai    aj    ak  function\n")
-                
+
             # Open the conf.gro file if not already open
             #
             if self.confFileHandle == 0:
@@ -215,27 +215,27 @@ class GROMACS:
                 self.confFileHandle.write("DNA\n")
                 self.confFileHandle.write("  %d\n" % \
                     len(self.atomKeyToIndexMap))
-                
+
             for atom_1 in node.atoms_in_mmp_file_order():
                 if atom_1.element.eltnum == 0:
                     continue
-    
+
                 # Emit conf.gro coordinates
                 #
                 atomTypeIndex = self.getAtomTypeIndex(atom_1.element.eltnum)
-                    
+
                 self.confFileHandle.write("%5d%-5s%5s%5d%8.3f%8.3f%8.3f\n" % \
-                    (self.residueIndex, "BAS", 
+                    (self.residueIndex, "BAS",
                      self.pseudoAtomTypes[atomTypeIndex],
                      self.atomKeyToIndexMap[atom_1.key],
                      atom_1.posn()[0]/10, atom_1.posn()[1]/10,
                      atom_1.posn()[2]/10))
-    
+
                 # Emit bonds
                 #
                 atom_1_Index = self.atomKeyToIndexMap[atom_1.key]
                 if self.debug: print "atom [%s] %d" % (atom_1.key, atom_1_Index)
-                
+
                 bondCount = 0
                 bondIndexes = []
                 for bond in atom_1.bonds:
@@ -243,15 +243,15 @@ class GROMACS:
                     if self.debug: print "atom_2.key=%s" % atom_2.key
                     if atom_2.key not in self.atomKeyToIndexMap:
                         continue
-                        
+
                     atom_2_Index = self.atomKeyToIndexMap[atom_2.key]
                     if atom_2_Index > atom_1_Index:
                         self.bondsFileHandle.write("%6d%6d  1\n" % \
                             (atom_1_Index, atom_2_Index))
-                        
+
                     bondIndexes += [atom_2_Index]
                     bondCount += 1
-                        
+
                # Emit angles
                 if bondCount > 1:
                     for index in range(1, bondCount):
@@ -264,7 +264,7 @@ class GROMACS:
                              bondIndexes[0]))
             self.residueIndex += 1
 
-                    
+
     def writePseudoAtomPDB___(self, node):
         """
         This is dead code left here just in case pseudo-atom .pdb files need to
@@ -275,24 +275,24 @@ class GROMACS:
         for atom in node.atoms_in_mmp_file_order():
             if atom.element.eltnum == 0:
                 continue
-                
+
             coordinates = atom.posn()
             coordinateFields = (coordinates[0], coordinates[1], coordinates[2])
             self.filehandle.write("%-6s" % "ATOM")
             self.filehandle.write("%5d" % self.atomIndex)
             self.filehandle.write(" ")
-            
+
             if atom.element.eltnum == 200:
                 self.filehandle.write("Ax   ")
-                
+
             elif atom.element.eltnum == 201:
                 self.filehandle.write("Ss%d  " % count_Ss)
                 count_Ss += 1
-                
+
             elif atom.element.eltnum == 202:
                 self.filehandle.write("Pl%d  " % count_Pl)
                 count_Pl += 1
-                
+
             self.filehandle.write("BAS  ")
             self.filehandle.write("%4d" % self.residueIndex)
             self.filehandle.write("    ")
@@ -302,7 +302,7 @@ class GROMACS:
             self.atomIndex += 1
         self.residueIndex += 1
 
-                    
+
     def writeAtomicPDB(self, node):
         """
         Write down strand 1
@@ -312,13 +312,13 @@ class GROMACS:
           - first (bottom) nucleotide: residue name gets a "5", no (P, OP1, OP2)
           - last (top) nucleotide: residue name gets a "3"
         """
-                
+
         # Open the .pdb file if not already open
         #
         if self.pdbFileHandle == 0:
             self.pdbFileHandle = \
                 open(os.path.join(self.tempFilePath, "dna.pdb"), "w")
-        
+
         # Need to write residues down strand 1 and up strand 2.
         # Take note of the last nucleotide in each case.
         #
@@ -328,7 +328,7 @@ class GROMACS:
             if node.name == 'strand 2':
                 lastNode = nodeMembers[0]
                 nodeMembers.reverse()
-            
+
         nucleotideIndex = 1
         for childNode in nodeMembers:
             if self.debug:
@@ -341,48 +341,48 @@ class GROMACS:
             for atom in childNode.atoms_in_mmp_file_order():
                 if atom.element.eltnum == 0:
                     continue
-                
+
                 if (nucleotideIndex == 1) & (atomTypeIndex < 3):
                     atomTypeIndex += 1
                     continue # First nucleotide in a strand - no phosphate
-            
+
                 coordinates = atom.posn()
                 coordinateFields = (coordinates[0], coordinates[1],
                     coordinates[2])
                 self.pdbFileHandle.write("%-6s" % "ATOM")
                 self.pdbFileHandle.write("%5d" % self.atomIndex)
                 self.pdbFileHandle.write(" ")
-                
+
                 if childNode.name == 'adenine':
                     self.pdbFileHandle.write("%4s" %
                         self.adenineAtomTypes[atomTypeIndex])
                     self.pdbFileHandle.write(" DA")
-                    
+
                 elif childNode.name == 'cytosine':
                     self.pdbFileHandle.write("%4s" %
                         self.cytosineAtomTypes[atomTypeIndex])
                     self.pdbFileHandle.write(" DC")
-                    
+
                 elif childNode.name == 'guanine':
                     self.pdbFileHandle.write("%4s" %
                         self.guanineAtomTypes[atomTypeIndex])
                     self.pdbFileHandle.write(" DG")
-                    
+
                 elif childNode.name == 'thymine':
                     self.pdbFileHandle.write("%4s" %
                         self.thymineAtomTypes[atomTypeIndex])
                     self.pdbFileHandle.write(" DT")
-                    
+
                 # Handle strand ends
                 if nucleotideIndex == 1:
                     self.pdbFileHandle.write("5")
-                        
+
                 elif childNode == lastNode:
                     self.pdbFileHandle.write("3")
-                    
+
                 else:
                     self.pdbFileHandle.write(" ")
-                    
+
                 self.pdbFileHandle.write("  ")
                 self.pdbFileHandle.write("%4d" % self.residueIndex)
                 self.pdbFileHandle.write("    ")
@@ -394,7 +394,7 @@ class GROMACS:
             nucleotideIndex += 1
         return
 
-        
+
     def getAtomTypeIndex(self, elementNumber):
         atomTypeIndex = 0             # ??
         if elementNumber == 200:      # Ax
@@ -413,6 +413,6 @@ class GROMACS:
             atomTypeIndex = 7
         elif elementNumber == 207:    # Hp
             atomTypeIndex = 8
-        
+
         return atomTypeIndex
-        
+

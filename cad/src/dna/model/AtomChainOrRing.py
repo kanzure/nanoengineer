@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 AtomChainOrRing.py - cache info about atom/bond chains or rings of various types
 
@@ -27,7 +27,7 @@ class AtomChainOrRing(object):
     """
     # subclass constant
     ringQ = None # subclasses set this to True or False
-    
+
     def __init__(self, listb, lista):
         assert self.ringQ in (False, True) # i.e. we're in a concrete subclass
         self.bond_list = listb

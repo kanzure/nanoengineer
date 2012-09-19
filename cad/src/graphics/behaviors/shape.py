@@ -1,4 +1,4 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 shape.py -- handle freehand curves for selection and crystal-cutting
 
@@ -44,7 +44,7 @@ from utilities.constants import white
 from utilities.constants import red
 
 from utilities.debug import print_compact_traceback
-from utilities import debug_flags 
+from utilities import debug_flags
 
 import foundation.env as env
 ##from utilities.constants import colors_differ_sufficiently
@@ -56,42 +56,42 @@ from geometry.BoundingBox import BBox
 def get_selCurve_color(selSense, bgcolor = white):
     """
     [public]
-    Returns line color of the selection curve. 
+    Returns line color of the selection curve.
     Returns <black> for light colored backgrounds (and Sky Blue).
     Returns <white> for dark colored backgrounds.
     Returns <red> if <selSense> is DELETE_SELECTION mode.
     """
-    if selSense == DELETE_SELECTION: 
+    if selSense == DELETE_SELECTION:
         return red
-    
+
     # Problems with this when the user picks a light gradient (i.e. Blue Sky)
-    # but the bgcolor is a dark color. Simply returning 
+    # but the bgcolor is a dark color. Simply returning
     # "DarkBackgroundContrastColor_prefs_key" works fine. Mark 2008-07-10
     #if colors_differ_sufficiently(bgcolor, black):
     #    return env.prefs[DarkBackgroundContrastColor_prefs_key]
     #else:
     #    return env.prefs[LightBackgroundContrastColor_prefs_key]
-    
+
     return env.prefs[DarkBackgroundContrastColor_prefs_key]
 
 def fill(mat, p, dir): # TODO: rename (less generic so searchable), and perhaps make private
     """
     [helper for class curve; unknown whether it has other uses]
-    
+
     Fill a curve drawn in matrix mat, as 1's over a background of 0's, with 1's.
     p is V(i, j) of a point to fill from. dir is 1 or -1 for the
     standard recursive fill algorithm.
 
     Here is an explanation of how this is used and how it works then, by Huaicai:
     This function is used to fill the area between the rectangle bounding box and the boundary
-    of the curve with 1's. The bounding box is extended by (lower left corner -2, right top corner + 2). 
+    of the curve with 1's. The bounding box is extended by (lower left corner -2, right top corner + 2).
     The curve boundary is filled with 1's. So mat[1,:] = 0, mat[-1,:] = 0, mat[:, 1] = 0;
-    mat[:, -1]=0, which means the area is connected. If we start from mat[1, 1], dir = 1, then we scan the 
-    first line from left to right. If it's 0, fill it as 1 until we touch 1. For each element in the line, we also 
-    check it's neighbor above and below. For the neighbor elements, if the neighbor touches 1 but 
+    mat[:, -1]=0, which means the area is connected. If we start from mat[1, 1], dir = 1, then we scan the
+    first line from left to right. If it's 0, fill it as 1 until we touch 1. For each element in the line, we also
+    check it's neighbor above and below. For the neighbor elements, if the neighbor touches 1 but
     previous neighbor is 0, then scan the neighbor line in the reverse order. I think this algorithm is better
-    than the simple recursive flood filling algorithm. The seed mat[1, 1] is always inside the area, and 
-    most probably this filling area is smaller than that inside the curve. I think it also reduces repeated 
+    than the simple recursive flood filling algorithm. The seed mat[1, 1] is always inside the area, and
+    most probably this filling area is smaller than that inside the curve. I think it also reduces repeated
     checking/filling of the classical algorithm.
     """
     if mat[p]:
@@ -124,7 +124,7 @@ def fill(mat, p, dir): # TODO: rename (less generic so searchable), and perhaps 
 # I'm not sure we'll always want to depend on that agreement of coord systems
 # for everything in one shape.
 
-class simple_shape_2d: 
+class simple_shape_2d:
     """
     common code for selection curve and selection rectangle;
     also used in CrystalShape.py
@@ -140,40 +140,40 @@ class simple_shape_2d:
         self.right = shp.right
         self.up = shp.up
         self.normal = shp.normal
-        
+
         # store other args
         self.ptlist = ptlist
         self.org = origin + 0.0
         self.selSense = selSense
         self.slab = opts.get('slab', None) # how thick in what direction
         self.eyeball = opts.get('eye', None) # for projecting if not in ortho mode
-        
+
         if self.eyeball:
             self.eye2Pov = vlen(self.org - self.eyeball)
-        
+
         # project the (3d) path onto the plane. Warning: arbitrary 2d origin!
         # Note: original code used project_2d_noeyeball, and I think this worked
         # since the points were all in the same screen-parallel plane as
         # self.org (this is a guess), but it seems better to not require this
         # but just to use project_2d here (taking eyeball into account).
         self._computeBBox()
-        
+
     def _computeBBox(self):
         """
         Construct the 3d bounding box for the area
-        """  
+        """
         # compute bounding rectangle (2d)
         self.pt2d = map( self.project_2d, self.ptlist)
         assert not (None in self.pt2d)
-        
+
         self.bboxhi = reduce(maximum, self.pt2d)
         self.bboxlo = reduce(minimum, self.pt2d)
         bboxlo, bboxhi = self.bboxlo, self.bboxhi
-        
+
         # compute 3d bounding box
         # Note: bboxlo, bboxhi are 2d coordinates relative to the on plane
         # 2D coordinate system: self.right and self.up. When constructing
-        # the 3D bounding box, the coordinates will be transformed back to 
+        # the 3D bounding box, the coordinates will be transformed back to
         # 3d world coordinates.
         if self.slab:
             x, y = self.right, self.up
@@ -185,10 +185,10 @@ class simple_shape_2d:
     def project_2d_noeyeball(self, pt):
         """
         Bruce: Project a point into our plane (ignoring eyeball). Warning: arbitrary origin!
-           
-        Huaicai 4/20/05: This is just to project pt into a 2d coordinate 
-        system (self.right, self.up) on a plane through pt and parallel to the screen 
-        plane. For perspective projection, (x, y) on this plane is different than that on the plane 
+
+        Huaicai 4/20/05: This is just to project pt into a 2d coordinate
+        system (self.right, self.up) on a plane through pt and parallel to the screen
+        plane. For perspective projection, (x, y) on this plane is different than that on the plane
         through pov.
         """
         x, y = self.right, self.up
@@ -243,7 +243,7 @@ class rectangle(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
     selection rectangle
     """
     def __init__(self, shp, pt1, pt2, origin, selSense, **opts):
-        simple_shape_2d.__init__( self, shp, [pt1, pt2], origin, selSense, opts)        
+        simple_shape_2d.__init__( self, shp, [pt1, pt2], origin, selSense, opts)
     def isin(self, pt):
         return self.isin_bbox(pt)
     def draw(self):
@@ -269,12 +269,12 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         """
         # bruce 041214 rewrote some of this method
         simple_shape_2d.__init__( self, shp, ptlist, origin, selSense, opts)
-        
+
         # bounding rectangle, in integers (scaled 8 to the angstrom)
         ibbhi = array(map(int, ceil(8 * self.bboxhi)+2))
         ibblo = array(map(int, floor(8 * self.bboxlo)-2))
         bboxlo = self.bboxlo
-        
+
         # draw the curve in these matrices and fill it
         # [bruce 041214 adds this comment: this might be correct but it's very
         # inefficient -- we should do it geometrically someday. #e]
@@ -295,7 +295,7 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
                 mat[ij]=1
             pt0 = pt
         mat1 += mat
-        
+
         fill(mat1, array([1, 1]),1)
         mat1 -= mat #Which means boundary line is counted as inside the shape.
         # boolean raster of filled-in shape
@@ -355,7 +355,7 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         pl = zip(self.ptlist[:-1],self.ptlist[1:])
         for p in pl:
             drawline(color, p[0],p[1])
-        
+
         # for debugging
         #self.bbox.draw()
         #if self.eyeball:
@@ -385,7 +385,7 @@ class shape:
         self.right = right
         self.up = up
         self.normal = normal
-    
+
     def pickline(self, ptlist, origin, selSense, **xx):
         """
         Add a new curve to the shape.
@@ -396,7 +396,7 @@ class shape:
         #self.curves += [c]
         #self.bbox.merge(c.bbox)
         return c
-            
+
     def pickrect(self, pt1, pt2, org, selSense, **xx):
         c = rectangle(self, pt1, pt2, org, selSense, **xx)
         #self.curves += [c]
@@ -421,7 +421,7 @@ class SelectionShape(shape): # review: split this into its own file? [bruce 0712
 
     def pickrect(self, pt1, pt2, org, selSense, **xx):
         self.curve = shape.pickrect(self, pt1, pt2, org, selSense, **xx)
-        
+
     def select(self, assy):
         """
         Loop thru all the atoms that are visible and select any
@@ -437,25 +437,25 @@ class SelectionShape(shape): # review: split this into its own file? [bruce 0712
         #
         # (BTW I don't know whether it's valid to care about selSense of only the
         # first curve in the shape, as this code does.)
-        # Huaicai 04/23/05: For selection, every shape only has one curve, so 
+        # Huaicai 04/23/05: For selection, every shape only has one curve, so
         # the above worry by Bruce is not necessary. The reason of not reusing
         # shape is because after each selection user may change view orientation,
         # which requires a new shape creation.
-    
+
         if assy.selwhat:
             self._chunksSelect(assy)
         else:
-            if self.curve.selSense == START_NEW_SELECTION: 
+            if self.curve.selSense == START_NEW_SELECTION:
                 # New selection curve. Consistent with Select Chunks behavior.
                 assy.unpickall_in_GLPane() # was unpickatoms and unpickparts [bruce 060721]
 ##                    assy.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
 ##                    assy.unpickatoms() # Fixed bug 1598. Mark 060303.
-            self._atomsSelect(assy)   
-    
+            self._atomsSelect(assy)
+
     def _atomsSelect(self, assy):
         """
         Select all atoms inside the shape according to its selection selSense.
-        """    
+        """
         c = self.curve
         if c.selSense == ADD_TO_SELECTION:
             for mol in assy.molecules:
@@ -510,11 +510,11 @@ class SelectionShape(shape): # review: split this into its own file? [bruce 0712
         # also added .hidden check to the last of 3 cases. Same in self.select().
         c = self.curve
         if c.selSense == START_NEW_SELECTION:
-            # drag selection: unselect any selected Chunk not in the area, 
+            # drag selection: unselect any selected Chunk not in the area,
             # modified by Huaicai to fix the selection bug 10/05/04
             for m in assy.selmols[:]:
                 m.unpick()
-                        
+
         if c.selSense == ADD_TO_SELECTION or c.selSense == START_NEW_SELECTION:
             for mol in assy.molecules:
                 if mol.hidden:
@@ -533,8 +533,8 @@ class SelectionShape(shape): # review: split this into its own file? [bruce 0712
                 for a in m.atoms.itervalues():
                     if c.isin(a.posn()) and a.visible(disp):
                         m.unpick()
-                        break   
-                                
+                        break
+
         if c.selSense == DELETE_SELECTION: # mark 060220.
             todo = []
             for mol in assy.molecules:
@@ -554,17 +554,17 @@ class SelectionShape(shape): # review: split this into its own file? [bruce 0712
             for mol in todo:
                 mol.kill()
         return
-    
+
     def findObjInside(self, assy):
         """
         Find atoms/chunks that are inside the shape.
         """
         rst = []
-        
+
         c = self.curve
-        
+
         if assy.selwhat: ##Chunks
-           rstMol = {} 
+           rstMol = {}
            for mol in assy.molecules:
                 if mol.hidden:
                     continue
@@ -572,7 +572,7 @@ class SelectionShape(shape): # review: split this into its own file? [bruce 0712
                 for a in mol.atoms.itervalues():
                     if c.isin(a.posn()) and a.visible(disp):
                             rstMol[id(a.molecule)] = a.molecule
-                            break 
+                            break
            rst.extend(rstMol.itervalues())
         else: ##Atoms
            for mol in assy.molecules:
@@ -581,9 +581,9 @@ class SelectionShape(shape): # review: split this into its own file? [bruce 0712
                 disp = mol.get_dispdef()
                 for a in mol.atoms.itervalues():
                    if c.isin(a.posn()) and a.visible(disp):
-                     rst += [a] 
+                     rst += [a]
         return rst
-    
+
     pass # end of class SelectionShape
 
 # end

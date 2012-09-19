@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_ladders.py - ladder-related helpers for dna_updater_chunks
 
@@ -29,7 +29,7 @@ from model.elements import Pl5
 def dissolve_or_fragment_invalid_ladders( changed_atoms):
     """
     #doc... [some is in a caller comment]
-    
+
     Also make sure that live atoms that are no longer in valid ladders
     (due to dissolved or fragmented ladders) are included in the caller's
     subsequent step of finding changed chains,
@@ -41,7 +41,7 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
     """
     # assume ladder rails are DnaLadderRailChunk instances,
     # or were such until atoms got removed (calling their delatom methods).
-    
+
     changed_chunks = {}
 
     for atom in changed_atoms.itervalues():
@@ -75,7 +75,7 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
                   (chunk, getattr(chunk, 'ladder', "<has none>"))
             pass
         # todo: assert not killed, not nullMol, is a Chunk
-        ## chunk.invalidate_ladder() 
+        ## chunk.invalidate_ladder()
         chunk.invalidate_ladder_and_assert_permitted()
             # fyi: noop except in DnaLadderRailChunk
             # this just invals chunk.ladder (and below code will dissolve it);
@@ -103,13 +103,13 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
         # old policy was, rather than bothering to later pass it to the
         # restore function (not called before we return), restore_dnaladder_inval_policy.
     assert _old == DNALADDER_INVAL_IS_OK
-    
+
     for ladder in invalid_ladders:
         # WARNING: the following is only reviewed for the case of the above code
         # dissolving (invalidating, not fragmenting) chunk's ladder.
         #e Could optim if we know some rails were untouched, by
         # "including them whole" rather than rescanning them, in caller.
-        
+
         # Note: what is meant by "dissolving the ladder" (done above)
         # vs "fragmenting it" (not implemented) is the difference between
         # what happens to the atoms no longer in a valid ladder --
@@ -121,7 +121,7 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
         # since we don't intend to make fragments from the untouched
         # parts of it. But this function name claims to do the dissolving
         # itself (even on already invalidated ladders). # todo: clarify.
-        
+
         if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # was useful for bug 080120 9pm
             print "dna updater: fyi: adding all atoms from dissolved ladder %r" % ladder
         for rail in ladder.all_rails():
@@ -132,7 +132,7 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
                 if not atom.killed():
                     changed_atoms[atom.key] = atom
         continue
-    
+
     return
 
 # == helper for make_new_ladders
@@ -155,13 +155,13 @@ class chains_to_break:
 
         @param chain: a chain that must be in self.chains
         @type chain: DnaChain
-        
+
         @param index: an atom index in chain; WARNING: would become invalid
                       if we reversed the chain
-                      
+
         @param whichside: which side of the indexed atom the break should be on,
             represented as 1 or -1 -- the desired break is
-            between index and index + whichsidetobreak        
+            between index and index + whichsidetobreak
         """
         ## key = (chain, index, whichside)
         # no, we don't need to record the distinction between break point and direction,
@@ -257,13 +257,13 @@ def make_new_ladders(axis_chains, strand_chains):
     # and it might even be faster -- that depends on how often this step
     # manages to return ladders much longer than 1. It would eliminate
     # most code in this function. (Try it if this function is hard to debug? @@@)
-    
+
     strand_axis_info = {}
-    
+
     for axis in axis_chains:
         for atom, index in axis.baseatom_index_pairs():
             # assume no termination atoms here
-            
+
             new_strand_atoms = atom.strand_neighbors()
                 # todo: make an AxisAtom method from this new Atom method
 
@@ -342,7 +342,7 @@ def make_new_ladders(axis_chains, strand_chains):
 
     ladders = []
     singlestrands = []
-    
+
     for axis in axis_chains:
         frags = axis_breaker.breakit(axis)
         for frag in frags:
@@ -420,11 +420,11 @@ def merge_ladders(new_ladders):
     # or some sort of real or virtual atom chains (merge is faster).
     # (As of 080114 I think they are real atom chains, not yet associated
     #  with chunks.)
-    
+
     res = [] # collects ladders that can't be merged
-    
+
     while new_ladders: # has ladders untested for can_merge
-        
+
         # note about invalid ladders during these loops:
         # in the first iteration of this outer loop, the ladders in
         # new_ladders are newly made, all valid (though they might be invalid
@@ -438,9 +438,9 @@ def merge_ladders(new_ladders):
         # and they should just be skipped if they are invalid when encountered.
         # [comment and behavior revised to fix bug from incorrect assertion,
         #  bruce 080222; earlier partial version of skip, bruce 080122]
-        
+
         next = [] # new_ladders for next iteration
-        
+
         for ladder in new_ladders:
             if not ladder.valid:
                 # just skip it (not an error, as explained above)
@@ -484,23 +484,23 @@ def merge_and_split_ladders(ladders, debug_msg = ""):
     """
     See docstrings of merge_ladders and split_ladders
     (which this does in succession).
-    
+
     @param ladders: list of 0 or more new DnaLadders
-    
+
     @param debug_msg: string for debug prints
     """
     len1 = len(ladders) # only for debug prints
-    
+
     ladders = merge_ladders(ladders)
-    
+
     len2 = len(ladders)
-    
+
     ladders = split_ladders(ladders)
-    
+
     len3 = len(ladders)
 
     assert len2 == len3 ### REMOVE WHEN WORKS (says split is a stub) @@@@
-    
+
     if debug_flags.DEBUG_DNA_UPDATER:
         if debug_flags.DEBUG_DNA_UPDATER_VERBOSE or len2 != len1 or len3 != len1:
             # note: _DEBUG_FINISH_AND_MERGE(sp?) is in another file

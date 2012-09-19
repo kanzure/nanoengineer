@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 fix_atom_classes.py - fix classes of PAM atoms
 
@@ -48,7 +48,7 @@ def real_atom_desired_class(atom): #e refile into an Atom method? return classna
     and if it's a bondpoint, on its neighbor atom?
     """
     assert not atom.killed()
-    
+
 ##    if atom.is_singlet():
 ##        # WRONG. true desire is for special atoms to have the right pattern of special bps...
 ##        base = atom.singlet_neighbor()
@@ -67,9 +67,9 @@ def real_atom_desired_class(atom): #e refile into an Atom method? return classna
         return AxisAtom
     elif role == 'unpaired-base':
         return UnpairedBaseAtom
-    else:        
+    else:
         return Atom # ChemAtom?
-    
+
 def fix_atom_classes( changed_atoms): #e rename, real_atom; call differently, see comment above ### @@@
     """
     Fix classes of PAM atoms in changed_atoms, ignoring bondpoints

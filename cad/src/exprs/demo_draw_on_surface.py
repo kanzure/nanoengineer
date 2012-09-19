@@ -1,10 +1,10 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 demo_draw_on_surface.py
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 070319 a standalone version of the so-called polyline example in demo_drag.py (testexpr_19g)
 
@@ -246,15 +246,15 @@ class _cmd_DrawOnSurface_BG(Highlightable):
             # than its stored coords, but store coords identical to those of the underlying model object --
             # use a globally available displist (nim) for translating closer to the user -- hmm, that has to be different
             # for each rotational environment you might be inside! So only the graphical env knows its name...
-        
+
         node_expr = Vertex(newpos, Center(Rect(0.2,0.2, red )))
-        
+
         newnode = self.world.make_and_add( node_expr, type = "Vertex") #070206 added type = "Vertex"
             ###e may want to make, but not add... let it be a kid of the polyline3d
-            
+
         self.newnode = newnode
         return
-    
+
     def on_drag(self):
         point = self.current_event_mousepoint()
         lastnode = self.newnode # btw nothing clears this on mouseup, so in theory it could be left from a prior drag
@@ -299,7 +299,7 @@ class cmd_DrawOnSurface(PM_Command):
     cmd_name = "DrawOnSurface"
     cmd_desc = "draw 3D polyline over surface"
     cmd_desc_long = "draw a dense 3D polyline over a 3D surface, following its contours"
-    
+
     #e categorization info, so a UI-builder knows where to include this command, how to classify it for browsing --
     # this includes what it needs to run, what it creates or modifies
 
@@ -333,7 +333,7 @@ class cmd_DrawOnSurface(PM_Command):
     """
 
         # super should make property_manager from the groups, if we don't make a whole one ourselves [might be already stub-coded]
-    
+
     # appearance of world while we're active, including code for click/drag event handlers for objects or bg
     #e (someday we might need to separate the bg and the rest, so an outer rendering loop can handle them separately)
     delegate = Overlay(
@@ -353,7 +353,7 @@ class cmd_DrawOnSurface(PM_Command):
     pass # end of class cmd_DrawOnSurface
 
         #####e TODO:   ####@@@@
-    
+
         # Q: how do we get the things in _self.world to draw in the way we want them to? (style, filtering, highlighting)
         # A: provide them advice on that in our graphics dynenv, which we set up in a wrapper around the above delegation,
         # which is a drawing-interface (graphics interface) delegation. [or see another easier way, in a comment just above]
@@ -368,7 +368,7 @@ class cmd_DrawOnSurface(PM_Command):
         #
         # For empty space events, when I draw the model through my filter, also draw BackgroundObject(thing to handle them).
         # [done]
-        
+
         # Someday: measure the pixel depth to affect this drawing, after drawing the model, but before drawing the
         # "front plane of 2d control widgets",
         # or hover-highlights, or whatever object you're creating based on the depth (eg a polyline3d in this code).
@@ -397,7 +397,7 @@ class TextEditField(DelegatingInstanceOrExpr):
         sbar_text = "double-click to edit textfield",
         #e cmenu binding too?
      )
-    def on_doubleclick(self): 
+    def on_doubleclick(self):
         ok, text = grab_text_using_dialog( default = self.text,
                                            title = self.dialog_title,
                                            label = self.dialog_label )
@@ -451,11 +451,11 @@ class _cmd_MakeRect_BG(Highlightable):
     # args [needed for sharing state with something]
     world = Option(World)
     #e something to share state with a control panel in the PM - unless we just use prefs for that
-    
+
     # The drag event handlers modify the following state and/or derived objects (some documented with their defs):
     # self.rubber_rect = None or a newly made Rect we're dragging out right now
     #  (implemented as a rubberband-object drawable -- NOT a model object -- since it has formulae to our state, not its own state)
-    # 
+    #
     # nim: self.newnode = None or a Model Object version of the Rect we're dragging out now, or last dragged out...
     #  in general this may be redundant with "the selection", if dragging out a rect selects it, or shift-dragging it adds it to sel...
     # note, which of these are change-tracked? the ones used in drawing. that means all of them i guess.
@@ -476,7 +476,7 @@ class _cmd_MakeRect_BG(Highlightable):
     ## delegate = _self.rubber_rect
     plain = _self.rubber_rect
 
-    # code for event handlers during the drag. 
+    # code for event handlers during the drag.
     def on_press(self):
         self.startpoint = self.current_event_mousepoint()
         self.making_a_rect_now = False #k probably not needed
@@ -506,7 +506,7 @@ class _cmd_MakeRect_BG(Highlightable):
         else:
             print "fyi: click with no drag did nothing" ##e remove after debug
         return
-    
+
     pass # end of class _cmd_MakeRect_BG
 
 
@@ -529,18 +529,18 @@ class cmd_MakeRect(PM_Command):
     # name and description
     cmd_name = "MakeRect"
     cmd_desc = "make a screen-aligned rectangle" # in abs coords, with choosable fill color
-    
+
     # property manager
     property_manager_groups = list_Expr( make_Rect_PG(_self) )
     property_manager_message = """
         Drag out a purple Rect.
     """
-    
+
     # appearance of world while we're active, including code for click/drag event handlers for objects or bg
     background = Instance( _cmd_MakeRect_BG(world = _self.world) ) #k might not need to be split out, once bugs are fixed
     delegate = Overlay(
         _self.world,
-        background, ####e SHOULD NOT BE NEEDED, but doesn't work anyway 
+        background, ####e SHOULD NOT BE NEEDED, but doesn't work anyway
         BackgroundObject( background ),
      )
     pass # end of class cmd_MakeRect
@@ -599,7 +599,7 @@ class whatever(DelegatingInstanceOrExpr): ###e rename
             # how was demo_ui planning to handle that? ###k
     pass
 
-our_testexpr = whatever() 
+our_testexpr = whatever()
 
 # ==
 

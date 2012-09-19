@@ -1,13 +1,13 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Ui_MainWindowWidgetConnections.py
 
-Creates all signal-slot connections for all Main Window widgets used in menus 
+Creates all signal-slot connections for all Main Window widgets used in menus
 and toolbars.
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -49,46 +49,46 @@ def setupUi(win):
     win.connect(win.editDeleteAction,SIGNAL("triggered()"),win.killDo)
     win.connect(win.editMakeCheckpointAction,SIGNAL("triggered()"),win.editMakeCheckpoint)
     win.connect(win.editPasteAction,SIGNAL("triggered()"),win.editPaste)
-    
-    win.connect(win.editDnaDisplayStyleAction, 
-                SIGNAL("triggered()"), 
+
+    win.connect(win.editDnaDisplayStyleAction,
+                SIGNAL("triggered()"),
                 win.enterDnaDisplayStyleCommand)
-    win.connect(win.editProteinDisplayStyleAction, 
-                SIGNAL("triggered()"), 
+    win.connect(win.editProteinDisplayStyleAction,
+                SIGNAL("triggered()"),
                 win.enterProteinDisplayStyleCommand)
-    
+
     # editRenameAction deprecated. Use editRenameSelection. Mark 2008-11-13.
     #win.connect(win.editRenameAction,SIGNAL("triggered()"),win.editRename)
     win.connect(win.editRenameSelectionAction,SIGNAL("triggered()"),win.editRenameSelection)
     win.connect(win.editAddSuffixAction,SIGNAL("triggered()"),win.editAddSuffix)
-    win.connect(win.pasteFromClipboardAction, 
+    win.connect(win.pasteFromClipboardAction,
                 SIGNAL("triggered()"),
                 win.editPasteFromClipboard )
-    win.connect(win.partLibAction, 
+    win.connect(win.partLibAction,
                 SIGNAL("triggered()"),
                 win.insertPartFromPartLib)
 
-    win.connect(win.viewFullScreenAction, 
-                SIGNAL("toggled(bool)"), 
+    win.connect(win.viewFullScreenAction,
+                SIGNAL("toggled(bool)"),
                 win.setViewFullScreen)
-    win.connect(win.viewSemiFullScreenAction, 
-                SIGNAL("toggled(bool)"), 
+    win.connect(win.viewSemiFullScreenAction,
+                SIGNAL("toggled(bool)"),
                 win.setViewSemiFullScreen)
-    win.connect(win.viewReportsAction, 
-                SIGNAL("toggled(bool)"), 
+    win.connect(win.viewReportsAction,
+                SIGNAL("toggled(bool)"),
                 win.reportsDockWidget.toggle)
-    win.connect(win.viewRulersAction, 
-                SIGNAL("toggled(bool)"), 
+    win.connect(win.viewRulersAction,
+                SIGNAL("toggled(bool)"),
                 win.toggleRulers)
 
     #Urmi background color chooser option 080522
-    win.connect(win.colorSchemeAction, 
-                SIGNAL("triggered()"), 
+    win.connect(win.colorSchemeAction,
+                SIGNAL("triggered()"),
                 win.colorSchemeCommand)
     win.connect(win.lightingSchemeAction,
                 SIGNAL("triggered()"),
                 win.lightingSchemeCommand)
-    
+
     win.connect(win.editPrefsAction,SIGNAL("triggered()"),win.editPrefs)
     win.connect(win.editRedoAction,SIGNAL("triggered()"),win.editRedo)
     win.connect(win.editUndoAction,SIGNAL("triggered()"),win.editUndo)
@@ -115,7 +115,7 @@ def setupUi(win):
                 SIGNAL("triggered()"),
                 win.fileSaveSelection)
     win.connect(win.fileSetWorkingDirectoryAction,
-                SIGNAL("triggered()"), 
+                SIGNAL("triggered()"),
                 win.fileSetWorkingDirectory)
     win.connect(win.fileInsertMmpAction,
                 SIGNAL("triggered()"),
@@ -132,11 +132,11 @@ def setupUi(win):
     win.connect(win.fileExportPdbAction,
                 SIGNAL("triggered()"),
                 win.fileExportPdb)
-    
+
     win.connect(win.fileFetchPdbAction,
                 SIGNAL("triggered()"),
                 win.fileFetchPdb)
-    
+
     win.connect(win.fileExportJpgAction,
                 SIGNAL("triggered()"),
                 win.fileExportJpg)
@@ -213,15 +213,15 @@ def setupUi(win):
     win.connect(win.selectNoneAction,SIGNAL("triggered()"),win.selectNone)
     win.connect(win.selectLockAction,SIGNAL("toggled(bool)"),win.selectLock)
     win.connect(win.selectByNameAction,SIGNAL("toggled(bool)"),win.toggle_selectByNameDockWidget)
-    
+
     ##win.connect(win.helpTipAction,SIGNAL("triggered()"), win.toggleQuickHelpTip)
 
     win.connect(win.viewOrientationAction,SIGNAL("toggled(bool)"),win.showOrientationWindow) #ninad061114
 
-    ##When Standard Views button is clicked, show its QMenu.-- By default, nothing happens if you click on the 
-    ##toolbutton with submenus. The menus are displayed only when you click on the small downward arrow 
-    ## of the tool button. Therefore the following slot is added. Also QWidgetAction is used 
-    ## for it to add this feature (see Ui_ViewToolBar for details) ninad 070109 
+    ##When Standard Views button is clicked, show its QMenu.-- By default, nothing happens if you click on the
+    ##toolbutton with submenus. The menus are displayed only when you click on the small downward arrow
+    ## of the tool button. Therefore the following slot is added. Also QWidgetAction is used
+    ## for it to add this feature (see Ui_ViewToolBar for details) ninad 070109
     win.connect(win.standardViews_btn,SIGNAL("pressed()"),win.showStandardViewsMenu)
 
     win.connect(win.viewBackAction,SIGNAL("triggered()"),win.viewBack)
@@ -247,17 +247,17 @@ def setupUi(win):
     win.connect(win.simPlotToolAction,SIGNAL("triggered()"),win.simPlot)
     win.connect(win.simSetupAction,SIGNAL("triggered()"),win.simSetup)
     win.connect(win.rosettaSetupAction,SIGNAL("triggered()"),win.rosettaSetup)
-    
+
     win.connect(win.buildCrystalAction,SIGNAL("triggered()"),
                 win.enterBuildCrystalCommand)
-    
+
     win.connect(win.setStereoViewAction,SIGNAL("triggered()"),win.stereoSettings)
 
     win.connect(win.toolsDepositAtomAction,
                 SIGNAL("triggered()"),
                 win.toolsBuildAtoms)
 
-    
+
     win.connect(win.toolsExtrudeAction,SIGNAL("triggered()"),win.toolsExtrude)
     win.connect(win.toolsFuseChunksAction,SIGNAL("triggered()"),win.toolsFuseChunks)
 

@@ -1,4 +1,4 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 
 @author: Ninad
@@ -23,16 +23,16 @@ _superclass = BuildAtoms_GraphicsMode
 
 class BreakOrJoinstrands_GraphicsMode(BuildAtoms_GraphicsMode):
     """
-    Common superclass for GraphicsMode classes of Break and Join Strands 
-    commands. 
+    Common superclass for GraphicsMode classes of Break and Join Strands
+    commands.
     @see: BreakStrand_GraphicsMode()
-    @see: JoinStrands_GraphicsMode() 
+    @see: JoinStrands_GraphicsMode()
     """
     def _drawLabels(self):
         """
         Overrides superclass method
         """
-        _superclass._drawLabels(self)        
+        _superclass._drawLabels(self)
         draw_dnaBaseNumberLabels(self.glpane)
-        
+
     pass

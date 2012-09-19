@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 parse_utils.py -- utilities for general parsing, and for parsing streams of python tokens.
 Also a prototype "description class" which can be used to represent results of parsing a "description".
@@ -7,7 +7,7 @@ Also an example grammar, which can be used for parsing "parameter-set descriptio
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 
@@ -233,7 +233,7 @@ def make_number(token, sign = 1): # other signs untested
         except:
             pass
     raise SyntaxError, "illegal number: %r" % (token,) ### flaw: this doesn't include desc of where it happened...
-    
+
 Name = TokenType('NAME')
 Colon = Op(':')
 Minus = Op('-')
@@ -384,7 +384,7 @@ class ThingData(Info):
         # 070330, experimental. Will require exprs module. Not yet called. For now, advise don't call except when a debug_pref is set.
         #e name -> exprhead? using an env? via a Symbol?
         pass
-        
+
     pass
 
 def makeThing(name, args, subthings):
@@ -403,7 +403,7 @@ def makeThing(name, args, subthings):
 if __name__ == '__main__':
 
     from pprint import pprint
-    
+
     ## filename = "testui.txt"
     filename = "../plugins/CoNTub/HJ-params.desc"
 

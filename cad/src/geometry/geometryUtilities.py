@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 geometry.py -- miscellaneous purely geometric routines.
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -44,7 +44,7 @@ def selection_polyhedron(basepos, borderwidth = 1.8):
 
     if not len(basepos):
         return [] # a guess
-    
+
     # find extrema in many directions
     xtab = dot(basepos, polyXmat)
     mins = minimum.reduce(xtab) - borderwidth
@@ -88,10 +88,10 @@ polyTab = [( 9, (0,7,3), [3,0,5,2,7,1,3]),
            #(23, (10,6,11), [16,13,19,2,21,14,16]),
            #(24, (1,2,5), [8,1,17,13,18,15,8]),
            #(25, (3,6,2), [7,2,19,13,17,1,7])]
-           ##(22, (10,5,9), [16,13,18,15,20,14,16]), 
-           #(23, (10,6,11), [16,13,19,2,21,14,16]), 
-           #(24, (2, 5, 1), [17,13,18,15,8,1,17]),   
-           #(25, (2,3,6), [17,1,7,2,19,13,17])]      
+           ##(22, (10,5,9), [16,13,18,15,20,14,16]),
+           #(23, (10,6,11), [16,13,19,2,21,14,16]),
+           #(24, (2, 5, 1), [17,13,18,15,8,1,17]),
+           #(25, (2,3,6), [17,1,7,2,19,13,17])]
 
 def planepoint(v,i,j,k):
     mat = V(polyMat[i],polyMat[j],polyMat[k])
@@ -124,7 +124,7 @@ def makePolyList(v):
         xlines[e] = xlines[e][:-2] + [xlines[e][-1],xlines[e][-2]]
         for p1,p2 in zip(linx, linx[1:]+[linx[0]]):
             segs += [p1,p2]
-    
+
     ctl = 12
     for lis in xlines[:ctl]:
         segs += [lis[0],lis[3],lis[1],lis[2]]
@@ -137,14 +137,14 @@ def trialMakePolyList(v): # [i think this is experimental code by Huaicai, never
     pMat = []
     for i in range(size(v)):
         pMat += [polyMat[i] * v[i]]
-    
+
     segs = []
     for corner, edges, planes in polyTab:
       pts = size(planes)
       for i in range(pts):
           segs += [pMat[corner], pMat[planes[i]]]
           segs += [pMat[planes[i]], pMat[planes[(i+1)%pts]]]
-    
+
     return segs
 
 # ==
@@ -245,7 +245,7 @@ def compute_heuristic_axis( basepos, type,
     if evals_evecs is None:
         evals_evecs = inertia_eigenvectors( basepos, already_centered = already_centered)
     del basepos
-    
+
     evals, evecs = evals_evecs
 
     # evals[i] tells you moment of inertia when rotating around axis evecs[i], which is larger if points are farther from axis.
@@ -253,11 +253,11 @@ def compute_heuristic_axis( basepos, type,
 
     valvecs = zip(evals, evecs)
     valvecs.sort()
-    
+
     evals, evecs = unzip(valvecs) # (custom helper function, inverse of zip in this case)
-    
+
     assert evals[0] <= evals[1] <= evals[2]
-    
+
     # evals[0] is now the lowest-valued evals[i] (i.e. longest axis, heuristically), evals[2] the highest.
     # (The heuristic relating this to axis-length assumes a uniform density of points
     #  over some volume or its smooth-enough surface.)
@@ -270,7 +270,7 @@ def compute_heuristic_axis( basepos, type,
             # anything else
             type = 'parallel' # return the long axis
         pass
-    
+
     if type == 'normal':
         # we want the shortest axis == largest eval; try axis (evec) with largest eval first:
         evals.reverse()
@@ -280,7 +280,7 @@ def compute_heuristic_axis( basepos, type,
         pass
     else:
         assert 0, "unrecognized type %r" % (type,)
-    
+
     axes = [ evecs[0] ]
     for i in [1,2]: # order of these matters, I think
         if aspect_too_close( evals[0], evals[i], aspect_threshhold ):
@@ -365,7 +365,7 @@ def best_vector_in_plane( axes, goodvecs, numeric_threshhold ):
                 continue # good is perpendicular to the plane (or is zero)
             return norm(dx * x + dy * y)
     return None
-    
+
 def arbitrary_perpendicular( vec, nicevecs = [] ): #bruce 060608, probably duplicates other code somewhere (check in VQT?)
     """
     Return an arbitrary unit vector perpendicular to vec (a Numeric array, 3 floats),
@@ -407,7 +407,7 @@ chunk axis - weirdest case - ### - for 1x4x9 take 9, but for 1x9x9 take 1.
 view normal to - for 1x4x9, take the short '1' dim; if answer ambiguous w/in a plane (atoms are in a sausage; aspect_threshhold?),
   prefer axis w/in that plane near the current one
 
-view parallel to - for 1x4x9, take the long '9' dim; 
+view parallel to - for 1x4x9, take the long '9' dim;
  if answer is ambiguous w/in a plane (atom plane is circular) (use aspect_threshhold to decide it's ambiguous)
  prefer an axis w/in that plane near the current one
 

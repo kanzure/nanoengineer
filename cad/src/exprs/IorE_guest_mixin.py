@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 IorE_guest_mixin.py -- WILL BE RENAMED to fit class, when class is renamed
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 070815 split IorE_guest_mixin superclass out of InstanceOrExpr
 and moved it into this new file
@@ -61,7 +61,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
     or drawing-specific things -- for those see InstanceOrExpr.
     """
     __metaclass__ = ExprsMeta
-    
+
     transient_state = StatePlace('transient') # state which matters during a drag; scroll-position state; etc
 
     def __init__(self, _e_glpane = None, _e_env = None, _e_ipath = None, _e_state = None ):
@@ -83,10 +83,10 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
                     _e_state = {}
                 assert _e_glpane
                 _e_env = widget_env( _e_glpane, _e_state)
-            
+
             if _e_ipath is None:
                 _e_ipath = str(id(self)) #k??
-            
+
             self._init_self_as_Instance( _e_env, _e_ipath)
         else:
             assert _e_env is None and _e_ipath is None
@@ -101,7 +101,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         (in principle, only needed if self should support formulae or subinstances)
         """
         assert self._e_is_instance
-        
+
         self.env = env #k ok, or does it need modification of some kind?
             #e in fact we mod it every time with _self, in _e_compute_method -- can we cache that?
             # [much later: now we do, in env_for_formulae]
@@ -117,7 +117,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
 
         self._i_instance_decl_data = {} # private storage for self._i_instance method [renamed from _i_instance_exprs, 061204]
         self._i_instance_decl_env = {} # ditto, only for EVAL_REFORM kluge070119
-        
+
         # call subclass-specific instantiation code (it should make kids, perhaps lazily, if above didn't; anything else?? ###@@@)
         self._init_instance()
         self._debug_init_instance()
@@ -179,7 +179,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
                   (unintended nonuniqueness is allowed but causes bugs).
         """
         #070122; works, official for now; note relationship to Instance macro (also "def Instance")
-        
+
         # allocating an index might be nice, but I don't see how we can do it yet
         # (the issue is when it changes due to history of prior allocs)
         # (wait, can we use the id of the child? not with this API since we have to pass it before making the child.
@@ -189,7 +189,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
 ##            index = self._i_allocate_unique_kid_index(...)
             assert index is not None, "error: %r.Instance(%r) requires explicit index (automatic unique index is nim)" % (self, expr)
         return self._i_instance( expr, index, permit_expr_to_vary = permit_expr_to_vary, skip_expr_compare = skip_expr_compare)
-    
+
     def _i_instance( self, expr, index, _lvalue_flag = False,  permit_expr_to_vary = False, skip_expr_compare = False ):
         # see also def Instance (the method, just above, not the macro)
         """
@@ -304,7 +304,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
                         # update 070122: it usually indicates an error, but it's a false alarm in the latest bugfixed testexpr_21g,
                         # since pure-expr equality should be based on formal structure, not pyobj identity. ###e
                     ####e need to print a diff of the exprs, so we see what the problem is... [070321 comment; happens with ArgList]
-                    
+
                     #e if it does happen, should we inval that instance? yes, if this ever happens without error.
                     # [addendum 061212: see also the comments in the new overriding method If_expr._e_eval.]
                     # [one way to do that: have _i_instance_decl_data contain changetracked state vars, changed above,
@@ -438,7 +438,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
                     # make it once and let those use it, and make sure that happens before the env mods from the burrowing done by
                     # kluge070119. (We can't make it in the class (eg ExprsMeta) -- we have to wait until _init_instance or so,
                     # because it depends on self which is only known around then.)
-                    # 
+                    #
                     # SUGGESTED FIX ###e: make self.env_for_internal_formulae (#e shorter name -- env_for_formulae?)
                     # before (??) calling _init_instance [or after if _init_instance can modify self.env ##k];
                     # use it in _i_env_ipath_for_formula_at_index and some of our uses of _e_compute_method;
@@ -470,8 +470,8 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
                   (self, index)
             raise
         return res
-        
-    def _i_grabarg( self, attr, argpos, dflt_expr, _arglist = False): 
+
+    def _i_grabarg( self, attr, argpos, dflt_expr, _arglist = False):
         """
         #doc, especially the special values for some of these args
         """
@@ -534,7 +534,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         not those that are defined internally by formulae (not even the default value formula for an arg).
         """
         return self.env_for_args
-        
+
     def _C_env_for_args(self):###NAMECONFLICT? i.e. an attr whose name doesn't start with _ (let alone __ _i_ or _e_) in some exprs
         """
         #doc
@@ -544,13 +544,13 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
             # (Direct use of Symbol('_this_Xxx') will work now, but is pretty useless since those symbols need to be created/imported.
             #  The preferred way to do the same is _this(class), which for now [061114] evals to the same thing that symbol would,
             #  namely, to what we store here in lexmods for thisname. See "class _this".)
-        
+
         lexmods[thisname] = self
             # WARNING: this creates a cyclic ref, from each child whose env contains lexmods, to self, to each child self still knows.
             # In fact, it also creates a cyclic ref from self to self, since the result (which contains lexmods) is memoized in self.
 
         lexmods['_my'] = self #061205
-        
+
         return self.env.with_lexmods(lexmods)
 
     def _C_env_for_formulae(self):#070120 for fixing bug in kluge070119
@@ -596,7 +596,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
                 # res was the arg provided at argpos
                 if _arglist:
                     res = tuple_Expr(* self._e_args[argpos:])
-                return True, res                
+                return True, res
         # no arg was provided at argpos
         if _arglist:
             # [_arglist supports ArgList, a new feature 070321]
@@ -644,7 +644,7 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         ## assert isinstance( descriptor, ClassAttrSpecific_DataDescriptor ) ###k??? in fact assume it is a subclass which can do following:
         ## return None if following method is not there
         return descriptor._StateRef__your_attr_in_obj_ref( self)
-        
+
     pass # end of class IorE_guest_mixin
 
 # end

@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Column_old_nim.py
 
@@ -138,12 +138,12 @@ class CL(InstanceOrExpr):
     # 061106 possible newer version of the self.elts definition of instantiated args (older one moved to an outtakes file):
     elts = ArgList( CLE) # can it be that simple? and can this replace all references herein to self.args or self.kids? I think so. ####k
 
-    
+
     # == figure out what to draw,
     # based on which elements need gaps inserted between them;
 
     # the main result is self.drawables (the recomputable ordered list of nonempty elements and gaps to draw);
-    
+
     # the main input is self.elts, a list (not dict) of element-instances,
     # whose values (as determined by the code above) are fixed CLE instances, one per CL argument.
 
@@ -169,7 +169,7 @@ class CL(InstanceOrExpr):
         "find or make a gap object to be drawn between a given two of our elements"
         #e in real life, we'd memoize not on e1 and e2 themselves, but we'd eval their current gap-influencer (perhaps still an instance obj)
         # and memoize on that. this would be to support fancy gaps, actually drawn, with mouse bindings, colored indicators, variable height...
-        # ... correction: what we'd memoize on would probably be elt1.last_nonempty_elt and elt2.first_nonempty_elt -- not sure... 
+        # ... correction: what we'd memoize on would probably be elt1.last_nonempty_elt and elt2.first_nonempty_elt -- not sure...
         return self._constant_gap #e for now, only constant gap is supported
     def _C__constant_gap(self):
         return Spacer(0,self.gap) # this is only constant at a given time -- self.gap itself can be a formula (vary with time), that's ok
@@ -261,7 +261,7 @@ class Column(LayoutWidget2D):
         self._value = CLE(list(self._e_args)) # 061106 educated guess: self.args -> self._e_args, assuming _value is auto-instantiated
             # or that the below does that -- not reviewed now. #####@@@@@
         printnim("Column _vlaue instantiation not reviewed")
-        
+
             #k do we need to instantiate this, or is that automatic somehow? guess: we do, though a class assignment of it would not.
         self._value = self.make(self._value)
         #### might be better to assign expr to self._E__value (or _C__value??), letting self._value be automade from that --
@@ -280,11 +280,11 @@ if 0:
     # which includes the lexenv.
     # btw this also handles kluges like [x,y] -> list_Expr(x,y). it might wrap nonobvious python constants with constant_Expr.
     # btw it also does replacements, or binds in enough info to do them lazily.
-    
+
  ## understood_expr._e_make_in(env.place, index)
  understood_expr._e_make_in(env, index_path)
  #k - where to make things -- a portion of env says that; and how (glp vs pov) -- ditto [ambig with understanding it??];
-    # but we also have to supply a local-where, ie an index. 
+    # but we also have to supply a local-where, ie an index.
     # and i forget if the various *kinds* of places (datalayers), which use index indeply & could be revised indeply, should be in one env.place thing...
     # this maker, if it makes something with kids, should make lexmods containing the new index prepended onto a path (inside->outside order, functional),
     # perhaps interning the path... and put that in the env to be given to those kids, which is "this instance's env".

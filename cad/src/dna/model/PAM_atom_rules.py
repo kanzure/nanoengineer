@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 PAM_atom_rules.py - functions that define rules for permissible PAM structure
 
@@ -17,13 +17,13 @@ from dna.updater.dna_updater_globals import _f_anyatom_wants_pam
 from model.bonds import find_bond
 
 # ==
-        
+
 def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
     # has known bugs, see comment; in future may apply only within rails
     """
     Are a1 and a2 both PAM atoms or bondpoints which are allowed in the same
     DnaLadder, during either formation or merging of ladders?
-    
+
     If not, this might be for any reason we want, including cosmetic
     (e.g. chunk colors differ), but if different atoms in one base pair
     use different criteria, problems might ensue if the dna updater does not
@@ -50,15 +50,15 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
     # detect and fix those?)
     #
     # Review: how to treat atoms with dna_updater_errors?
-    
+
     explain_false_when_printed = True
 
     explain_false_always = False # do not commit with true --
         # too verbose if user makes mixed PAM models on purpose
-    
+
     explain_false = explain_false_when_printed or explain_false_always
         # revised all explain_false logic, bruce 080413
-    
+
     print0 = [""]
 
     def doit():
@@ -79,7 +79,7 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
                       ( _f_anyatom_wants_pam(a1),
                         _f_anyatom_wants_pam(a2) )
             return False
-        
+
         # compare pam-related properties of chunks
         chunk1 = a1.molecule
         chunk2 = a2.molecule
@@ -112,7 +112,7 @@ def PAM_atoms_allowed_in_same_ladder(a1, a2): #bruce 080401
             print "might cause bugs: %r and %r not allowed in same ladder, but %s" % (a1, a2, weird)
             if explain_false:
                 print " reason not allowed: ", print0[0]
-        elif explain_false_always: 
+        elif explain_false_always:
             print "debug fyi: PAM_atoms_allowed_in_same_ladder(%r, %r) -> %r" % (a1, a2, res)
             print " reason not allowed: ", print0[0]
     return res

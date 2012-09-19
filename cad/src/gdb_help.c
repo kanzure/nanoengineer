@@ -1,4 +1,4 @@
-// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+// Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 /*
  * gcc -I/usr/include/python2.4 -g -Wall -c -o gdb_help.o gdb_help.c
  * gcc -shared -o gdb_help.so gdb_help.o

@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 Utility.py -- class Node (superclass for all model-tree objects),
 Group [now defined in Group.py, no longer imported here],
@@ -16,7 +16,7 @@ of the API needed by the ModelTree).
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
-History: 
+History:
 
 Originally by Josh; gradually has been greatly extended by Bruce,
 but the basic structure of Nodes and Groups has not been changed.
@@ -100,10 +100,10 @@ class Node( StateMixin):
 
     featurename = "" # wiki help featurename for Node subclass [bruce 051201]
 
-    const_pixmap = None 
+    const_pixmap = None
         #bruce 090119 API revision (presence of default value of const_pixmap,
         # use of boolean test on it)
-    
+
     # default values of instance variables
 
     name = "" # for use before __init__ runs (used in __str__ of subclasses)
@@ -289,7 +289,7 @@ class Node( StateMixin):
         """
         [overrides UndoStateMixin method]
 
-        Return True iff it looks like we should be considered to exist 
+        Return True iff it looks like we should be considered to exist
         in self.assy's model of undoable state.
 
         Returning False does not imply anything's wrong, or that we should
@@ -444,7 +444,7 @@ class Node( StateMixin):
         self.disabled_by_user_choice = val
         self.changed()
 
-    def changed(self): 
+    def changed(self):
         """
         Call this whenever something in the node changes
         which would affect what gets written to an mmp file
@@ -499,7 +499,7 @@ class Node( StateMixin):
     def isEmpty(self):
         """
         Subclasses should override this method. (especially Group subclasses)
-        Default implementation returns False (non empty node) 
+        Default implementation returns False (non empty node)
         @see: DnaGroup.isEmpty()
         """
         return False
@@ -554,21 +554,21 @@ class Node( StateMixin):
                 print msg
         return
 
-    def is_disabled(self): 
+    def is_disabled(self):
         """
         Should this node look disabled when shown in model tree
         (but remain fully functional for selection)?
         """
-        #bruce 050421 experiment related to bug 451-9 
+        #bruce 050421 experiment related to bug 451-9
         #e what Jig method does belongs here... [050505 comment]
-        return False 
+        return False
 
-    def redmsg(self, msg): 
+    def redmsg(self, msg):
         #bruce 050203
         # revised 050901 to work even after assy set to None in Node.kill
         env.history.message( redmsg( msg ))
 
-    def is_top_of_selection_group(self): 
+    def is_top_of_selection_group(self):
         """
         Whether this node is the top of a "selection group".
         (Note: this can be true of leaf nodes as well as group nodes,
@@ -644,7 +644,7 @@ class Node( StateMixin):
                 # this unpicks everything not in 'ours' and warns if it unpicked anything
         return
 
-    def find_selection_group(self): #bruce 050131 for Alpha 
+    def find_selection_group(self): #bruce 050131 for Alpha
         #####@@@@@ needs update/review for being called on deleted nodes; pass assy?
         """
         Return the selection group to which this node belongs, or None if none
@@ -675,10 +675,10 @@ class Node( StateMixin):
             if node is not None:
                 # don't try this test for node is self, since it's not a "dad of self"
                 if node.picked:
-                    return False, node                
+                    return False, node
         return True, node # might be None
 
-    def show_in_model_tree(self): #bruce 050127 
+    def show_in_model_tree(self): #bruce 050127
         """
         Should this node be shown in the model tree widget?
         True for most nodes. Can be overridden by subclasses.
@@ -686,7 +686,7 @@ class Node( StateMixin):
          it might not work much more generally than that.]
         """
         ###e needs renaming, sounds like "scroll to make visible" [050310]
-        #bruce 050417 warning: I think I never ended up honoring this. Not sure. 
+        #bruce 050417 warning: I think I never ended up honoring this. Not sure.
         #bruce 050527: It's not honored now, anyway. ### REVIEW: keep or discard?
         return True
 
@@ -694,12 +694,12 @@ class Node( StateMixin):
         """
         @return: whether node's subtree has any picked members.
         @rtype: boolean
-        
+
         This is faster than counting them with nodespicked or "maxing" them
         with hindmost, at least when anything is picked; just as slow when
         nothing is (still requires a full scan). [#e should we memoize
         hindmost data??]
-        
+
         [overridden in Group, but this docstring applies to both methods
          together; should not be overridden elsewhere.]
         """
@@ -712,16 +712,16 @@ class Node( StateMixin):
         """
         return False
 
-    def MT_kids(self, display_prefs = {}): 
+    def MT_kids(self, display_prefs = {}):
         """
         For doc, see Group.MT_kids()
 
         [some subclasses should override this, especially Group]
         """
         #bruce 050109; 080108 renamed from kids to MT_kids; revised semantics
-        # review: must this be [] rather than ()? 
+        # review: must this be [] rather than ()?
         # Some calling code might add it to another list...
-        return [] 
+        return []
 
     def openable(self):
         """
@@ -769,16 +769,16 @@ class Node( StateMixin):
           do needed invals, and return (True, stored name);
         - or, reject it, and return (False, reason it's not ok).
           (The reason should be a string suitable for error messages.)
-        """        
+        """
         # todo: some of TreeWidget.slot_itemRenamed should be moved into a new
         # caller of this in Node, so other Qt widgets can also safely try to
         # rename Nodes. [bruce 050527 comment]
         # names containing ')' work now, so we permit them here [bruce 050618]
-        
+
         if not self.rename_enabled():
             return (False, "renaming this node is not permitted")
         #mark 051005 --  now name can be a python string or a QString
-        try: 
+        try:
             n = str(name)
         except:
             return (False, "illegal string")
@@ -787,31 +787,31 @@ class Node( StateMixin):
             return (False, "blank name is not permitted")
 
         # accept the new name.
-##        self._um_will_change_attr('name') #bruce 051005; this might need 
+##        self._um_will_change_attr('name') #bruce 051005; this might need
 ##            # to be called from a property-setter method for completeness
         self.name = name
         if self.assy:
             self.assy.changed()
-        ###e should inval any observers (i.e. model tree) -- 
+        ###e should inval any observers (i.e. model tree) --
         # not yet needed, I think [bruce 050119]
         return (True, name)
-    
+
     def rename_using_dialog(self):
-        """        
+        """
         Rename this node using a popup dialog, whn, user chooses to do
-        so either from the MT or from the 3D workspace. 
-        
+        so either from the MT or from the 3D workspace.
+
         """
         #This method is moved (with some modifications) from modelTreeGui.py so as
         #to facilitate renaming nodes from the 3D workspace as well.
         #The method was originally written by Bruce  -- Ninad 2008-11-17
-        
-        # Don't allow renaming while animating (b/w views). 
-        
+
+        # Don't allow renaming while animating (b/w views).
+
         assy = self.assy
         win = assy.win
         glpane = assy.glpane
-        
+
         if glpane.is_animating:
             return
         # Note: see similar code in setModelData in an outtakes class.
@@ -847,11 +847,11 @@ class Node( StateMixin):
         """
         Say whether a drag_move which includes this node can be started (for
         "drag and drop").
-        
+
         It's ok if only some drop-targets (nodes or inter-node gaps) can
         accept this node; we'll ask the targets if they'll take a specific
         drag_moved list of nodes (which includes this node).
-        
+
         A tree widget asked to drag_move some selected nodes might filter them
         by drag_move_ok to get the ones to actually move, or it might refuse
         the whole operation unless all are ok to move -- that's a UI decision,
@@ -862,7 +862,7 @@ class Node( StateMixin):
         return True
 
     def drag_copy_ok(self): # renamed/split from drag_enabled; docstring revised 050201
-        #bruce 050527 comment: this API needs revision, since the decision for 
+        #bruce 050527 comment: this API needs revision, since the decision for
         # jigs depends on what other nodes are included.
         # And we should revise it more, so we can construct a Copier object, let it "prep",
         # and use it for not only filtering out some nodes (like this does)
@@ -901,7 +901,7 @@ class Node( StateMixin):
         [overridden in Group and again in some of its subclasses]
         """
         return False
-    
+
     def node_icon(self, display_prefs):
         """
         #doc this - should return a cached icon
@@ -910,8 +910,8 @@ class Node( StateMixin):
          or define a class or instance value for const_pixmap attribute]
         """
         if self.const_pixmap:
-            return self.const_pixmap 
-                # let simple nodes just set this in __init__ (or as a 
+            return self.const_pixmap
+                # let simple nodes just set this in __init__ (or as a
                 # class constant) and be done with it [bruce 060523/090119]
         else:
             msg = "bug: Node subclass %s forgot to override node_icon method " \
@@ -922,7 +922,7 @@ class Node( StateMixin):
                 # (some people might consider this a kluge)
         pass
 
-    # most methods before this are by bruce [050108 or later] 
+    # most methods before this are by bruce [050108 or later]
     # and should be reviewed when my rewrite is done ###@@@
 
     def addsibling(self, node, before = False):
@@ -1011,7 +1011,7 @@ class Node( StateMixin):
         # out in the port to Qt4, even though their implem has nothing to do
         # with Qt except for receiving the arrow key events.
         # [bruce 071206 comment]
-        if self.is_group() and self.open and self.openable(): 
+        if self.is_group() and self.open and self.openable():
             #bruce 080108 added .openable cond (guess)
             visible_kids = self.MT_kids() #bruce 080108 .members -> .MT_kids()
             if visible_kids:
@@ -1048,16 +1048,16 @@ class Node( StateMixin):
                 #bruce 080314 check for this
                 print "likely to cause bugs: .part is None in .pick for %r" % self
             self.picked = True
-            # bruce 050125: should we also call self.assy.permit_picked_parts() 
+            # bruce 050125: should we also call self.assy.permit_picked_parts()
             # here? ###@@@ [not just in chunk.pick]
-            #bruce 050131 for Alpha: I'm guessing we don't need to, for jigs 
+            #bruce 050131 for Alpha: I'm guessing we don't need to, for jigs
             # or groups, since they don't get into assy.molecules or selmols.
             # Whether doing it anyway would be good or bad, I don't know,
             # so no change for now.
             self.changed_selection() #bruce 060227
             self.change_current_selgroup_to_include_self()
                 # note: stops at a picked dad, so should be fast enough during recursive use
-        
+
     def ModelTree_plain_left_click(self): #bruce 080213 addition to Node API
         """
         Subclasses which want side effects from a plain, direct left click
@@ -1127,7 +1127,7 @@ class Node( StateMixin):
         # this implem should work for Groups too, since self.unpick does.
         if self is node:
             return False
-        res = self.picked # since no retval from unpick_top; this is a 
+        res = self.picked # since no retval from unpick_top; this is a
             # correct one if our invariants are always true
         self.unpick_top()
         res2 = self.unpick_all_members_except( node)
@@ -1139,8 +1139,8 @@ class Node( StateMixin):
 
     def unpick_all_members_except(self, node):
         """
-        [#doc; overridden in Group] 
-        
+        [#doc; overridden in Group]
+
         return value says whether anything was actually unpicked
         """
         return False
@@ -1183,7 +1183,7 @@ class Node( StateMixin):
 
         # Note: some code which tests for "Chunk or Jig" might do better
         # to test for this method's return value. [bruce circa 080319]
-        
+
         # REVIEW: rename to indicate "3d" or something else about the physical
         # model, rather than "glpane"? It's not about graphical display, but
         # about selection semantics based on what's part of the 3d model on
@@ -1233,8 +1233,8 @@ class Node( StateMixin):
                 m.call_on_topmost_unpicked_nodes_of_certain_classes(func, classes)
         return
 
-    _old_dad = None ###k not yet used? 
-    
+    _old_dad = None ###k not yet used?
+
     #####@@@@@ review got to here, except: to chgdad added only cmts plus
     #####docstring plus new name
 
@@ -1247,17 +1247,17 @@ class Node( StateMixin):
         records info to permit updating other things later.
         """
         node = self
-        
+
         ## from changes import changed #bruce 050303, removed 050909
         ## not needed as of 050309:
-        ## changed.dads.record(node) 
-        ##     # make sure node's Part will be updated later if needed 
+        ## changed.dads.record(node)
+        ##     # make sure node's Part will be updated later if needed
         ##     # [bruce 050303]
 
-        assert node.dad is not None 
+        assert node.dad is not None
             #k not sure if good to need this, but seems to fit existing calls...
             # that might change [050205 comment]
-            
+
             #e if no dad: assy, space, selgroup is None.... or maybe keep
             # prior ones around until new real dad, not sure
 
@@ -1267,14 +1267,14 @@ class Node( StateMixin):
                (node, node.assy, node.dad, node.dad.assy )
             # bruce 050308/080218, since following assy code & part code
             # has no provision yet for coexisting assemblies
-        
-        node.assy = node.dad.assy 
+
+        node.assy = node.dad.assy
             # this might change soon, or might not... but if it's valid at
             # all, it needs to be propogated down! we leave it like this for
             # now only in case it's ever being used to init the assy field
             # from None.
-        
-        #bruce 050308: continually let assigned node.dad.part get inherited 
+
+        #bruce 050308: continually let assigned node.dad.part get inherited
         # by unassigned node.part (recursively)
         if node.dad.part is not None:
             if node.part is None:
@@ -1300,13 +1300,13 @@ class Node( StateMixin):
             node.change_current_selgroup_to_include_self()
                 # note: this has no effect if node doesn't have a selgroup
         if node.dad.picked:
-            node.pick() 
+            node.pick()
             #bruce 050126 - maintain the new invariant! (two methods need this)
-            
+
             # Warning: this might make some callers need to update glpane who
             # didn't need to before. possible bugs from this are not yet
             # analyzed.
-            
+
             # Note 050206: the clipboard can't be selected, and if it could
             # be, our invariants would be inconsistent if it had more than one
             # item! (Since all items would be selected but only one selgroup
@@ -1345,7 +1345,7 @@ class Node( StateMixin):
         self.hidden = True
         self.unpick()
 
-    def Hide(self): 
+    def Hide(self):
         """
         Hide self, and update the MT and GLPane accordingly.
         """
@@ -1378,7 +1378,7 @@ class Node( StateMixin):
         @note: this *does* apply fn to leaf-like Groups such as DnaStrand,
                and to any groups inside them (even though they are not
                user-visible in the model tree).
-        
+
         [overridden in Group]
         """
         pass
@@ -1404,7 +1404,7 @@ class Node( StateMixin):
         if there are no picked nodes in this subtree. Note that the result does
         not depend on the order of traversal of the members of a Group.
         """
-        if self.picked: 
+        if self.picked:
             return self
         return None
 
@@ -1420,15 +1420,15 @@ class Node( StateMixin):
     # == copy methods -- by default, Nodes can't be copied, so all
     # == copyable Node subclasses should override these methods.
 
-    def will_copy_if_selected(self, sel, realCopy): 
+    def will_copy_if_selected(self, sel, realCopy):
         """
         Will this node copy itself when asked (via copy_in_mapping or
         postcopy_in_mapping [#doc which one!]) because it's selected in sel,
         which is being copied as a whole?
-        
+
         [Node types which implement an appropriate copy method should override
         this method.]
-        
+
         If the realCopy boolean is set (indicating this is a real copy
         operation and not just a test), and if this node will not copy, it may
         want to print a warning.
@@ -1449,7 +1449,7 @@ class Node( StateMixin):
         node is not selected, will it nonetheless copy all or part of itself,
         when its copy_partial_in_mapping method is called, so that the copied
         atoms still have the property it confers?
-        
+
         [Node types which implement an appropriate copy method should override
         this method too.]
         """
@@ -1476,28 +1476,28 @@ class Node( StateMixin):
         components (eg chunk atoms, group members) get copied, and returning
         the copy of self, which must be created in mapping.assy (which may
         differ from self.assy).
-        
+
         If self will refuse to be fully copied, this method should return
         None. [###k does it need to record that in mapping, too?? not for
         now.]
-        
+
         It can assume self and all its components have not been copied yet
         (except for shared components like bonds #k #doc). It can leave out
         some mapping records for components, if it knows nothing will need to
         know them (e.g. atoms only need them regarding some bonds and jigs).
-        
+
         For references to things which might not have been copied yet, or
         might never be copied (e.g. atom refs in jigs), this method can make
         an incomplete copy and record a method in mapping to fix it up at the
         end. But it must decide now whether self will agree or refuse to be
         copied (using mapping.sel if necessary to know what is being copied in
         all).
-        
+
         [All copyable subclasses should override this method.]
         """
         return None # conservative version
 
-    copy_partial_in_mapping = copy_full_in_mapping 
+    copy_partial_in_mapping = copy_full_in_mapping
         # equivalent for all jigs which need it, as of 050526
         # [method name added 050704]
         #
@@ -1505,7 +1505,7 @@ class Node( StateMixin):
         # copy_full_in_mapping, but since copy_partial_in_mapping is not
         # presently called, I won't bother to clean it up for now.
 
-    def copy_in_mapping_with_specified_atoms(self, mapping, atoms): 
+    def copy_in_mapping_with_specified_atoms(self, mapping, atoms):
         #bruce circa 050525; docstring revised 050704
         """
         #doc; must honor mapping.assy; certain subclasses should override
@@ -1513,44 +1513,44 @@ class Node( StateMixin):
         """
         return None
 
-    def copy_copyable_attrs_to(self, target, own_mutable_state = True): 
+    def copy_copyable_attrs_to(self, target, own_mutable_state = True):
         """
         Copy all copyable attrs (as defined by a typically-subclass-specific
-        constant tuple which lists their names, self.copyable_attrs) 
-        from self to target (presumably a Node of the same subclass as self, 
-        but this is not checked, and violating it might not be an error, 
+        constant tuple which lists their names, self.copyable_attrs)
+        from self to target (presumably a Node of the same subclass as self,
+        but this is not checked, and violating it might not be an error,
         in principle; in particular, as of 051003 target is explicitly permitted
         to be a methodless attribute-holder).
-        
-        Target and self need not be in the same assy (i.e. need not have the 
-        same .assy attribute), and when this situation occurs, it must not be 
+
+        Target and self need not be in the same assy (i.e. need not have the
+        same .assy attribute), and when this situation occurs, it must not be
         disturbed (e.g. setting target.assy = self.assy would be a bug).
-        
+
         This method doesn't do any invals or updates in target.
-        
-        This is not intended to be a full copy of self, since copyable_attrs 
-        (in current client code) should not contain object-valued attrs like 
-        Group.members, Node.dad, or Chunk.atoms, but only "parameter-like" 
+
+        This is not intended to be a full copy of self, since copyable_attrs
+        (in current client code) should not contain object-valued attrs like
+        Group.members, Node.dad, or Chunk.atoms, but only "parameter-like"
         attributes. It's meant to be used as a helper function for making full
-        or partial copies of self, and related purposes. The exact set of 
+        or partial copies of self, and related purposes. The exact set of
         attributes to include can be chosen somewhat arbitrarily by each
         subclass, but any which are left out will have to be handled separately
         by the copy methods; in practice, new attributes in subclasses should
         almost always be declared in copyable_attrs.
-        
-        As of 051003, this method (implem and spec) has been extended to 
+
+        As of 051003, this method (implem and spec) has been extended to
         "deep copy" any mutable objects found in attribute values (of the
         standard kinds defined by state_utils.copy_val), so that no mutable
         state is shared between copies and originals. This can be turned off
         by passing own_mutable_state = False, which is a useful optimization
         if serial copies are made and intermediate copies won't be kept.
-        
+
         This is intended as a private helper method for subclass-specific copy
         methods, which may need to do further work to make these attribute-
         copies fully correct -- for example, modifying the values of id- or
         (perhaps) name-like attributes, or doing appropriate invals or updates
         in target.
-        
+
         [subclasses probably never need to extend this method]
         """
         #bruce 050526; behavior and docstring revised 051003
@@ -1560,7 +1560,7 @@ class Node( StateMixin):
             val = getattr(self, attr)
             if own_mutable_state:
                 val = copy_val(val)
-            setattr(target, attr, val) 
+            setattr(target, attr, val)
                 # note: waste of RAM: this turns some default class attrs
                 # into unneeded instance attrs (nevermind for now;
                 # but note that some classes copy some attrs outside of this
@@ -1612,14 +1612,14 @@ class Node( StateMixin):
         this method might then be called on self or target or both), replace
         them with copies so that they are no longer shared and can safely be
         independently changed.
-        
+
         [some subclasses must extend this]
         """
         #bruce 051003 revision: now that copy_copyable_attrs_to deepcopies
         #mutable parameter values, this method will only need overriding for
         #mutable state of types that method can't handle or which for some
         #other reason is not declared in self.copyable_attrs.
-        
+
         ##e note: docstring and perhaps method name should be changed; most
         #calls should remain, but all overridings of this method (and/or
         #related decls of mutable_attrs) should be reviewed for removal. [as
@@ -1641,31 +1641,31 @@ class Node( StateMixin):
 
     def kill_with_contents(self):
         """
-        Kill this Node including the 'logical contents' of the node. i.e. 
-        the contents of the node that are self.members as well as non-members. 
+        Kill this Node including the 'logical contents' of the node. i.e.
+        the contents of the node that are self.members as well as non-members.
         Example: A DnaSegment's logical contents are AxisChunks and StrandChunks.
         Out of these, only AxisChunks are the direct members of the DnaSegment
         but the StrandChunks are logical contents of it (non-members).
         So, some callers may specifically want to delete self along with its
         members and logical contents. These callers should use this method.
         The default implementation just calls self.kill().
-        @see: dna_model.DnaSegment.kill_with_contents  which overrides this 
-              method. 
+        @see: dna_model.DnaSegment.kill_with_contents  which overrides this
+              method.
         @see: EditCommand._removeStructure() which calls this Node API method
         @see: InsertDna_EditCommand._removeSegments()
         """
         #NOTE: This method was defined on 2008-02-22 to support dna_updater
-        #implementation in InsertDna_EditCommand. 
-        #This method is called in EditCommands instead of calling widely used 
-        #'kill' method.(Example: we are not modifying DnaSegment.kill to delete 
-        #even the non-members of DnaSegment, to avoid potential internal bugs) 
-        self.kill()    
+        #implementation in InsertDna_EditCommand.
+        #This method is called in EditCommands instead of calling widely used
+        #'kill' method.(Example: we are not modifying DnaSegment.kill to delete
+        #even the non-members of DnaSegment, to avoid potential internal bugs)
+        self.kill()
 
     def kill(self): # see also self.destroy()
         """
         Remove self from its parents and (maybe) destroy enough of its content
         that it takes little room (but be Undoable).
-        
+
         [subclasses should extend this, but should call this Node method at
          the end of their own kill methods]
         """
@@ -1685,7 +1685,7 @@ class Node( StateMixin):
 
     _f_will_kill = 0
 
-    def _f_prekill(self): 
+    def _f_prekill(self):
         """
         [private helper method for Node.kill and its subclass implems]
 
@@ -1695,29 +1695,29 @@ class Node( StateMixin):
         Node tree depth, when recursive kill calls this), and only on Node
         classes which might own objects which need it (currently Atoms and
         maybe Bonds and conceivably Parts).
-        
+
         This flag tells Atoms being killed not to create new bondpoints on
         their neighbors when those are also being killed, which is a big
         optimization. It can do other similar things if we discover them -- in
         general, it means "I'm also being killed so don't spend lots of time
         healing my wounds when you're being killed".
-        
+
         @note: Undo will revive killed objects, so kill needs to remove this
         flag from them when it returns, and Undo might assert that it's not
         set on revived objects.
-        
+
         @note: We increment a counter when setting this, so as not to have to
         worry about whether leftover sets of it will cause trouble. This might
         make some of what's said above (about unsetting it) unnecessary.
         [subclasses should not extend this, but should extend _f_set_will_kill
         instead; at least Group and Chunk need to do that]
-        """    
+        """
         #bruce 060327 in Node (mainly to speed up Delete of chunks, also
         #(short term purpose) to reduce memory leaks)
         global _will_kill_count
         if self._f_will_kill < _will_kill_count:
             _will_kill_count += 1
-            self._f_set_will_kill( _will_kill_count) 
+            self._f_set_will_kill( _will_kill_count)
                 # sets it to this value (with no checks) on self, children, atoms
         return
 
@@ -1728,7 +1728,7 @@ class Node( StateMixin):
         """
         self._f_will_kill = val
 
-    glname = 0 
+    glname = 0
         # required class constant in case of repeated calls of self.destroy()
         # [bruce 060322]
 
@@ -1739,10 +1739,10 @@ class Node( StateMixin):
         [#doc, see code comments]
         """
         self.kill() #bruce 060117 guess at implem
-        #bruce 060117 draft, experimental, not yet widely used; 
+        #bruce 060117 draft, experimental, not yet widely used;
         # obs comment: not sure if it should differ from kill [but see below]
-        
-        #bruce 060322 comments:        
+
+        #bruce 060322 comments:
         # Bugs: arbitrary-order calls (vs other obj destroy methods) are
         # probably not yet safe (for planned future calls of this method, to
         # plug memory leaks).
@@ -1759,7 +1759,7 @@ class Node( StateMixin):
         # shouldn't be (e.g. when that node might still be revived by Undo).
         # ###@@@ BTW, as of 060322 the appropriate init, alloc, and draw code
         # for glname is only done (or needed) in Jig.
-        ## self.assy.dealloc_my_glselect_name( self, self.glname ) 
+        ## self.assy.dealloc_my_glselect_name( self, self.glname )
         ##     # only ok for some subclasses; some have ._glname instead
         ##e more is needed too... see Atom and Bond methods
         # do we want this:
@@ -1776,7 +1776,7 @@ class Node( StateMixin):
         # added condition on self.dad existing, before delmember
         # added unpick (*after* dad.delmember)
         # added self.assy = None
-##        self._um_deinit() #bruce 051005 #k this is not good enough unless 
+##        self._um_deinit() #bruce 051005 #k this is not good enough unless
 ##            # this is always called when a node is lost from the MT!
         if self.dad:
             self.dad.delmember(self)
@@ -1796,7 +1796,7 @@ class Node( StateMixin):
         [Subclasses (especially Group) must extend this as needed.]
         """
         assert not self.picked
-        if self.part: 
+        if self.part:
             #bruce 050303; bruce 051227 moved from start of routine (before
             # delmember) to here (after unpick), not sure ok
             self.part.remove(self)
@@ -1817,7 +1817,7 @@ class Node( StateMixin):
             # tentative conclusion:
             # - don't stop doing this for A7
             # - but tell Undo about the change, as part of letting it know which
-            #   atoms are changing (namely, all those still in this Node, if 
+            #   atoms are changing (namely, all those still in this Node, if
             #   it's a chunk -- perhaps this will usually be no atoms?);
             #   other changes on atoms can safely only tell the assy they refer
             #   to (via atom.molecule.assy) (or no assy if that's None).
@@ -1917,7 +1917,7 @@ class Node( StateMixin):
     def dumptree(self, depth = 0): # just for debugging
         print depth * "...", self.name
 
-    def node_must_follow_what_nodes(self): 
+    def node_must_follow_what_nodes(self):
         #bruce 050422 made Node and Jig implems of this from function of same name
         """
         [should be overridden by Jig]
@@ -1966,13 +1966,13 @@ class Node( StateMixin):
         assert not self.is_group()
         if self.hidden:
             mapping.write("info leaf hidden = True\n")
-        if self.disabled_by_user_choice: 
-            # [bruce 050505 revised this so all Nodes have the attribute, 
+        if self.disabled_by_user_choice:
+            # [bruce 050505 revised this so all Nodes have the attribute,
             #  tho so far only Jigs use it]
             mapping.write("info leaf disabled = True\n") #bruce 050422
         return
 
-    def writemdl(self, alist, f, dispdef): 
+    def writemdl(self, alist, f, dispdef):
         #bruce 050430 added Node default method to fix bug reported by Ninad for A5
         pass
 
@@ -1985,9 +1985,9 @@ class Node( StateMixin):
         """
         pass
 
-    def draw_after_highlighting(self, 
-                                glpane, 
-                                dispdef, 
+    def draw_after_highlighting(self,
+                                glpane,
+                                dispdef,
                                 pickCheckOnly = False):
         """
         Draw the part of self's graphical appearance (or that of its members
@@ -1999,24 +1999,24 @@ class Node( StateMixin):
         Subclasses can override this method. Default implementation
         draws nothing and returns False (which is correct for most kinds
         of Nodes, at present). Overridden in class Group.
-        
+
         @param pickCheckOnly: [needs documentation of its effect]
                               (for example use, see this method in class Plane)
         @type pickCheckOnly: boolean
-        
+
         @return: A boolean flag 'anythingDrawn' that tells whether this method
             drew anything.
         @rtype: boolean
-        
+
         @see: GraphicsMode.Draw_after_highlighting() which calls this method
               [note difference in capitalization and arg signature]
         """
-        #Ninad 2008-06-20: This is a new API method that completely 
+        #Ninad 2008-06-20: This is a new API method that completely
         #replaces the implementation originally in method Utility._drawESPImage().
-        #Also did many bug fixes in the original implementation. 
+        #Also did many bug fixes in the original implementation.
         #
-        ###TODO: The return value anythingDrawn is retained from the old 
-        # implementation, as some other code in SelectGraphicsMode._calibrateZ 
+        ###TODO: The return value anythingDrawn is retained from the old
+        # implementation, as some other code in SelectGraphicsMode._calibrateZ
         # apparently uses it. Need to check if that code is used anywhere.
         # [bruce 080917 adds: Yes, it's used in jigGLSelect and
         #  get_jig_under_cursor, which are still needed for now,
@@ -2025,7 +2025,7 @@ class Node( StateMixin):
         anythingDrawn = False
         return anythingDrawn
 
-    def draw_in_abs_coords(self, glpane, color): 
+    def draw_in_abs_coords(self, glpane, color):
         #bruce 050729 to fix some bugs caused by Huaicai's jig-selection code
         """
         Default implementation of draw_in_abs_coords. Some implem is needed
@@ -2076,13 +2076,13 @@ class Node( StateMixin):
     def getstatistics(self, stats):
         pass
 
-    def break_interpart_bonds(self): 
+    def break_interpart_bonds(self):
         #bruce 050308 for assy/part split, and to fix bug 371 and related bugs for Jigs
         """
         Break all illegal bonds (atom-atom or atom-Jig or (in future) anything similar)
         between this node and other nodes in a different Part.
         [Note that as of 050513 and earlier, all atom-Jig interpart bonds
-         are permitted; but we let the Jig decide that.] 
+         are permitted; but we let the Jig decide that.]
         Error if this node or nodes it bonds to have no .part.
         Subclasses with bonds must override this method as appropriate.
            It's ok if some kinds of nodes do this more fancily than mere "breakage",
@@ -2210,7 +2210,7 @@ class Node( StateMixin):
         # default implem, for nodes which can never have atom content
         # (note, this default definition is needed on Node, since it's called
         #  on all members of a Group, whether or not they can contain atoms)
-        return 0 
+        return 0
 
     # an old todo comment:
     #in addition, each Node should have the following methods:
@@ -2233,7 +2233,7 @@ class NodeWith3DContents(Node): #bruce 080305
         """
         [overrides Node method; subclasses must override this method]
         """
-        pass ### assert 0, "subclass must implement"        
+        pass ### assert 0, "subclass must implement"
     def move(self, offset):
         """
         [overrides Node method; subclasses must override this method]
@@ -2260,7 +2260,7 @@ class SimpleCopyMixin(Node):
     # View. When it's stable, also see if the copy methods in Jig and even
     # Chunk can make use of these methods somehow (perhaps with these modified
     # to call new optional subclass methods). [bruce 060523]
-    
+
     # Note: there's no reason to put this in its own file different than Node,
     # because it needs no imports of its own, and anything that imports it
     # also has to import Node. [bruce 071026 comment]
@@ -2288,7 +2288,7 @@ class SimpleCopyMixin(Node):
         clas = self.__class__
         method = self._um_initargs # fyi: for Node, the returned args are assy, name
         args, kws = method()
-        # replace self.assy with mapping.assy in args 
+        # replace self.assy with mapping.assy in args
         # [new requirement of this method API, bruce 070430]
         newargs = list(args)
         for i in range(len(args)):
@@ -2337,13 +2337,13 @@ def topmost_nodes( nodes): #bruce 050303
 
     @see: related method hindmost and function topmost_selected_nodes,
           but those only work for the set of selected nodes.
-    
+
     @warning: current implementation is quadratic time in len(retval)
     """
     res = {} # from id(node) to node
     for node in nodes:
         assert node is not None # incorrect otherwise -- None won't have .is_ascendant method
-        dad = node 
+        dad = node
             # not node.dad, that way we remove dups as well (might never be needed, but good)
         while dad is not None:
             if id(dad) in res:

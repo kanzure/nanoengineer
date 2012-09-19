@@ -96,9 +96,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
                     ## more likely sitting within the view volume
 
         ##Huaicai 2/8/05: If this is true, redraw everything. It's better to split
-        ##the paintGL() to several functions, so we may choose to draw 
+        ##the paintGL() to several functions, so we may choose to draw
         ##every thing, or only some thing that has been changed.
-        self.redrawGL = True  
+        self.redrawGL = True
 
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs [of what? paintGL I guess?]
@@ -112,7 +112,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # NOTE: before bruce 080913 split out this file, setAssy was done
         # at this point. Hopefully it's ok to do it just after we return,
         # instead. (Seems to work.)
-        
+
         self.loadLighting() #bruce 050311 [defined in GLPane_lighting_methods]
             #bruce question 051212: why doesn't this prevent bug 1204
             # in use of lighting directions on startup?
@@ -120,9 +120,9 @@ class GLPane_rendering_methods(GLPane_image_methods):
         self.guides = Guides(self) # rulers, and soon, grid lines. Mark 2008-02-24.
 
         self.compass = Compass(self) #bruce 081015 refactored this
-        
+
         return
-    
+
     def model_is_valid(self): #bruce 080117
         """
         whether our model is currently valid for drawing
@@ -143,7 +143,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         Decide whether we need to call _paintGL_drawing,
         and if so, prepare for that (this might modify the model)
         and then call it.
-        
+
         Also (first) call self._call_whatever_waits_for_gl_context_current()
         if that would be safe.
 
@@ -157,7 +157,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             if USE_GRAPHICSMODE_DRAW:
                 # Init and continue on, assuming that test_Draw_model will be called
                 # separately (in an override of graphicsMode.Draw_model).
-                
+
                 # LIKELY BUG: USE_GRAPHICSMODE_DRAW is now a constant
                 # but needs to depend on the testCase or be a separately
                 # settable variable. This might be fixable inside test_drawing.py
@@ -168,18 +168,18 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 test_drawing(self)
                 self.graphicsMode.gm_end_of_paintGL(self)
                 return True
-        
+
         self._frustum_planes_available = False
 
         if not self.initialised:
             return False
-        
+
         if not self.model_is_valid():
             #bruce 080117 bugfix in GLPane and potential bugfix in ThumbView;
             # for explanation see my same-dated comment in files_mmp
             # near another check of assy_valid.
             return False
-        
+
         env.after_op() #bruce 050908; moved a bit lower, 080117
             # [disabled in changes.py, sometime before 060323;
             #  probably obs as of 060323; see this date below]
@@ -193,7 +193,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
         if not self.redrawGL:
             return False
-        
+
         self._call_whatever_waits_for_gl_context_current() #bruce 071103
 
         if not self._needs_repaint and \
@@ -251,7 +251,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             return False # skip the following repaint
 
         # at this point, we've decided to call _paintGL_drawing.
-        
+
         env.redraw_counter += 1 #bruce 050825
 
         #bruce 050707 (for bond inference -- easiest place we can be sure to update bonds whenever needed)
@@ -280,7 +280,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # widgets.py). So the checkpoints were zapped [by bruce 060326].
         # There might be reasons to revive that someday, and ways to avoid
         # its slowness and bugs, but it's not needed for now.
-        
+
         try:
             self._paintGL_drawing()
         except:
@@ -291,7 +291,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
     def _paintGL_drawing(self):
         """
         [private submethod of _paintGL]
-        
+
         Do whatever OpenGL drawing paintGL should do (then glFlush).
 
         @note: caller must handle TEST_DRAWING, redrawGL, _needs_repaint.
@@ -398,7 +398,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         call standard_repaint_0 inside "usage tracking". This is so subsequent
         changes to tracked variables (such as env.prefs values) automatically
         cause self.gl_update to be called.
-        
+
         @warning: this trashes both gl matrices! caller must push them both
                   if it needs the current ones. this routine sets its own
                   matrixmode, but depends on other gl state being standard
@@ -413,7 +413,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         #  methods of SelfUsageTrackingMixin, but I'm not sure whether the two tracking mixins
         #  would or should interact -- maybe one would define an invalidator for the other to use?]
         #
-        if self.__subusage is None: 
+        if self.__subusage is None:
             # usual the first time
             pass
         elif self.__subusage == 0:
@@ -451,7 +451,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             if env.prefs.get(debug_prints_prefs_key, False):
                 print "glpane end_tracking_usage" #bruce 070110
         return
-    
+
     drawing_phase = '?' # set to different fixed strings for different drawing phases
         # [new feature, bruce 070124] [also defined in GLPane_minimal]
         #
@@ -464,10 +464,10 @@ class GLPane_rendering_methods(GLPane_image_methods):
         #  aspect of interest from them, e.g. whether to draw shader primitives,
         #  whether to draw OpenGL display lists, which DrawingSet cache to use.)
         # [bruce 090227 comment]
-    
+
     drawing_globals.drawing_phase = drawing_phase # KLUGE (as is everything about drawing_globals)
-    
-    def set_drawing_phase(self, drawing_phase): 
+
+    def set_drawing_phase(self, drawing_phase):
         """
         Set self.drawing_phase to the specified value, and do any updates
         this requires (presently, copy it into drawing_globals.drawing_phase).
@@ -549,7 +549,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # to see if they need to be modified. This is worth
         # doing if we have time, but less urgent than several
         # other things we need to do.
-        
+
         drawing_phase = self.drawing_phase
         if drawing_phase == '?':
             print_compact_stack("warning: _choose_drawingset_cache_policy during '?' -- should clean up: ") ######
@@ -579,7 +579,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # review: is it good that we condition this on self.permit_shaders?
             # it doesn't matter for now, since ThumbView never calls it.
         return
-    
+
     def enabled_shaders(self): #bruce 090303
         return drawing_globals.enabled_shaders(self)
             #### todo: refactor: self.drawing_globals (but renamed)
@@ -615,11 +615,11 @@ class GLPane_rendering_methods(GLPane_image_methods):
 
     _last_general_appearance_prefs_summary = None #bruce 090306
     _general_appearance_change_indicator = 0 # also defined in GLPane_minimal
-    
+
     def standard_repaint_0(self):
         """
         [private indirect submethod of paintGL]
-        
+
         This is the main rendering routine -- it clears the OpenGL window,
         does all drawing done during paintGL, and does hit-testing if
         requested by event handlers before this call of paintGL.
@@ -635,7 +635,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             print "\n*** debug fyi: inconsistent: self width/height %r, %r vs QGLWidget %r, %r" % \
                   (self.width, self.height, QGLWidget.width, QGLWidget.height)
             pass
-        
+
         self.glprefs.update()
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
             # (this is also required to come BEFORE setup_shaders_each_frame)
@@ -697,7 +697,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # they might be the one under the mouse
 
         self.setup_shaders_each_frame()
-        
+
         self.configure_enabled_shaders()
             # I don't know if this is needed this early (i.e. before
             # do_glselect_if_wanted), but it shouldn't hurt (though it
@@ -716,7 +716,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # A: No, typically that worsens bugs -- it's better to see
             #    something than nothing.
             pass
-        
+
         self.do_glselect_if_wanted() # review: rename: _do_mouseover_picking?
             # note: this might call _do_graphicsMode_Draw up to 2 times
             # (as of before 090311).
@@ -729,8 +729,8 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # Compute frustum planes required for frustum culling - piotr 080331
         # Moved it right after _setup_projection is called (piotr 080331)
         # Note that this method is also called by "do_glselect_if_wanted",
-        # but computes different planes. The second call (here) will 
-        # re-compute the frustum planes according to the current projection 
+        # but computes different planes. The second call (here) will
+        # re-compute the frustum planes according to the current projection
         # matrix.
         if self._use_frustum_culling:
             self._compute_frustum_planes()
@@ -757,7 +757,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             # fully analyzed. [bruce 050612]
 
 ##            self.configure_enabled_shaders() #### new call 090304, maybe not needed
-            
+
             newpicked = self.preDraw_glselect_dict() # retval is new mouseover object, or None
             # now record which object is hit by the mouse in self.selobj
             # (or None if none is hit); and (later) overdraw it for highlighting.
@@ -779,13 +779,13 @@ class GLPane_rendering_methods(GLPane_image_methods):
         # in the bareMotion methods of instances stored in self.graphicsMode --
         # would self.bareMotion (which doesn't exist now) be better? (REVIEW)
         # [later: see also UNKNOWN_SELOBJ, I think]
-        
+
         ### REVIEW: I suspect the above comment, and not resetting selobj here,
-        # is wrong, at least when selobj has no depth at all at the current 
+        # is wrong, at least when selobj has no depth at all at the current
         # location; and that this error causes a "selobj stickiness" bug
         # when moving the mouse directly from selobj onto non-glname objects
-        # (or buggy-glname objects, presently perhaps including shader spheres 
-        # in Build Atoms when the debug_pref 'Use batched primitive shaders?' 
+        # (or buggy-glname objects, presently perhaps including shader spheres
+        # in Build Atoms when the debug_pref 'Use batched primitive shaders?'
         # is set). [bruce 090105 comment]
 
         # draw according to self.graphicsMode
@@ -796,14 +796,14 @@ class GLPane_rendering_methods(GLPane_image_methods):
         draw_saved_bg_image = False # whether to draw previously cached image, this frame
         capture_saved_bg_image = False # whether to capture a new image from what we draw this frame
         bg_image_comparison_data = None # if this changes, discard any previously cached image
-        
+
         if debug_pref("GLPane: use cached bg image? (experimental)",
                       Choice_boolean_False,
                       ## non_debug = True, [bruce 090311 removed non_debug]
                       prefs_key = True):
             # experimental implementation, has bugs (listed here or in
             # submethods when known, mostly in GLPane_image_methods)
-            
+
             ### REVIEW: this doesn't yet work, and it's never been reviewed
             # for compatibility with cached DrawingSet optimizations
             # (which may mostly supercede the need for it).
@@ -830,14 +830,14 @@ class GLPane_rendering_methods(GLPane_image_methods):
                     draw_saved_bg_image = True
                 else:
                     capture_saved_bg_image = True
-                    if bg_image_comparison_data == self._cached_bg_image_comparison_data: 
+                    if bg_image_comparison_data == self._cached_bg_image_comparison_data:
                         print "DEBUG FYI: equal values not same_vals:\n%r, \n%r" % \
                           ( bg_image_comparison_data, self._cached_bg_image_comparison_data ) ###
                 pass
             pass
         else:
             self._cached_bg_image_comparison_data = None
-            
+
         if draw_saved_bg_image:
             self._draw_saved_bg_image() # in GLPane_image_methods
                 # saved and drawn outside of stereo loop (intentional)
@@ -856,11 +856,11 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 self._do_drawing_for_bg_image_inside_stereo()
                 # note: this calls _do_graphicsMode_Draw once.
             # otherwise, no need, we called _draw_saved_bg_image above
-                
+
             if not capture_saved_bg_image:
                 self._do_other_drawing_inside_stereo()
                 # otherwise, do this later (don't mess up captured image)
-            
+
             self._disable_stereo()
             continue # to next stereo_image
 
@@ -906,7 +906,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
                 # REVIEW: can we simplify and/or optim by moving this into
                 # the same stereo_image loop used earlier for _do_graphicsMode_Draw?
                 # [bruce 080911 question]
-                
+
                 # WARNING: this code is duplicated, or almost duplicated,
                 # in GraphicsMode.py and GLPane.py.
                 # It should be moved into a common method in drawers.py.
@@ -930,7 +930,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         self._draw_cc_test_images()
             # draw some test images related to the confirmation corner
             # (needs to be done before draw_overlay)
-        
+
         # draw various overlays
 
         self.set_drawing_phase('overlay')
@@ -947,7 +947,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             self.graphicsMode.draw_overlay() #bruce 070405 (misnamed)
         except:
             print_compact_traceback( "exception in self.graphicsMode.draw_overlay(): " )
-        
+
         self.set_drawing_phase('?')
 
         # restore standard glMatrixMode, in case drawing code outside of paintGL
@@ -967,7 +967,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
             enable_fog()
 
         self.set_drawing_phase('main')
-        
+
         try:
             self._do_graphicsMode_Draw()
         finally:
@@ -1000,14 +1000,14 @@ class GLPane_rendering_methods(GLPane_image_methods):
             if not for_mouseover_highlighting:
                 self.graphicsMode.Draw_axes() # review: best place to do this?
             self.graphicsMode.Draw_other_before_model()
-        
+
         def func():
             # not always called (see _call_func_that_draws_model for details)
             self.graphicsMode.Draw_model()
-        
+
         def postfunc():
             self.graphicsMode.Draw_other()
-        
+
         self._call_func_that_draws_model( func,
                                           prefunc = prefunc,
                                           postfunc = postfunc )
@@ -1092,7 +1092,7 @@ class GLPane_rendering_methods(GLPane_image_methods):
         """
         # note: some existing calls of this are buggy since not in a stereo
         # loop. They are bad in other ways too. See comment there for more info.
-        
+
         ### REVIEW: any need for _call_func_that_draws_model? I guess not now,
         # but revise if we ever want to use csdls with objects drawn by this,
         # in any GraphicsMode. [bruce 090219 comment]

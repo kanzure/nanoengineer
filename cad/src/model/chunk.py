@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 chunk.py -- provides class Chunk [formerly known as class molecule],
 for a bunch of atoms (not necessarily bonded together) which can be moved
@@ -64,7 +64,7 @@ and not yet actually used; places to fix for this are marked ####.
 
 (Update: as of 090225 TransformNode is abandoned.
 However, I'm leaving some comments that refer to TransformNode in place
-(in still-active files), since they also help point out the code which any 
+(in still-active files), since they also help point out the code which any
 other attempt to optimize rigid drags would need to modify. In those comments,
 dt and st refer to dynamic transform and static transform, as used in
 scratch/TransformNode.py.)
@@ -100,7 +100,7 @@ from utilities.constants import diDNACYLINDER
 from utilities.constants import diPROTEIN
 from utilities.constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 from utilities.constants import noop
-from utilities.constants import MAX_ATOM_SPHERE_RADIUS 
+from utilities.constants import MAX_ATOM_SPHERE_RADIUS
 from utilities.constants import BBOX_MIN_RADIUS
 
 from utilities.prefs_constants import hoverHighlightingColor_prefs_key
@@ -173,7 +173,7 @@ _inval_all_bonds_counter = 1 # private global counter [bruce 050516]
 _superclass = NodeWithAtomContents #bruce 080305 revised this
 
 class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
-            NodeWithAtomContents, 
+            NodeWithAtomContents,
             InvalMixin,
             Selobj_API ):
     """
@@ -192,8 +192,8 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     _hotspot = None
 
-    _s_attr_hotspot = S_REF 
-        #bruce 060404 revised this in several ways; 
+    _s_attr_hotspot = S_REF
+        #bruce 060404 revised this in several ways;
         # bug 1633 (incl. all subbugs) will need retesting.
         # Note that this declares hotspot, not _hotspot, so that undo state
         # never contains dead atoms. This is only ok because we provide
@@ -216,10 +216,10 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     _colorfunc = None
     _dispfunc = None
 
-    is_movable = True #mark 060120 
+    is_movable = True #mark 060120
         # [no need for _s_attr decl, since constant for this class -- bruce guess 060308]
 
-    # Undoable/copyable attrs: 
+    # Undoable/copyable attrs:
     # (no need for _s_attr decls since copyable_attrs provides them)
 
     # self.display overrides global display (GLPane.display)
@@ -252,12 +252,12 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     #bruce 060313 no longer need to store diffs of our .atoms dict!
     # But still need to scan them as children (for now -- maybe not for much longer).
     # Do we implement _s_scan_children, or declare .atoms as S_CHILDREN_NOT_DATA??
-    # I think the latter is simpler, so I'll try it. 
+    # I think the latter is simpler, so I'll try it.
     ## _s_attr_atoms = S_CHILDREN
     _s_attr_atoms = S_CHILDREN_NOT_DATA
     _s_attrlayer_atoms = 'atoms' #bruce 060404
 
-    # The iconPath specifies path(string) of an icon that represents the 
+    # The iconPath specifies path(string) of an icon that represents the
     # objects of this class  (in this case its gives the path of an 'chunk icon')
     # see PM.PM_SelectionListWidget.insertItems for an example use of this
     # attribute.
@@ -291,13 +291,13 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     # except when no atoms happen to have overlayText when self is rendered --
     # in other words, it's only a hint -- false positives are permitted.
     chunkHasOverlayText = False
-    
-    showOverlayText = False 
+
+    showOverlayText = False
         # whether the user wishes to see the overlay text on this chunk
         # (used in ChunkDrawer)
 
     protein = None # this is set to an object of class Protein in some chunks
-    
+
     glpane = None #bruce 050804 ### TODO: RENAME (last glpane we displayed on??)
         # (warning: same-named attr is also used/set in ChunkDrawer;
         #  see comment therein for discussion)
@@ -315,12 +315,12 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         state). See also _f_invalidate_atom_lists_and_maybe_deallocate_displist,
         which is called (later) whether we are now alive or dead.
         """
-        assert self.assy is not None #bruce 080227 guess (from docstring) 
+        assert self.assy is not None #bruce 080227 guess (from docstring)
             # [can fail, 080325, tom bug when updater turned on after separate @@@]
         # One thing we know is required: if self.atoms changes, invalidate self.atlist.
         # This permits us to not store atom.index as undoable state, and to not update
         # self.atpos before undo checkpoints. [bruce 060313]
-        self.invalidate_everything() # this is probably overkill, but its call 
+        self.invalidate_everything() # this is probably overkill, but its call
             # of self.invalidate_atom_lists() is certainly needed
 
         self._colorfunc = None
@@ -339,12 +339,12 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             #  the destroy-like elements before the superclass implem.)
         return
 
-    def _undo_setattr_hotspot(self, hotspot, archive): 
+    def _undo_setattr_hotspot(self, hotspot, archive):
         """
         [undo API method]
-        
+
         Undo is mashing changed state into lots of objects' attrs at once;
-        this lets us handle that specially, just for self.hotspot, but in 
+        this lets us handle that specially, just for self.hotspot, but in
         unknown order (for now) relative either to our attrs or other objects.
         """
         #bruce 060404; 060410 use store_if_invalid to fix new bug 1829
@@ -353,7 +353,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     # ==
 
     def __init__(self, assy, name = None):
-        self._invalidate_all_bonds() 
+        self._invalidate_all_bonds()
             # bruce 050516 -- needed in __init__ to make sure
             # the counter it sets is always set, and always unique
         # Note [bruce 041116]:
@@ -368,9 +368,9 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             self.init_icons()
         self.init_InvalMixin()
         ## dad = None
-            #bruce 050216 removed dad from __init__ args, since no calls 
-            # pass it and callers need to do more to worry about the 
-            # location anyway (see comments above) 
+            #bruce 050216 removed dad from __init__ args, since no calls
+            # pass it and callers need to do more to worry about the
+            # location anyway (see comments above)
         _superclass.__init__(self, assy, name or gensym("Chunk", assy))
 
         # atoms in a dictionary, indexed by atom.key
@@ -422,7 +422,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             # [now private and has an accessor method, bruce 090213]
             # (when we eventually have a real destroy method, it should zap
             # this; maybe this will belong on class Node #e)
-        
+
         #glname is needed for highlighting the chunk as an independent object
         #NOTE: See a comment in self.highlight_color_for_modkeys() for more info.
         if not self.isNullChunk():
@@ -440,7 +440,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             # e.g. the ones named 'BasePairChunk' created internally by the dna
             # generator, and perhaps all dna chunks read from mmp files
             # (since the dna updater remakes them before they're drawn)
-        
+
         return # from Chunk.__init__
 
     # == unsorted methods, new as of bruce 090211 or so
@@ -512,7 +512,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         """
         #### note: should probably be merged with draw_in_abs_coords; see comments elsewhere
         self._drawer.draw_highlighted(glpane, color)
-        
+
     # == bruce 090212 moved the following methods back to class Chunk
     #    from ChunkDrawer ### todo: refile into original location in this class?
 
@@ -534,7 +534,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def highlight_color_for_modkeys(self, modkeys):
         """
-        This is used to return a highlight color for the chunk highlighting. 
+        This is used to return a highlight color for the chunk highlighting.
         See code comment for more info.
 
         @note: this method is part of the Selobj_API.
@@ -596,7 +596,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         Do glPushMatrix(), then transform from (presumed) world coordinates
         to self's private coordinates. Also tell glpane this was done
         (for more info and requirements see docstring of applyMatrix).
-        
+
         @see: self.applyMatrix()
         @see: self.popMatrix()
         """
@@ -624,7 +624,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         coordinate systems are pushed, even if their value when used later
         differs from their current value). (This is why we require 1-1
         correspondence between push and apply.)
-        
+
         @see: self.pushMatrix()
         """
         self.applyTransform()
@@ -642,7 +642,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         q = self.quat
         glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
         return
-    
+
     def popMatrix(self, glpane):
         """
         Undo the effect of self.pushMatrix(glpane). Also tell glpane this was
@@ -660,7 +660,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         @return: whether chunk is a "null object" (used as atom.molecule for some
                  killed atoms).
         @rtype: boolean
-        
+
         This is overridden in subclass _nullMol_Chunk ONLY.
 
         @see: _nullMol_Chunk.isNullChunk()
@@ -677,29 +677,29 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # Note: See make_selobj_cmenu_items in other classes. This method is very
         # similar to that method. But it's not named the same because the chunk
         # may not be a glpane.selobj (as it may get highlighted in SelectChunks
-        # mode even when, for example, the cursor is over one of its atoms 
+        # mode even when, for example, the cursor is over one of its atoms
         # (i.e. selobj = an Atom). So ideally, that method and this one should be
         # unified somehow. This method exists only in class Chunk and is called
         # only by certain commands. [comment originally by Ninad, revised by Bruce]
 
         assert command is not None
-        
+
         #Start Standard context menu items rename and delete [by Ninad]
 
-        parent_node_classes = (self.assy.DnaStrandOrSegment, 
+        parent_node_classes = (self.assy.DnaStrandOrSegment,
                                self.assy.NanotubeSegment)
             ### TODO: refactor to not hardcode these classes,
             # but to have a uniform way to find the innermost node
             # visible in the MT, which is the node to be renamed.
-        
+
             ### Also REVIEW whether what this finds (node_to_rename) is always
             # the same as the unit of hover highlighting, and if not, whether
             # it should be, and if so, whether the same code can be used to
             # determine the highlighted object and the object to rename or
             # delete. [bruce 081210 comments]
-        
+
         parent_node = None
-        
+
         for cls in parent_node_classes:
             parent_node = self.parent_node_of_class(cls)
             if parent_node:
@@ -707,9 +707,9 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
         node_to_rename = parent_node or self
         del parent_node
-        
+
         name = node_to_rename.name
-        
+
         item = (("Rename %s..." % name),
                 node_to_rename.rename_using_dialog )
         contextMenuList.append(item)
@@ -719,9 +719,9 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             node_to_rename.assy.win.win_update() #bruce 081210 bugfix
             node_to_rename.kill_with_contents()
             return
-        
+
         del node_to_rename
-        
+
         item = (("Delete %s" % name), delnode_cmd )
         contextMenuList.append(item)
         #End Standard context menu items rename and delete
@@ -734,13 +734,13 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                     protein = self.protein
                 except:
                     print_compact_traceback("exception in protein class")
-                    return 
+                    return
                     ### REVIEW: is this early return appropriate? [bruce 090115 comment]
                 if protein is not None:
                     item = (("%s" % (self.name)),
                             noop, 'disabled')
                     contextMenuList.append(item)
-                    item = (("Edit Protein Properties..."), 
+                    item = (("Edit Protein Properties..."),
                             (lambda _arg = self.assy.w, protein = protein:
                              protein.edit(_arg))
                              )
@@ -748,7 +748,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                     pass
                 pass
             pass
-        
+
         # Nanotube-related items
         if command.commandName in ('SELECTMOLS', 'BUILD_NANOTUBE', 'EDIT_NANOTUBE'):
             if self.isNanotubeChunk():
@@ -768,23 +768,23 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                     return
                     ### REVIEW: is this early return appropriate? [bruce 090115 comment]
                 if segment is not None:
-                    # Self is a member of a Nanotube group, so add this 
+                    # Self is a member of a Nanotube group, so add this
                     # info to a disabled menu item in the context menu.
                     item = (("%s" % (segment.name)),
                             noop, 'disabled')
                     contextMenuList.append(item)
 
-                    item = (("Edit Nanotube Properties..."), 
+                    item = (("Edit Nanotube Properties..."),
                             segment.edit)
                     contextMenuList.append(item)
                     pass
                 pass
             pass
-        
+
         # Dna-related items
         if command.commandName in ('SELECTMOLS', 'BUILD_DNA', 'DNA_SEGMENT', 'DNA_STRAND'):
             self._make_glpane_cmenu_items_Dna(contextMenuList)
-        
+
         return # from make_glpane_cmenu_items
 
     def nodes_containing_selobj(self): #bruce 080508 bugfix
@@ -823,7 +823,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                         ebset = ExternalBondSet( self, otherchunk)
                         otherchunk._bonded_chunks[ self] = ebset
                     else:
-                        # ebset was memoized in otherchunk but not in self -- 
+                        # ebset was memoized in otherchunk but not in self --
                         # this should never happen
                         # (since the only way to make one is the above case,
                         #  which ends up storing it in both otherchunk and self,
@@ -853,9 +853,9 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def potential_bridging_objects(self):
         return self._bonded_chunks.values()
-    
+
     # ==
-    
+
     def edit(self):
         ### REVIEW: model tree has a special case for isProteinChunk;
         # should we pull that in here too? Guess yes.
@@ -871,7 +871,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def getProps(self): # probably by Ninad
         """
-        To be revised post dna data model. Used in EditCommand class and its 
+        To be revised post dna data model. Used in EditCommand class and its
         subclasses.
         """
         return ()
@@ -918,11 +918,11 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                 return False
             continue
 
-        return True  
+        return True
 
     def getNanotubeSegment(self): # ninad 080205
         """
-        Return the NanotubeSegment of this chunk if it has one. 
+        Return the NanotubeSegment of this chunk if it has one.
         """
         return self.parent_node_of_class(self.assy.NanotubeSegment)
 
@@ -938,7 +938,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
          or dead chunks.]
         """
         self.invalidate_atom_lists()
-        
+
         #bruce 071105 created this method and made undo call it
         # instead of just calling invalidate_atom_lists directly,
         # so the code below is new. It's needed to make sure that
@@ -946,16 +946,16 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # its display list. See comment next to call about a more
         # general mechanism (nim) that would be better in the undo
         # interface to us than this friend method.
-        
+
         # REVIEW: would a better name and more general description be something
-        # like "undo has modified your atoms dict, do necessary invals and 
-        # deallocates"? I think it would; so I'll split it into two methods, 
+        # like "undo has modified your atoms dict, do necessary invals and
+        # deallocates"? I think it would; so I'll split it into two methods,
         # one to keep here and one to move into ChunkDrawer for now.
         # [bruce 090123]
-        
+
         self._drawer.deallocate_displist_if_needed()
         return
-    
+
     # ==
 
     def contains_atom(self, atom): #bruce 070514
@@ -1005,7 +1005,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                         print_compact_stack( "\n" + msg + ": " )
                     else:
                         print msg
-                b.bust() 
+                b.bust()
         # someday, maybe: check atom-jig bonds ... but callers need to handle
         # some jigs specially first, which this would destroy...
         # actually this would be inefficient from this side (it would scan
@@ -1015,15 +1015,15 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def set_hotspot(self, hotspot, silently_fix_if_invalid = False, store_if_invalid = False):
         #bruce 050217; 050524 added keyword arg; 060410 renamed it & more
-        
+
         # first make sure no other code forgot to call us and set it directly
         assert not 'hotspot' in self.__dict__.keys(), "bug in some unknown other code"
         if self._hotspot is not hotspot:
-            self.changed() 
+            self.changed()
                 #bruce 060324 fix bug 1532, and an unreported bug where this
                 #didn't mark file as modified
         self._hotspot = hotspot
-        if not store_if_invalid: 
+        if not store_if_invalid:
             # (when that's true, it's important not to recompute self.hotspot,
             #  even in an assertion)
             # now recompute self.hotspot from the new self._hotspot (to check
@@ -1088,7 +1088,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     mticon = []
     hideicon = []
-    
+
     def init_icons(self):
         # see also the same-named, related method in class Jig.
         """
@@ -1103,10 +1103,10 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         for name in self.hideicon_names:
             self.hideicon.append( imagename_to_pixmap( "modeltree/" + name))
         return
-    
-    def node_icon(self, display_prefs): 
+
+    def node_icon(self, display_prefs):
         if self.isProteinChunk():
-            # Special case for protein icon (for MT only). 
+            # Special case for protein icon (for MT only).
             # (For PM_SelectionListWidget, the attr iconPath was modified in
             #  isProteinChunk() in separate code.) --Mark 2008-12-16.
             hd = get_display_mode_handler(diPROTEIN)
@@ -1134,12 +1134,12 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         should be the only way new atoms can be added to a Chunk
         (except for optimized callers like Chunk.merge, and others with comments
          saying they inline it).
-        
+
         Add an existing atom (with no current Chunk, and with a valid literal
         .xyz field) to the Chunk self, doing necessary invals in self, but not yet
         giving the new atom an index in our curpos, basepos, etc (which will not
         yet include the new atom at all).
-        
+
         Details of invalidations: Curpos must be left alone (so as not
         to forget the positions of other atoms); the other atom-position arrays
         (atpos, basepos) and atom lists (atlist) are defined to be complete, so
@@ -1147,7 +1147,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         In the future we might change this function to incrementally grow those
         arrays. This will be transparent to callers since they are now recomputed
         as needed by __getattr__.
-        
+
         (It's not worth tracking changes to the set of singlets in the mol,
         so instead we recompute self.singlets and self.singlpos as needed.)
         """
@@ -1174,7 +1174,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         Private method;
         should be the only way atoms can be removed from a Chunk
         (except for optimized callers like Chunk.merge).
-        
+
         Remove atom from the Chunk self, preparing atom for being destroyed
         or for later addition to some other mol, doing necessary invals in self,
         and (for safety and possibly to break cycles of python refs) removing all
@@ -1210,7 +1210,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     def invalidate_atom_lists(self, invalidate_atom_content = True):
         """
         [private method (but also called directly from undo_archive)]
-        
+
         some atom is joining or leaving self; do all needed invalidations
 
         @note: ok to call just once, if many atoms are joining and/or leaving
@@ -1254,7 +1254,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         if need:
             # this causes trouble, not yet sure why:
             ## self.changed_attrs(['externs', 'atlist'])
-            ## AssertionError: validate_attr finds no attr 'externs' was saved, 
+            ## AssertionError: validate_attr finds no attr 'externs' was saved,
             ## in <Chunk 'Ring Gear' (5167 atoms) at 0xd967440>
             # so do this instead:
             self.externs = self.atlist = -1
@@ -1293,7 +1293,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         self._invalidate_all_bonds()
         self.invalidate_atom_lists() # _undo_update depends on us calling this
         attrs  = self.invalidatable_attrs()
-        # now this is done in that method: 
+        # now this is done in that method:
         ## attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
             self.invalidate_attr(attr)
@@ -1304,7 +1304,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def update_everything(self):
         attrs  = self.invalidatable_attrs()
-        # now this is done in that method: 
+        # now this is done in that method:
         ## attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
             junk = getattr(self, attr)
@@ -1316,7 +1316,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def changed_atom_posn(self): #bruce 060308
         """
-        One of self's atoms changed position; 
+        One of self's atoms changed position;
         invalidate whatever we might own that depends on that
         (other than our ExternalBondSets, whose appearance the
          caller must invalidate if needed).
@@ -1327,7 +1327,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # well.
         self.changed()
         self._drawer.invalidate_display_lists()
-        self.invalidate_attr('atpos') #e should optim this 
+        self.invalidate_attr('atpos') #e should optim this
             ##k verify this also invals basepos, or add that to the arg of this call
         return
 
@@ -1455,20 +1455,20 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         Also set atom.index on each atom in the list, to its index in the list.
         """
         atomitems = self.atoms.items()
-        atomitems.sort() 
+        atomitems.sort()
             # in order of atom keys; probably doesn't yet matter, but makes order deterministic
         atlist = [atom for (key, atom) in atomitems]
         self.atlist = array(atlist, PyObject) #review: untested whether making it an array is good or bad
         for atom, i in zip(atlist, range(len(atlist))):
-            atom.index = i 
-        return        
+            atom.index = i
+        return
 
     _inputs_for_atpos = ['atlist'] # also incrementally modified by setatomposn [not anymore, 060308]
         # (Atpos could be invalidated directly, but maybe it never is (not sure);
         #  anyway we don't optim for that.)
     _inputs_for_basepos = ['atpos'] # also invalidated directly, but not often
 
-    def _recompute_atpos(self): 
+    def _recompute_atpos(self):
         """
         recompute self.atpos and self.basepos and more;
         also change self's local coordinate system (used for basepos)
@@ -1476,7 +1476,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         """
         #bruce 060308 major rewrite
         #bruce 060313 splitting _recompute_atlist out of _recompute_atpos
-        
+
         # Something must have been invalid to call us, so basepos must be
         # invalid. So we needn't call changed_attr on it.
         assert not self.__dict__.has_key('basepos')
@@ -1497,7 +1497,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 ##                print "fyi: _recompute_atpos sees %r already existing" % attr
 
         atlist = self.atlist # might call _recompute_atlist
-        atpos = map( lambda atom: atom.posn(), atlist ) 
+        atpos = map( lambda atom: atom.posn(), atlist )
             # atpos, basepos, and atlist must be in same order
         atpos = A(atpos)
         # we must invalidate or fix self.atpos when any of our atoms' positions is changed!
@@ -1528,14 +1528,14 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         else:
             self.basepos = []
             # this has wrong type, so requires special code in mol.move etc
-            ###k Could we fix that by just assigning atpos to it (no elements, 
+            ###k Could we fix that by just assigning atpos to it (no elements,
             # so should be correct)?? [bruce 060119 question]
 
         assert len(self.basepos) == len(atlist)
 
         # note: basepos must be a separate (unshared) array object
         # (except when mol is frozen [which is no longer supported as of 060308]);
-        # as of 060308 atpos (when defined) is a separate array object, 
+        # as of 060308 atpos (when defined) is a separate array object,
         # since curpos no longer exists.
         self._changed_basecenter_or_quat_while_atoms_fixed()
             # (that includes self.changed_attr('basepos'), though an assert above
@@ -1554,16 +1554,16 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         """
         [private method]
         If you change self.basecenter or self.quat while intending
-        self's atoms to remain fixed in absolute space (rather than 
+        self's atoms to remain fixed in absolute space (rather than
         moving along with those changes), first recompute self.basepos
         to be correct in the new local coordinates (or perhaps just
         invalidate self.basepos -- that use is unanalyzed and untried),
         then call this method to do necessary invals.
-                
-        This method invals other things (besides self.basepos) which depend 
-        on self's local coordinate system -- i.e. self's internal bonds 
+
+        This method invals other things (besides self.basepos) which depend
+        on self's local coordinate system -- i.e. self's internal bonds
         and self's OpenGL display lists; and it calls changed_attr('basepos').
-        """ 
+        """
         self._invalidate_internal_bonds()
         self.changed_attr('basepos')
         self._drawer.invalidate_display_lists()
@@ -1616,7 +1616,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     _inputs_for_bbox = ['atpos']
     def _recompute_bbox(self):
         """
-        Recompute self.bbox, an axis-aligned bounding box (in absolute 
+        Recompute self.bbox, an axis-aligned bounding box (in absolute
         coordinates) made from all of self's atom positions (including
         bondpoints), plus a fudge factor to account for atom radii.
         """
@@ -1656,20 +1656,20 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         return externs
 
     # ==
-    
+
     def get_dispdef(self, glpane = None):
         """
         @return: display style we'd use to draw self on the given glpane
                  (or on self.assy.o if glpane is not provided)
-        
+
         @see: getDisplayStyle
-        """        
-        # REVIEW: how should it be refactored so each type of chunk 
+        """
+        # REVIEW: how should it be refactored so each type of chunk
         # (protein, dna, etc) has its own drawing code, including its own way
         # of interpreting display style settings (which themselves need a lot
         # of refactoring and generalization)?
         # [bruce 090123 comment]
-        
+
         if self.display != diDEFAULT:
             disp = self.display
         else:
@@ -1690,7 +1690,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                 disp = diDNACYLINDER
             else:
                 disp = glpane.lastNonReducedDisplayMode
-                    
+
         return disp
 
     # ==
@@ -1722,24 +1722,24 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                 if id(bond) not in drawn:
                     drawn[id(bond)] = bond
                     bond.writepov(file, disp, self.color)
-                    
+
         # piotr 080521
         # write POV-Ray file for the ChunkDisplayMode
         hd = get_display_mode_handler(disp)
         if hd:
             hd._writepov(self, file)
-            
+
     def writemdl(self, alist, f, disp):
         if self.display != diDEFAULT:
             disp = self.display
         if self.hidden or disp == diINVISIBLE:
             return
         # review: use self.color somehow?
-        for a in self.atoms.values(): 
+        for a in self.atoms.values():
             a.writemdl(alist, f, disp, self.color)
 
     # ==
-            
+
     def move(self, offset):
         """
         Public method:
@@ -1764,7 +1764,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             # TODO: refactor this to use a move method in bbox.
             if self.bbox.data:
                 self.bbox.data += offset
-            
+
         # Now, do the move. Note that this might destructively modify the object
         # self.basecenter rather than replacing it with a new one.
         self.basecenter += offset
@@ -1815,7 +1815,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         """
         Public method: expand self by the given factor
         (keeping point fixed -- by default, point is self.center).
-        
+
         Do all necessary invalidations, optimized for this operation.
         """
         self.basepos # recompute if necessary
@@ -1823,7 +1823,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # note: use len(), since A([[0.0,0.0,0.0]]) is false!
         if not len(self.basepos):
             # precaution (probably never occurs):
-            # special case for no atoms, since 
+            # special case for no atoms, since
             # remaining code won't work for it,
             # since self.basepos has the wrong type then (it's []).
             # Note that no changes or invals are needed in this case.
@@ -1909,11 +1909,11 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         self.changed_attr('atpos', skip = ('bbox', 'basepos'))
 
         # we've moved one end of each external bond, so invalidate them...
-        # [bruce 050516 comment (95% sure it's right): 
+        # [bruce 050516 comment (95% sure it's right):
         #  note that we don't, and need not, inval internal bonds]
         for bond in self.externs:
             bond.setup_invalidate()
-        
+
         return
 
     def _set_atom_posns_from_atpos(self, atpos): #bruce 060308; revised 060313
@@ -1945,7 +1945,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # review: should we pick single name, and merge methods applyToPoint and base_to_abs?
         # or do they have different contracts (point vs anything)?
         return self.base_to_abs(point)
-        
+
     def base_to_abs(self, anything): # bruce 041115, docstring revised 090223
         """
         map anything (which is accepted by quat.rot() and Numeric.array's '+'
@@ -1976,11 +1976,11 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def set_basecenter_and_quat(self, basecenter, quat):
         """
-        Deprecated public method: 
-        
+        Deprecated public method:
+
         Change self's basecenter and quat to the specified values,
         as a way of moving self's atoms.
-        
+
         It's deprecated since basecenter and quat are replaced by
         in-principle-arbitrary values every time certain recomputations are
         done after self's geometry might have changed, but this method is only
@@ -1997,7 +1997,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # make sure mol owns its new basecenter and quat,
         # since it might destructively modify them later!
         self.basecenter = V(0,0,0) + basecenter
-        self.quat = Q(1,0,0,0) + quat 
+        self.quat = Q(1,0,0,0) + quat
             # review: +quat might be correct and faster... don't know; doesn't matter much
         self.bbox = None
         del self.bbox #e could optimize if quat is not changing
@@ -2006,7 +2006,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     def getaxis(self):
         """
         Return self's axis, in absolute coordinates.
-        
+
         @note: several Nodes have this method, but it's not (yet) formally
                a Node API method.
         @see: self.axis (in self-relative coordinates)
@@ -2031,7 +2031,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             r,g,b = color
             color = r,g,b
         self.color = color
-            # warning: some callers (ChunkProp.py) first replace self.color, 
+            # warning: some callers (ChunkProp.py) first replace self.color,
             # then call us to bless the new value. Therefore the following is
             # needed even if self.color didn't change here. [bruce 050505 comment]
         self._drawer.invalidate_display_lists()
@@ -2066,29 +2066,29 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def getDisplayStyle(self):
         """
-        Return the display style setting on self. 
-        
+        Return the display style setting on self.
+
         Note that this might be diDEFAULT -- that setting makes self get drawn
         as if it had a display style inherited from self's graphical environment
         (for now, its glpane), but an inherited style is never returned
         from this method (unless it also happens to be explicitly set on self).
-        
+
         (Use get_dispdef to obtain the display style that will be used to draw
         self, which might be set on self or inherited from self's environment.)
-        
-        @note: the display style used to draw self can differ from  
-        self.display not only if that's diDEFAULT, but due to some special cases 
+
+        @note: the display style used to draw self can differ from
+        self.display not only if that's diDEFAULT, but due to some special cases
         in get_dispdef based on what kind of chunk self is.
-        
+
         @see: L{get_dispdef()}
         """
         return self.display
-    
+
     def show_invisible_atoms(self): # by Mark ### TODO: RENAME
         """
-        Reset the display style of each invisible (diINVISIBLE) atom 
+        Reset the display style of each invisible (diINVISIBLE) atom
         in self to diDEFAULT, thus making it visible again.
-        
+
         @return: number of invisible atoms in self (which are all made visible)
         """
         n = 0
@@ -2102,17 +2102,17 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         """
         Change the display style setting for all atoms in self to the one
         specified by 'display'.
-        
+
         @param display: display style setting to apply to all atoms in self
                         (can be diDEFAULT or diINVISIBLE or various other values)
-                        
+
         @return: number of atoms in self whose display style setting changed
         """
         n = 0
         for a in self.atoms.itervalues():
             if a.display != display:
                 a.setDisplayStyle(display)
-                    # REVIEW: does this always succeed? 
+                    # REVIEW: does this always succeed?
                     # If not, should we increment n then? [bruce 090108 questions]
                 n += 1
         return n
@@ -2120,23 +2120,23 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     def changeapp(self, atoms):
         """
         Call this when you've changed the graphical appearance of self.
-        
-        (But there is no need to call it if only self's external bonds 
+
+        (But there is no need to call it if only self's external bonds
          look different, or (at present) just for a change to self.picked.)
-        
+
         @param atoms: (required) True means that not only the graphical
-                      appearance of self,  but also specifically the set of 
-                      atoms of self or their atomic radii (for purposes of 
+                      appearance of self,  but also specifically the set of
+                      atoms of self or their atomic radii (for purposes of
                       hover-highlighting(?) or selection), have changed.
         @type atoms: boolean
-        
+
         @note: changeapp does not itself call self.assy.changed(),
                since that is not always correct to do (e.g., selecting an atom
                should call changeapp(), but not assy.changed(), on
                atom.molecule).
-        
+
         @see: changed_selected_atoms
-        """ 
+        """
         #### REVIEW and document: need this be called when changing self's color?
         #### TODO: classify external calls, figure out which ones must also invalidate EBSets ####
         self._drawer.invalidate_display_lists()
@@ -2154,7 +2154,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 ##        # REVIEW: do some inlines of changeapp need to do this too?
 ##        # If they did, would that catch the redraws that currently
 ##        # only Qt knows we need to do? [bruce 080305 question]
-##        glpane = self.glpane 
+##        glpane = self.glpane
 ##            # the last glpane that drew this chunk, or None if it was never
 ##            # drawn (if more than one can ever draw it at once, this code
 ##            # needs to be revised to scan them all ##k)
@@ -2177,32 +2177,32 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         """
         Called when any of our atoms' relative coordinates move
         (thus changing our shape, and presumably that of all our
-        transform-bridging objects such as ExternalBondSets). 
+        transform-bridging objects such as ExternalBondSets).
         """
         for bo in self.bridging_objects(): #### note: this method is only defined in TransformNode
             bo.invalidate_distortion()
         return
-    
+
     def changed_selected_atoms(self): #bruce 090119
         """
         Invalidate whatever is needed due to something having
         changed the selectness of some of self's atoms.
-        
+
         @note: this is a low-level method, called by Atom.pick/unpick etc,
                so most new code need never call this.
         """
-        self.changeapp(1) 
+        self.changeapp(1)
             # * for atom appearance (since selected atom wireframes are part of
             #   the main chunk display list)
             # * for selatom radius (affected by selectedness for invisible atoms)
         self.changed_selection() # reports an undoable change to selection
-        
+
     def natoms(self): #bruce 060215
         """
         Return number of atoms (real atoms or bondpoints) in self.
         """
         return len(self.atoms)
-    
+
     def getToolTipInfo(self):
         """
         Return the tooltip string for this chunk
@@ -2211,12 +2211,12 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         if info:
             return info # in future, we might combine it with other info
         return ""
-        
+
     def getinfo(self): # mark 2004-10-14
         """
         Return information about the selected chunk for the msgbar
         """
-        if self is self.assy.ppm: 
+        if self is self.assy.ppm:
             return
 
         ele2Num = {}
@@ -2225,7 +2225,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         for a in self.atoms.values():
             if not ele2Num.has_key(a.element.symbol):
                 ele2Num[a.element.symbol] = 1 # New element found
-            else: 
+            else:
                 ele2Num[a.element.symbol] += 1 # Increment element
 
         # String construction for each element to be displayed.
@@ -2237,7 +2237,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             if item[0] == "X":  # Singlet
                 nsinglets = int(item[1])
                 continue
-            else: 
+            else:
                 eleStr = "[" + item[0] + ": " + str(item[1]) + "] "
             einfo += eleStr
 
@@ -2256,16 +2256,16 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def getstatistics(self, stats):
         """
-        Adds the current chunk, including number of atoms 
+        Adds the current chunk, including number of atoms
         and singlets, to part stats.
         """
         stats.nchunks += 1
         stats.natoms += self.natoms()
         for a in self.atoms.itervalues():
-            if a.element.symbol == "X": 
+            if a.element.symbol == "X":
                 stats.nsinglets += 1
 
-    def pickatoms(self): # mark 060211. 
+    def pickatoms(self): # mark 060211.
         """
         Pick the atoms of self not already picked (selected).
         Return the number of newly picked atoms.
@@ -2279,7 +2279,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             if not a.is_singlet():
                 if not a.picked:
                     a.pick()
-                    if a.picked: 
+                    if a.picked:
                         # in case not picked due to selection filter
                         npicked += 1
         return npicked
@@ -2294,18 +2294,18 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             if self.assy is not None:
                 self.assy.permit_pick_parts()
                 #bruce 050125 added this... hope it's ok! ###k ###@@@
-                # (might not be needed for other kinds of leaf nodes... 
+                # (might not be needed for other kinds of leaf nodes...
                 #  not sure. [bruce 050131])
             _superclass.pick(self)
             #bruce 050308 comment: _superclass.pick (Node.pick) has ensured
             #that we're in the current selection group, so it's correct to
             #append to selmols, *unless* we recompute it now and get a version
             #which already contains self. So, we'll maintain it iff it already
-            #exists. Let the Part figure out how best to do this. 
+            #exists. Let the Part figure out how best to do this.
             # [bruce 060130 cleaned this up, should be equivalent]
             if self.part:
                 self.part.selmols_append(self)
-            
+
             self._drawer._f_kluge_set_selectedness_for_drawing(True)
             pass
         return
@@ -2326,26 +2326,26 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def getAxis_of_self_or_eligible_parent_node(self, atomAtVectorOrigin = None):
         """
-        Return the axis of a parent node such as a DnaSegment or a Nanotube 
-        Segment or the dna segment of a DnaStrand. If one doesn't exist, 
+        Return the axis of a parent node such as a DnaSegment or a Nanotube
+        Segment or the dna segment of a DnaStrand. If one doesn't exist,
         return self's axis. Also return the node from which the returned
         axis was found.
-        
-        @param atomAtVectorOrigin: If the atom at vector origin is specified, 
+
+        @param atomAtVectorOrigin: If the atom at vector origin is specified,
             the method will try to return the axis vector with the vector
             start point at this atom's center. [REVIEW: What does this mean??]
         @type atomAtVectorOrigin: B{Atom}
-        
+
         @return: (axis, node used to get that axis)
         """
         #@TODO: refactor this. Method written just before FNANO08 for a critical
         #NFR. (this code is not a part of Rattlesnake rc2)
         #- Ninad 2008-04-17
-        
+
         #bruce 090115 partly refactored it, but more would be better.
         # REVIEW: I don't understand any meaning in what the docstring says about
         # atomAtVectorOrigin. What does it actually do? [bruce 090115 comment]
-        
+
         axis, node = self._getAxis_of_self_or_eligible_parent_node_Dna(
             atomAtVectorOrigin = atomAtVectorOrigin )
         if axis is not None:
@@ -2422,7 +2422,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             # last in the values list)! Should be ok,
             # though I ought to rewrite it so that if that does happen here,
             # I don't redo everything and have to worry whether that's safe.
-            # [bruce 050214 comment] 
+            # [bruce 050214 comment]
             # [this would also serve to bust the extern bonds, but it seems safer
             #  to do that explicitly and to do it first -- bruce 041109 comment]
         #bruce 041029 precautions:
@@ -2540,8 +2540,8 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         return res # from findAtomUnderMouse
 
     def _findAtomUnderMouse_Numeric_stuff(self, v, r_xy_2, radii_2,
-                                          far_cutoff = None, 
-                                          near_cutoff = None, 
+                                          far_cutoff = None,
+                                          near_cutoff = None,
                                           alt_radii = ()
                                          ):
         """
@@ -2636,9 +2636,9 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # Note: this must also be invalidated when one atom's display mode changes,
         # and it is, by atom.setDisplayStyle calling changeapp(1) on its chunk.
         disp = self.get_dispdef() ##e should caller pass this instead?
-        eltprefs = PeriodicTable.rvdw_change_counter 
+        eltprefs = PeriodicTable.rvdw_change_counter
             # (color changes don't matter for this, unlike for display lists)
-        radiusprefs = Atom.selradius_prefs_values() 
+        radiusprefs = Atom.selradius_prefs_values()
             #bruce 060317 -- include this in the tuple below, to fix bug 1639
         if self.haveradii != (disp, eltprefs, radiusprefs): # value must agree with set, below
             # don't have them, or have them for wrong display mode, or for
@@ -2659,7 +2659,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         else:
             return A( lis )
         pass
-    
+
     def nearSinglets(self, point, radius): # todo: rename
         """
         return the bondpoints in the given sphere (point, radius),
@@ -2698,7 +2698,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
     def _copy_optional_attrs_to(self, numol):
         #bruce 090112 split this out of two methods.
         # Note: we don't put these in copyable_attrs, since
-        # copy_copyable_attrs_to wasted RAM when they have their 
+        # copy_copyable_attrs_to wasted RAM when they have their
         # default values (and perhaps for other reasons??).
         # Review: add a method like this to Node API, to be called
         # inside default def of copy_copyable_attrs_to??
@@ -2707,14 +2707,14 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         if self.showOverlayText:
             numol.showOverlayText = True
         if self._colorfunc is not None: #bruce 060411 added condition
-            numol._colorfunc = self._colorfunc 
+            numol._colorfunc = self._colorfunc
         if self._dispfunc is not None:
             numol._dispfunc = self._dispfunc
         # future: also copy user-specified axis, center, etc, if we have those
         # (but see existing copy code for self.user_specified_center)
         return
-        
-    def _copy_empty_shell_in_mapping(self, mapping): 
+
+    def _copy_empty_shell_in_mapping(self, mapping):
         """
         [private method to help the public copy methods, all of which
          start with this except the deprecated mol.copy]
@@ -2735,13 +2735,13 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         #bruce 070430 revised to honor mapping.assy
         numol = self.__class__(mapping.assy, self.name)
             #bruce 080316 Chunk -> self.__class__ (part of fixing this for Extrude of DnaGroup)
-        self.copy_copyable_attrs_to(numol) 
+        self.copy_copyable_attrs_to(numol)
             # copies .name (redundantly), .hidden, .display, .color...
         self._copy_optional_attrs_to(numol)
         mapping.record_copy(self, numol)
         return numol
 
-    def copy_full_in_mapping(self, mapping): # in class Chunk 
+    def copy_full_in_mapping(self, mapping): # in class Chunk
         """
         #doc;
         overrides Node method;
@@ -2749,14 +2749,14 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         """
         # bruce 050526; 060308 major rewrite
         numol = self._copy_empty_shell_in_mapping( mapping)
-        # now copy the atoms, all at once (including all their existing 
+        # now copy the atoms, all at once (including all their existing
         # singlets, even though those might get revised)
-        # note: the following code is very similar to 
+        # note: the following code is very similar to
         # copy_in_mapping_with_specified_atoms, but not identical.
         pairlis = []
         ndix = {} # maps old-atom key to corresponding new atom
         nuatoms = {}
-        for a in self.atlist: 
+        for a in self.atlist:
             # note: self.atlist is now in order of atom.key;
             # it might get recomputed right now (along with atpos & basepos if so)
             na = a.copy()
@@ -2770,17 +2770,17 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # note: we don't bother copying atlist, atpos, basepos,
         # since it's hard to do correctly (e.g. not copying everything
         # which depends on them would cause inval bugs), and it's wasted work
-        # for callers which plan to move all the atoms after 
+        # for callers which plan to move all the atoms after
         # the copy
         self._copy_atoms_handle_bonds_jigs( pairlis, ndix, mapping)
         # note: no way to handle hotspot yet, since how to do that might depend on whether
         # extern bonds are broken... so let's copy an explicit one, and tell the mapping
         # if we have an implicit one... or, register a cleanup function with the mapping.
-        copied_hotspot = self.hotspot 
+        copied_hotspot = self.hotspot
             # might be None (this uses __getattr__ to ensure the stored one is valid)
         if copied_hotspot is not None:
             numol.set_hotspot( ndix[copied_hotspot.key])
-        elif len(self.singlets) == 1: 
+        elif len(self.singlets) == 1:
             #e someday it might also work if there are two singlets on the same base atom!
             # we have an implicit but unambiguous hotspot:
             # might need to make it explicit in the copy [bruce 041123, revised 050524]
@@ -2802,20 +2802,20 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             # but it's probably better not to, so as to specialize it for speed;
             # even so, could clean this up to bond externs as soon as 2nd atom seen
             # (which might be more efficient, though that doesn't matter much
-            #  since externs should not be too frequent); 
+            #  since externs should not be too frequent);
             # could do all this in a Bond method
         for (a, na) in pairlis:
-            if a.jigs: 
+            if a.jigs:
                 # a->na mapping might be needed if those jigs are copied,
                 # or confer properties on atom a
                 origid_to_copy[id(a)] = na # inlines mapping.record_copy for speed
             for b in a.bonds:
                 a2key = b.other(a).key
                 if a2key in ndix:
-                    # internal bond - make the analogous one 
+                    # internal bond - make the analogous one
                     # [this should include all bonds to singlets]
                     #bruce 050524 changes: don't do it twice for the same bond;
-                    # and use bond_copied_atoms to copy bond state (e.g. 
+                    # and use bond_copied_atoms to copy bond state (e.g.
                     # bond-order policy and estimate) from old bond.
                     # [note: also done in copy_single_chunk]
                     if a.key < a2key:
@@ -2827,10 +2827,10 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                 else:
                     # external bond [or at least outside of atoms in
                     # pairlis/ndix] -- caller will handle it when all chunks
-                    # and individual atoms have been copied (copy it if it 
+                    # and individual atoms have been copied (copy it if it
                     # appears here twice, or break it if once)
-                    # [note: similar code will be in atom.copy_in_mapping] 
-                    extern_atoms_bonds.append( (a,b) ) 
+                    # [note: similar code will be in atom.copy_in_mapping]
+                    extern_atoms_bonds.append( (a,b) )
                         # it's ok if this list has several entries for one 'a'
                     origid_to_copy[id(a)] = na
                         # a->na mapping will be needed outside this method,
@@ -2865,37 +2865,37 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             pairlis.append((a, na))
             ndix[key] = na
         self._copy_atoms_handle_bonds_jigs( pairlis, ndix, mapping)
-        ##e do anything about hotspot? easiest: if we copy it (explicit or 
+        ##e do anything about hotspot? easiest: if we copy it (explicit or
         # implicit) or its base atom, put them in mapping,
-        # and register some other func (than the one copy_in_mapping does) 
+        # and register some other func (than the one copy_in_mapping does)
         # to fix it up at the end.
-        # Could do this uniformly in _copy_empty_shell_in_mapping, 
+        # Could do this uniformly in _copy_empty_shell_in_mapping,
         # and here just be sure to tell mapping.record_copy.
         #
-        # (##e But really we ought to simplify all this code by just 
-        #  replacing the hotspot concept with a "bonding-point jig" 
+        # (##e But really we ought to simplify all this code by just
+        #  replacing the hotspot concept with a "bonding-point jig"
         #  or perhaps a bond property. That might be less work! And more useful!
         #  And then one chunk could have several hotspots with different
         #  pastable names and paster-jigs!
         #  And the paster-jig could refer to real atoms to be merged
         #  with what you paste it on, not only singlets!
-        #  Or to terminating groups (like H) to pop off if you use 
+        #  Or to terminating groups (like H) to pop off if you use
         #  that pasting point (but not if you use some other one).
         #  Maybe even to terminating groups connected to base at more
         #  than one place, so you could make multiple bonds at once!
         #  Or instead of a terminating group, it could include a pattern
         #  of what it should suggest adding itself to!
-        #  Even for one bond, this could help it orient 
+        #  Even for one bond, this could help it orient
         #  the addition as intended, spatially!)
         return numol
 
-    def _f_preserve_implicit_hotspot( self, hotspot): 
+    def _f_preserve_implicit_hotspot( self, hotspot):
         #bruce 050524 #e could also take base-atom arg to use as last resort
         if len(self.singlets) > 1 and self.hotspot is None:
-            self.set_hotspot( hotspot, silently_fix_if_invalid = True) 
+            self.set_hotspot( hotspot, silently_fix_if_invalid = True)
                 # this checks everything before setting it; if invalid, silent noop
 
-    # == 
+    # ==
 
 ##    def copy(self, dad = None, offset = V(0,0,0), cauterize = 1): #bruce 080314
 ##        """
@@ -2942,7 +2942,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # help but break its inter-chunk bonds.
         #
         # older comments:
-        # 
+        #
         # This is the old copy method -- should remove ASAP but might still be needed
         # for awhile (as of 050526)... actually we'll keep it for awhile,
         # since it's used in many places and ways in depositMode and
@@ -2983,7 +2983,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         numol.name = newname
         #end 050531 kluges
         nuatoms = {}
-        for a in self.atlist: 
+        for a in self.atlist:
             # 060308 changed similarly to copy_full_in_mapping (shares some code with it)
             na = a.copy()
             na.molecule = numol # no need for _changed_parent_Atoms[na.key] = na #bruce 060322
@@ -2999,16 +2999,16 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                 if a2key in ndix:
                     # internal bond - make the analogous one
                     # (this should include all preexisting bonds to singlets)
-                    #bruce 050715 bugfix (copied from 050524 changes to another 
+                    #bruce 050715 bugfix (copied from 050524 changes to another
                     # routine; also done below for extern_atoms_bonds):
-                    # don't do it twice for the same bond 
+                    # don't do it twice for the same bond
                     # (needed by new faster bonding methods),
-                    # and use bond_copied_atoms to copy bond state 
+                    # and use bond_copied_atoms to copy bond state
                     # (e.g. bond-order policy and estimate) from old bond.
                     if a.key < a2key:
                         # arbitrary condition which is true for exactly
                         # one ordering of the atoms;
-                        # note both keys are for original atoms 
+                        # note both keys are for original atoms
                         # (it would also work if both were from
                         #  copied atoms, but not if they were mixed)
                         bond_copied_atoms(na, ndix[a2key], b, a)
@@ -3036,17 +3036,17 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
                 bond_copied_atoms( na, x, b, a)
         if copied_hotspot is not None:
             numol.set_hotspot( ndix[copied_hotspot.key])
-        # future: also copy (but translate by offset) user-specified 
+        # future: also copy (but translate by offset) user-specified
         # axis, center, etc, if we ever have those
         ## if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
         ##     numol.user_specified_center = self.user_specified_center + offset
-        numol.setDisplayStyle(self.display) 
+        numol.setDisplayStyle(self.display)
             # REVIEW: why is this not redundant? (or is it?) [bruce 090112 question]
         numol.dad = dad
         if dad and debug_flags.atom_debug: #bruce 050215
             print "atom_debug: mol.copy got an explicit dad (this is deprecated):", dad
         return numol
-    
+
     # ==
 
     def Passivate(self, p = False):
@@ -3058,7 +3058,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         """
         # todo: move this into the operations code for its caller
         for a in self.atoms.values():
-            if p or a.picked: 
+            if p or a.picked:
                 a.Passivate()
 
     def Hydrogenate(self):
@@ -3076,7 +3076,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         for a in self.atoms.values():
             count += a.Hydrogenate()
         return count
-    
+
     def Dehydrogenate(self):
         """
         [Public method, does all needed invalidations:]
@@ -3086,14 +3086,14 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # todo: move this into the operations code for its caller
         count = 0
         for a in self.atoms.values():
-            count += a.Dehydrogenate() 
+            count += a.Dehydrogenate()
                 # review: bug if done to H-H?
         return count
-    
+
     # ==
-    
+
     def __str__(self):
-        # bruce 041124 revised this; again, 060411 
+        # bruce 041124 revised this; again, 060411
         # (can I just zap it so __repr__ is used?? Try this after A7. ##e)
         return "<%s %r>" % (self.__class__.__name__, self.name)
 
@@ -3166,7 +3166,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
 
     def overlapping_atom(self, atom, tol = 0.0):
         """
-        Returns True if atom is within the bounding sphere of this chunk's bbox. 
+        Returns True if atom is within the bounding sphere of this chunk's bbox.
         Otherwise, returns False.
 
         @param tol: (optional) an additional distance to be added to the
@@ -3205,7 +3205,7 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
         # = MAX_ATOM_SPHERE_RADIUS
         # The default radius used by BBox is equal to sqrt(3*(1.8)^2) =
         # = 3.11 A, so the difference = approx. 3.1 A = BBOX_MIN_RADIUS
-        # The '0.5' is another 'fuzzy' safety margin, added here just 
+        # The '0.5' is another 'fuzzy' safety margin, added here just
         # to be sure that all objects are within the sphere.
         # piotr 080403: moved the correction here from GLPane.py
         bbox = self.bbox
@@ -3221,14 +3221,14 @@ class Chunk(Chunk_Dna_methods, Chunk_mmp_methods,
             return False
         else:
             # This only adds the icon to the PM_SelectionListWidget.
-            # To add the protein icon for the model tree, the node_icon() 
+            # To add the protein icon for the model tree, the node_icon()
             # method was modified. --Mark 2008-12-16.
             if self.hidden:
                 self.iconPath = "ui/modeltree/Protein-hide.png"
             else:
                 self.iconPath = "ui/modeltree/Protein.png"
             return True
-        
+
     pass # end of class Chunk
 
 # ==
@@ -3285,7 +3285,7 @@ class _nullMol_Chunk(Chunk):
 
         Overrides Chunk method.
 
-        This method helps replace comparisons to _nullMol (helps with imports, 
+        This method helps replace comparisons to _nullMol (helps with imports,
         replaces set_undo_nullMol, permits per-assy _nullMol if desired)
         """
         return True
@@ -3322,20 +3322,20 @@ def shakedown_poly_evals_evecs_axis(basepos):
         # as we may want to do in viewParallelTo and viewNormalTo
         # (see also the comments about those in compute_heuristic_axis).
 
-    axis = compute_heuristic_axis( 
-        basepos, 
+    axis = compute_heuristic_axis(
+        basepos,
         'chunk',
         evals_evecs = (evals, evecs),
         aspect_threshhold = 0.95,
-        near1 = V(1,0,0), 
-        near2 = V(0,1,0), 
+        near1 = V(1,0,0),
+        near2 = V(0,1,0),
         dflt = V(1,0,0) # prefer axes parallel to screen in default view
      )
 
     assert axis is not None
-    axis = A(axis) ##k if this is in fact needed, we should probably 
+    axis = A(axis) ##k if this is in fact needed, we should probably
         # do it inside compute_heuristic_axis for sake of other callers
-    assert type(axis) is type(V(0.1, 0.1, 0.1)) 
+    assert type(axis) is type(V(0.1, 0.1, 0.1))
         # this probably doesn't check element types (that's probably ok)
 
     return polyhedron, evals, evecs, axis # from shakedown_poly_evals_evecs_axis
@@ -3347,7 +3347,7 @@ def mol_copy_name(name, assy = None):
     turn xxx or xxx-copy or xxx-copy<n> into xxx-copy<m> for a new number <m>
     """
     # bruce 041124; added assy arg, 080407; rewrote/bugfixed, 080723
-    
+
     # if name looks like xxx-copy or xxx-copy<nnn>, remove the -copy<nnn> part
     parts = name.split("-copy")
     if len(parts) > 1:
@@ -3357,7 +3357,7 @@ def mol_copy_name(name, assy = None):
             # (note: this doesn't contain '-copy' unless original name
             #  contained it twice)
         pass
-    
+
     return gensym(name + "-copy", assy) # (in mol_copy_name)
         # note: we assume this adds a number to the end
 

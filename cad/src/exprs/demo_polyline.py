@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 demo_polyline.py -- demo file for Polyline datatype (too unsophisticated for real life) and related commands
 
@@ -49,7 +49,7 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
 
     # note that the API inside this is pretty much an entire "edit mode" since it handles time, motion, maybe its own selobj alg, etc;
     # the first few methods I'm writing don't even depend on any other aspect of this.
-    
+
     # note 2: maybe we want to deleg to an obj that does side effects from events, and let this do redraw --
     # rather than subclassing to that obj.
 
@@ -86,7 +86,7 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
         #doc
         """
         pass
-    
+
     def draw_incrementally_for_xor_mode(self):
         """
         Draw our current graphics-area appearance (or undraw it -- we neither know nor care which)
@@ -114,7 +114,7 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
     using_background_incremental_drawing_now = False # ditto
 
     # see also some notes about a "better xor mode object" (not in cvs) [070325]
-    
+
     def on_baremotion(self): #e args? grab from env? yes, submethod does that, not us.
         ### CALL ME - needs new interface... note, is API same for in motion or drag??
         #e optim: be able to change state, usage track, then *redraw using old state* if drawing effects got invalled.
@@ -134,14 +134,14 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
 
     def on_time_passing(self):
         """
-        #doc 
-        [only needed if time-dependent animation needs doing; 
+        #doc
+        [only needed if time-dependent animation needs doing;
         that might include delayed tooltip popups, fadeouts...]
         """
         assert 0 # nim # similar to on_baremotion -- maybe even identical if we decide that's simpler --
         # it probably is, since time passes during mouse motion too!
         pass
-    
+
     #e ditto for other events - press, drag, release -- hmm, we don't want 5 complicated methods, better refactor this! ####
 
     pass
@@ -163,7 +163,7 @@ class ClickClickCommand( CommandWithItsOwnEditMode): #e rename!
     # declare interface and give default methods/attrs for it
 
     #e the 4 or 5 user event methods, i guess; things related to patterns of UI activity as command goes thru its phases
-    
+
     pass
 
 # ==
@@ -178,10 +178,10 @@ class SketchEntity( ModelObject):#e stub
     """
     #e what is special about a Sketch Entity, vs any old model object?
     # [the answers are what we want to encode in this class...]
-    
+
     # - it is classified topically as a Sketch Entity:
     #   - by default, in a UI, commands for making one should appear in a "sketch entity toolbar".
-    
+
     _e_model_object_topic = "Sketch Entity"
         # tells default UI where to put a command for making/editing one of these, a display style for one, etc
         ###e this attr name is a stub:
@@ -197,12 +197,12 @@ class SketchEntity( ModelObject):#e stub
         #   even if the official name for that is different, e.g. using _type.
         #   Also _e_ has disadvantages.
         #   I wonder if this kind of decl (in some general sense) needs its own new prefix (not _i_ or _e_).
-    
+
     # - maybe it needs to belong to a Sketch:
     #   - when making one, find or make a Sketch to contain it in a standard way
     #   - maybe a make-command for one can only run inside a sketch-making commandrun
     #     (which supplies the sketch, making it as needed).
-    #   
+    #
     pass
 
 # caps: Polyline or PolyLine? see web search?? just initial cap seems most common.
@@ -225,7 +225,7 @@ class Polyline(SketchEntity): #e rename -- 2D or general? [see also class polyli
     Guess: not this class -- some other one might. This one considers all points to be equivalent independent state.)
        Also might have some Options, see the code -- or those might belong in wrapper objects for various display/edit modes.
     """
-    ###BUGS: doesn't set color, depends on luck. 
+    ###BUGS: doesn't set color, depends on luck.
     # could use cmenu to set the options.
     # end1 might be in MT directly and also be our kid (not necessarily wrong, caller needn't add it to MT).
     # when drawing on sphere, long line segs can go inside it and not be seen.
@@ -340,11 +340,11 @@ class Polyline_draw_helpers( Drawable):
         color = self.fix_color(self.linecolor)
         dashEnabled = self.dashed
         width = self.linewidth
-        
+
         # set temporary GL state (code copied from drawer.drawline)
         glDisable(GL_LIGHTING)
         glColor3fv(color)
-        if dashEnabled: 
+        if dashEnabled:
             glLineStipple(1, 0xAAAA)
             glEnable(GL_LINE_STIPPLE)
         if width != 1:
@@ -359,8 +359,8 @@ class Polyline_draw_helpers( Drawable):
         glEnd()
         # restore default GL state [some of this might be moved up to callers]
         if width != 1:
-            glLineWidth(1.0) 
-        if dashEnabled: 
+            glLineWidth(1.0)
+        if dashEnabled:
             glDisable(GL_LINE_STIPPLE)
         glEnable(GL_LIGHTING)
         return
@@ -374,7 +374,7 @@ class Polyline_draw_helpers( Drawable):
         return
     def draw_alignment_lines(self):
         """
-        helper method for some interactive drawing wrappers: 
+        helper method for some interactive drawing wrappers:
         draw yellow and blue dotted alignment lines for the last segment
         """
         assert 0 # nim
@@ -430,15 +430,15 @@ class cmd_MakePolyline(ClickClickCommand): ##e review naming convention (and int
     #  - what to show within it, when we draw
     #e the UI
     #e etc
-    
+
     # state
     polyline = None # the polyline we're making/editing, if any
         ##e use State()?? or is this really just a ref to a model obj, or a proposed one
         # (created as a real obj, but not nec. in the MT or cur config yet)?
         # But either way, the polyline itself, or its attrs, or both (whatever can change as we run) do need to be usage tracked. ###e
-        
+
     #e attrs for whether we're rubberbanding it right now, and data if we are (see especially class polyline in demo_drag re this)
-    
+
     # appearance in graphics area
     def draw_background(self):
         """
@@ -478,7 +478,7 @@ auto_register( globals()) ###e this function needs a more explicit name -- and p
 
 # ==
 
-""" 
+"""
 say above: intercept in testmode - baremotion, update_selobj i guess
 and some other selobj controls
 prob no need to intercept them in selectMode itself
@@ -486,7 +486,7 @@ but i am not sure...
 i could have said the same about all my other mods to it...
 """
 
-#e also move new incr methods in controls.py to class HL 
+#e also move new incr methods in controls.py to class HL
 
 #e also say above where we get in and out of opengl xor mode, and grab eg code from BuildCrystal_Command or zoom or whatever to do that
 # (as helper methods in the superclass, or a mixin just for xormode drawing, which could define a swapbuffers method too)

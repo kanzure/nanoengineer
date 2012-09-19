@@ -1,10 +1,10 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 attr_decl_macros.py -- Instance, Arg, Option, ArgOrOption, State
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 [was in Exprs.py when developed, before State;
  split into this file 061203 to ease recursive import issues with State]
@@ -110,7 +110,7 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, _arglist = 
     If it is supplied, it is processed through canon_expr (as if Arg was an Expr constructor),
     unless it's one of the special case symbols (meant only for private use by this family of macros)
     _E_REQUIRED_ARG_ or the other _E_ one.##doc
-    
+
     [_attr_expr is a private option for use by ArgOrOption. So is _lvalue_flag and ###NIM _noinstance (in moreopts).]
     [_arglist is a private option for use by ArgList.]
     """
@@ -192,7 +192,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
     # it's only to work around safety features which normally detect that kind of Expr-formation (getattr on _i_* or _e_*,
     # or getattr then call) as a likely error. These safety features are very important, catching errors that would often lead
     # to hard-to-diagnose bugs (when our code has an Expr but thinks it has an Instance), so it's worth the trouble.
-    held_dflt_expr = hold_Expr(dflt_expr) 
+    held_dflt_expr = hold_Expr(dflt_expr)
         # Note, this gets evalled back into dflt_expr (treated as inert, may or may not be an expr depending on what it is right here)
         # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
         # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).
@@ -249,12 +249,12 @@ def _type_coercion_expr( type_expr, thing_expr):
     return thing_expr
 
     assert 0, "this will never run" # until we fix canon_type to not always return Anything!!
-    print "TypeCoerce is nim, ignoring",type_expr #####070115   ###IMPLEM TypeCoerce 
+    print "TypeCoerce is nim, ignoring",type_expr #####070115   ###IMPLEM TypeCoerce
     from xxx import TypeCoerce # note, if xxx == IorE's file, runtime import is required, else recursive import error; use new file??
     return TypeCoerce( type_expr, thing_expr)
         # a new expr, for a helper IorE -- this is an easy way to do some memoization optims (almost as good as optim for finalization),
         # and permit either expr to be time-dependent (not to mention self-dependent) [070115]
-    
+
 class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
     def _internal_Expr_init(self):
         (self._e__arg_order_counter, self._e_is_required, self._e_is_arglist) = self.args # _e_is_arglist added 070321
@@ -306,7 +306,7 @@ def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_, **moreopts):
     global _E_ATTR # fyi
     argpos_expr = None
     attr_expr = _E_ATTR
-    return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, **moreopts)    
+    return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, **moreopts)
 
 def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_, **moreopts):
     """
@@ -343,7 +343,7 @@ def ArgList(*args, **moreopts): #070321 [tentatively replaces the scratch file A
         #  due to time-dependent formulae constructing them),
         # my guess is that eventually we'll just make list_Expr a synonym for tuple_Expr.
         # But for now, they are distinct Exprs which eval to python lists/tuples respectively
-        # (when they contain nothing that needs instantiation). 
+        # (when they contain nothing that needs instantiation).
     return Arg(*args, **moreopts)
 
 #e ArgListOrOption? it would let you pass a list inline as args, *or* (not and) as a list_Expr- or list- valued named option,
@@ -444,7 +444,7 @@ class State(data_descriptor_Expr):
     # since (I think) we still need ExprsMeta to do substitutions in the exprs it contains
     # (for type (someday) and default value).
     # [bruce 070831 comment]
-    
+
     # experimental, 061201-04; works (testexpr_16);
 ##    # supercedes the prior State macro in Exprs.py [already removed since obs and unfinished, 061203]
 ##    # see also C_rule_for_lval_formula, now obs, meant to be used by that old design for the State macro,
@@ -457,10 +457,10 @@ class State(data_descriptor_Expr):
     # even though it won't strictly be needed until something asks that stateref for our value
     # (if it ever does). I don't know if this can cause problems of too-early eval of that default value. ###REVIEW
     # [bruce 070816 comment]
-    
+
     _e_wants_this_descriptor_wrapper = data_descriptor_Expr_descriptor
     _e_descriptor = None
-    
+
     def _e_init(self):
         def myargs(type, dflt = None): # note: these args (not kws) are exprs, and already went through canon_expr
             dflt = dflt ##e stub; see existing stateref code for likely better version to use here
@@ -551,7 +551,7 @@ class State(data_descriptor_Expr):
         index = attr
         val = instance._i_eval_dfltval_expr(val_expr, index)
         return val
-        
+
     ## AttributeError: no attr '_e_eval_function' in <class 'exprs.attr_decl_macros.State'>   -- why does someone want to call this??
     # where i am 061203 1023p stopping for night -- wondering that. in testexpr_16.
     #
@@ -637,7 +637,7 @@ so Option and Arg turn into parameter-declaring exprs
 which are special because inside a class def, they are not treated as formula for value,
 but as formula for type or descriptor, used with other data to get value, as well as set method...
 so they are not exprs in the same way as other things are -- we might not want to say they are at all.
-Lets say they turn into parameter descriptors. 
+Lets say they turn into parameter descriptors.
 (I'm guessing they'll be true Python descriptors. I haven't verified that's possible. ###k)
 
 expr._e_extend( new_var = State(type, dflt, doc = "")) # and options to control state-sharing, too
@@ -670,12 +670,12 @@ I can no longer remember a justification, since each use passes it the class, I 
  [#k verify that! there was some use that failed to pass something! just the attr?!?],
 but I can remember trying to remember a justification and failing...)
 
-- but which in future will also have similar special behavior when used in a lambda_expr [nim], 
+- but which in future will also have similar special behavior when used in a lambda_expr [nim],
   or in the _e_extend forms shown above [in '070227 coding log', dated 070321], or the like
 
 - for direct assignment of the Arg expr itself to a class attr, wrap it in hold_Expr, I think
   (but since that permits replacements in general, does it turn them off in this case???
-   If not, we might need a special form of hold; or to make those special replacements 
+   If not, we might need a special form of hold; or to make those special replacements
    only work at toplevel, i.e. if it's the whole rhs but not a subexpr of it.)
   (maybe they are not even "replacements" but something else -- interactions of the scanner
    with the top things, to decide how to treat them, which can do whatever they like,

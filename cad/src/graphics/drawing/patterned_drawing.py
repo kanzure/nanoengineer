@@ -1,10 +1,10 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 patterned_drawing.py - special effects for highlighted/selected drawing styles
 
 @author: Russ
 @version: $Id$
-@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -114,7 +114,7 @@ def startPatternedDrawing(highlight = False, select = False):
     """
     (key, style, solid, pattern, edges, halos) = \
           _decodePatternPrefs(highlight, select)
-        
+
     if solid:
         # Nothing to do here for solid colors.
         return False
@@ -155,7 +155,7 @@ def endPatternedDrawing(highlight = False, select = False):
     """
     (key, style, solid, pattern, edges, halos) = \
           _decodePatternPrefs(highlight, select)
-        
+
     if solid:
         # Nothing to do here for solid colors.
         return False

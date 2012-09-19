@@ -31,7 +31,7 @@ if __name__ == '__main__':
         window = DemoAppWindow( fullscreen = options.fullscreen)
     else:
         window = DemoAppWindow(
-                              width = options.width, 
+                              width = options.width,
                               height = options.height,
                              )
 ##    state = mainmenu.MainMenu()

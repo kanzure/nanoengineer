@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GraphicsMode_API.py -- API class for whatever is used as a GraphicsMode
 
@@ -49,7 +49,7 @@ class Delegating_GraphicsMode(GraphicsMode_interface): #bruce 090307
     """
     # implem note: We can't use idlelib.Delegator to help implement this class,
     # since the delegate needs to be dynamic.
-    
+
     def __init__(self, command):
         self.command = command
         return
@@ -89,9 +89,9 @@ class GraphicsMode_API(GraphicsMode_interface):
     @note: for isinstance/issubclass tests, and fully-delegating GraphicsModes,
         use GraphicsMode_interface instead.
     """
-    
+
     # GraphicsMode-specific attribute null values
-    
+
     compass_moved_in_from_corner = False
         # when set, tells GLPane to render compass in a different place [bruce 070406]
 
@@ -110,7 +110,7 @@ class GraphicsMode_API(GraphicsMode_interface):
     # default methods of various kinds:
 
     # selobj-related
-    
+
     def selobj_highlight_color(self, selobj):
         """
         @see: Select_GraphicsMode version, for docstring
@@ -169,14 +169,14 @@ class GraphicsMode_API(GraphicsMode_interface):
 
     def gm_end_of_paintGL(self, glpane):
         return
-    
+
     # cursor
 
     def update_cursor(self):
         return
 
     # key events
-    
+
     def keyPressEvent(self, event):
         return
 
@@ -187,14 +187,14 @@ class GraphicsMode_API(GraphicsMode_interface):
 
     def Wheel(self, event):
         return
-    
+
     # mouse events
     # (todo: refactor to have fewer methods, let GraphicsMode
     #  split them up if desired, since some GMs don't want to)
-    
+
     def mouse_event_handler_for_event_position(self, wX, wY):
         return None
-    
+
     def bareMotion(self, event):
         """
         Mouse motion with no buttons pressed.
@@ -225,22 +225,22 @@ class GraphicsMode_API(GraphicsMode_interface):
     def leftCntlDown(self, event): pass
     def leftCntlDrag(self, event): pass
     def leftCntlUp(self, event): pass
-    
+
 
     def middleDouble(self, event): pass
 
     def middleDown(self, event): pass
     def middleDrag(self, event): pass
     def middleUp(self, event): pass
-        
+
     def middleShiftDown(self, event): pass
     def middleShiftDrag(self, event): pass
     def middleShiftUp(self, event): pass
-    
+
     def middleCntlDown(self, event): pass
     def middleCntlDrag(self, event): pass
     def middleCntlUp(self, event): pass
-    
+
     def middleShiftCntlDown(self, event): pass
     def middleShiftCntlDrag(self, event): pass
     def middleShiftCntlUp(self, event): pass

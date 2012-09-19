@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 texture_fonts.py -- OpenGL fonts based on texture images of the characters
 
@@ -128,7 +128,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None,
     """
     _bind_courier_font_texture()
     # adjust these guessed params (about the specific font image we're using as
-    # a texture) until they work right:   
+    # a texture) until they work right:
     # (tex_origin_chars appears lower down, since it is revised there)
     tex_size = (128,128) # tex size in pixels
     tex_nx = 16 # number of chars in a row, in the tex image
@@ -149,7 +149,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None,
     if not testpattern:
         while len(lines) < charheight:
             lines.append('')
-    
+
     # draw individual chars from font-texture,
     # but first, try to position it so they look perfect (which worked for a
     # while, but broke sometime before 060728)
@@ -158,7 +158,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None,
         # (Ortho mode, home view, a certain window size -- not sure if that
         # matters but it might)
         # restoring last-saved window position (782, 44) and size (891, 749)
-    
+
     ## gap = 2 # in pixels - good for debugging
         # good for looking nice! but note that idlehack uses one extra pixel of
         # vspace, and that does probably look better.
@@ -288,7 +288,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None,
             # fyi: NameError if we try glTranslatefv or glTranslatev -- didn't
             # look for other variants or in gl doc.
         pass
-    
+
     tex_dx = V(tex_width, 0) # in pixels
     tex_dy = V(0, tex_height)
     # Using those guesses, come up with tex-rects for each char as triples of
@@ -361,7 +361,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None,
                 #print (origin, dx, dy, tex_origin, tex_dx, tex_dy)
                 # Cool bug effect bfr 'l's here.
                 draw_textured_rect(origin, dx, dy, tex_origin, ltex_dx, ltex_dy)
-            
+
     # draw some other ones? done above, with test string inside ff function.
     # Interesting q -- if i use vertex arrays or displist-index arrays, can
     # drawing 10k chars be fast? (guess: yes.)

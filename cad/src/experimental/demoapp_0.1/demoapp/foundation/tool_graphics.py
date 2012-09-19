@@ -2,13 +2,13 @@ from demoapp.graphics.colors import thin_rubberband_color
 
 from demoapp.geometry.vectors import A, get_pos, pos_and_size_from_obj_or_pos
 
-class HighlightGraphics: # maybe rename 
+class HighlightGraphics: # maybe rename
     """
     Subclasses implement the kinds of tooltip and highlight graphics needed by
     specific kinds of tools.
     """
     # subclasses can override these constants
-    _default_obj_size = 5 
+    _default_obj_size = 5
     rubber_object_color = thin_rubberband_color
     def __init__(self, tool):
         self.tool = tool

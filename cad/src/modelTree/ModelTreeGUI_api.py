@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 ModelTreeGUI_api.py - API class for ModelTreeGui
 
@@ -52,7 +52,7 @@ from modelTree.Api import Api
 
 # ===
 
-class ModelTreeGUI_api(Api): 
+class ModelTreeGUI_api(Api):
     """
     This should be a Qt4 widget that can be put into a layout.
     """

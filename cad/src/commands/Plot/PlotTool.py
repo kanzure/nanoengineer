@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 PlotTool.py
 
@@ -29,7 +29,7 @@ debug_gnuplot = False
 debug_plottool = False
 
 cmd = greenmsg("Make Graphs: ") #### this is bad, needs to be removed, but that's hard to do safely [bruce 060105 comment] #ninad060807 renamed Plot Tool to 'Make Graphs'
-        
+
 class PlotTool(QWidget, Ui_PlotToolDialog):
     # Bug 1484, wware 060317 - PlotTool requires a trace file and a plot file.
     def __init__(self, assy, basefilename):
@@ -39,7 +39,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
         self.connect(self.plot_btn,SIGNAL("clicked()"),self.genPlot)
         self.connect(self.open_gnuplot_btn,SIGNAL("clicked()"),self.openGNUplotFile)
         self.connect(self.open_trace_file_btn,SIGNAL("clicked()"),self.openTraceFile)
-        
+
         try:
             tracefilename = assy.current_movie.get_trace_filename()
             plotfilename = tracefilename[:-13] + "-plot.txt"
@@ -50,7 +50,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
             tracefilename = assy.current_movie.get_trace_filename()
             plotfilename = tracefilename[:-10] + "-plot.txt"
             #tracefilename = basefilename[:-4] + "-trace.txt"
-        
+
         self.traceFile = tracefilename
         self.plotFile = plotfilename
         self.setup()
@@ -71,20 +71,20 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
             msg = redmsg("Trace file [" + self.traceFile + "] is missing.  Plot aborted.")
             env.history.message(cmd + msg)
             return 1
-            
+
         # Now we read specific lines of the traceFile to read parts of the header we need.
         # I will change this soon so that we can find this header info without knowing what line they are on.
         # Mark 050310
-        
+
         #bruce 060105: changing this now, to fix bug 1266.
-        
+
         # If we've opened the tracefile once during this session, we
         # must check to see if the trace file has changed on disk.
         # To avoid this issue we reopen it every time and make sure to close it
         # and don't use any sort of line cache.
         # Mark had a comment about this but I [bruce 060105] am not sure what he meant by it:
             # Doesn't appear to be an issue calling checkcache before getline.
-            #linecache.checkcache() 
+            #linecache.checkcache()
         # He also had some commented out code such as "#linecache.getline(self.traceFile, 5)"
         # which I've removed (as of rev 1.32).
 
@@ -136,18 +136,18 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
         # use the parsed header
         # (the code above depends only on the trace file format;
         #  the code below depends only on our use of it here)
-        
+
         self.date = field_to_content["Date and Time"]
             # Mark's code had [:-1] after that -- I'm guessing it was to zap final newline, now done by .strip(),
             # so I'm leaving it out for now. [bruce 060105]
-        
+
         # Get trajectory file name
         self.dpbname = field_to_content["Output File"]
-        
+
         ncols = number_of_columns
 
         self.ncols = ncols #bruce 060425 part of traceback bugfix
-        
+
         # Populate the plot combobox with plotting options.
         if ncols:
             for i in range(ncols):
@@ -158,7 +158,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
             msg = "The following jigs write output to the tracefile: Measurement jigs, Rotary Motors, Linear Motors, Anchors, Thermostats and Thermometers."
             env.history.message(msg)
             return 1
-        
+
         self.lastplot = 0 #bruce 060425 guesses this is no longer needed after my bugfix below for when this returned 1 above,
             # and also wonders if 0 was indeed an illegal column number (if not, it was incorrect, but I don't know).
             # But, not knowing, I will leave it in.
@@ -170,7 +170,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
         # but will probably make it into a remade A7 or A7.0.1.
 
     ncols = 0 #bruce 060425 part of fixing traceback bug
-    
+
     def genPlot(self):
         """Generates GNUplot plotfile, then calls self.runGNUplot.
         """
@@ -179,39 +179,39 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
             msg = redmsg("Nothing to plot.") # more details not needed, they were already printed when plot tool came up.
             env.history.message(cmd + msg)
             return
-            
+
         col = self.plot_combox.currentIndex() + 2 # Column number to plot
-        
+
         # If this plot was the same as the last plot, just run GNUplot on the plotfile.
         # This allows us to edit the current plotfile in a text editor via "Open GNUplot File"
         # and replot without overwriting it.
-        if col == self.lastplot: 
+        if col == self.lastplot:
             self.runGNUplot(self.plotFile)
             return
         else:
             self.lastplot = col
-            
+
         title = str(self.plot_combox.currentText()) # Plot title
         tlist = string.split(title, ":")
         ytitle = str(tlist[1]) # Y Axis title
-        
+
         # Write GNUplot file
         f = open(self.plotFile,"w")
-        
-        if sys.platform == 'darwin': 
+
+        if sys.platform == 'darwin':
             f.write("set terminal aqua\n") # GNUplot for Mac needs this.
-        
+
         # On Windows, self.traceFile can have backward slashes (\) as separators.
-        # GNUplot does C-like backslash processing within double quoted strings. This requires 
-        # two backslash characters in place of one as a separator. This is only a problem on 
-        # Windows since Linux and MacOS always use forward slashes for file separators.  
-        # If a backslash were to appear in a Linux/MacOS tracefile name, GNUplot would very 
-        # likely puke on it, too. For this reason, let's always replace a single backslash 
+        # GNUplot does C-like backslash processing within double quoted strings. This requires
+        # two backslash characters in place of one as a separator. This is only a problem on
+        # Windows since Linux and MacOS always use forward slashes for file separators.
+        # If a backslash were to appear in a Linux/MacOS tracefile name, GNUplot would very
+        # likely puke on it, too. For this reason, let's always replace a single backslash
         # with double backslashes.
         # Fixes bug 1894.  Mark 060424.
-        
+
         traceFile = self.traceFile.replace('\\','\\\\')
-            
+
         f.write("set title \"%s\\n Trace file: %s\\n Created: %s\"\n"%(title, traceFile, self.date))
         f.write("set key left box\n")
         f.write("set xlabel \"time  (picoseconds)\"\n")
@@ -219,8 +219,8 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
         f.write("plot \"%s\" using 1:%d title \"Data Points\" with lines lt 2,\\\n"%(traceFile, col))
         f.write("       \"%s\" using 1:%d:(0.5) smooth acsplines title \"Average\" lt 3\n"%(traceFile, col))
             # Fixed bug 712 by swapping single quote (') with double quote(") around traceFile (%s).
-        
-        if sys.platform == 'win32': 
+
+        if sys.platform == 'win32':
             # The plot will stay up until the OK or Cancel button is clicked.
             f.write("pause mouse \"Click OK or Cancel to Quit\"\n")
                 #bruce 060425 added \n at end (probably doesn't matter, not sure)
@@ -234,13 +234,13 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
                 # Note: during this pause, if user tries to quit AquaTerm, they get a warning dialog about clients still connected,
                 # but after this pause elapses, the gnuplot process is not running, and the user can quit AquaTerm with no dialog.
             pass # or could do f.write("quit\n")
-        else: 
+        else:
             # "pause mouse" doesn't work on Linux as it does on Windows.
             # I suspect this is because QProcess doesn't spawn a child, but forks a sibling process.
             # The workaround is thus: plot will stick around for 3600 seconds (1 hr).
             # Mark 050310
             f.write("pause 3600\n") #bruce 060425 added \n at end (probably doesn't matter, not sure)
-        
+
         f.close()
 
         self.runGNUplot(self.plotFile)
@@ -248,18 +248,18 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
     def runGNUplot(self, plotfile):
         """Sends plotfile to GNUplot.
         """
-        
+
         # Make sure plotfile exists
         if not os.path.exists(plotfile):
             msg = redmsg("Plotfile [" + plotfile + "] is missing.  Plot aborted.")
             env.history.message(cmd + msg)
             return
-            
+
         # filePath = the current directory NE-1 is running from.
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        
-        # "program" is the full path to the GNUplot executable. 
-        if sys.platform == 'win32': 
+
+        # "program" is the full path to the GNUplot executable.
+        if sys.platform == 'win32':
             program = os.path.normpath(filePath + '/../bin/wgnuplot.exe')
         else:
             program = os.path.normpath('/usr/bin/gnuplot')
@@ -286,19 +286,19 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
             msg = redmsg("GNUplot executable [" + program + "] is missing.  Plot aborted.")
             env.history.message(cmd + msg)
             return
-                
+
         plotProcess = None
         try:
             from processes.Process import Process
             plotProcess = Process()
-            
-            # Run gnuplot as a new, separate process. 
+
+            # Run gnuplot as a new, separate process.
             started = plotProcess.startDetached(program, QStringList(plotfile))
             ###e It might also be good to pass gnuplot some arg to tell it to ignore ~/.gnuplot. [bruce 060425 guess]
 
             if not started:
                 env.history.message(redmsg("gnuplot failed to run!"))
-            else: 
+            else:
                 env.history.message("Running gnuplot file: " + plotfile)
                 if debug_gnuplot:
                     try:
@@ -317,7 +317,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
                 print "Killing process"
                 plotProcess.kill()
                 plotProcess = None
-                
+
     def openTraceFile(self):
         """Opens the current tracefile in an editor.
         """
@@ -328,7 +328,7 @@ class PlotTool(QWidget, Ui_PlotToolDialog):
         """
         open_file_in_editor(self.plotFile)
 
-# == 
+# ==
 
 def simPlot(assy): # moved here from MWsemantics method, bruce 050327
     """Opens the "Make Graphs" dialog (and waits until it's dismissed),
@@ -352,7 +352,7 @@ def simPlot(assy): # moved here from MWsemantics method, bruce 050327
         msg = redmsg("There is no current movie file loaded.")
         env.history.message(cmd + msg)
         return None
-        
+
     # wware 060317, bug 1484
     if assy.filename:
         return PlotTool(assy, assy.filename)

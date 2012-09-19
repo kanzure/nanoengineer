@@ -1,6 +1,6 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-StatePlace.py - help InstanceOrExpr or its subclasses define and store state, in layers [#redoc that] 
+StatePlace.py - help InstanceOrExpr or its subclasses define and store state, in layers [#redoc that]
 
 $Id$
 
@@ -48,7 +48,7 @@ def StatePlace(kind, ipath_expr = _self.ipath, tracked = True): # revised 061117
     See also the [nim] State declaration for use with individual attrs.
     """
     # Implem notes:
-    #  
+    #
     # StatePlace() works by turning into a formula which will eval to a permanent reference
     # to a (found or created) attrholder for storing state of the given kind, at the given ipath
     # (value of ipath_expr), relative to the env of the Instance this is used in (i.e. to _self.env).
@@ -89,14 +89,14 @@ def _StatePlace_helper( self, kind, ipath, tracked): # could become a method in 
         state = self.env.staterefs
         key = (kind,0,ipath) #e someday, kind should change which state subobj we access, not just be in the key
             # Note: this needs to be not interfere with _attr_accessor, whose key is (kind,attr) -- thus the extra 0
-        res = state.setdefault(key, None) 
+        res = state.setdefault(key, None)
             # I wanted to use {} as default and wrap it with attr interface before returning, e.g. return AttrDict(res),
             # but I can't find code for AttrDict right now, and I worry its __setattr__ is inefficient, so this is easier:
         if res is None:
             res = attrholder()
             state[key] = res
         return res
-        
+
     res = _attr_accessor( self.env.staterefs, kind, ipath, debug_name = debug_flags.atom_debug and ("%r|%s" % (self,kind)))
         # we leave ipath out of the debug_name, since the accessor's LvalDict2 will add it in in the form of its key
     return res # from _StatePlace_helper
@@ -217,7 +217,7 @@ def set_default_attrs(obj, **kws): #e if this was general, we could refile into 
             #e optim: remove this check; it only catches usage tracking, not change tracking (ie inval of something by this), anyway
         try:
             for k, v in kws.iteritems():
-                method(k, v) # does its own usage/change-tracking suppression (we assume); this is partially checked (for now) 
+                method(k, v) # does its own usage/change-tracking suppression (we assume); this is partially checked (for now)
         finally:
             changes.end_disallowing_usage_tracking(mc)
     return # from set_default_attrs

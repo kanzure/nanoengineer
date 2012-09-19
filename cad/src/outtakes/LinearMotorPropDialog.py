@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 # Form implementation generated from reading ui file 'LinearMotorPropDialog.ui'
 #
 # Created: Wed Sep 20 10:14:34 2006

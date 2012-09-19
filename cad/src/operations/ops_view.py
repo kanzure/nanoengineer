@@ -1,10 +1,10 @@
-# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 ops_view.py provides viewSlotsMixin for MWsemantics,
 with view slot methods and related helper methods.
 
 @version: $Id$
-@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: most other ops_*.py files provide mixin classes for Part,
 not for MWsemantics like this one.
@@ -43,16 +43,16 @@ class viewSlotsMixin:
         """
         Full screen mode. (maximize the glpane real estate by hiding/ collapsing
         other widgets. (only Menu bar and the glpane are shown)
-        The widgets hidden or collapsed include: 
+        The widgets hidden or collapsed include:
          - MainWindow Title bar
-         - Command Manager, 
-         - All toolbars, 
+         - Command Manager,
+         - All toolbars,
          - ModelTree/PM area,
          - History Widget,
-         - Statusbar         
+         - Statusbar
 
-        @param val: The state of the QAction (checked or uncheced) If True, it 
-                    will show the main window full screen , otherwise show it 
+        @param val: The state of the QAction (checked or uncheced) If True, it
+                    will show the main window full screen , otherwise show it
                     with its regular size
         @type val: boolean
         @see: MWsemantics.showSemiFullScreen, MWsemantics.showNormal
@@ -67,14 +67,14 @@ class viewSlotsMixin:
         """
         Semi-Full Screen mode. (maximize the glpane real estate by hiding/ collapsing
         other widgets. This is different than the 'Full Screen mode' as it hides
-        or collapses only the following widgets -- 
+        or collapses only the following widgets --
          - MainWindow Title bar
          - ModelTree/PM area,
          - History Widget,
-         - Statusbar         
+         - Statusbar
 
-        @param val: The state of the QAction (checked or uncheced) If True, it 
-                    will show the main window full screen , otherwise show it 
+        @param val: The state of the QAction (checked or uncheced) If True, it
+                    will show the main window full screen , otherwise show it
                     with its regular size
         @type val: boolean
         @see: MWsemantics.showSemiFullScreen, MWsemantics.showNormal
@@ -124,8 +124,8 @@ class viewSlotsMixin:
 
     def zoomToArea(self, val):
         """
-        Zoom to Area Tool, allowing the user to specify a rectangular area 
-        by holding down the left button and dragging the mouse to zoom 
+        Zoom to Area Tool, allowing the user to specify a rectangular area
+        by holding down the left button and dragging the mouse to zoom
         into a specific area of the model.
         val = True when Zoom tool button was toggled on, False when it
         was toggled off.
@@ -134,9 +134,9 @@ class viewSlotsMixin:
 
     def zoomInOut(self, val):
         """
-        Basic Zoom for zooming in and/or out. 
+        Basic Zoom for zooming in and/or out.
 
-        Zoom out as the user pushes the mouse away (cursor moves up). 
+        Zoom out as the user pushes the mouse away (cursor moves up).
         Zoom in as the user pulls the mouse closer (cursor moves down).
 
         @param val: True when Zoom in/out button is toggled on, False when it
@@ -198,7 +198,7 @@ class viewSlotsMixin:
                     # [bruce 080829]
                     ## print "DEBUG fyi: _zoomPanRotateTool skipping Done of %r since command stack locked" % commandName
                     ##     # remove when works, or soon after
-                    pass               
+                    pass
                 else:
                     #Exit this temporary command.
                     command.command_Done()
@@ -238,10 +238,10 @@ class viewSlotsMixin:
     def setViewPerspec(self):
         self.glpane.setViewProjection(PERSPECTIVE)
 
-    def stereoSettings(self):        
+    def stereoSettings(self):
         self.enterStereoPropertiesCommand()
 
-    def viewNormalTo(self): # 
+    def viewNormalTo(self): #
         """
         Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
@@ -252,7 +252,7 @@ class viewSlotsMixin:
         jigs = self.assy.getSelectedJigs()
         atoms = self.assy.selatoms_list()
 
-        #following fixes bug 1748 ninad 061003. 
+        #following fixes bug 1748 ninad 061003.
         if len(chunks) > 0 and len(atoms) == 0:
             # Even though chunks have an axis, it is not necessarily the same
             # axis attr stored in the chunk.  Get the chunks atoms and let
@@ -261,16 +261,16 @@ class viewSlotsMixin:
                 atoms += chunks[c].atoms.values()
         elif len(jigs) == 1 and len(atoms) == 0:
             # Warning: RectGadgets have no atoms.  We handle this special case below.
-            atoms = jigs[0].atoms 
+            atoms = jigs[0].atoms
         elif len(atoms) < 3:
-            # There is a problem when allowing only 2 selected atoms. 
+            # There is a problem when allowing only 2 selected atoms.
             # Changing requirement to 3 atoms fixes bug 1418. mark 060322
             msg = redmsg("Please select some atoms, jigs, and/or chunks, covering at least 3 atoms")
             print "ops_view.py len(atoms) = ", len(atoms)
             env.history.message(cmd + msg)
             return
 
-        # This check is needed for jigs that have no atoms.  Currently, this 
+        # This check is needed for jigs that have no atoms.  Currently, this
         # is the case for RectGadgets (ESP Image and Grid Plane) only.
         if len(atoms):
             pos = A( map( lambda a: a.posn(), atoms ) )
@@ -304,7 +304,7 @@ class viewSlotsMixin:
         # This implementation has two serious problems:
         #   1. it selects a normal based on the atoms and not the axis of a jig (e.g. a moved rotary motor).
         #   2. doesn't consider selected jigs that have no atoms.
-        # Bruce and I will discuss this and determine the best implem.  
+        # Bruce and I will discuss this and determine the best implem.
         # For A7, I've decide to use the original version. This version will be reinstated in A8
         # after fixing these problems. mark 060322.
 
@@ -375,7 +375,7 @@ class viewSlotsMixin:
         Flip view vertically.
         """
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), math.pi))
-        
+
     def viewFlipViewHorz(self):
         """
         Flip view horizontally.
@@ -448,10 +448,10 @@ class viewSlotsMixin:
             # If you put quatX first, it won't give isometric view ninad060810
 
     def saveNamedView(self):
-        csys = NamedView(self.assy, None, 
-                         self.glpane.scale, 
-                         self.glpane.pov, 
-                         self.glpane.zoomFactor, 
+        csys = NamedView(self.assy, None,
+                         self.glpane.scale,
+                         self.glpane.pov,
+                         self.glpane.zoomFactor,
                          self.glpane.quat)
         self.assy.addnode(csys)
 
@@ -477,7 +477,7 @@ class viewSlotsMixin:
         """
         When Standard Views button is activated, show its QMenu
         """
-        # By default, nothing happens if you click on the 
+        # By default, nothing happens if you click on the
         # toolbutton with submenus. The menus are displayed only when you click
         # on the small downward arrow of the tool button.
         # Therefore the following slot is added. ninad 070109
@@ -492,7 +492,7 @@ class viewSlotsMixin:
         Slot for 'View > QuteMolX'. Opens the QuteMolX Property Manager.
 
         @note: The QuteMolX PM will not open if there are no atoms in the part.
-        """    
+        """
         cmd = greenmsg("QuteMolX : ")
 
         if self.assy.molecules:
@@ -524,24 +524,24 @@ class viewSlotsMixin:
 ##        Raytraces the current scene. This version adds a POV-Ray Scene node to the model tree.
 ##        """
 ##        cmd = greenmsg("Raytrace Scene: ")
-##        
+##
 ##        assy = self.assy
 ##        glpane = self.glpane
-##        
+##
 ##        pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
 ##        #bruce 060620 comment: I doubt it's correct to render the image before adding the node,
 ##        # in case rendering it takes a long time. Also, if the rendering is aborted, the node
 ##        # should perhaps not be added (or should be removed if it was already added,
 ##        # or should be changed to indicate that the rendering was aborted).
-##        errorcode, errortext = pov.raytrace_scene() # [note: as of long before 060710 the return value no longer fits this pattern] 
+##        errorcode, errortext = pov.raytrace_scene() # [note: as of long before 060710 the return value no longer fits this pattern]
 ##        if errorcode:
 ##            env.history.message( cmd + redmsg(errortext) )
 ##            return
 ##        assy.addnode(pov)
 ##        self.mt.mt_update()
-##        
+##
 ##        msg = "POV-Ray rendering complete."
-##        env.history.message( cmd + msg ) 
+##        env.history.message( cmd + msg )
 
     pass # end of class viewSlotsMixin
 

@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 setup.py
 
@@ -12,7 +12,7 @@ One way to run it might be "make extensions"; see Makefile in this directory.
 A more direct way is to ask your shell to do
 
   python setup.py build_ext --inplace
-  
+
 (I don't know if that works on Windows.)
 
 Running this makes some output files and subdirectories, and prints lots of output.
@@ -56,15 +56,15 @@ if (__name__ == '__main__'):
         print "(If you already installed Pyrex, there's a bug in your Pyrex installation or in setup.py, "
         print " since the import should have worked.)"
         sys.exit(1)
-    
+
     setup(
       name = 'xxx', #k doc says name and version are required, but it works w/o version and with this stub name.
-      ext_modules=[ 
+      ext_modules=[
         Extension("pyrex_test",       ["pyrex_test.pyx"]),
         ],
       cmdclass = {'build_ext': build_ext}
     )
-    
+
     # this exit reminds people not to "import setup" from nE-1 itself!
     print "setup.py finished; exiting."
     sys.exit(0)

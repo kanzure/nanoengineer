@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 test_statearray.py
 
@@ -64,7 +64,7 @@ class test_StateArrayRefs(DelegatingInstanceOrExpr): ### has some WRONGnesses
             #k or is it that it defines a dict rather than a func, but we need a func in MapListToExpr?
         stateref = StateArrayRefs_getitem_as_stateref( self.colors, index )
         newindex = ('_color_toggler_for_index', index)
-        return self.Instance( _color_toggler( stateref), newindex ) 
+        return self.Instance( _color_toggler( stateref), newindex )
     delegate = MapListToExpr( _self._color_toggler_for_index, ###k _self needed??
                               indices,
                               KLUGE_for_passing_expr_classes_as_functions_to_ArgExpr(SimpleRow) )

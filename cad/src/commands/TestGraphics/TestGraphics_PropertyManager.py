@@ -1,4 +1,4 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 TestGraphics_PropertyManager.py
 
@@ -25,8 +25,8 @@ from command_support.Command_PropertyManager import Command_PropertyManager
 _superclass = Command_PropertyManager
 class TestGraphics_PropertyManager(Command_PropertyManager):
     """
-    The TestGraphics_PropertyManager class provides a Property Manager 
-    for the Test Graphics command. 
+    The TestGraphics_PropertyManager class provides a Property Manager
+    for the Test Graphics command.
 
     @ivar title: The title that appears in the property manager header.
     @type title: str
@@ -64,7 +64,7 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
         """
         Add the Property Manager group boxes.
         """
-        self._pmGroupBox1 = PM_GroupBox( self, 
+        self._pmGroupBox1 = PM_GroupBox( self,
                                          title = "Settings") ### fix title
         self._loadGroupBox1( self._pmGroupBox1 )
 
@@ -73,23 +73,23 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
         Load widgets in group box.
         """
         from widgets.prefs_widgets  import ObjAttr_StateRef ### toplevel
-        
+
         self._cb2 = \
             PM_CheckBox(pmGroupBox,
                         text         = "redraw continuously",
-                        )        
+                        )
         self._cb2.connectWithState( ObjAttr_StateRef( self.command, 'redraw_continuously' ))
 
         self._cb3 = \
             PM_CheckBox(pmGroupBox,
                         text         = "spin model",
-                        )        
+                        )
         self._cb3.connectWithState( ObjAttr_StateRef( self.command, 'spin_model' ))
 
         self._cb4 = \
             PM_CheckBox(pmGroupBox,
                         text         = "print fps to console",
-                        )        
+                        )
         self._cb4.connectWithState( ObjAttr_StateRef( self.command, 'print_fps' ))
 
         self._cb1 = \
@@ -102,21 +102,21 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
             # user clicks on this checkbox should modify it after this runs,
             # or our UI state will become out of sync with the state.
 
-        self.testCase_ComboBox = PM_ComboBox(pmGroupBox, 
+        self.testCase_ComboBox = PM_ComboBox(pmGroupBox,
                                       label =  "testCase:", labelColumn = 0,
                                       choices = self.command.testCaseChoicesText,
                                       setAsDefault = False )
         self.testCase_ComboBox.setCurrentIndex(self.command.testCaseIndex)
 
-        self.nSpheres_ComboBox = PM_ComboBox(pmGroupBox, 
+        self.nSpheres_ComboBox = PM_ComboBox(pmGroupBox,
                                       label =  "n x n spheres:", labelColumn = 0,
                                       choices = self.command._NSPHERES_CHOICES,
                                       setAsDefault = False )
         nSpheres_index = self.command._NSPHERES_CHOICES.index( str( self.command.nSpheres) )
         self.nSpheres_ComboBox.setCurrentIndex( nSpheres_index)
         self._set_nSpheresIndex( nSpheres_index)
-        
-        self.detail_level_ComboBox = PM_ComboBox(pmGroupBox, 
+
+        self.detail_level_ComboBox = PM_ComboBox(pmGroupBox,
                                       label =  "Level of detail:", labelColumn = 0,
                                       choices = ["Low", "Medium", "High", "Variable"],
                                       setAsDefault = False )
@@ -132,16 +132,16 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
 
 ##    def updateUI(self): # BUG: this is not being called -- I guess the bypassed paintGL doesn't call it.
 ##        self._updateWidgets() ### will this be too slow?
-    
+
     def _addWhatsThisText( self ):
         """
-        What's This text for widgets in the Stereo Property Manager.  
+        What's This text for widgets in the Stereo Property Manager.
         """
         pass
 
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in the Stereo Property Manager.  
+        Tool Tip text for widgets in the Stereo Property Manager.
         """
         pass
 
@@ -149,14 +149,14 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
+            change_connect = self.win.disconnect
 
         change_connect(self.testCase_ComboBox,
                        SIGNAL("currentIndexChanged(int)"),
@@ -177,7 +177,7 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
 
     def _set_nSpheresIndex(self, index):
         self.command.nSpheres = int( self.command._NSPHERES_CHOICES[index] )
-        
+
     def set_level_of_detail_index(self, level_of_detail_index): # copied from other code, renamed, revised
         """
         Change the level of detail, where <level_of_detail_index> is a value
@@ -202,7 +202,7 @@ class TestGraphics_PropertyManager(Command_PropertyManager):
 ##        # presently, the LOD is not noticed by the test cases... oops, not true!
 ##        self.detail_level_ComboBox.setEnabled( not self.command.bypass_paintgl )
         return
-    
+
     pass
 
 # end

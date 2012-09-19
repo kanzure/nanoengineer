@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 intern_ipath.py
 
@@ -17,7 +17,7 @@ try:
     _uninterned_from_interned
 except:
     # interning data is preserved across reloads [however, for now this module doesn't officially support reload at all]
-    _uninterned_from_interned = {} 
+    _uninterned_from_interned = {}
     _interned_from_uninterned = {}
     _next_interned_ipath = -101
 

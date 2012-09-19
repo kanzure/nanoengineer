@@ -113,7 +113,7 @@ class ModelNode(InstanceOrExpr): #e rename since not a Node anymore (unless I ac
         """
         name = self.__class__.__name__
         print "name is",name # "DebugNode"
-        print self.__class__.__module__ 
+        print self.__class__.__module__
         #e rest is nim; like copy_val but treats instances differently, maps them through an upgrader
 
     # new code:
@@ -138,12 +138,12 @@ class Sphere_ExampleModelNode(ModelNode):
         #e or can/should the decl "this is changeable, ie state" as a flag option to the Arg macro?
         #e can it be set to a new *formula*, not just a new constant value? (for constraint purposes)
         #e - if so, does this require a decl to say it's possible, or is it always possible? (note: it affects mmp writing and copy)
-    
+
     if 0:
         # StateArg might be equivalent to this (except for the name to use in the Arg if it matters, e.g. for StateOption):
         _orig_pos = Arg(Position, ORIGIN) #e can we pass an index to override '_orig_pos' if it matters?
         pos = State(Position, _orig_pos) # see similar code in demo_drag (in class Vertex I think)
-        
+
     radius = StateArg(Width, 1)
     color = StateArgOrOption(Color, gray)
 ##    def draw_unpicked(self):

@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 bond_utils.py -- helper functions for bond-related UI code and its operations
 
@@ -130,7 +130,7 @@ def bond_menu_section(bond, quat = Q(1,0,0,0)):
         item = (text, submenu_contents)
         res.append(item)
     return res
-    
+
 def _bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec for Alpha6
     """
     Return a menu_spec for changing the bond_type of this bond
@@ -249,8 +249,8 @@ def delete_bond(bond): #bruce 080228 to fix update bug reported by EricM
 #   (possible implem of that: maybe remove it, set_atomtype, then add it back, then remake singlets?)
 # - then it's safe to let bond cmenu have more entries (since they might be open bonds)
 
-def apply_btype_to_bond(btype, 
-                        bond, 
+def apply_btype_to_bond(btype,
+                        bond,
                         allow_remake_bondpoints = True,
                         suppress_history_message = False): #bruce 060703 added allow_remake_bondpoints for bug 833-1
     """
@@ -259,17 +259,17 @@ def apply_btype_to_bond(btype,
     and do whatever inferences are presently allowed [none are implemented as of 050727].
     Emit an appropriate history message. Do appropriate invals/updates.
     [#e should the inference policy and/or some controlling object be another argument? Maybe even a new first arg 'self'?]
-    
-    @param suppress_history_message: If True, it quietly converts the bondtypes 
-            without printing any history message. 
+
+    @param suppress_history_message: If True, it quietly converts the bondtypes
+            without printing any history message.
     """
     # Note: this can be called either from a bond's context menu, or by using a Build mode dashboard tool to click on bonds
     # (or bondpoints as of 060702) and immediately change their types.
-    
+
     #This flag will be returned by this function to tell the caller whether the
     #bond type of the given bond was changed
     bond_type_changed = True
-    
+
     v6 = v6_from_btype(btype)
     oldname = quote_html( str(bond) )
     def changeit(also_atypes = None):
@@ -284,8 +284,8 @@ def apply_btype_to_bond(btype,
                 def changeatomtype(atom, atype):
                     if atom.atomtype is not atype:
                         if not suppress_history_message:
-                            msg = "changed %r from %s to %s" % (atom, 
-                                                                atom.atomtype.name, 
+                            msg = "changed %r from %s to %s" % (atom,
+                                                                atom.atomtype.name,
                                                                 atype.name )
                             env.history.message(msg)
                         atom.set_atomtype(atype)
@@ -367,8 +367,8 @@ def apply_btype_to_bond(btype,
             unless_msg = redmsg( "due to a bug")
         if not suppress_history_message:
             env.history.message( orangemsg( msg) + ( unless_msg) )
-            
-        
+
+
     else:
         # changing atomtypes makes a difference, but either way you're not allowed to change to this bond type
         if allow_remake_bondpoints:
@@ -376,15 +376,15 @@ def apply_btype_to_bond(btype,
         extra = complement_sequences(poss2, poss1)
         if not extra:
             print_compact_stack( "bug: extra should not be empty here: " )
-            
-        
+
+
         msg = "can't change bond type of %s to %s" % (oldname, btype)
         msg2 = " -- permitted types are %s, or %s if you change atomtypes" % (poss1, extra)
             #e improve message -- %s of list looks like repr (for strings too)
         bond_type_changed = False
         if not suppress_history_message:
             env.history.message( orangemsg( msg) + msg2 )
-            
+
     return bond_type_changed # from apply_btype_to_bond
 
 def best_atype(atom, atomtypes = None): #bruce 060523

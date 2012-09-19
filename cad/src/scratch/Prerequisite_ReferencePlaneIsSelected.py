@@ -55,7 +55,7 @@ class PreCommand(Command):
     digr: review: when a preq becomes satsified by user action responding to msg,
     do we print something into statusbar or maybe history? or when it is *not* satisfied, ditto?
     if so, do it by calling a special log-like function... at what point do we know this happened?
-    
+
     ### REVIEW -- do we know yes_cmd/no_cmd at this level
     or is that constructed? typically the yes_cmd comes from the "stuff after this pre-command"
     and the no_cmd is an error handling command... which might depend -- on what?? ###
@@ -97,7 +97,7 @@ class Prerequisite_ReferencePlaneIsSelected( Prerequisite):
         # the available ref planes for selection
         ### REVIEW: do we loop around and reset this? (in which case, best to set it at start of prerequisite_check ###TODO)
         # or do we make a new preq instance in which it's already reset?? ###
-        
+
     def prerequisite_check(self):
         """
         (part of the Prerequisite subclass API)
@@ -144,5 +144,5 @@ class Prerequisite_ReferencePlaneIsSelected( Prerequisite):
     # also whatever we need to handle the PM widget for this
     # REVIEW: the PM widget goes with this preq object... but what delegates to what? it seems like this preq is in control...
     # as if we took the cmd Seq( preq, yes_cmd) and rewrote it to something fancier, sort of preq(yes_cmd, std_error_handler)
-    
-        
+
+

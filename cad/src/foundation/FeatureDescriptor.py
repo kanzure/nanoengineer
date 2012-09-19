@@ -1,10 +1,10 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 FeatureDescriptor.py - descriptor objects for program features
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 # == constants
@@ -12,12 +12,12 @@ FeatureDescriptor.py - descriptor objects for program features
 _KLUGE_PERMIT_INHERITED_CLASSNAMES = (
     "Command",
     "basicMode",
-    
+
     "Select_basicCommand", # abstract, but has to be in this list
         # since it doesn't have its own featurename
     "Select_Command",
     "selectMode",
-        
+
 
     "TemporaryCommand_preMixin", # (should this count as abstract?)
 
@@ -60,12 +60,12 @@ def short_class_name( clas):
     # todo: generalize to non-class things
     # note: used for name-mangling too, so don't change what it returns
     return clas.__name__.split('.')[-1]
-        
+
 def canonicalize_featurename( featurename, warn = False):
     # refile? does part of this function already exist elsewhere?
 
     featurename0 = featurename
-    
+
     featurename = featurename.strip()
 
     # turn underscores to blanks [bruce 080717, to work around
@@ -74,7 +74,7 @@ def canonicalize_featurename( featurename, warn = False):
     # in featurename = "Test Command: PM_Widgets Demo";
     # nonetheless this is necessary to make sure wiki help URLs
     # don't coincide (since those contain '_' in place of ' ')]
-    
+
     featurename = featurename.replace('_', ' ')
 
     if warn and featurename != featurename0:
@@ -140,7 +140,7 @@ def find_or_make_FeatureDescriptor( thing):
     @param thing: the program object or class corresponding internally to a
                   specific program feature, or any object of the "same kind"
                   (presently, any subclass of an element of _feature_class_tuple)
-    
+
     @return: FeatureDescriptor for thing (found or made),
              or None if thing does not describe a program feature.
     @rtype: FeatureDescriptor or None
@@ -158,7 +158,7 @@ def find_or_make_FeatureDescriptor( thing):
         pass
 
     res = _determine_FeatureDescriptor( thing) # might be None
-    
+
     # However we got the description (even if we're reusing one),
     # cache it, to optimize future calls and prevent redundant warnings.
 
@@ -186,7 +186,7 @@ def _determine_FeatureDescriptor( thing):
         # note: this fails with some kind of exception for non-classes,
         # and with AssertionError for classes that aren't a subclass of
         # a registered class
-    
+
     clas = thing
     del thing
 
@@ -201,7 +201,7 @@ def _determine_FeatureDescriptor( thing):
     # [bruce 080905 new feature]
 
     short_name = short_class_name( clas)
-    
+
     mangled_abstract_attrname = "_%s__abstract_command_class" % short_name
     abstract = getattr(clas, mangled_abstract_attrname, False)
     if abstract:
@@ -215,7 +215,7 @@ def _determine_FeatureDescriptor( thing):
     # see if featurename is inherited
 
     inherited_from = None # might be changed below
-    
+
     for base in clas.__bases__: # review: use mro?
         inherited_featurename = getattr( base, 'featurename', None)
         if inherited_featurename == featurename:
@@ -369,7 +369,7 @@ class basicCommand_Descriptor( CommandDescriptor): # refile with basicCommand?
         self.feature_type = self._get_feature_type()
         # todo: more
         return
-    
+
     def _get_command_class(self):
         return self.thing
     command_class = property( _get_command_class)
@@ -387,11 +387,11 @@ class basicCommand_Descriptor( CommandDescriptor): # refile with basicCommand?
                                  'command_porting_status',
                                  "bug: command_porting_status not defined" )
         return porting_status or ""
-        
+
     def sort_key(self):
         # revise to group dna commands together, etc? or subcommands of one main command?
         # yes, when we have the metainfo to support that.
-        
+
         return ( 1, self.featurename, short_class_name( self.command_class) ) #e more?
 
     def print_plain(self):
@@ -410,12 +410,12 @@ class basicCommand_Descriptor( CommandDescriptor): # refile with basicCommand?
             print "level:", self.command_class.command_level, \
                   "(%s)" % (self.command_class.command_parent or "no command_parent")
         else:
-            print "level:", self.command_class.command_level 
+            print "level:", self.command_class.command_level
         if not fully_ported:
             print "porting status:", porting_status
         # todo: more
         return
-    
+
     pass # end of class basicCommand_Descriptor
 
 # end

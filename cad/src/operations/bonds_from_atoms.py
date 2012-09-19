@@ -1,11 +1,11 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 bonds_from_atoms.py -- experimental code for inferring bonds from
 atom positions and elements alone
 
 @author: Dr. K. Eric Drexler
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -401,9 +401,9 @@ def make_bonds(atmlist, bondtyp = V_SINGLE):
 # ==
 
 def inferBonds(mol): # [probably by Will; TODO: needs docstring]
-    
+
     #bruce 071030 moved this from bonds.py to bonds_from_atoms.py
-    
+
     # not sure how big a margin we should have for "coincident"
     maxBondLength = 2.0
     # first remove any coincident singlets

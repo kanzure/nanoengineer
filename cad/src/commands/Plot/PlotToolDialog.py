@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 # Form implementation generated from reading ui file 'PlotToolDialog.ui'
 #
 # Created: Wed Sep 20 07:07:09 2006

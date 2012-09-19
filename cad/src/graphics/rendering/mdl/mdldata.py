@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 mdldata.py
 
@@ -6,7 +6,7 @@ $Id$
 """
 
 filler = "0 0 1.10899\n";
-        
+
 marks = [(0.0017098087515823326, -1.0, -1.1903588901433509e-008) ,
      (0.0012090115980704097, -1.0, -0.001209025283109241) ,
      (-1.2261384241677788e-008, -1.0, -0.0017098087515823326) ,

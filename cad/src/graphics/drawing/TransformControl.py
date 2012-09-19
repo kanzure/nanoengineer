@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 TransformControl.py -- A local coordinate frame for a set of CSDLs.
 
@@ -94,7 +94,7 @@ _transform_id_counter = -1
 class TransformControl:
     """
     @warning: this is a deprecated class; see module docstring for more info.
-    
+
     Store a shared mutable transform value for a set of CSDLs sharing a
     common local coordinate frame, and help the graphics subsystem
     render those CSDLs using that transform value. (This requires also storing
@@ -103,18 +103,18 @@ class TransformControl:
     The 4x4 transform matrix we store starts out as the identity, and can be
     modified using the rotate() and translate() methods, or reset using the
     setRotateTranslate() method.
-    
+
     If you want self's transform expressed as the composition of a rotation
     quaternion and translation vector, use the getRotateTranslate method.
     """
     # REVIEW: document self.transform and self.transform_id as public attributes?
     # Any others? TODO: Whichever are not public, rename as private.
-    
+
     # Implementation note:
     # Internally, we leave the transform in matrix form since that's what we'll
     # need for drawing primitives in shaders.
     # (No quaternion or even rotation matrix functions are built in over there.)
-    
+
     def __init__(self):
         # A unique integer ID for each TransformControl.
         global _transform_id_counter
@@ -133,7 +133,7 @@ class TransformControl:
         return
 
     # ==
-        
+
     def rotate(self, quat):
         """
         Post-multiply self's transform with a rotation given by a quaternion.
@@ -150,7 +150,7 @@ class TransformControl:
         self.transform[3, 0:3] += vec
         self.changed = drawing_constants.eventStamp()
         return
-        
+
     def setRotateTranslate(self, quat, vec):
         """
         Replace self's transform with the composition of a rotation quat (done
@@ -162,7 +162,7 @@ class TransformControl:
         self.transform = qmat4x4(quat)
         self.translate(vec) # this also sets self.changed
         return
-    
+
     def getRotateTranslate(self):
         """
         @return: self's transform value, as the tuple (quat, vec), representing
@@ -170,7 +170,7 @@ class TransformControl:
                  quaternion quat (rotation to be done first).
         @rtype: (quat, vec) where quat is of class Q, and vec is a length-3
                 sequence of undocumented type.
-        
+
         If self is being used to transform a 3d model, the rotation should be
         applied to the model first, to orient it around its presumed center;
         then the translation, to position the rotated model with its center in

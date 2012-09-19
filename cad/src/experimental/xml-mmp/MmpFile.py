@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """This class should represent an MMP file as an abstract data object.
 We can read it in from a conventional *.mmp text file, and if we wish,
 write it out in some kind of XML format.

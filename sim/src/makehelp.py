@@ -1,4 +1,4 @@
-# Copyright 2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006 Nanorex, Inc.  See LICENSE file for details.
 import sys
 import time
 import os.path
@@ -60,7 +60,7 @@ def hString(name, s, prefix=""):
 
 ######################################
 
-print hString("TRACE_PREFIX", 
+print hString("TRACE_PREFIX",
               "uname -a: " + sys.argv[3] + "\n",
               "# ")
 
@@ -68,7 +68,7 @@ print hString("TRACE_PREFIX_NON_DISTUTILS",
               "CFLAGS: " + sys.argv[1] + "\n" +
               "LDFLAGS: " + sys.argv[2] + "\n",
               "# ")
-              
+
 if DISTUTILS_FLAGS != None:
     distutils = " ".join(DISTUTILS_FLAGS)
 else:

@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_chunks.py - enforce rules on chunks containing changed PAM atoms
 
@@ -55,7 +55,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
                           this dict might include atoms from closed files.
 
     @param homeless_markers: ###doc, ###rename
-    
+
     @return: the 2-tuple (all_new_chunks, new_wholechains),
              containing a list of all newly made DnaLadderRailChunks
              (or modified ones, if that's ever possible),
@@ -101,7 +101,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
         # so it should not be necessary to also add to this all markers noticed
         # on changed_atoms, even though that might include more markers than
         # we have so far (especially after we add atoms from invalid ladders below).
-    
+
     live_markers = []
     for marker in homeless_markers:
         still_alive = marker._f_move_to_live_atompair_step1() #e @@@@ rename (no step1) (also fix @@@)
@@ -122,7 +122,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     ignore_new_changes("from moving DnaMarkers")
         # ignore changes caused by adding/removing marker jigs
         # to their atoms, when the jigs die/move/areborn
-    
+
     # make sure invalid DnaLadders are recognized as such in the next step,
     # and dissolved [possible optim: also recorded for later destroy??].
     # also (#e future optim) break long ones at damage points so the undamaged
@@ -132,10 +132,10 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     # (due to dissolved or fragmented ladders) are scanned below,
     # or that the chains they are in are covered. This is necessary so that
     # the found chains below cover all atoms in every "base pair" (Ss-Ax-Ss)
-    # they cover any atom in. Presently this is done by 
+    # they cover any atom in. Presently this is done by
     # adding some or all of their atoms into changed_atoms
     # in the following method.
-    
+
     dissolve_or_fragment_invalid_ladders( changed_atoms)
         # note: this does more than its name implies:
         # - invalidate all ladders containing changed_atoms
@@ -149,7 +149,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
 
     # TODO: make sure _f_baseatom_wants_pam is extended to cover whole basepairs
     # (unless all code which stores into it does that)
-    
+
     # Find the current axis and strand chains (perceived from current bonding)
     # on which any changed atoms reside, but only scanning along atoms
     # not still part of valid DnaLadders. (I.e. leave existing undamaged
@@ -159,16 +159,16 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     # small chains about them.)
 
     ignore_new_changes("from dissolve_or_fragment_invalid_ladders", changes_ok = False)
-    
+
     axis_chains, strand_chains = find_axis_and_strand_chains_or_rings( changed_atoms)
 
     ignore_new_changes("from find_axis_and_strand_chains_or_rings", changes_ok = False )
 
     if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         assert_unique_chain_baseatoms(axis_chains + strand_chains)
-    
+
     # make ladders
-    
+
     # Now use the above-computed info to make new DnaLadders out of the chains
     # we just made (which contain all PAM atoms no longer in valid old ladders),
     # and to merge end-to-end-connected ladders (new/new or new/old) into larger
@@ -188,7 +188,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     new_axis_ladders, new_singlestrand_ladders = make_new_ladders( axis_chains, strand_chains)
 
     all_new_unmerged_ladders = new_axis_ladders + new_singlestrand_ladders
-    
+
     ignore_new_changes("from make_new_ladders", changes_ok = False)
 
     if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
@@ -214,7 +214,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     if default_pam or _f_baseatom_wants_pam:
         #bruce 080523 optim: don't always call this
         _do_pam_conversions( default_pam, all_new_unmerged_ladders )
-    
+
     if _f_invalid_dna_ladders:
         #bruce 080413
         print "\n*** likely bug: _f_invalid_dna_ladders is nonempty " \
@@ -228,9 +228,9 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
 
     _old_policy = temporarily_set_dnaladder_inval_policy( DNALADDER_INVAL_IS_OK)
     assert _old_policy == DNALADDER_INVAL_IS_ERROR
-    
+
     # merge axis ladders (ladders with an axis, and 1 or 2 strands)
-    
+
     merged_axis_ladders = merge_and_split_ladders( new_axis_ladders,
                                                    debug_msg = "axis" )
         # note: each returned ladder is either entirely new (perhaps merged),
@@ -242,7 +242,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
 
     # merge singlestrand ladders (with no axis)
     # (note: not possible for an axis and singlestrand ladder to merge)
-    
+
     merged_singlestrand_ladders = merge_and_split_ladders( new_singlestrand_ladders,
                                                            debug_msg = "single strand" )
         # not sure if singlestrand merge is needed; split is useful though
@@ -255,9 +255,9 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     del _old_policy
 
     _f_clear_invalid_dna_ladders()
-    
+
     merged_ladders = merged_axis_ladders + merged_singlestrand_ladders
-    
+
     if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         assert_unique_ladder_baseatoms( merged_ladders)
 
@@ -265,7 +265,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     # This must be done to all newly made or merged ladders (even if parts are old).
 
     all_new_chunks = []
-    
+
     for ladder in merged_ladders:
         new_chunks = ladder.remake_chunks()
             # note: this doesn't have an issue about wrongly invalidating the
@@ -290,7 +290,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     # These may have existing DnaSegmentOrStrand objects,
     # or need new ones (made later), and in a later step (not in this function)
     # those objects take over their chunks.
-    
+
     # Note that due to the prior step, any atom in a ladder (new or old)
     # can find its smallchain via its chunk.
 
@@ -364,9 +364,9 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     # Make new wholechains. Note: The constructors call marker methods on all
     # markers found on those wholechains; those methods can kill some of the
     # markers.
-    
+
     new_wholechains = (
-        map( Axis_WholeChain, 
+        map( Axis_WholeChain,
              algorithm( merged_axis_ladders,
                         lambda ladder: ladder.axis_rails() ) ) +
         map( Strand_WholeChain,
@@ -387,7 +387,7 @@ def update_PAM_chunks( changed_atoms, homeless_markers):
     for marker in live_markers:
         marker._f_should_be_done_with_move()
     del live_markers
-    
+
     # note: those Whatever_WholeChain constructors above also have side effects:
     # - own their atoms and chunks (chunk.set_wholechain)
     # - kill markers no longer on adjacent atoms on same wholechain
@@ -443,7 +443,7 @@ def _do_pam_conversions( default_pam, all_new_unmerged_ladders):
         # also make it easy & reliable to locate all atoms in new ladders
         # (this could surely be optimized, but simple & reliable is primary
         #  concern for now)
-        
+
         for ladder in all_new_unmerged_ladders:
             if not ladder.error:
                 ladder.clear_baseframe_data()
@@ -452,7 +452,7 @@ def _do_pam_conversions( default_pam, all_new_unmerged_ladders):
                     ladder.clear_baseframe_data()
                     # no need to store locator data for these
         pass
-    
+
     for ladder in all_new_unmerged_ladders:
         assert ladder.valid, "bug: new ladder %r not valid!" % self
         wanted, succeeded = ladder._f_convert_pam_if_desired(default_pam)
@@ -460,7 +460,7 @@ def _do_pam_conversions( default_pam, all_new_unmerged_ladders):
             # - this sets baseframe data if conversion succeeds,
             #   and stores ladder in ladders_dict, with value False
         assert ladder.valid, "bug: _f_convert_pam_if_desired made %r invalid!" % ladder
-        didit = wanted and succeeded 
+        didit = wanted and succeeded
         failed = wanted and not succeeded
         number_converted += not not didit
         number_failed += not not failed
@@ -497,7 +497,7 @@ def _do_pam_conversions( default_pam, all_new_unmerged_ladders):
     locator.clear()
     del locator
     _f_baseatom_wants_pam.clear()
-    
+
     # Note: if ladders were converted, their chains are still ok,
     # since those only store baseatoms (for strand and axis),
     # and those transmuted and moved but didn't change identity.
@@ -514,7 +514,7 @@ def _do_pam_conversions( default_pam, all_new_unmerged_ladders):
     if number_failed:
         msg += " (%d desired conversions failed)" % number_failed
         # msg is just for debug, nevermind calling fix_plurals
-    
+
     if number_converted:
         ignore_new_changes(msg, changes_ok = True)
     else:

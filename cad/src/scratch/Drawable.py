@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Drawable.py - shared properties of all drawable objects
 
@@ -23,10 +23,10 @@ class Drawable(Selobj_API):
     Group.addchild, in particular, will mean it shows up in the MT,
     which is not what we want if it's just some other jig's resize
     handle.
-    
+
     Basically, the existing code you are trying to fit into,
     selectMode.jigLeftDown, is not general enough.
-    
+
     Best solution is to make Bauble inherit a new superclass, Drawable
     (if you don't mind me later redefining the API, or us doing that
     together) or BaubleBaseOrWhateverYouCallIt (if you prefer a period
@@ -34,15 +34,15 @@ class Drawable(Selobj_API):
     and then add this new superclass to the list of things
     SelectAtoms_GraphicsMode treats specially in its event handlers, which is
     now Atom, Bond, Jig.
-    
+
     (If you are willing to let me heavily influence Drawable, as you
     seem to be, you might as well just start defining it in a new
     python source file.)
-    
+
     This Bauble is not selectable and should not need a .picked
     attribute, and should never be permitted in any of those lists of
     selected whatevers in that mode object.
-    
+
     What it needs is an allocated glName (like existing
     not-named-as-such drawables have -- see init code for Atom, Bond,
     Chunk, maybe Jig or some of its subclasses), some methods you'll
@@ -59,9 +59,9 @@ class Drawable(Selobj_API):
     [note, this has been revised, bruce 080220; class Atom now sets
      self._glname using assy.alloc_my_glselect_name; glpane has this
      method as well, as of before 080917]
-    
+
     *** Needs a draw_in_abs_coords method
-    
+
     Among the special cases will be for mouse down, mouse drag, mouse
     up. If there is now an object being dragged, or a state variable
     about what kind of thing is being dragged, it needs to fit into
@@ -69,20 +69,20 @@ class Drawable(Selobj_API):
     could reasonably be extended as-is).
 
     *** special cases go in SelectAtoms_GraphicsMode, not here
-    
+
     The code that looks at selobj may also need cases for this, but
     maybe not, if it doesn't need a context menu and doesn't traceback
     without it.
 
     *** assume I don't need this for now
-    
+
     As for when to draw it, draw it when you draw its owning jig --
     owning jig needs an attr whose value is the bauble (or maybe more
     than one bauble, with an attr which is a dict from bauble-role to
     bauble), and drawing code which (sometimes or always) draws it.
 
     *** already doing this
-    
+
     As for its position, that might as well be relative to the jig,
     and whatever code now moves or rotates jigs will need to do the
     right thing, and I *hope* that code already calls methods on the
@@ -98,14 +98,14 @@ class Drawable(Selobj_API):
     and will need to be taught to send a nicer method call to Jigs which own Baubles.
 
     *** motion relative to the jig is a good idea
-    
+
     As for what the Bauble drag method does (when called by the new
     Drawable special case in SelectAtoms_GraphicsMode leftDrag or whatever),
     that is to actually modify its own relative posn in the jig, and
     then do gl_update so that everything (including its parent jig,
     thus itself) gets redrawn, soon after the event is done being
     handled.
-    
+
     The convention for drags is to record the 3d point at which the
     mouse clicked on the Drawable (known from the depth buffer value
     -- the code for clicking on a Jig shows you how to figure this
@@ -118,13 +118,13 @@ class Drawable(Selobj_API):
     that lacks history-dependence (this would matter when reaching
     limits). We've never yet had drag-constraints except when dragging
     bondpoints.
-    
+
     Anything not equivalent to that will seem wrong and be a bug.
-    
+
     All the above is for non-selectable non-Node Drawables.
-    
+
     ===========================================================
-    
+
     the current code may assume the glName stack is only 1 deep at
     most, and if you give Bauble a glName of its own, then to obey
     that, the owning Jig needs to not draw it until it pops its own

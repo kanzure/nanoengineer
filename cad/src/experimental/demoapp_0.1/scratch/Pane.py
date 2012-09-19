@@ -11,13 +11,13 @@ class ChildPane(object):
     # and pos
 
     # default values of instance variables
-    
+
     # pos and size can be set to move and resize child pane
     # within its parent;
     # event coords passed to child are relative to child's
     # bottom-left corner (so moving child within parent doesn't
     # require moving its subchildren).
-    
+
     pos = V(0, 0)
     size = V(10, 10)
 

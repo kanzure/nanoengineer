@@ -1,4 +1,4 @@
-# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 movie.py -- class Movie, used for simulation parameters and open movie files
 
@@ -43,7 +43,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
     """
     Movie object.
 
-    Multiple purposes (which ought to be split into separate objects more than 
+    Multiple purposes (which ought to be split into separate objects more than
     they have been so far):
     - Holds state of one playable or playing movie,
       and provides methods for playing it,
@@ -61,10 +61,10 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
     - so far, provisions/checks for changing Parts during movie playing are
       limited.
 
-    Movie lifecycle 
+    Movie lifecycle
     [bruce 050427 intention -- some details are obs or need review #####@@@@@]:
 
-    - If we make the movie in this session (or someday, if we read a movie 
+    - If we make the movie in this session (or someday, if we read a movie
       node from an mmp file), we give it an alist, and we should never change
       that alist after that, but we'll need to check it sometimes, in case of
       atoms changing Parts or being killed.
@@ -73,7 +73,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
       file, then when we do that (or when needed) we come up with an alist,
       and likewise never change the alist after that.
 
-      (In the future, if there's a "play on selection" option, this only 
+      (In the future, if there's a "play on selection" option, this only
       affects which atoms move when we play the movie -- it doesn't alter the
       alist, which is needed in its original form for interpreting frames in
       the moviefile.)
@@ -89,45 +89,45 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
       (which snuggles singlets and disables some movieMode PM controls).
 
       But even between _close and the next cueMovie(), the alist is maintained
-      -- switching Parts is not enough to try reloading the movie for 
-      playing on different atoms. If changing it to play on different 
-      atoms is ever needed, we'll add specific support for that. 
+      -- switching Parts is not enough to try reloading the movie for
+      playing on different atoms. If changing it to play on different
+      atoms is ever needed, we'll add specific support for that.
       Not only is alist maintained, so is valuable info about the moviefile,
       like cached frames. The file might be closed (to save on open files
-      for when we have multiple loaded movies, and to help us detect 
-      whether the file gets overwritten with new data); if closed, 
+      for when we have multiple loaded movies, and to help us detect
+      whether the file gets overwritten with new data); if closed,
       it's reopened on the next cueMovie(), and it's always rechecked on
       cueMovie() for being overwritten. #####@@@@@ doit or testit
 
-    State variables involved in all this (incomplete list, there's also 
+    State variables involved in all this (incomplete list, there's also
     currentFrame and a few others in the playing-state):
 
     - isOpen() tells whether we're between cueMovie() and _close. (It has no
-      guaranteed relation to whether any file object is open, though in 
+      guaranteed relation to whether any file object is open, though in
       practice it might coincide with that for the moviefile.)
 
-    - alist is None or a valid list of atoms (this might be replaced by 
+    - alist is None or a valid list of atoms (this might be replaced by
       an object for holding that list)
 
     - the first time cueMovie() is called, the movie file header is parsed,
-      and an alist is assigned if possible and not already known, and an 
-      "alist_and_moviefile" object to hold both of them and keep them in 
+      and an alist is assigned if possible and not already known, and an
+      "alist_and_moviefile" object to hold both of them and keep them in
       correspondence is created, and if this works the file is never again
       fully reparsed, though it might be rechecked later to ensure it hasn't
       been overwritten.
       #####@@@@@ is it ok to do this for each existing call of cueMovie()?
 
-    - might_be_playable() returns True if this object *might* be playable, 
-      provided cueMovie() has not yet been called and succeeded 
-      (i.e. if we don't yet have an alist_and_moviefile object); 
+    - might_be_playable() returns True if this object *might* be playable,
+      provided cueMovie() has not yet been called and succeeded
+      (i.e. if we don't yet have an alist_and_moviefile object);
       but after cueMovie() has once succeeded, it returns True iff the alist
-      is currently ok to try to play from the file (according to our 
+      is currently ok to try to play from the file (according to our
       alist_and_moviefile).
-      (This might always be True, depending on our policy for atoms moved 
-      to other parts or killed, but it might trigger history warnings in 
+      (This might always be True, depending on our policy for atoms moved
+      to other parts or killed, but it might trigger history warnings in
       some cases -- not yet decided #####@@@@@).
-      It won't actually recheck the file (to detect overwrites) until 
-      cueMovie() is called. (The goal is for might_be_playable to be fast 
+      It won't actually recheck the file (to detect overwrites) until
+      cueMovie() is called. (The goal is for might_be_playable to be fast
       enough to use in e.g. updating a node-icon in the MT, in the future.)
     """
     #bruce 050324 comment: note that this class is misnamed --
@@ -155,14 +155,14 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
         """
         ###doc; note that this Movie might be made to hold params for a sim run,
         and then be told its filename, or to read a previously saved file;
-        pre-050326 code always stored filename from outside and didn't tell 
+        pre-050326 code always stored filename from outside and didn't tell
         this object how it was becoming valid, etc...
         """
         self.assy = assy
         self.win = self.assy.w
         self.glpane = self.assy.o ##e if in future there's more than one glpane, recompute this whenever starting to play the movie
 
-        # for future use: name of the movie that appears in the modelTree. 
+        # for future use: name of the movie that appears in the modelTree.
         self.name = name or "" # assumed to be a string by some code
         # the name of the movie file
         self.filename = "" #bruce 050326 comment: so far this is only set by external code; i'll change that someday
@@ -312,11 +312,11 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
 
     def represent_this_moviefile( self, mfile, part = None): #bruce 050326
         """
-        Try to start representing the given moviefile (which must end 
+        Try to start representing the given moviefile (which must end
         with '.dpb');
-        
+
         Return true iff this succeeds; if it fails DON'T emit error message.
-        if part is supplied, also [NIM] make sure mfile is valid for current 
+        if part is supplied, also [NIM] make sure mfile is valid for current
         state of that part.
         """
         #e should the checking be done in the caller (a helper function)?
@@ -337,11 +337,11 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
     def set_alist(self, alist): #bruce 050325
         """
         Verify this list of atoms is legal (as an alist to make a movie from),
-        and set it as this movie's alist. This only makes sense before making 
+        and set it as this movie's alist. This only makes sense before making
         a moviefile, or after reading one we didn't make in the same session
-        (or whose alist we lost) and figuring out somehow what existing 
-        atoms it should apply to. But nothing is checked about whether this 
-        alist fits the movie file, if we have one, and/or the other params 
+        (or whose alist we lost) and figuring out somehow what existing
+        atoms it should apply to. But nothing is checked about whether this
+        alist fits the movie file, if we have one, and/or the other params
         we have -- that's assumed done by the caller.
         """
         alist = list(alist) # make our own copy (in case caller modifies its copy), and ensure type is list
@@ -379,7 +379,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
 
     def _cueMovieCheck(self): #bruce 050427
         """
-        Checks movie file to determine that its playable and that it's ok to 
+        Checks movie file to determine that its playable and that it's ok to
         start playing it.
         If not, emit complaints on history widget, don't set our state
         variables; return False. If so, return True.
@@ -406,7 +406,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
                 # [note: only needed if movie file format needs one, so once we support new DPB file format,
                 #  we should make this conditional on the format, or do it in a callback provided to alist_and_moviefile ###@@@]
                 if self.currentFrame:
-                    # should never happen once bug 1297 fix is completed 
+                    # should never happen once bug 1297 fix is completed
                     print "warning: making ref_frame from nonzero currentFrame %d" % self.currentFrame
                 self.ref_frame = ( self.currentFrame, A(map(lambda a: a.sim_posn(), self.alist)) )
             else:
@@ -457,11 +457,11 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
         @param propMgr: The movie property manager.
         @type  propMgr: MoviePropertyManager
 
-        @param hflag: The history message flag. If True, print a history 
+        @param hflag: The history message flag. If True, print a history
                       message.
         @type  hflag: boolean
 
-        @return: False if this worked, True if it failed 
+        @return: False if this worked, True if it failed
                  (warning: reverse of common boolean retvals).
         @rtype:  boolean
 
@@ -576,7 +576,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
             print_compact_stack( "movie._close() called. self.isOpen = %r" % self.isOpen)
         if not self.isOpen:
             return
-        self._pause(0) 
+        self._pause(0)
         ## self.fileobj.close() # Close the movie file.
         self.alist_and_moviefile.snuggle_singlets() #bruce 050427
         self.alist_and_moviefile.close_file() #bruce 050427
@@ -629,21 +629,21 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
     def _write_povray_series(self, name):
         """
         Writes the movie out as a series of POV-Ray files, starting with the
-        current frame until the last frame, skipping frames using the 
+        current frame until the last frame, skipping frames using the
         "Skip" value from the dashboard.
 
-        If your trajectory file was foobar.dpb, this will write, e.g., 
+        If your trajectory file was foobar.dpb, this will write, e.g.,
         foobar.000000.pov thru foobar.000999.pov (assuming your movie has
         1000 frames).
-        
+
         If you have bash, you may then run:
             for FN in foobar.000*.pov; { povray +W800 +H600 +A -D $FN; } &> /dev/null &
-        to generate the .png files. 
-        
+        to generate the .png files.
+
         This is not to be done under NE1 because it typically takes several
         hours and will be best done on a renderfarm with commands appropriate
-        to the renderfarm. 
-        
+        to the renderfarm.
+
         You may then make a move of it with:
             mencoder "mf://*.png" -mf fps=25 -o output.avi -ovc lavc -lavcopts vcodec=mpeg4
         """
@@ -659,28 +659,28 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
 
         self.playDirection = 1
 
-        # Writes the POV-Ray series starting at the current frame until the last frame, 
+        # Writes the POV-Ray series starting at the current frame until the last frame,
         # skipping frames if "Skip" (on the dashboard) is != 0.  Mark 050908
         nfiles = 0
-        for i in range(self.currentFrame, 
-                       self.totalFramesActual+1, 
+        for i in range(self.currentFrame,
+                       self.totalFramesActual+1,
                        self.propMgr.frameSkipSpinBox.value()):
             self.alist_and_moviefile.play_frame(i)
             filename = "%s.%06d.pov" % (name,i)
-            # For 100s of files, printing a history message for each file is undesired. 
+            # For 100s of files, printing a history message for each file is undesired.
             # Instead, I include a summary message below. Fixes bug 953.  Mark 051119.
-            # env.history.message( "Writing file: " + filename ) 
+            # env.history.message( "Writing file: " + filename )
             writepovfile(self.assy.part, self.assy.o, filename) #bruce 050927 revised arglist
             nfiles += 1
             self.framecounter  =  i #  gets the the last frame number of the file written. This will be passed in the history message ninad060809
 
         # Return to currentFrame. Fixes bug 1025.  Mark 051119
-        self.alist_and_moviefile.play_frame(self.currentFrame) 
+        self.alist_and_moviefile.play_frame(self.currentFrame)
 
         # Summary msgs tell user number of files saved and where they are located.
         msg = fix_plurals("%d file(s) written." % nfiles)
         env.history.message(msg)
-        filenames = "%s.%06d.pov - %06d.pov" % (name, self.currentFrame, self.framecounter)#ninad060809 fixed bugs 2147 and 2148 
+        filenames = "%s.%06d.pov - %06d.pov" % (name, self.currentFrame, self.framecounter)#ninad060809 fixed bugs 2147 and 2148
         msg = "Files are named %s." % filenames
         env.history.message(msg)
 
@@ -688,7 +688,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
     def _continue(self, hflag = True): # [bruce 050427 comment: only called from self._play]
         """
         Continue playing movie from current position.
-        
+
         @param hflag: if True, print history message
         @type  hflag: boolean
         """
@@ -696,9 +696,9 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
             print "movie._continue() called. Direction = ", playDirection[ self.playDirection ]
 
         # In case the movie is already playing (usually the other direction).
-        self._pause(0) 
+        self._pause(0)
 
-        if hflag: 
+        if hflag:
             env.history.message("Movie continued: " + playDirection[ self.playDirection ])
 
         self.warn_if_other_part(self.assy.part) #bruce 050427
@@ -815,7 +815,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
 
         # Reset movie to beginning (frame 0).  Executed when user types 0 in spinbox.
         #bruce 050427 comment: this might no longer be needed (it might be handled at a lower level). We'll see. ###@@@
-        if not self.showEachFrame and fnum == 0 and not from_slider: 
+        if not self.showEachFrame and fnum == 0 and not from_slider:
             self._reset()
             self.win.movie_is_playing = False # May not be needed.  Doing it anyway.  Mark 051209.
             return
@@ -838,12 +838,12 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
                     raise
 
         # "inc" is the frame increment (FWD = 1, REV = -1) .
-        if fnum > self.currentFrame: 
+        if fnum > self.currentFrame:
             inc = FWD
             if not from_slider:
                 self.propMgr.moviePlayActiveAction.setVisible(1)
                 self.propMgr.moviePlayAction.setVisible(0)
-        else: 
+        else:
             inc = REV
             if not from_slider:
                 self.propMgr.moviePlayRevActiveAction.setVisible(1)
@@ -851,7 +851,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
 
         # This addresses the situation when the movie file is large (> 1000 frames)
         # and the user drags the slider quickly, creating a large delta between
-        # fnum and currentFrame.  Issue: playing this long of a range of the movie 
+        # fnum and currentFrame.  Issue: playing this long of a range of the movie
         # may take some time.  We need to give feedback to the user as to what is happening:
         # 1). turn the cursor into WaitCursor (hourglass).
         # 2). print a history message letting the user know we are advancing the movie, but
@@ -954,7 +954,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
         self.debug_dump("after playToFrame loop", fnum = fnum, inc = inc)
 
         # Update cursor, slider and show frame.
-        if self.waitCursor: 
+        if self.waitCursor:
             QApplication.restoreOverrideCursor() # Restore the cursor
             self.waitCursor = False
 
@@ -962,7 +962,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
             # [bruce 050428 comment: old code only updated slider here, but it did both SL and SB in loop above;
             #  now the update method decides which ones to update]
 
-        # Set movie_is_playing to False right before it draws the last frame (fnum).    
+        # Set movie_is_playing to False right before it draws the last frame (fnum).
         self.win.movie_is_playing = False
         # This is the last frame (fnum).
         self.glpane.gl_update() #e bruce 050427 comment: we should optimize and only do this if we didn't just do it in the loop
@@ -1040,10 +1040,10 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
             env.history.message("No movie file loaded.")
             return
         env.history.message("Filename: [" + self.filename + "]")
-        
+
         msg = "Number of Frames: " +  str(self.totalFramesActual) + \
             ".  Number of Atoms: " +  str(self.natoms)
-        
+
         env.history.message(msg)
 #        env.history.message("Temperature:" + str(self.temp) + "K")
 #        env.history.message("Steps per Frame:" + str(self.stepsper))
@@ -1051,7 +1051,7 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
 
     def getMovieInfo(self):
         """
-        Return the information about this movie. 
+        Return the information about this movie.
         """
         fileName    = str(self.filename)
         numOfFrames = str(self.totalFramesActual)
@@ -1093,13 +1093,13 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
 
     def moveAtoms(self, newPositions): # used when reading xyz files
         """
-        Move a list of atoms to newPosition. After all atoms moving 
+        Move a list of atoms to newPosition. After all atoms moving
         [and singlet positions updated], bond updated, update display once.
-        
+
         @param newPosition: a list of atom absolute position,
                             the list order is the same as self.alist
         @type  newPosition: list
-        """   
+        """
         if len(newPositions) != len(self.alist):
             #bruce 050225 added some parameters to this error message
             #bruce 050406 comment: but it probably never comes out, since readxyz checks this,
@@ -1120,15 +1120,15 @@ class Movie(IdentityCopyMixin): #bruce 080321 bugfix: added IdentityCopyMixin
 
 class MovableAtomList: #bruce 050426 splitting this out of class Movie... except it's entirely new code, as it turns out.
     """
-    A list of atoms within an assy (perhaps in more than one Part or even 
-    including killed atoms), with methods for quickly and safely changing 
-    all their positions at once, updating their display, for "owning" 
+    A list of atoms within an assy (perhaps in more than one Part or even
+    including killed atoms), with methods for quickly and safely changing
+    all their positions at once, updating their display, for "owning"
     those atoms or their chunks as needed to make it safe to reset their
     positions, and for tracking external changes to their structure relevant
-    to safety and validity of resetting their positions. [For Alpha5 we're 
+    to safety and validity of resetting their positions. [For Alpha5 we're
     mainly worrying about safety from tracebacks rather than validity.]
-    
-    [Not yet handled here: ability to be told to move an H to one position, 
+
+    [Not yet handled here: ability to be told to move an H to one position,
     but to actually move a singlet into a different position computed
     from that (re bug 254). Caller might help by ordering singlets after
     their base atoms, or even by doing this work itself (none of that is
@@ -1148,12 +1148,12 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         # note: this method is no longer called as of bruce 060112, but its comments are relevant and are referred to
         # from several files using the name of this method. It's also still correctly implemented, so we can leave it in for now.
         """
-        Return an Array (mutable and owned by caller) of current 
-        positions-for-simulator of our atoms (like positions, except 
+        Return an Array (mutable and owned by caller) of current
+        positions-for-simulator of our atoms (like positions, except
         singlets pretend they're H's and correct their posns accordingly).
-        (This must work even if some of our atoms have been killed, 
-        or moved into different Parts, since we were made, though the 
-        positions returned for killed atoms probably don't matter 
+        (This must work even if some of our atoms have been killed,
+        or moved into different Parts, since we were made, though the
+        positions returned for killed atoms probably don't matter
         (#k not sure).)
         """
         # Problem: to fully fix bug 1297, we need to return the H position actually used in the sim, not the equilibrium H position
@@ -1167,16 +1167,16 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         res = map( lambda a: a.sim_posn(), self.alist )
         return A(res)
 
-    def set_posns(self, newposns): 
+    def set_posns(self, newposns):
         """
-        Set our atoms' positions (even killed ones) to those in the given 
+        Set our atoms' positions (even killed ones) to those in the given
         array (but correct singlet positions); do all required invals but
-        no redisplay 
-        
-        @note: someday we might have a version which only does this for the 
+        no redisplay
+
+        @note: someday we might have a version which only does this for the
         atoms now in a given Part.
         """
-        #e later we'll optimize this by owning atoms and speeding up or 
+        #e later we'll optimize this by owning atoms and speeding up or
         # eliminating invals
         #bruce 060109 replaced prior code with this recently split out routine,
         # so that singlet correction is done on every frame; could be optimized,
@@ -1218,23 +1218,23 @@ class alist_and_moviefile:
     and be able to move the atoms using the moviefile
     and know the state of their relationship at all times.
     (But let the two subobjects we create do most of the work.)
-    
+
     Assume that we know the current valid frame better than the atoms do...
-    even if something else moves them (unless it's another copy of the same 
+    even if something else moves them (unless it's another copy of the same
     movie, which we assume won't happen)... but this will become wrong once
     there's an Undo feature!
-    So then, we'd want to advise the atom-state of this value (keyed to 
+    So then, we'd want to advise the atom-state of this value (keyed to
     this object's moviefile-contents), so it'd be a part of the undone state.
     I'm not sure if I'll do that, or ignore it for now. ###k
     Or I might do *both*, by designating this object as the way the atom's
-    real owner (their assy) remembers that state! In other words, this 
-    "playable movie" is sitting in the atoms as a "slidable handle" 
+    real owner (their assy) remembers that state! In other words, this
+    "playable movie" is sitting in the atoms as a "slidable handle"
     (metaphorically at least) to let anything adjust their posns using it,
     including (example 1) the moviemode dashboard controls
     (once it decides which movie object it wants to display and adjust)
-    or (example 2) various cmenu ops (or even MT-embedded sliders?) on 
-    movie nodes in the MT. 
-    
+    or (example 2) various cmenu ops (or even MT-embedded sliders?) on
+    movie nodes in the MT.
+
     This class might be small enough to use as a Jig for actually being in
     the MT..., or it might still be better to let that be a separate object
     which represents one of these. #k
@@ -1243,29 +1243,29 @@ class alist_and_moviefile:
     def __init__(self, assy, alist, filename, ref_frame = None): #bruce 060112 removed curframe_in_alist, added ref_frame
         """
         Caller promises that filename exists. If it matches alist well enough
-        to use with it, we set self.valid() true and fully init ourselves, 
-        i.e. set up the file/alist relationship and get ready to play 
-        specific frames (i.e. copy posns from file into alist's atoms) 
+        to use with it, we set self.valid() true and fully init ourselves,
+        i.e. set up the file/alist relationship and get ready to play
+        specific frames (i.e. copy posns from file into alist's atoms)
         on request.
-        
+
         If file doesn't match alist, we set self.valid() false and return early
         (but we might still be usable later if the file changes and some
         recheck method (NIM) is called (#e)).
-        
-        If provided, ref_frame is (frame_number, sim_posn_array) for some 
-        frame of the movie, which we should use as a reference for 
+
+        If provided, ref_frame is (frame_number, sim_posn_array) for some
+        frame of the movie, which we should use as a reference for
         interpreting a purely-differential moviefile.
         Such moviefiles require that this argument be provided.
         [I'm not sure when this is checked -- leaving it out might cause
         later exception or (unlikely) wrong positions.]
         If the moviefile has its own abs positions, we can ignore this argument
-        (#e but in future we might decide instead to check it, or to 
+        (#e but in future we might decide instead to check it, or to
         use it in some other way...).
         """
         self.alist = alist # needed for rechecking the match
         ## self.history = env.history # not yet used, but probably will be used for error messages [bruce 050913 removed this]
         self.moviefile = MovieFile( filename)
-        self.movable_atoms = None 
+        self.movable_atoms = None
         if not self.moviefile:
             pass ## MovieFile will have emitted a history message (I hope)
             return

@@ -25,7 +25,7 @@ DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND = True
 _superclass = SelectChunks_GraphicsMode
 class BuildNanotube_GraphicsMode(SelectChunks_GraphicsMode):
     """
-    Graphics mode for the Build Nanotube command. 
+    Graphics mode for the Build Nanotube command.
     """
 
     def chunkLeftUp(self, aChunk, event):
@@ -53,7 +53,7 @@ class BuildNanotube_GraphicsMode(SelectChunks_GraphicsMode):
         #edit mode, instead do appropriate operation such as expand selection or
         #contract selection (done in superclass)
         #Note: when the object is just single clicked, it becomes editable).
-        
+
         if self.editObjectOnSingleClick():
             if aChunk.picked:
                 segmentGroup = aChunk.parent_node_of_class(NanotubeSegment)
@@ -72,10 +72,10 @@ class BuildNanotube_GraphicsMode(SelectChunks_GraphicsMode):
         if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:
             return True
         return False
-    
+
     def _drawCursorText(self):
         """
-        Draw the text near the cursor. It gives information about length of 
+        Draw the text near the cursor. It gives information about length of
         the nanotube.
         """
         if hasattr(self.command, 'grabbedHandle') and \
@@ -90,7 +90,7 @@ class BuildNanotube_GraphicsMode(SelectChunks_GraphicsMode):
                 pass
             pass
         return
-        
+
     pass
 
 

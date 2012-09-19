@@ -1,4 +1,4 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 special_drawing.py - help class ChunkDrawer do special drawing in extra display lists
 
@@ -51,7 +51,7 @@ class _USE_CURRENT_class(object):
             # So there was no exception and there is no mystery.
             # (An actual exception here causes, at least, a bug when hovering
             #  over a 3' strand end arrowhead, in Select Chunks mode.)
-            # [bruce 081211 comment]            
+            # [bruce 081211 comment]
         win = env.mainwindow()
         glpane = win.glpane
         graphicsMode = glpane.graphicsMode
@@ -111,7 +111,7 @@ class UsedValueTrackerAndComparator(object):
 
     Client code will have an instance of this class for each recomputation
     it wants to track separately for the need to be redone.
-    
+
     When the client wants to use the result of the computation and is
     worried it might not be current, it calls self.do_we_need_to_recompute(),
     which checks whether self.invalidate() has been called, and if not,
@@ -120,7 +120,7 @@ class UsedValueTrackerAndComparator(object):
 
     If that's false, our client can safely use its cached result from
     the last time it recomputed.
-    
+
     But if that's true, the client calls self.before_recompute(),
     then does the computation and records the result
     (independently of this object except for calls to self.get_value
@@ -132,7 +132,7 @@ class UsedValueTrackerAndComparator(object):
     valid = False # whether client's recomputation is up to date,
         # as far as we know. Client should use this as *its* valid flag
         # and invalidate it as needed by calling self.invalidate().
-    
+
     def __init__(self):
         # since not valid, no need to _reset
         return
@@ -140,7 +140,7 @@ class UsedValueTrackerAndComparator(object):
     # == Methods to use during a recomputation by the client
     #    (or during a side effect treated as recomputation, such as drawing,
     #     where "whatever gets drawn" has the role of the computation output)
-    
+
     def before_recompute(self): #e rename?
         """
         Prepare for the client to do another recomputation
@@ -195,7 +195,7 @@ class UsedValueTrackerAndComparator(object):
                   (self, "._compute_current_value for key", key)
         pass
 
-    def _track_use(self, key, val): 
+    def _track_use(self, key, val):
         """
         """
         # safe public version, ok to call more than once for same key;
@@ -211,7 +211,7 @@ class UsedValueTrackerAndComparator(object):
     def after_recompute(self):
         """
         Must be called by the client after it finishes its recomputation.
-        
+
         See class docstring for more info.
         """
         assert self._recomputing
@@ -231,10 +231,10 @@ class UsedValueTrackerAndComparator(object):
             del self._keys_used
             del self._ordered_key_val_pairs
         return
-    
+
     # == methods to use when client is deciding whether to do a
     #    recomputation or reuse a cached value
-    
+
     def do_we_need_to_recompute(self, context):
         """
         Assume the client is in a context in which it *could*
@@ -275,16 +275,16 @@ class UsedValueTrackerAndComparator(object):
                 # needn't bother since they'll recompute right away.
                 return True
         return False
-    
+
     def ordered_key_val_pairs(self):
         """
         @return: a list of zero of more (key, val) pairs
         that were used by our client computation the last time it ran.
-        
+
         @warning: caller must not modify the list we return.
         """
         return self._ordered_key_val_pairs
-    
+
     pass # end of class UsedValueTrackerAndComparator
 
 # ==
@@ -300,7 +300,7 @@ class SpecialDrawing_UsedValueTrackerAndComparator( UsedValueTrackerAndComparato
     def __init__(self):
         UsedValueTrackerAndComparator.__init__(self)
         return
-    
+
     def _compute_current_value(self, key, context):
         """
         Compute current value for key in context
@@ -363,7 +363,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
 
     Also holds the state that determines whether self.csdl is invalid,
     and under what conditions it will remain valid.
-    
+
     Helps figure out when to invalidate it, redraw it, etc.
 
     External code can call self.csdl.draw(), but only when it knows
@@ -375,14 +375,14 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
            ChunkDrawer.extra_displists attribute, but this class itself
            (or its subclass, so far) knows nothing about where they are stored.
     """
-    
+
     # class constants
-    
+
     # Subclass must override, with a subclass of UsedValueTrackerAndComparator.
     _comparator_class = None
-    
+
     # default values of instance variables
-    
+
     ## valid = False -- WRONG, we use self.comparator.valid for this.
 
     def __init__(self, transformControl = None):
@@ -394,18 +394,18 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
 
     def deallocate_displists(self):
         self.csdl.deallocate_displists()
-    
+
     def updateTransform(self):
         self.csdl.updateTransform()
 
     # == methods related to the client compiling its *main* display list
     # (not this extra one, but that's when it finds out what goes into
     #  this extra one, or that it needs it at all)
-    
+
     def before_client_main_recompile(self): #e rename?
         self._drawing_functions = []
         return
-    
+
     # During client main recompile.
     def add_another_drawing_function(self, func):
         self._drawing_functions.append( func)
@@ -497,12 +497,12 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         Draw self, accepting the same keyword args that CSDL.draw does.
 
         @note: doesn't remake us, or notice any error, if we need remaking.
-        
+
         @see: self._draw_by_reusing (which doesn't take all the args we do)
         """
         self.csdl.draw(**kws)
         return
-    
+
     # ==
 
     def invalidate(self):
@@ -518,9 +518,9 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
         self.invalidate()
         self._glpane.gl_update() # self._glpane should always exist
         return
-    
+
     # ==
-    
+
     def _do_drawing(self):
         # drawsphere(...), drawcylinder(...), drawpolycone(...), and so on.
         args = self._construct_args_for_drawing_functions()
@@ -530,7 +530,7 @@ class ExtraChunkDisplayList(object, SubUsageTrackingMixin):
 
     def _construct_args_for_drawing_functions(self):
         assert 0, "subclass must implement"
-    
+
     pass # end of class ExtraChunkDisplayList
 
 # ==
@@ -549,7 +549,7 @@ class SpecialDrawing_ExtraChunkDisplayList(ExtraChunkDisplayList):
     # to use for redrawing itself, passing it to add_another_drawing_function.
 
     # subclass constants
-    
+
     _comparator_class = SpecialDrawing_UsedValueTrackerAndComparator
 
     # overridden methods
@@ -594,7 +594,7 @@ class Chunk_SpecialDrawingHandler(object):
         """
         self.chunkdrawer = chunkdrawer
         self.classes = classes
-        return 
+        return
     def should_defer(self, special_drawing_kind):
         assert special_drawing_kind in ALL_SPECIAL_DRAWING_KINDS
         return self.classes.has_key(special_drawing_kind)

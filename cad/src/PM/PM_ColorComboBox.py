@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 PM_ColorComboBox.py
 
@@ -30,108 +30,108 @@ class PM_ColorComboBox( PM_ComboBox ):
     """
     The PM_ColorComboBox widget provides a combobox for selecting colors in a
     Property Manager group box.
-    
+
     IMAGE(http://www.nanoengineer-1.net/mediawiki/images/e/e2/PM_ColorComboBox1.jpg)
-    
+
     The parent must make the following signal-slot connection to be
     notified when the user has selected a new color:
-    
+
     self.connect(pmColorComboBox, SIGNAL("editingFinished()"), self.mySlotMethod)
-    
+
     @note: Subclasses L{PM_ComboBox}.
     """
     customColorCount  = 0
     color = None
     otherColor = lightgray
     otherColorList = [] # List of custom (other) colors the user has selected.
-    
-    colorList = [white, gray, black, 
+
+    colorList = [white, gray, black,
                  red, orange, yellow,
                  green, cyan, blue,
                  magenta, violet, purple,
-                 darkred, darkorange, mustard, 
+                 darkred, darkorange, mustard,
                  darkgreen, darkblue, darkpurple,
                  otherColor]
-    colorNames = ["White", "Gray", "Black", 
+    colorNames = ["White", "Gray", "Black",
                   "Red", "Orange", "Yellow",
-                  "Green", "Cyan",  
+                  "Green", "Cyan",
                   "Blue", "Magenta", "Violet", "Purple",
                   "Dark red", "Dark orange", "Mustard",
                   "Dark green", "Dark blue", "Dark purple",
                   "Other color..."]
-    
-    def __init__(self, 
-                 parentWidget, 
-                 label        = 'Color:', 
+
+    def __init__(self,
+                 parentWidget,
+                 label        = 'Color:',
                  labelColumn  = 0,
                  colorList    = [],
                  colorNames   = [],
-                 color        = white, 
+                 color        = white,
                  setAsDefault = True,
                  spanWidth    = False,
                  ):
         """
-        Appends a color chooser widget to <parentWidget>, a property manager 
+        Appends a color chooser widget to <parentWidget>, a property manager
         group box.
-        
+
         @param parentWidget: the parent group box containing this widget.
         @type  parentWidget: PM_GroupBox
-        
-        @param label: The label that appears to the left or right of the 
-                      color frame (and "Browse" button). 
-                      
+
+        @param label: The label that appears to the left or right of the
+                      color frame (and "Browse" button).
+
                       If spanWidth is True, the label will be displayed on
                       its own row directly above the lineedit (and button).
-                      
-                      To suppress the label, set I{label} to an 
+
+                      To suppress the label, set I{label} to an
                       empty string.
         @type  label: str
-        
+
         @param labelColumn: The column number of the label in the group box
-                            grid layout. The only valid values are 0 (left 
-                            column) and 1 (right column). The default is 0 
+                            grid layout. The only valid values are 0 (left
+                            column) and 1 (right column). The default is 0
                             (left column).
         @type  labelColumn: int
-        
+
         @param colorList: List of colors.
         @type  colorList: List where each item contains 3 floats (r, g, b)
-        
+
         @param colorNames: List of color names.
         @type  colorNames: List of strings
-        
+
         @param color: The initial color. White is the default. If I{color}
                       is not in I{colorList}, then the initial color will be
                       set to the last color item (i.e. "Other color...").
         @type  color: tuple of 3 floats (r, g, b)
-        
+
         @param setAsDefault: if True, will restore L{color} when the
                     "Restore Defaults" button is clicked.
         @type  setAsDefault: boolean
-        
+
         @param spanWidth: if True, the widget and its label will span the width
                       of the group box. Its label will appear directly above
                       the widget (unless the label is empty) and is left
                       justified.
         @type  spanWidth: boolean
         """
-        
+
         if len(colorNames) and len(colorList):
             assert len(colorNames) == len(colorList)
             self.colorNames = colorNames
             self.colorList  = colorList
-        
+
         self.colorDict = dict(zip(self.colorNames, self.colorList))
-        
-        PM_ComboBox.__init__(self, 
-                 parentWidget, 
-                 label        = label, 
+
+        PM_ComboBox.__init__(self,
+                 parentWidget,
+                 label        = label,
                  labelColumn  = labelColumn,
                  choices      = self.colorNames,
                  index        = 0, # Gets (re)set by setColor()
                  setAsDefault = setAsDefault,
                  spanWidth    = spanWidth
                  )
-        
+
         # Load QComboBox widget choices and set initial choice (index).
         idx = 0
         for colorName in self.colorNames:
@@ -140,19 +140,19 @@ class PM_ColorComboBox( PM_ComboBox ):
             pixmap.fill(qcolor)
             self.setItemIcon(idx, QIcon(pixmap))
             idx += 1
-            
+
         self.setIconSize(QSize(12, 12)) # Default is 16x16.
         self.setColor(color) # Sets current index.
-        
+
         self.connect(self, SIGNAL("activated(QString)"), self._setColorFromName)
-        
+
         return
 
-    
+
     def _setColorFromName(self, colorName):
         """
         Set the color using the color index.
-        
+
         @param colorName: The color name string.
         @type  colorName: str
         """
@@ -161,27 +161,27 @@ class PM_ColorComboBox( PM_ComboBox ):
         else:
             self.setColor(self.colorDict[str(colorName)])
         return
-    
+
     def setColor(self, color, default = False):
         """
         Set the color.
-        
+
         @param color: The color.
         @type  color: tuple of 3 floats (r, g, b)
-        
+
         @param default: If True, make I{color} the default color. Default is
                         False.
         @type  default: boolean
         """
-        
+
         if color == self.color:
             return
-        
+
         if default:
             self.defaultColor = color
             self.setAsDefault = default
         self.color = color
-        
+
         try:
             # Try to set the current item to a color in the combobox.
             self.setCurrentIndex(self.colorList.index(color))
@@ -196,29 +196,29 @@ class PM_ColorComboBox( PM_ComboBox ):
             pixmap.fill(qcolor)
             self.setItemIcon(otherColorIndex, QIcon(pixmap))
             self.setCurrentIndex(self.colorList.index(self.otherColor))
-        
+
         # Finally, emit a signal so the parent knows the color has changed.
-        self.emit(SIGNAL("editingFinished()")) 
+        self.emit(SIGNAL("editingFinished()"))
         return
-    
+
     def getColor(self):
         """
         Return the current color.
-        
+
         @return: The current r, g, b color.
         @rtype:  Tuple of 3 floats (r, g, b)
         """
         return self.color
-    
+
     def getQColor(self):
         """
         Return the current QColor.
-        
+
         @return: The current color.
         @rtype:  QColor
         """
         return RGBf_to_QColor(self.color)
-    
+
     def openColorChooserDialog(self):
         """
         Prompts the user to choose a color and then updates colorFrame with
@@ -235,4 +235,4 @@ class PM_ColorComboBox( PM_ComboBox ):
         if c.isValid():
             self.setColor(QColor_to_RGBf(c))
             self.emit(SIGNAL("editingFinished()"))
-        
+

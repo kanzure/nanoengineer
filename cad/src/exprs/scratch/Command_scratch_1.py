@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 Command_scratch_1.py
 
@@ -102,8 +102,8 @@ class DragANode(DragCommand):
         # I guess only use them for a parallel computation of your own caveats.)
 
     print_node_mod_demo = False # 061212
-    # print_node_mod_demo = True # 070130 - works, disabling again for now 
-    
+    # print_node_mod_demo = True # 070130 - works, disabling again for now
+
     if print_node_mod_demo:
         print "our node symexpr has:",node._e_dir_added()
 ##    for attr in dir(node):
@@ -163,21 +163,21 @@ class MakeANode(ClickDragCommand): #k super?
     newnodepos = V_expr(0,0,0) #stub
     newnodepos = _self.pos # what other kind of pos can we have? well, we could have the continuously updated mousepos...
     newnodepos = _self.clickpos #e rename; note we have dragstart_posn or so in other files
-    
-    newnode = Vertex(newnodepos, 'some params') 
+
+    newnode = Vertex(newnodepos, 'some params')
         ###PROBLEM: is that just an Expr (pure expr, not instance, not more symbolic than IorE) assigned to an attr?
         # is it symbolic enough to let us do newnode.pos = whatever later if we want?
         # see cmt below about how to list it as "_what_we_make".
-    
+
     # (typically some params would be formulas)
 
         # - do those params say where in space, relative to mousepos? yes, they must, since it can vary for other commands,
         #   eg if it's built on top of something that exists (see above comment about attaching to an obj, too).
-    
+
     # now we want to say:
 
     # - where to put it -- i mean, what collection to assign it to
-    
+
     # - now permit it to be dragged (or in other kinds of commands, permit some aspect of it to be dragged)
     #   - maybe with some params of the node -- or of this command (temporary params not in the node itself) --
     #     being controlled during the drag
@@ -186,14 +186,14 @@ class MakeANode(ClickDragCommand): #k super?
     #   but binding that other command to the event that a real drag starts -- HOW? ###e
 
     ## _value_if_a_real_drag_starts___is_made_from_this_expr = DragANode # ___is_made_from_this_expr should be implicit
-    
+
         #e DragANode with what args? self? self.newnode? might need self if it needs to change the look based on self...
         # otoh it has access to the drag event, so maybe that would be rare...
         # except that self is probably controlling "tentativity". hmm.... ###k
 
         #e revise to look like a bunch of subevents bound to actions/behaviors (commands), when we know what that looks like
         # tho this special case might be common enough to have its own name, shorter than this one, e.g. _continue_drag
-        
+
     _value_if_a_real_drag_starts = DragANode( newnode)
 
         # defect: this requires us to define DragANode first in the file; if a problem, replace it with _forward.DragANode or so
@@ -218,5 +218,5 @@ class MakeANode(ClickDragCommand): #k super?
         _self.something.make(newnode)
         make(newnode)
         # etc
-        
+
     pass # end of class MakeANode

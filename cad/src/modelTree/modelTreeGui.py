@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 modelTreeGui.py - provide a Qt4-compatible Model Tree widget,
 inherited by modelTree.py to provide NE1's Model Tree of Nodes.
@@ -117,11 +117,11 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
     #bruce 070529 split this out
     #bruce 080507 added option_holder
     ### todo: revise appearance of highlighted nodes
-    
+
     ## print "_paintnode",node, painter, x, y, widget
         # x is 20, 40, etc (indent level)
         # y is 0 for the top item, incrs by 22 for other items -- but this varies as we scroll.
-    
+
     # find state of node which determines how we draw it
     selected = node.picked
     disabled = node.is_disabled() ### might be slow!
@@ -135,7 +135,7 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
         # and tell us the text_color for each node?
         ### is this debug_pref test too slow? if it is, so is the debug_pref lower down...
         # could fix using option_holder to know the pref values
-        
+
         # note: this should work for all nodes with a .color attribute,
         # not just chunks, but to work with Groups (including DnaStrand etc)
         # it would need some revisions, e.g. call a new Node method
@@ -145,11 +145,11 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
     highlighted = option_holder and node in option_holder._f_nodes_to_highlight
         # fyi: for now, this means "highlighted in glpane",
         # but in the future we'll also use it for MT mouseover highlighting
-    
+
     # draw it
-    
+
     node_icon = node.node_icon(display_prefs) # a QPixmap object
-    
+
     try:
         pixmap = _cached_icons[node_icon]
     except KeyError:
@@ -157,9 +157,9 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
         pixmap = QIcon(node_icon).pixmap(_ICONSIZE[0], _ICONSIZE[1]) # vary the size
         _cached_icons[node_icon] = pixmap
         pass
-    
+
     # draw it (icon and label), possibly transforming the painter before and during this.
-    
+
     # Note about save/restore: Qt 4.1 doc says:
     #  After painting, you should ensure that the painter is returned to the state it was supplied in
     #  when this function was called. For example, it may be useful to call QPainter::save()
@@ -175,14 +175,14 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
         # draw icon and label in slanted form
         painter.shear(0, -0.5)
         painter.translate(0.5 * y + 4, 0.0)
-            
+
     painter.drawPixmap(x, y, pixmap)
-    
-    # Draw a special symbol in the upper right corner of the node icon if one 
+
+    # Draw a special symbol in the upper right corner of the node icon if one
     # of the following conditions is true:
-    # - draw a small yellow dot if the node contains atoms that have their 
+    # - draw a small yellow dot if the node contains atoms that have their
     #   display style set to something other than diDEFAULT.
-    # - draw a small white ghost if the node contains invisible or hidden 
+    # - draw a small white ghost if the node contains invisible or hidden
     #   chunks and/or atoms.
     # - draw a small yellow ghost if the node contains invisible or hidden
     #   chunks and/or atoms _and_ the node also contains atoms that have their
@@ -199,15 +199,15 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
     #
     # Also need to revise behavior. See Qs below. Here are notes about the answers: [080314]
     ##yellow ghost: chunks in groups count (for both indicators)
-    ##but hidden whole can coexist with ghost if the ghost is about hidden atoms 
+    ##but hidden whole can coexist with ghost if the ghost is about hidden atoms
     ## (since unhide of them requires another step)
     ## (and the latter is nim, we'll make bug report)
-    
+
     node_symbols = debug_pref("Model Tree: add content symbols to node icons?",
                                   #bruce 080416 renamed this, special -> content,
                                   # for clarity
                               Choice_boolean_True, #bruce 080307 False -> True
-                              non_debug = True, 
+                              non_debug = True,
                               prefs_key = True #bruce 080307 (safe now)
                             )
     if node_symbols:
@@ -218,7 +218,7 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
         node_has_invisible_contents = node.hidden
 
         # NIM: so do nodes with hidden sub-nodes. ##### IMPLEM
-        
+
         # So do nodes which contain invisible (aka hidden) atoms:
         if flags & AC_INVISIBLE:
             node_has_invisible_contents = True
@@ -233,13 +233,13 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
 
         # Now draw all this.
         if node_has_invisible_contents and node_has_special_display_contents:
-            painter.drawPixmap(x, y, 
+            painter.drawPixmap(x, y,
                                imagename_to_pixmap("modeltree/yellow_ghost.png"))
         elif node_has_invisible_contents:
-            painter.drawPixmap(x, y, 
+            painter.drawPixmap(x, y,
                                imagename_to_pixmap("modeltree/white_ghost.png"))
         elif node_has_special_display_contents:
-            painter.drawPixmap(x, y, 
+            painter.drawPixmap(x, y,
                                imagename_to_pixmap("modeltree/yellow_dot.png"))
 
     if highlighted:
@@ -248,7 +248,7 @@ def _paintnode(node, painter, x, y, widget, option_holder = None):
         background = widget.palette().highlight() #k what type is this? QColor or something else?
     else:
         background = None
-    
+
     if background is not None:
         # draw a selection or highlight color as text bg color
         ###BUG: should use color role so it depends on app being in bg or fg
@@ -308,10 +308,10 @@ _modifiers = dict(shift = Qt.ShiftModifier,
     # may involve either RightButton or MetaModifier. (Also, Qt seems to mess them up in a complicated way,
     # splitting them into an event with inconsistent button/buttons flags (LMB and RMB respectively), followed
     # by a contextMenuEvent call, at least if we don't use setContextMenuPolicy.
-    
+
 def describe_buttons(buttons):
     return _describe( int(buttons), _buttons)
-    
+
 def describe_modifiers(modifiers):
     return _describe( int(modifiers), _modifiers)
 
@@ -401,7 +401,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         self.debug_pref_use_fancy_DND_graphic()
         self.MT_debug_prints()
         return
-    
+
     def topmost_selected_nodes(self, topnode = None, whole_nodes_only = False):
         """
         @return: a list of all selected nodes which are not inside selected Groups
@@ -416,7 +416,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
 
     def MT_debug_prints(self):
         return debug_pref("MT debug: debug prints", Choice_boolean_False, prefs_key = True)
-    
+
     def display_prefs_for_node(self, node):
         """
         For doc, see the global function of the same name.
@@ -433,7 +433,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         nodes = self._dnd_nodes
             # set in mousepress, using info we no longer have
             # (due to its having already altered the selection)
-        
+
         # now filter these nodes for the ones ok to drag, in the same way the Qt3 code did --
         # and not in every drag move event method [bruce 070509]
         nodes = self.filter_drag_nodes( drag_type, nodes ) # might be None
@@ -476,7 +476,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         requested_action = {'copy':Qt.CopyAction, 'move':Qt.MoveAction}[drag_type]
             #bruce 070514 fix bug in DND cursor copy/move indication
         dragobj.start( requested_action)
-        
+
         return # nodes
 
     def filter_drag_nodes(self, drag_type, nodes):
@@ -510,7 +510,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                           Choice_boolean_True,
                           non_debug = True,
                           prefs_key = True)
-    
+
     def get_pixmap_for_dragging_nodes(self, drag_type, nodes):
         if self.debug_pref_use_fancy_DND_graphic():
             pixmap = self.get_pixmap_for_dragging_nodes_Qt3(drag_type, nodes)
@@ -540,11 +540,11 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         # with other widgets; or better, the method we're calling should do that
         # for all widgets (or their parts) in a uniform way
         env.history.statusbar_msg( msg)
-    
+
     # == Qt3 code for drag graphic, not yet ported, used only if debug_pref set [copied from Qt3/TreeWidget.py, bruce 070511]
     # == [update: I think this is now fully ported and used by default, long before 080507]
 
-    def get_pixmap_for_dragging_nodes_Qt3(self, drag_type, nodes):        
+    def get_pixmap_for_dragging_nodes_Qt3(self, drag_type, nodes):
         #e [also put the drag-text-making code in another method near here? or even the dragobj maker?
         # or even the decision of what to do when the motion is large enough (ie let drag_handler role be only to notice that,
         # not to do whatever should be done at that point? as if its role was to filter our events into higher level ones
@@ -559,7 +559,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         ##pixmap = QPixmap("/Nanorex/Working/cad/src/butterfly.png") # this works
         ##print pixmap,pixmap.width(),pixmap.height(),pixmap.size(),pixmap.depth()
         w,h = 160,130
-        
+
         if 1:
             # but that's not good if len(nodes) is large, so use the following;
             # note that it depends on the details of hardcoded stuff in other functions
@@ -573,15 +573,15 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             if len(nodes)>3:
                 h += 10 # for the "..."
             pass
-        
+
         pixmap = QPixmap(w,h) # should have size w,h, depth of video mode, dflt optimization
-        
+
         ##print pixmap,pixmap.width(),pixmap.height(),pixmap.size(),pixmap.depth()
         ## pixmap.fill(Qt.red) # makes it red; what's dragged is a pretty transparent version of this, but red... (looks nice)
 
         # CAREFUL: calling pixmap.fill() with no arguments creates problems
         # on Windows and Linux.  Text will not be drawn.  Be sure to include
-        # a QColor argument so that the QPainter's setPen color can work 
+        # a QColor argument so that the QPainter's setPen color can work
         # as expected.  Mark 050205
         #
         #pixmap.fill() # makes pixmap white, but text can't be drawn
@@ -589,7 +589,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         ## pixmap.fill(listview,0,0)
         ## following would fill with this widget's bgcolor...
         ## but it actually looks worse: very faint stripes, all faintly visible
-        
+
         p = QPainter(pixmap)
 
         # Determine the pixmap's background and text color
@@ -601,7 +601,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
 ##            colorgroup = listview.palette().active()
 ##            hicolor = QColor (colorgroup.highlight())
 ##            textcolor = QColor (colorgroup.highlightedText())
-        
+
         pixmap.fill(hicolor) # Pixmap backgroup color
         p.setPen(textcolor) # Pixmap text draw color
 
@@ -613,7 +613,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             print_compact_traceback("error making drag-pixmap: ")
             return None
         pass
-    
+
     def paint_node(self, p, drag_type, node):
         """
         paint one node's item into QPainter p, and translate it down by the item's height
@@ -634,7 +634,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             # This means I need to catch exceptions inside the functions that make painters!
             # And keep the painters inside so they refdecr on the way out.
             # (Or actually "end" them... in fact that turns out to be needed too.)
-        
+
     def paint_nodes(self, p, drag_type, nodes):
         """
         paint a dragobject picture of these nodes into the QPainter p; if you give up, raise an exception; return w,h used??
@@ -667,7 +667,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
 
     def get_drag_pixmap_width(self, nodes):
         return 168 ###STUB
-    
+
         ## pt = QPainter(self, True) # Qt3 version
         #print "before QP"
         pt = QPainter(self) # this prints:
@@ -692,9 +692,9 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             # and that must raise an exception which prevents the NameError from maxw.
             # But why don't I see that exception? Maybe it's something weirder than an exception?!?
         return min(maxw, w + 8)
-    
+
     # == DND event methods ###SLATED FOR REVIEW and likely eventual rewrite or replacement
-    
+
     def dragEnterEvent(self, event):
         event.acceptProposedAction()
 
@@ -709,7 +709,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             self.mt_update()
         self._ongoing_DND_info = None # nodes
         return
-    
+
     def _do_drop_or_raise_DoNotDrop(self, event): #bruce 070511 split this out
         """
         [private] Do a drop, or raise a DoNotDrop exception.
@@ -741,7 +741,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                 msg += ": %s" % (whynot,) #bruce 080303
             self.statusbar_message( msg )
             raise DoNotDrop()
-        
+
         event.acceptProposedAction() # this should come after any DoNotDrop we might raise
 
         #bruce 070511 fixing some bugs by bringing in copiednodes & oldpart & unpick/pick code from Qt3/TreeWidget.py
@@ -805,7 +805,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                 if node1.part is oldpart:
                     node1.pick()
             pass
-            
+
         # ... too common for a history message, i guess...
         msg = "dropped %d item(s) onto %s" % \
               (len(nodes), quote_html(targetnode.name))
@@ -817,12 +817,12 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         # (which can happen as a side effect of nodes moving under new dads in the tree)
         self.win.win_update()
         return
-    
+
     def unpick_all(self):
         self.treemodel.unpick_all()
-    
+
     # == mouse click and selection drag events, and DND start code
-    
+
     def mouseMoveEvent(self, event):
         if _DEBUG3:
             print "begin mouseMoveEvent"
@@ -836,7 +836,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             # might we be a DND, or a dragged-out selection [nim]?
             # for DND we need item and eventInRect (and if true, we only start one if one is not ongoing);
             # for selection we need not eventInRect (and perhaps item).
-            
+
             if item and eventInRect:
                 # possibly start a DND (if not already doing one)
                 if self._ongoing_DND_info is not None:
@@ -867,7 +867,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
     # ==
 
     _mousepress_info_for_doubleclick = None, None # always a pair; always set; but only matters in QScrollArea implem
-    
+
     def mousePressEvent(self, event, _doubleclick = False):
         """
         called by Qt on mousePress, or by our own method with private option _doubleclick = True
@@ -883,9 +883,9 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             # brought to the foreground (also for unknown reasons, but the mouseclick that does that can even be on
             #  the dock area, presumably unseen by this object). Maybe we can intercept an "app now in foreground event"
             # and change its behavior? Should I browse the Qt source code for stray scrollToTops etc?
-        
+
         self._mousepress_info_for_move = None
-        
+
         _prior_mousepress_info_for_doubleclick = self._mousepress_info_for_doubleclick
         self._mousepress_info_for_doubleclick = None, None
             # Note: set below; used only when called later with _doubleclick, which is only done
@@ -908,7 +908,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         else:
             self.mouse_press_scrollpos = None
             del self.mouse_press_scrollpos
-        
+
         if _DEBUG2:
             print "\nMT mousePressEvent: button %r, buttons %s, modifiers %s, globalPos %r, pos %r" % \
                   (button,
@@ -919,7 +919,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                   )
 
         self.mouse_press_qpoint = QPoint(qp.x(), qp.y()) # used in mouseMoveEvent to see if drag length is long enough
-        
+
         item, rect = self.item_and_rect_at_event_pos(event)
             # note about coordinates:
             # in QTreeView implem, I am not sure which coords event and this rect are in, contents or viewport.
@@ -957,12 +957,12 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                 if olditem and (olditem.node is item.node):
                     self.handle_doubleclick( event, item, rect) # this should do all needed updates
             return
-                    
+
         if eventInRect and not contextMenu \
            and not (modifiers & Qt.ShiftModifier) and not (modifiers & Qt.ControlModifier):
             assert item
             self._mousepress_info_for_doubleclick = (item, rect) # use this only if next call has _doubleclick true
-            
+
         # if not eventInRect, should also figure out if we are to left or right (maybe; nim),
         # or on openclose decoration (certainly; done now)
         if not eventInRect and item and item.node.openable():
@@ -1001,7 +1001,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                         # fix bug 2948 for DND [bruce 081218]
                 else:
                     self._dnd_nodes = [item.node]
-        
+
         # Flags indicating actions we might take (mostly, modifying selection)
         unselectOthers = False
             # if you set this, you must also set selectThis or unselectThis,
@@ -1041,7 +1041,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                         unselectOthers = True
 
         if _DEBUG:
-            print 
+            print
             print "unselectOthers", unselectOthers
             print "selectThis", selectThis
             print "unselectThis", unselectThis
@@ -1050,13 +1050,13 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             print "SELECTED BEFORE <<<"
             print self.topmost_selected_nodes( whole_nodes_only = False)
             print ">>>"
-        
+
         assert not (selectThis and toggleThis)   # confusing case to be avoided
         assert not (selectThis and unselectThis)   # confusing case to be avoided
         assert not eventInRect or not unselectOthers or (selectThis or unselectThis) #bruce 070509 added this
 
         # take whatever actions are required (one or more of the following, in order -- selection and maybe cmenu)
-        
+
         updateGui = False # whether we need to update MT and/or GLPane at the end
 
         ###TODO: optimize by only setting updateGui if something changes
@@ -1080,7 +1080,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
             else:
                 item.node.pick()
             updateGui = True
-        
+
         if contextMenu:
             # Note: some of the above selection actions may have also been done.
             # In the QScrollArea implem, we need to redraw the MT to show them;
@@ -1112,7 +1112,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                     #  should be fast if nothing changed).
                 item.node.ModelTree_plain_left_click()
             pass
-            
+
         if _DEBUG:
             print "SELECTED AFTER <<<"
             print self.topmost_selected_nodes( whole_nodes_only = False)
@@ -1131,16 +1131,16 @@ class ModelTreeGui_common(ModelTreeGUI_api):
 
         if _DEBUG3:
             print "end mousePressEvent"
-        
+
         return # from mousePressEvent
-    
+
     def mouseReleaseEvent(self, event):
         if _DEBUG3:
             print "begin/end mouseReleaseEvent (almost-noop method)"
         self._ongoing_DND_info = None
 
     # ==
-    
+
     def contextMenuEvent(self, event): ###bruce hack, temporary, just to make sure it's no longer called directly
         if 1:
             print "\n *** fyi: MT: something called self.contextMenuEvent directly -- likely bug ***\n"
@@ -1163,7 +1163,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
                 #   (Could it have anything to do with the tab control?? ###REVIEW)
                 #   What about for a plain left click? Then we get button 1, buttons 0x1 (left) (inconsistent).
         return self._renamed_contextMenuEvent(event)
-    
+
     def _renamed_contextMenuEvent(self, event):
         if _DEBUG3:
             print "begin _renamed_contextMenuEvent"
@@ -1174,7 +1174,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
         if hasattr(self, 'get_scrollpos'): #kluge, varies by subclass [bruce 070529]
             self.get_scrollpos("start of _renamed_contextMenuEvent")###k see if this is more correct than the one we get later...
                 # not sure, since querying it may have had the effect of fixing the bug of it changing later! not sure yet...
-        
+
         event.accept() ##k #bruce 070511, see if this fixes scroll to top for these events --
             # note, event is probably a mouse press, not a cmenu event per se
         nodeset = self.topmost_selected_nodes( whole_nodes_only = False)
@@ -1210,7 +1210,7 @@ class ModelTreeGui_common(ModelTreeGUI_api):
     # See also the comments in filter_key(). [bruce 070517 comment]
 
     # ==
-    
+
     def get_scrollpos(self, msg = ""):
         """
         Return the current scrollposition (as x,y, in scrollbar units), and if _DEBUG3 also print it using msg.
@@ -1288,13 +1288,13 @@ class MT_View(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.palette_widget = palette_widget #e rename?
         self.modeltreegui = modeltreegui
-        self.treemodel = self.modeltreegui.treemodel ###KLUGE? not sure. consider passing this directly?        
+        self.treemodel = self.modeltreegui.treemodel ###KLUGE? not sure. consider passing this directly?
         self.get_icons()
         return
 
     def mt_update(self):
         self.modeltreegui.mt_update()
-    
+
     def get_icons(self):
         # note: geticon calls QIcon, but painter has no drawIcon, and drawPixmap doesn't accept them,
         # so here we use getpixmap which calls QPixmap. We could also try QImage and painter.drawImage
@@ -1302,12 +1302,12 @@ class MT_View(QtGui.QWidget):
         ## painter.drawImage(QtCore.QPoint(0, 0), self.image)
 
         if 0:
-            # these are the pixmaps meant for groupbox buttons on the Mac; they're workable here:        
+            # these are the pixmaps meant for groupbox buttons on the Mac; they're workable here:
             self.mac_collapsed = getpixmap("ui/modeltree/mac_collapsed_icon.png") # 16 x 15, centering looks best
             self.mac_expanded = getpixmap("ui/modeltree/mac_expanded_icon.png") # 16 x 8 (.width() x .height()), centering looks best
             # (The Windows groupbox icons, win_expand_icon.png and win_collapse_icon.png, are not useful in an MT.)
 ##            print "size:", self.mac_expanded.width(), self.mac_expanded.height(), # size 16 8
-        
+
         # As of 070530 9pm the following are renamed copies of the Mac groupbox icons above,
         # and are the same on Mac and Windows, but we should replace them with imitations of
         # the standard ones for those platforms.
@@ -1319,7 +1319,7 @@ class MT_View(QtGui.QWidget):
         self.win_expanded =  getpixmap("ui/modeltree/win_expanded_mtnode.png") # minus in a box (indicates "collapse action")
 
         ### TODO: also get content indicator icons here, ie yellow ghost @@@@
-        
+
         # Default MT style depends on platform, but user can change it at runtime
         # to the same set of possibilities on all platforms. For now this uses debug_prefs.
         if sys.platform == 'darwin':
@@ -1351,7 +1351,7 @@ class MT_View(QtGui.QWidget):
                            non_debug = True, prefs_key = "A9/MT openclose lines",
                            call_with_new_value = (lambda val: self.mt_update()) )
         return
-    
+
     def sizeHint(self):
         # Note: this probably has no effect, since it's overridden by a resize in every mt_update.
         return QtCore.QSize(MT_CONTENT_WIDTH, 700)
@@ -1359,7 +1359,7 @@ class MT_View(QtGui.QWidget):
     _painted = None # not {}, so not mutable; after first paintEvent will be a
         # dictionary, which maps node to (x, y) for whatever nodes were painted
         # during the last full repaint [bruce 080507]
-    
+
     def paintEvent(self, event):
         # Note: if this paintEvent was in QAbstractScrollArea, Qt doc for that warns:
         #   Note: If you open a painter, make sure to open it on the viewport().
@@ -1393,7 +1393,7 @@ class MT_View(QtGui.QWidget):
             # in future, could store highlight color, etc
         self._painted = {} # modified in paint_subtree when we call _paintnode
         return
-        
+
     def paint_subtree(self, node, painter, x, y, line_to_pos = None, last_child = True):
         """
         Paint node and its visible subtree (at x,y in painter);
@@ -1481,7 +1481,7 @@ class MT_View(QtGui.QWidget):
                 return True
             continue
         return False
-    
+
     def look_for_y(self, y):
         """
         Given y (in contents coordinates), find the node drawn under it,
@@ -1497,7 +1497,7 @@ class MT_View(QtGui.QWidget):
             if resnode:
                 return resnode, resdepth, resy0
         return None, None, None
-        
+
     def look_for_y_recursive(self, node, y0, d, y):
         """
         assuming node is drawn at vertical position y0 (in contents coordinates)
@@ -1520,7 +1520,7 @@ class MT_View(QtGui.QWidget):
     def statusbar_message(self, text): #bruce 070531; still used?
         self.modeltreegui.statusbar_message(text)
         return
-            
+
     pass # end of class MT_View
 
 # ===
@@ -1539,7 +1539,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
     # REVIEW: rename class and module to ModelTreeGUI?
     # (class is now ending Gui not GUI; module is now lowercase at start)
     # [bruce 081216 question]
-    # 
+    #
     #bruce 070529-30 rewrite of some of [now-removed] class ModelTreeGui_QTreeView
     def __init__(self, win, name, treemodel, parent = None):
         ## print "what are these args?", win, name, treemodel, parent
@@ -1559,12 +1559,12 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         # this has to be done after QScrollArea.__init__, since it assumes QWidget init has occurred
         ModelTreeGui_common.__init__(self, win, treemodel) ## mouse and DND methods -- better off in view widget or here??
             # will this intercept events meant for the scrollbars themselves??? need to use the contents event methods?
-        
+
         self.view = MT_View( self, self, self) # args are: parent, palette_widget, modeltreegui
         self.setWidget(self.view)
-        
+
         # Model Tree background color. Mark 2007-06-04
-        mtColor = RGBf_to_QColor(env.prefs[mtColor_prefs_key]) 
+        mtColor = RGBf_to_QColor(env.prefs[mtColor_prefs_key])
         self.setPalette(getPalette(None, QPalette.Window, mtColor))
 
         #e not sure if mt_update would be safe at this point (were cooperating objects fully initialized?)
@@ -1572,12 +1572,12 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
 ##        self._debug_scrollbars("init") # they have arbitrary-looking values at this point, later corrected, evidently
 
         return
-    
+
     def _scrollbars(self):
         hsb = self.horizontalScrollBar()
         vsb = self.verticalScrollBar()
         return hsb, vsb
-    
+
     def _debug_scrollbars(self, when): # not normally called except when debugging
         print "debug_scrollbars (%s)" % when
         hsb, vsb = self._scrollbars() # they are always there, even when not shown, it seems
@@ -1591,7 +1591,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
 
     def nodeItem(self, node):
         return FakeItem(node)
-    
+
     def mt_update(self):
         """
         part of the public API:
@@ -1631,14 +1631,14 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
                 #k Note: It might be enough to do setSingleStep once during init, since the value seems to stick --
                 # but the page step is being quantized, so that has to be redone every time.
                 # NFR: I don't know how to set a "motion quantum" which affects user-set positions too.
-        
+
 ##        self._debug_scrollbars("mt_update post-correct")
 
         self._do_widget_updates()
-        
+
 ##        self._debug_scrollbars("mt_update post-update")
         return
-    
+
     def _do_widget_updates(self): #bruce 080507 split this out
         """
         [private]
@@ -1650,7 +1650,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         self.update() # this alone doesn't update the contents, but do it anyway
             # to be sure we get the scrollbars (will it be enough?)
         return
-    
+
     def paint_item(self, painter, item): # probably only used for DND drag graphic (in superclass)
         x,y = 0,0
         node = item.node
@@ -1674,7 +1674,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         if self.view.any_of_these_nodes_are_painted(nodes):
             self._do_widget_updates() # also called by mt_update
         return
-    
+
     def item_and_rect_at_event_pos(self, event):
         """
         Given a mouse event, return the item under it (or None if no item),
@@ -1685,7 +1685,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         pos = event.pos()
         x, y = pos.x(), pos.y()
 ##        print "viewport pos x = %r, y = %r" % (x,y)
-        
+
         dx, dy = self.get_scrollpos("item_and_rect_at_event_pos") # in pixels (will that remain true if we scroll by items?)
 
         cx = x + dx
@@ -1715,7 +1715,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
             return None, None
         pass
 
-    def set_scrollpos(self, pos): 
+    def set_scrollpos(self, pos):
         assert 0, "don't use set_scrollpos in this QScrollArea-using subclass, without thinking twice!"
 
     def mouseDoubleClickEvent(self, event):
@@ -1728,7 +1728,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         node = item.node
         self.rename_node_using_dialog( node) # note: this checks node.rename_enabled() first
         return
-    
+
     pass # end of class ModelTreeGui
 
 # bugs in new class ModelTreeGui based on QScrollArea [070531 2pm PT]:

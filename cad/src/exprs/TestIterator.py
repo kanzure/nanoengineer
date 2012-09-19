@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 TestIterator.py
 
@@ -99,7 +99,7 @@ class TestIterator_alsoobsnow_nevertried(InstanceMacro):
     w2 = Instance(thing)
     # kluge since we don't have Row yet:
     _value = Overlay( w1, Translate(w2, V_expr(w1.width + 4 * PIXELS, 0,0)))
-    pass 
+    pass
 
 ##print "w1 after ExprsMeta = %r" % (TestIterator.__dict__['w1'],) ###
 
@@ -114,7 +114,7 @@ class TestIterator(InstanceMacro):
     w1 = Instance(thing)
     w2 = Instance(thing) # two distinct instances
     _value = SimpleColumn( w1, w2)
-    pass 
+    pass
 
 class TestIterator_wrong_to_compare(InstanceMacro):
     """
@@ -132,7 +132,7 @@ class TestIterator_wrong_to_compare(InstanceMacro):
 if 0:
     Rect = black = If = red = ToggleShow = 'needs import'
     _enclosing_If = 'needs implem' # see comment below
-    
+
     goal1 = TestIterator(Rect(1,1,black))
 
     goal2 = TestIterator(If(_enclosing_If.index[0] == 1, Rect(1,1,black), Rect(1,1,red))) #####@@@@@ _enclosing_If IMPLEM, part of lexenv

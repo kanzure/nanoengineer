@@ -17,20 +17,20 @@ from utilities.GlobalPreferences import debug_pref_read_new_display_names
 ### TODO: refile these global variables:
 from utilities.constants import new_dispNames, dispNames, remap_atom_dispdefs
 
-from utilities.constants import diDEFAULT, diTUBES 
+from utilities.constants import diDEFAULT, diTUBES
     # our use of diTUBES under that name is a KLUGE
 
 def get_dispName_for_writemmp(display): #bruce 080324, revised 080328
     """
     Turn a display-style code integer (e.g. diDEFAULT; as stored in
-    Atom.display or Chunk.display) into a display-style code string 
+    Atom.display or Chunk.display) into a display-style code string
     as used in the current writing format for mmp files.
     """
     if debug_pref_write_new_display_names():
         return new_dispNames[display]
     return dispNames[display]
 
-def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True): 
+def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True):
     """
     Turn a display-style code string (a short string constant used in mmp files
     for encoding atom and chunk display styles) into the corresponding
@@ -53,7 +53,7 @@ def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True):
     try:
         res = dispNames.index(dispname)
     except ValueError:
-        # not found, in first array (the one with old names, 
+        # not found, in first array (the one with old names,
         # i.e. the one which gets extended)
         pass
     else:
@@ -63,7 +63,7 @@ def interpret_dispName(dispname, defaultValue = diDEFAULT, atom = True):
         try:
             res = new_dispNames.index(dispname)
         except ValueError:
-            # not found, in 2nd array (the one with new names, 
+            # not found, in 2nd array (the one with new names,
             # which are aliases for old ones)
             pass
         else:

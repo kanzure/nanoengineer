@@ -4,7 +4,7 @@ Ui_ExtrudePropertyManager.py - UI elements for the B{Extrude Mode} Property
 Manager.
 
 @version: $Id$
-@copyight: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
+@copyight: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -63,7 +63,7 @@ class Ui_ExtrudePropertyManager(Command_PropertyManager):
         @param command: The parent mode where this Property Manager is used
         @type  command: L{extrudeMode}
         """
-        
+
         _superclass.__init__(self, command)
 
         self.showTopRowButtons( PM_DONE_BUTTON | \
@@ -82,9 +82,9 @@ class Ui_ExtrudePropertyManager(Command_PropertyManager):
 
         self._addProductSpecsGroupBox()
         self._addAdvancedOptionsGroupBox()
-        
-        #Define extrude preference toggles. This needs to be defined before 
-        #the superclass calls connect_or_disconnect_signals! Defining it in 
+
+        #Define extrude preference toggles. This needs to be defined before
+        #the superclass calls connect_or_disconnect_signals! Defining it in
         #_addGroupBoxes is not intuitive. But the problem is the superclass method
         #also makes connections in its __init__ method. This can be cleaned up
         #during major reafctoring of extrude Mode --  Ninad 2008-10-02
@@ -191,7 +191,7 @@ class Ui_ExtrudePropertyManager(Command_PropertyManager):
                                                   title = 'Display Options:')
         self._loadDisplayOptionsGroupBox(self.displayOptionsGroupBox)
         return
-    
+
     def _loadDisplayOptionsGroupBox(self, inPmGroupBox):
         """
         Load widgets in the Display Options groupbox (which is a groupbox within

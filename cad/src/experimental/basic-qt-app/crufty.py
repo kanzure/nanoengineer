@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """This is a demonstration of some very simple Qt ideas. Qt is so
 complicated that you can't just sit down and write a GUI like you
 could in Java or Tkinter. You need to start in Qt Designer.

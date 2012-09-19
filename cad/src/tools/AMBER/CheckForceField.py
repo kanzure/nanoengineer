@@ -27,7 +27,7 @@ molecule section:
  [ dihedrals ]
  [ impropers ]
 
-The terms we want to check are defined in the [ dihedrals ] and 
+The terms we want to check are defined in the [ dihedrals ] and
 [ impropers ] sections of the .rtp file.  These reference specific atom
 names which are defined for each residue in a .pdb file.  The [ atoms ]
 section maps these pdb atom names into AMBER numeric atom types of

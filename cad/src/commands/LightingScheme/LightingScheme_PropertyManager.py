@@ -1,10 +1,10 @@
-# Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 LightingScheme_PropertyManager.py
 
- The LightingScheme_PropertyManager class provides a Property Manager 
+ The LightingScheme_PropertyManager class provides a Property Manager
  for controlling light settings and creating favorites.
- 
+
 @author: Kyle
 @version: $Id$
 @copyright: 2008 Nanorex, Inc. See LICENSE file for details.
@@ -52,27 +52,27 @@ lightingSchemePrefsList = \
                       ]
 
 # =
-# Lighting Scheme Favorite File I/O functions. 
+# Lighting Scheme Favorite File I/O functions.
 
 def writeLightingSchemeToFavoritesFile( basename ):
     """
-    Writes a "favorite file" (with a .txt extension) to store all the 
+    Writes a "favorite file" (with a .txt extension) to store all the
     lighting scheme settings (pref keys and their current values).
-            
+
     @param base: The filename (without the .txt extension) to write.
     @type  basename: string
-            
+
     @note: The favorite file is written to the directory
             $HOME/Nanorex/Favorites/LightingScheme.
     """
-            
+
     if not basename:
         return 0, "No name given."
-            
+
     # Get filename and write the favorite file.
     favfilepath = getFavoritePathFromBasename(basename)
-    writeLightingSchemeFavoriteFile(favfilepath)            
-            
+    writeLightingSchemeFavoriteFile(favfilepath)
+
     # msg = "Problem writing file [%s]" % favfilepath
 
     return 1, basename
@@ -81,15 +81,15 @@ def writeLightingSchemeToFavoritesFile( basename ):
 def getFavoritePathFromBasename( basename ):
     """
     Returns the full path to the favorite file given a basename.
-    
+
     @param basename: The favorite filename (without the .txt extension).
     @type  basename: string
-    
+
     @note: The (default) directory for all favorite files is
            $HOME/Nanorex/Favorites/LightingScheme.
     """
     _ext = "txt"
-    
+
     # Make favorite filename (i.e. ~/Nanorex/Favorites/LightingScheme/basename.txt)
     from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
     _dir = find_or_make_Nanorex_subdir('Favorites/LightingScheme')
@@ -98,13 +98,13 @@ def getFavoritePathFromBasename( basename ):
 def getFavoriteTempFilename():
     """
     Returns the full path to the single Lighting Scheme favorite temporary file.
-    
+
     @note: The fullpath returned is
            $HOME/Nanorex/temp/LightingSchemeTempfile.txt.
     """
     _basename = "LightingSchemeTempfile"
     _ext = "txt"
-    
+
     # Make favorite filename (i.e. ~/Nanorex/Favorites/LightingScheme/basename.txt)
     from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
     _dir = find_or_make_Nanorex_subdir('temp')
@@ -116,9 +116,9 @@ def getLights():
     if correct values were loaded, start using them, and do gl_update unless option for that is False;
     return True if you loaded new values, False if that failed
     """
-    
+
     # code below copied from GLPane.loadLighting()
-    
+
     try:
         prefs = preferences.prefs_context()
         key = glpane_lights_prefs_key
@@ -129,7 +129,7 @@ def getLights():
             # since this is called on startup and it's common for nothing to be saved.
             # Return with no changes.
             return False
-        # At this point, you have a saved prefs val, and if this is wrong it's an error.        
+        # At this point, you have a saved prefs val, and if this is wrong it's an error.
         # val format is described (partly implicitly) in saveLighting method.
         res = [] # will become new argument to pass to self.setLighting method, if we succeed
         for name in ['light0','light1','light2']:
@@ -155,9 +155,9 @@ def writeLightingSchemeFavoriteFile( filename ):
     """
     Writes a favorite file to I{filename}.
     """
-    
+
     f = open(filename, 'w')
-        
+
     # Write header
     f.write ('!\n! Lighting Scheme favorite file')
     f.write ('\n!Created by NanoEngineer-1 on ')
@@ -173,16 +173,16 @@ def writeLightingSchemeFavoriteFile( filename ):
         name = "light%d" % i
         print name, light
         f.write("%s = %s\n" % (name, light))
-    #write preference list in file without the NE version 
+    #write preference list in file without the NE version
     for pref_key in lightingSchemePrefsList:
         val = env.prefs[pref_key]
-        
+
         pref_keyArray = pref_key.split("/")
         pref_key = pref_keyArray[1]
-        
+
         if isinstance(val, int):
             f.write("%s = %d\n" % (pref_key, val))
-        
+
         #tuples written as string for now
         elif isinstance(val, tuple):
             f.write("%s = %s\n" % (pref_key, val))
@@ -194,50 +194,50 @@ def writeLightingSchemeFavoriteFile( filename ):
             f.write("%s = %f\n" % (pref_key, val))
         else:
             print "Not sure what pref_key '%s' is." % pref_key
-        
+
     f.close()
 
-    
+
 def loadFavoriteFile( filename ):
     """
     Loads a favorite file from anywhere in the disk.
-    
+
     @param filename: The full path for the favorite file.
     @type  filename: string
-    
+
     """
-    
+
     if os.path.exists(filename):
         favoriteFile = open(filename, 'r')
     else:
         env.history.message("Favorite file to be loaded does not exist.")
         return 0
-     
+
     # do syntax checking on the file to figure out whether this is a valid
     # favorite file
-    
+
     line = favoriteFile.readline()
     line = favoriteFile.readline()
-    
+
     if line != "! Lighting Scheme favorite file\n":
         env.history.message(" Not a proper favorite file")
         favoriteFile.close()
         return 0
-    
+
     while 1:
         line = favoriteFile.readline()
-        
+
         # marks the end of file
         if line == "":
             break
-        
+
         # process each line to obtain pref_keys and their corresponding values
         if line[0] != '!':
-        
+
             keyValuePair = line.split('=')
             pref_keyString = keyValuePair[0].strip()
             pref_value=keyValuePair[1].strip()
-            
+
             try:
                 if light1Color_prefs_key.endswith(pref_keyString):
                     pref_valueToStore = tuple(map(float, pref_value[1:-1].split(',')))
@@ -260,81 +260,81 @@ def loadFavoriteFile( filename ):
                 msg = "\npref_key = '%s'\nvalue = %s" \
                     % (pref_keyString, pref_value)
                 print_compact_traceback(msg)
-        
+
             pref_key = findPrefKey( pref_keyString )
-        
+
             #add preference key and its corresponding value to the dictionary
             if pref_key:
                 env.prefs[pref_key] = pref_valueToStore
-             
-     
-               
+
+
+
     favoriteFile.close()
-    
+
     #check if a copy of this file exists in the favorites directory. If not make
     # a copy of it in there
-    
-    
+
+
     favName = os.path.basename(str(filename))
     name = favName[0:len(favName)-4]
     favfilepath = getFavoritePathFromBasename(name)
-    
+
     if not os.path.exists(favfilepath):
         saveFavoriteFile(favfilepath, filename)
-    
+
     return 1
-      
-    
+
+
 def findPrefKey( pref_keyString ):
     """
     Matches prefence key in the lightingSchemePrefsList with pref_keyString
-    from the favorte file that we intend to load. 
+    from the favorte file that we intend to load.
 
-    
+
     @param pref_keyString: preference from the favorite file to be loaded.
     @type  pref_keyString: string
-    
-    @note: very inefficient since worst case time taken is proportional to the 
+
+    @note: very inefficient since worst case time taken is proportional to the
     size of the list. If original preference strings are in a dictionary, access
     can be done in constant time
-    
+
     """
-    
+
     for keys in lightingSchemePrefsList:
         #split keys in lightingSchemePrefsList into version number and pref_key
-        
+
         pref_array= keys.split("/")
         if pref_array[1] == pref_keyString:
             return keys
-        
+
     return None
-    
+
 def saveFavoriteFile( savePath, fromPath ):
     """
     Save favorite file to anywhere in the disk
 
     @param savePath: full path for the location where the favorite file is to be saved.
     @type  savePath: string
-    
+
     @param fromPath: ~/Nanorex/Favorites/LightingScheme/$FAV_NAME.txt
     @type  fromPath: string
-    
+
     """
     fromPath = getFavoriteTempFilename()
     writeLightingSchemeFavoriteFile(fromPath)
-    
+
     if savePath:
         saveFile = open(savePath, 'w')
     if fromPath:
         fromFile = open(fromPath, 'r')
-        
-    lines=fromFile.readlines()   
+
+    lines=fromFile.readlines()
     saveFile.writelines(lines)
-        
+
     saveFile.close()
     fromFile.close()
-    
-    return    
+
+    return
 
 # =
 from command_support.Command_PropertyManager import Command_PropertyManager
@@ -342,7 +342,7 @@ from command_support.Command_PropertyManager import Command_PropertyManager
 _superclass = Command_PropertyManager
 class LightingScheme_PropertyManager(Command_PropertyManager):
     """
-    The LightingScheme_PropertyManager class provides a Property Manager 
+    The LightingScheme_PropertyManager class provides a Property Manager
     for changing light properties as well as material properties.
 
     @ivar title: The title that appears in the property manager header.
@@ -360,61 +360,61 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
     title         =  "Lighting Scheme"
     pmName        =  title
     iconPath      =  "ui/actions/View/LightingScheme.png"
-    
-    
+
+
     def __init__( self, command ):
         """
         Constructor for the property manager.
         """
 
         _superclass.__init__(self, command)
-        
+
         self.showTopRowButtons( PM_DONE_BUTTON | \
                                 PM_WHATS_THIS_BUTTON)
-        
+
         msg = "Edit the lighting scheme for NE1. Includes turning lights on and off, "\
             "changing light colors, changing the position of lights as well as,"\
             "changing the ambient, diffuse, and specular properites."
         self.updateMessage(msg)
-        
-                
+
+
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
-        @param isConnect: If True the widget will send the signals to the slot 
-                          method. 
+        @param isConnect: If True the widget will send the signals to the slot
+                          method.
         @type  isConnect: boolean
         """
         if isConnect:
             change_connect = self.win.connect
         else:
-            change_connect = self.win.disconnect 
-        
+            change_connect = self.win.disconnect
+
         # Favorite buttons signal-slot connections.
         change_connect( self.applyFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.applyFavorite)
-        
+
         change_connect( self.addFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.addFavorite)
-        
+
         change_connect( self.deleteFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.deleteFavorite)
-        
+
         change_connect( self.saveFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.saveFavorite)
-        
+
         change_connect( self.loadFavoriteButton,
-                        SIGNAL("clicked()"), 
+                        SIGNAL("clicked()"),
                        self.loadFavorite)
-        
+
         # Directional Lighting Properties
         change_connect(self.ambientDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_lighting)
-        change_connect(self.lightColorComboBox, SIGNAL("editingFinished()"), self.changeLightColor) 
+        change_connect(self.lightColorComboBox, SIGNAL("editingFinished()"), self.changeLightColor)
         change_connect(self.enableLightCheckBox, SIGNAL("toggled(bool)"), self.toggle_light)
         change_connect(self.lightComboBox, SIGNAL("activated(int)"), self.change_active_light)
         change_connect(self.diffuseDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_lighting)
@@ -429,7 +429,7 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         change_connect(self.shininessDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_material_shininess)
         self._setup_material_group()
         return
-    
+
     def _updatePage_Lighting(self, lights = None): #mark 051124
         """
         Setup widgets to initial (default or defined) values on the Lighting page.
@@ -454,7 +454,7 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         self.disconnect(self.diffuseDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_lighting)
         self.disconnect(self.specularDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_lighting)
 
-        # self.lights[light_num][0] contains 'color' attribute.  
+        # self.lights[light_num][0] contains 'color' attribute.
         # We already have it (self.light_color) from the prefs key (above).
         a = self.lights[light_num][1] # ambient intensity
         d = self.lights[light_num][2] # diffuse intensity
@@ -462,7 +462,7 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         g = self.lights[light_num][4] # xpos
         h = self.lights[light_num][5] # ypos
         k = self.lights[light_num][6] # zpos
-        
+
 
         self.ambientDoubleSpinBox.setValue(a)# generates signal
         self.diffuseDoubleSpinBox.setValue(d) # generates signal
@@ -477,12 +477,12 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         self.connect(self.ambientDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_lighting)
         self.connect(self.diffuseDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_lighting)
         self.connect(self.specularDoubleSpinBox, SIGNAL("valueChanged(double)"), self.change_lighting)
-        
+
         self.update_light_combobox_items()
         self.save_lighting()
         self._setup_material_group()
         return
-        
+
     def _setup_material_group(self, reset = False):
         """
         Setup Material Specularity widgets to initial (default or defined) values on the Lighting page.
@@ -517,7 +517,7 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         # For brightness, the range is 0.0 (low) to 1.0 (high).  Mark. 051203.
         self.brightnessDoubleSpinBox.setValue(self.brightness) # generates signal
         return
-    
+
     def toggle_material_specularity(self, val):
         """
         This is the slot for the Material Specularity Enabled checkbox.
@@ -527,12 +527,12 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
     def change_material_finish(self, finish):
         """
         This is the slot for the Material Finish spin box.
-        'finish' is between 0.0 and 1.0. 
+        'finish' is between 0.0 and 1.0.
         Saves finish parameter to pref db.
         """
         # For whiteness, the stored range is 0.0 (Metal) to 1.0 (Plastic).
         env.prefs[material_specular_finish_prefs_key] = finish
-       
+
     def change_material_shininess(self, shininess):
         """
         This is the slot for the Material Shininess spin box.
@@ -546,11 +546,11 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         'brightness' is between 0.0 (low) and 1.0 (high).
         """
         env.prefs[material_specular_brightness_prefs_key] = brightness
-    
+
     def toggle_light(self, on):
         """
-        Slot for light 'On' checkbox.  
-        It updates the current item in the light combobox with '(On)' or 
+        Slot for light 'On' checkbox.
+        It updates the current item in the light combobox with '(On)' or
         '(Off)' label.
         """
         if on:
@@ -560,15 +560,14 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         self.lightComboBox.setItemText(self.lightComboBox.currentIndex(),txt)
 
         self.save_lighting()
-    
+
     def change_lighting(self, specularityValueJunk = None):
         """
-	Updates win.glpane lighting using the current lighting parameters from 
-	the light checkboxes and sliders. This is also the slot for the light 
-	spin boxes.
-	@param specularityValueJunk: This value from the spin box is not used
-				     We are interested in valueChanged signal 
-				     only
+        Updates win.glpane lighting using the current lighting parameters from
+        the light checkboxes and sliders. This is also the slot for the light
+        spin boxes.
+        @param specularityValueJunk: This value from the spin box is not used
+                     We are interested in valueChanged signal only
         @type specularityValueJunk = int or None
 
         """
@@ -599,32 +598,32 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
 
     def change_active_light(self, currentIndexJunk = None):
         """
-	Slot for the Light number combobox.  This changes the current light.
-	@param currentIndexJunk: This index value from the combobox is not used
-				 We are interested in 'activated' signal only
+        Slot for the Light number combobox.  This changes the current light.
+        @param currentIndexJunk: This index value from the combobox is not used
+            We are interested in 'activated' signal only
         @type currentIndexJunk = int or None
         """
         self._updatePage_Lighting()
-        
+
     def reset_lighting(self):
         """
         Slot for Reset button.
         """
-        # This has issues.  
+        # This has issues.
         # I intend to remove the Reset button for A7.  Confirm with Bruce.  Mark 051204.
         self._setup_material_group(reset = True)
         self._updatePage_Lighting(self.original_lights)
         self.win.glpane.saveLighting()
-    
+
     def save_lighting(self):
         """
-        Saves lighting parameters (but not material specularity parameters) 
-        to pref db. This is also the slot for light sliders (only when 
+        Saves lighting parameters (but not material specularity parameters)
+        to pref db. This is also the slot for light sliders (only when
         released).
         """
         self.change_lighting()
         self.win.glpane.saveLighting()
-        
+
     def restore_default_lighting(self):
         """
         Slot for Restore Defaults button.
@@ -642,86 +641,86 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
 
         self._updatePage_Lighting()
         self.save_lighting()
-            
+
     def show(self):
         """
-        Shows the Property Manager. extends superclass method. 
+        Shows the Property Manager. extends superclass method.
         """
         _superclass.show(self)
-            
+
         self._updateAllWidgets()
 
-        
+
     def _addGroupBoxes( self ):
         """
         Add the Property Manager group boxes.
         """
-        self._pmGroupBox1 = PM_GroupBox( self, 
+        self._pmGroupBox1 = PM_GroupBox( self,
                                          title = "Favorites")
         self._loadGroupBox1( self._pmGroupBox1 )
-        
-        self._pmGroupBox2 = PM_GroupBox( self, 
+
+        self._pmGroupBox2 = PM_GroupBox( self,
                                          title = "Directional Lights")
         self._loadGroupBox2( self._pmGroupBox2 )
-        
-        self._pmGroupBox3 = PM_GroupBox( self, 
+
+        self._pmGroupBox3 = PM_GroupBox( self,
                                          title = "Material Properties")
         self._loadGroupBox3( self._pmGroupBox3 )
-        
+
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in group box.
-        """        
+        """
         favoriteChoices = ['Factory default settings']
 
-        #look for all the favorite files in the favorite folder and add them to 
+        #look for all the favorite files in the favorite folder and add them to
         # the list
         from platform_dependent.PlatformDependent import find_or_make_Nanorex_subdir
         _dir = find_or_make_Nanorex_subdir('Favorites/LightingScheme')
-        
-        
+
+
         for file in os.listdir(_dir):
             fullname = os.path.join( _dir, file)
             if os.path.isfile(fullname):
                 if fnmatch.fnmatch( file, "*.txt"):
-                    
+
                     # leave the extension out
                     favoriteChoices.append(file[0:len(file)-4])
-        
+
         self.favoritesComboBox  = \
             PM_ComboBox( pmGroupBox,
                          choices       =  favoriteChoices,
                          spanWidth  =  True)
-        
+
         # PM_ToolButtonRow ===============
-        
+
         # Button list to create a toolbutton row.
-        # Format: 
-        # - QToolButton, buttonId, buttonText, 
+        # Format:
+        # - QToolButton, buttonId, buttonText,
         # - iconPath,
         # - tooltip, shortcut, column
-        
-        BUTTON_LIST = [ 
-            ( "QToolButton", 1,  "APPLY_FAVORITE", 
+
+        BUTTON_LIST = [
+            ( "QToolButton", 1,  "APPLY_FAVORITE",
               "ui/actions/Properties Manager/ApplyLightingSchemeFavorite.png",
               "Apply Favorite", "", 0),
-            ( "QToolButton", 2,  "ADD_FAVORITE", 
+            ( "QToolButton", 2,  "ADD_FAVORITE",
               "ui/actions/Properties Manager/AddFavorite.png",
               "Add Favorite", "", 1),
-            ( "QToolButton", 3,  "DELETE_FAVORITE",  
+            ( "QToolButton", 3,  "DELETE_FAVORITE",
               "ui/actions/Properties Manager/DeleteFavorite.png",
               "Delete Favorite", "", 2),
-            ( "QToolButton", 4,  "SAVE_FAVORITE",  
+            ( "QToolButton", 4,  "SAVE_FAVORITE",
               "ui/actions/Properties Manager/SaveFavorite.png",
               "Save Favorite", "", 3),
-            ( "QToolButton", 5,  "LOAD_FAVORITE",  
+            ( "QToolButton", 5,  "LOAD_FAVORITE",
               "ui/actions/Properties Manager/LoadFavorite.png",
               "Load Favorite", \
-              "", 4)  
+              "", 4)
             ]
-            
+
         self.favsButtonGroup = \
-            PM_ToolButtonRow( pmGroupBox, 
+            PM_ToolButtonRow( pmGroupBox,
                               title        = "",
                               buttonList   = BUTTON_LIST,
                               spanWidth    = True,
@@ -729,32 +728,32 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
                               isCheckable  = False,
                               setAsDefault = True,
                               )
-        
+
         self.favsButtonGroup.buttonGroup.setExclusive(False)
-        
+
         self.applyFavoriteButton  = self.favsButtonGroup.getButtonById(1)
         self.addFavoriteButton    = self.favsButtonGroup.getButtonById(2)
         self.deleteFavoriteButton = self.favsButtonGroup.getButtonById(3)
         self.saveFavoriteButton   = self.favsButtonGroup.getButtonById(4)
         self.loadFavoriteButton   = self.favsButtonGroup.getButtonById(5)
-        
+
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in group box.
         """
-        
+
         self.lightComboBox  = \
             PM_ComboBox( pmGroupBox,
                          choices = ["1", "2", "3"],
                          label     =  "Light:")
-        
+
         self.enableLightCheckBox = \
             PM_CheckBox( pmGroupBox, text = "On" )
-        
+
         self.lightColorComboBox = \
             PM_ColorComboBox(pmGroupBox)
         self.ambientDoubleSpinBox = \
-            PM_DoubleSpinBox(pmGroupBox, 
+            PM_DoubleSpinBox(pmGroupBox,
                              maximum = 1.0,
                              minimum = 0.0,
                              decimals = 2,
@@ -774,11 +773,11 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
                              decimals = 2,
                              singleStep = .1,
                              label = "Specular:")
-        
+
         self.positionGroupBox = \
             PM_GroupBox( pmGroupBox,
                          title = "Position:")
-        
+
         self.xDoubleSpinBox = \
             PM_DoubleSpinBox(self.positionGroupBox,
                              maximum = 1000,
@@ -801,12 +800,12 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
                              singleStep = 10,
                              label = "Z:")
         return
-    
+
     def _loadGroupBox3(self, pmGroupBox):
         """
         Load widgets in group box.
         """
-        
+
         self.enableMaterialPropertiesComboBox = \
             PM_CheckBox( pmGroupBox, text = "On")
         self.finishDoubleSpinBox = \
@@ -830,7 +829,7 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
                              singleStep = .1,
                              label = "Brightness:")
         return
-    
+
     def _updateAllWidgets(self):
         """
         Update all the PM widgets. This is typically called after applying
@@ -838,7 +837,7 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         """
         self._updatePage_Lighting()
         return
-    
+
     def update_light_combobox_items(self):
         """
         Updates all light combobox items with '(On)' or '(Off)' label.
@@ -850,7 +849,7 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
                 txt = "%d (Off)" % (i+1)
             self.lightComboBox.setItemText(i, txt)
         return
-        
+
     def changeLightColor(self):
         """
         Slot method for the ColorComboBox
@@ -860,16 +859,16 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         self.light_color = env.prefs[self.current_light_key]
         self.save_lighting()
         return
-    
+
     def applyFavorite(self):
         """
-        Apply the lighting scheme settings stored in the current favorite 
+        Apply the lighting scheme settings stored in the current favorite
         (selected in the combobox) to the current lighting scheme settings.
         """
         # Rules and other info:
         # The user has to press the button related to this method when he loads
         # a previously saved favorite file
-        
+
         current_favorite = self.favoritesComboBox.currentText()
         if current_favorite == 'Factory default settings':
             #env.prefs.restore_defaults(lightingSchemePrefsList)
@@ -880,7 +879,7 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         self._updateAllWidgets()
         self.win.glpane.gl_update()
         return
-    
+
     def addFavorite(self):
         """
         Adds a new favorite to the user's list of favorites.
@@ -888,22 +887,22 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
         # Rules and other info:
         # - The new favorite is defined by the current lighting scheme
         #    settings.
-    
-        # - The user is prompted to type in a name for the new 
+
+        # - The user is prompted to type in a name for the new
         #    favorite.
-        # - The lighting scheme settings are written to a file in a special 
-        #    directory on the disk 
+        # - The lighting scheme settings are written to a file in a special
+        #    directory on the disk
         # (i.e. $HOME/Nanorex/Favorites/LightingScheme/$FAV_NAME.txt).
         # - The name of the new favorite is added to the list of favorites in
-        #    the combobox, which becomes the current option. 
-        
-        # Existence of a favorite with the same name is checked in the above 
+        #    the combobox, which becomes the current option.
+
+        # Existence of a favorite with the same name is checked in the above
         # mentioned location and if a duplicate exists, then the user can either
         # overwrite and provide a new name.
 
-        # Prompt user for a favorite name to add. 
+        # Prompt user for a favorite name to add.
         from widgets.simple_dialogs import grab_text_line_using_dialog
-        
+
         ok1, name = \
           grab_text_line_using_dialog(
               title = "Add new favorite",
@@ -911,22 +910,22 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
               iconPath = "ui/actions/Properties Manager/AddFavorite.png",
               default = "" )
         if ok1:
-            # check for duplicate files in the 
+            # check for duplicate files in the
             # $HOME/Nanorex/Favorites/LightingScheme/ directory
-            
+
             fname = getFavoritePathFromBasename( name )
             if os.path.exists(fname):
-                
+
                 #favorite file already exists!
-                
+
                 _ext= ".txt"
                 ret = QMessageBox.warning( self, "Warning!",
                 "The favorite file \"" + name + _ext + "\"already exists.\n"
                 "Do you want to overwrite the existing file?",
                 "&Overwrite", "&Cancel", "",
                 0,    # Enter == button 0
-                1)   # Escape == button 1  
-                
+                1)   # Escape == button 1
+
                 if ret == 0:
                     #overwrite favorite file
                     ok2, text = writeLightingSchemeToFavoritesFile(name)
@@ -934,32 +933,32 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
                     self.favoritesComboBox.removeItem(indexOfDuplicateItem)
                     print "Add Favorite: removed duplicate favorite item."
                 else:
-                    env.history.message("Add Favorite: cancelled overwriting favorite item.")              
-                    return 
-                
+                    env.history.message("Add Favorite: cancelled overwriting favorite item.")
+                    return
+
             else:
                 ok2, text = writeLightingSchemeToFavoritesFile(name)
         else:
             # User cancelled.
             return
         if ok2:
-            
+
             self.favoritesComboBox.addItem(name)
             _lastItem = self.favoritesComboBox.count()
             self.favoritesComboBox.setCurrentIndex(_lastItem - 1)
             msg = "New favorite [%s] added." % (text)
         else:
             msg = "Can't add favorite [%s]: %s" % (name, text) # text is reason why not
-        
-        env.history.message(msg) 
-        
+
+        env.history.message(msg)
+
         return
-        
+
     def deleteFavorite(self):
         """
         Deletes the current favorite from the user's personal list of favorites
         (and from disk, only in the favorites folder though).
-        
+
         @note: Cannot delete "Factory default settings".
         """
         currentIndex = self.favoritesComboBox.currentIndex()
@@ -968,39 +967,39 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
             msg = "Cannot delete '%s'." % currentText
         else:
             self.favoritesComboBox.removeItem(currentIndex)
-            
-            
+
+
             # delete file from the disk
-            
+
             deleteFile= getFavoritePathFromBasename( currentText )
             os.remove(deleteFile)
-            
+
             msg = "Deleted favorite named [%s].\n" \
                 "and the favorite file [%s.txt]." \
                 % (currentText, currentText)
-            
-        env.history.message(msg) 
+
+        env.history.message(msg)
         return
-        
+
     def saveFavorite(self):
         """
-        Writes the current favorite (selected in the combobox) to a file, any 
-        where in the disk that 
+        Writes the current favorite (selected in the combobox) to a file, any
+        where in the disk that
         can be given to another NE1 user (i.e. as an email attachment).
         """
-        
+
         cmd = greenmsg("Save Favorite File: ")
         env.history.message(greenmsg("Save Favorite File:"))
         current_favorite = self.favoritesComboBox.currentText()
         favfilepath = getFavoritePathFromBasename(current_favorite)
-        
+
         formats = \
                     "Favorite (*.txt);;"\
                     "All Files (*.*)"
-         
-        
+
+
         fn = QFileDialog.getSaveFileName(
-            self, 
+            self,
             "Save Favorite As", # caption
             favfilepath, #where to save
             formats, # file format options
@@ -1008,59 +1007,59 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
             )
         if not fn:
             env.history.message(cmd + "Cancelled")
-        
+
         else:
             saveFavoriteFile(str(fn), favfilepath)
         return
-        
+
     def loadFavorite(self):
         """
         Prompts the user to choose a "favorite file" (i.e. *.txt) from disk to
         be added to the personal favorites list.
         """
-        # If the file already exists in the favorites folder then the user is 
+        # If the file already exists in the favorites folder then the user is
         # given the option of overwriting it or renaming it
-        
+
         env.history.message(greenmsg("Load Favorite File:"))
         formats = \
                     "Favorite (*.txt);;"\
                     "All Files (*.*)"
-         
+
         directory= getDefaultWorkingDirectory()
-        
+
         fname = QFileDialog.getOpenFileName(self,
                                          "Choose a file to load",
                                          directory,
                                          formats)
-                    
+
         if not fname:
             env.history.message("User cancelled loading file.")
             return
 
         else:
             canLoadFile=loadFavoriteFile(fname)
-            
+
             if canLoadFile == 1:
-                
-            
+
+
                 #get just the name of the file for loading into the combobox
-            
+
                 favName = os.path.basename(str(fname))
                 name = favName[0:len(favName)-4]
                 indexOfDuplicateItem = self.favoritesComboBox.findText(name)
-            
-                #duplicate exists in combobox 
-            
+
+                #duplicate exists in combobox
+
                 if indexOfDuplicateItem != -1:
                     ret = QMessageBox.warning( self, "Warning!",
-                                               "The favorite file \"" + name + 
+                                               "The favorite file \"" + name +
                                                "\"already exists.\n"
                                                "Do you want to overwrite the existing file?",
                                                "&Overwrite", "&Rename", "&Cancel",
                                                0,    # Enter == button 0
                                                1   # button 1
-                                               )  
-                
+                                               )
+
                     if ret == 0:
                         self.favoritesComboBox.removeItem(indexOfDuplicateItem)
                         self.favoritesComboBox.addItem(name)
@@ -1068,46 +1067,46 @@ class LightingScheme_PropertyManager(Command_PropertyManager):
                         self.favoritesComboBox.setCurrentIndex(_lastItem - 1)
                         ok2, text = writeLightingSchemeToFavoritesFile(name)
                         msg = "Overwrote favorite [%s]." % (text)
-                        env.history.message(msg) 
-         
+                        env.history.message(msg)
+
                     elif ret == 1:
                         # add new item to favorites folder as well as combobox
                         self.addFavorite()
-                        
+
                     else:
                         #reset the display setting values to factory default
-                    
+
                         factoryIndex = self.favoritesComboBox.findText(
                                              'Factory default settings')
                         self.favoritesComboBox.setCurrentIndex(factoryIndex)
                         env.prefs.restore_defaults(lightingSchemePrefsList)
-                        self.win.glpane.gl_update() 
-                        env.history.message("Cancelled overwriting favorite file.")              
-                        return 
+                        self.win.glpane.gl_update()
+                        env.history.message("Cancelled overwriting favorite file.")
+                        return
                 else:
                     self.favoritesComboBox.addItem(name)
                     _lastItem = self.favoritesComboBox.count()
                     self.favoritesComboBox.setCurrentIndex(_lastItem - 1)
                     msg = "Loaded favorite [%s]." % (name)
                     env.history.message(msg)
-                self.win.glpane.gl_update()             
+                self.win.glpane.gl_update()
         return
-    
+
     def _addWhatsThisText( self ):
         """
-        What's This text for widgets in the Lighting Scheme Property Manager.  
+        What's This text for widgets in the Lighting Scheme Property Manager.
         """
         from ne1_ui.WhatsThisText_for_PropertyManagers import WhatsThis_LightingScheme_PropertyManager
         WhatsThis_LightingScheme_PropertyManager(self)
         return
-    
+
     def _addToolTipText(self):
         """
-        Tool Tip text for widgets in the Lighting Scheme Property Manager.  
+        Tool Tip text for widgets in the Lighting Scheme Property Manager.
         """
         #modify this for lighting schemes
-        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_LightingScheme_PropertyManager 
+        from ne1_ui.ToolTipText_for_PropertyManagers import ToolTip_LightingScheme_PropertyManager
         ToolTip_LightingScheme_PropertyManager(self)
         return
-    
-    
+
+

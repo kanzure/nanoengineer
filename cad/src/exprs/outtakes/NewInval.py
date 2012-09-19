@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 NewInval.py [to be cannibalized -- as of 061231, obs or mostly obs]
 
@@ -47,9 +47,9 @@ class _Lval: ####@@@@ compare to later version in scratch5.py
     _invalid = True ### ok? what about propogation?
     _memoized_value = None
     _version_counter = 1 ###k ??
-    
+
     # ... [usual stuff removed]
-    
+
     def get_value(self, args_each_time = None): # args_each_time can only be passed if you call this method explicitly
         "called whether or not we have the value"
         if self._invalid:
@@ -67,7 +67,7 @@ class _Lval: ####@@@@ compare to later version in scratch5.py
         "return a newly computed value" ### what about usage tracking??
         return self._func(args_each_time)
             ###k actually call a formula, and let it usage-track for us, and we'll subscribe our inval to what we used.
-            ### but does caller or this method do that? caller, since it might do funny things like choose memo place based on usage.    
+            ### but does caller or this method do that? caller, since it might do funny things like choose memo place based on usage.
     pass
 
 class KidLval(_Lval):
@@ -110,7 +110,7 @@ class HelperClass:
         self._kid_lexenvfuncs = {} # ditto, but missing or None ones are ok and mean "identity" (maybe)
         #e maybe one for coords? only in scenegraph model, not needed if we have _move
         self._kid_lvals = {} # this might define which kids we actually have (not sure, if set of kids could shrink & change back in one step)
-        
+
     def _define_kid(self, index, codeformula = None, lexenvfunc = None): ### in general, is it best to pass these, or have a func to compute them?
         ####@@@@ decide by considering fancier-indexed iterators like Cube or Table.
         ### future note/digr:
@@ -150,12 +150,12 @@ class HelperClass:
         # perhaps in various layers of differing permanence (ie same index-chain in different objects),
         # with varying sharing (ie different index-chains could point to same place, in some layer-objs but not others),
         # and also use it to get back to current coords: (index, parent) -> get to parent coords, then tell parent to get to mine via index.
-        
+
         # something like: dict(_index = index, _inherit = parent-env) # where parent index chain is visible in _inherit, I guess... not sure & kluge.
         #### BTW it's so common for the index to be the only changing thing in the lexenv, that we might pass it in parallel as an optim/clarification.
         # then we ought to build up the chain explicitly as (local-index, parent-chain), and leave room for interning it as a key int, i suppose.
         # digr: do we intern it separately in separate layers? we might need to if they are persistent! (or intern it only in the most persistent one?)
-        
+
         return self._lexenv # stub, and besides, are we supposed to store it? i suppose we might as well... could always zap if we finalize self...
     pass
 

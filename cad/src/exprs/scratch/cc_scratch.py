@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 $Id$
@@ -35,7 +35,7 @@ def find_or_make(cctype, mode):
         # ... hmm, what do i use for:
         # MT_try2 (self.Instance with computed index, thus indirectly uses LvalDict2 via _CV_)
         #   ### self.Instance needs optim - option to avoid expr compare, don't even bother with grabarg if instance is cached
-        # and find_or_make_main_instance? (custom compare & cache) 
+        # and find_or_make_main_instance? (custom compare & cache)
         # and texture_holder? (texture_holder_for_filename = MemoDict(_texture_holder))
 
 

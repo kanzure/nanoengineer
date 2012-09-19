@@ -1,19 +1,19 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
-BuildCrystal_Command.py 
+BuildCrystal_Command.py
 
 @version: $Id$
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
-Note: Till Alpha8, this mode was called Cookie Cutter mode. In Alpha9 
+Note: Till Alpha8, this mode was called Cookie Cutter mode. In Alpha9
 it has been renamed to 'Build Crystal' mode. -- ninad 20070511
 
 Ninad 2008-08-22
-   - major cleanup: implemented new Command API methods, 
+   - major cleanup: implemented new Command API methods,
      new flyouttoolbar object, moved command specific code in the
-     PM class to here.   
+     PM class to here.
 """
 
 import math # only for pi
@@ -84,7 +84,7 @@ def _init_snapquats():
     xquats = [Q(1,0,0,0), Q(V(0,0,1),pi2), Q(V(0,0,1),math.pi), Q(V(0,0,1),-pi2),
               Q(V(0,0,1),pi4), Q(V(0,0,1),3 * pi4),
               Q(V(0,0,1),-pi4), Q(V(0,0,1),-3 * pi4)]
-    pquats = [Q(1,0,0,0), Q(V(0,1,0),pi2), Q(V(0,1,0),math.pi), Q(V(0,1,0),-pi2), 
+    pquats = [Q(1,0,0,0), Q(V(0,1,0),pi2), Q(V(0,1,0),math.pi), Q(V(0,1,0),-pi2),
               Q(V(1,0,0),pi2), Q(V(1,0,0),-pi2)]
 
     quats100 = []
@@ -132,10 +132,10 @@ class BuildCrystal_Command(basicMode):
     """
     # class constants
     PM_class = BuildCrystal_PropertyManager
-    
+
     #Flyout Toolbar
     FlyoutToolbar_class = BuildCrystalFlyout
-    
+
     commandName = 'CRYSTAL'
     featurename = "Build Crystal Mode"
     from utilities.constants import CL_ENVIRONMENT_PROVIDING
@@ -145,17 +145,17 @@ class BuildCrystal_Command(basicMode):
     backgroundGradient = False # Mark 051029.
     gridColor = 222 / 255.0, 148 / 255.0, 0 / 255.0
 
-    displayMode = diTUBES 
+    displayMode = diTUBES
         # displayMode isn't used except for updating the 'Display Mode' combobox in the Preference dialog.
         # BuildCrystal command uses its own attr <cookieDisplayMode> to display Tubes (default) or Spheres.
 
     selCurve_List = []
-        # <selCurve_List> contains a list of points used to draw the selection curve.  
-        # The points lay in the plane parallel to the screen, just beyond the front clipping 
+        # <selCurve_List> contains a list of points used to draw the selection curve.
+        # The points lay in the plane parallel to the screen, just beyond the front clipping
         # plane, so that they are always  inside the clipping volume.
 
     defaultSelShape = SELSHAPE_LASSO
-        # <defaultSelShape> determines whether the current *default* selection curve is a rectangle 
+        # <defaultSelShape> determines whether the current *default* selection curve is a rectangle
         # or lasso.
 
     MAX_LATTICE_CELL = 25
@@ -179,14 +179,14 @@ class BuildCrystal_Command(basicMode):
         # True = in the process of defining selection curve
         # False = finished/not defining selection curve
 
-    # command api methods  
+    # command api methods
     def _command_enter_effects(self):
         """
         Called from self.command_entered()
         """
-        #@TODO: merge this with command_entered when new command API porting 
+        #@TODO: merge this with command_entered when new command API porting
         #work is finished -- Ninad 2008-09-08
-        
+
         # Save original GLPane background color and gradient, to be restored
         #when exiting BuildCrystal_Command
         self.glpane_backgroundColor = self.o.backgroundColor
@@ -233,19 +233,19 @@ class BuildCrystal_Command(basicMode):
 
     def command_entered(self):
         """
-        Overrides superclass method. 
+        Overrides superclass method.
         @see:baseCommand.command_entered() for documentation
         """
         super(BuildCrystal_Command, self).command_entered()
         self._command_enter_effects()
         self.selectionShape = self.flyoutToolbar.getSelectionShape()
-        #This can't be done in the above call. During this time, 
+        #This can't be done in the above call. During this time,
         # the ctrlPanel can't find the BuildCrystal_Command, the nullMode
         # is used instead. I don't know if that's good or not, but
-        # generally speaking, I think the code structure for mode 
+        # generally speaking, I think the code structure for mode
         # operations like enter/init/cancel, etc, are kind of confusing.
         # The code readability is also not very good. --Huaicai
-        self.setThickness(self.propMgr.layerCellsSpinBox.value()) 
+        self.setThickness(self.propMgr.layerCellsSpinBox.value())
 
         # I don't know if this is better to do here or just before setThickness (or if it matters): ####@@@@
         # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in command_will_exit()).
@@ -255,18 +255,18 @@ class BuildCrystal_Command(basicMode):
         import foundation.undo_manager as undo_manager
         undo_manager.disable_undo_checkpoints('Build Crystal Mode')
         undo_manager.disable_UndoRedo('Build Crystal Mode', "in Build Crystal") # optimizing this for shortness in menu text
-            # this makes Undo menu commands and tooltips look like "Undo 
+            # this makes Undo menu commands and tooltips look like "Undo
             #(not permitted in BuildCrutsl command)" (and similarly for Redo)
-        
+
     def command_will_exit(self):
         """
-        Overrides superclass method. 
+        Overrides superclass method.
         @see:baseCommand.command_will_exit() for documentation
-        
-        @NOTE: This method also calls the method that creates the crystal when 
-               the user hits 'Done' button.                
+
+        @NOTE: This method also calls the method that creates the crystal when
+               the user hits 'Done' button.
         """
-        # Reenable Undo/Redo actions, and undo checkpoints 
+        # Reenable Undo/Redo actions, and undo checkpoints
         #(disabled in command_entered);
         # do it first to protect it from exceptions in the rest of this method
         # (since if it never happens, Undo/Redo won't work for the rest of the session)
@@ -277,11 +277,11 @@ class BuildCrystal_Command(basicMode):
         self.set_cmdname('Build Crystal') # this covers all changes while we were in the mode
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
-            
+
 ##        if not self.savedOrtho:
 ##            self.w.setViewPerspecAction.setChecked(True)
         self.o.setViewProjection(self.savedOrtho) #bruce 080909 cleanup, possible bugfix
-    
+
         #Restore GL states
         self.o.redrawGL = True
         glDisable(GL_COLOR_LOGIC_OP)
@@ -290,7 +290,7 @@ class BuildCrystal_Command(basicMode):
         # Restore default background color.
         self.o.backgroundColor = self.glpane_backgroundColor
         self.o.backgroundGradient = self.glpane_backgroundGradient
-        
+
         if self.commandSequencer.exit_is_forced:
             #(this comes from the old haveNontrivialState method)
             if self.o.shape != None:
@@ -299,27 +299,27 @@ class BuildCrystal_Command(basicMode):
             #Call the method that Builds the crystal when user hits Done button
             if self.o.shape:
                 self.o.shape.buildChunk(self.o.assy)
-            
+
         self.o.shape = None
 
         self.selCurve_List = [] #bruce 080909
         self.o.pov = V(self.oldPov[0], self.oldPov[1], self.oldPov[2]) #bruce 080909
-        
+
         super(BuildCrystal_Command, self).command_will_exit()
-                
+
 
     def command_enter_misc_actions(self):
         """
-        Overrides superclass method. 
+        Overrides superclass method.
 
         @see: baseCommand.command_enter_misc_actions()  for documentation
         """
-        #@ATTENTION: the following code was originally in 
+        #@ATTENTION: the following code was originally in
         #BuildCrystals_PropertyManager.show()
         #It is moved here 'as is' -- Ninad 2008-08-22
         self.win.buildCrystalAction.setChecked(True)
         #Set projection to ortho, display them
-        self.w.setViewOrthoAction.setChecked(True)  
+        self.w.setViewOrthoAction.setChecked(True)
         self.w.setViewOrthoAction.setEnabled(False)
         self.w.setViewPerspecAction.setEnabled(False)
 
@@ -328,7 +328,7 @@ class BuildCrystal_Command(basicMode):
         self.w.setViewZoomtoSelectionAction.setEnabled(0) # Disable Zoom to Selection
         self.w.viewOrientationAction.setEnabled(0) #Disable Orientation Window
 
-        # Temporarily disable the global display style combobox since this 
+        # Temporarily disable the global display style combobox since this
         # has its own special "crystal" display styles (i.e. spheres and tubes).
         # I decided to leave them enabled since the user might want to see the
         # entire model and change the global display style. --Mark 2008-03-16
@@ -342,13 +342,13 @@ class BuildCrystal_Command(basicMode):
 
     def command_exit_misc_actions(self):
         """
-        Overrides superclass method. 
+        Overrides superclass method.
 
         @see: baseCommand.command_exit_misc_actions()  for documentation
         """
-        self.win.buildCrystalAction.setChecked(False)   
-        
-        #@ATTENTION: the following code was originally in 
+        self.win.buildCrystalAction.setChecked(False)
+
+        #@ATTENTION: the following code was originally in
         #BuildCrystals_PropertyManager.close()
         #It is moved here 'as is' -- Ninad 2008-08-22
 
@@ -373,7 +373,7 @@ class BuildCrystal_Command(basicMode):
         self.w.setViewOrthoAction.setEnabled(True)
         self.w.setViewPerspecAction.setEnabled(True)
 
-      
+
     def setFreeView(self, freeView):
         """
         Enables/disables 'free view' mode.
@@ -404,7 +404,7 @@ class BuildCrystal_Command(basicMode):
                     "In free view mode,the unfinished crystal shape creation has been cancelled."))
 
         else: ## Restore crystal cutting mode
-            self.w.setViewOrthoAction.setChecked(True)  
+            self.w.setViewOrthoAction.setChecked(True)
             self.w.setViewOrthoAction.setEnabled(False)
             self.w.setViewPerspecAction.setEnabled(False)
 
@@ -417,7 +417,7 @@ class BuildCrystal_Command(basicMode):
             self.o.ortho = True
             if self.o.shape:
                 self.o.quat = Q(self.cookieQuat)
-                self.o.pov = V(self.cookiePov[0], self.cookiePov[1], self.cookiePov[2]) 
+                self.o.pov = V(self.cookiePov[0], self.cookiePov[1], self.cookiePov[2])
             self.setOrientSurf(self.snap2trackball())
 
 
@@ -583,21 +583,21 @@ class BuildCrystal_Command(basicMode):
             # that lie under the mouse pointer, just beyond the near clipping plane
             # <selCurve_pt> and in the plane of the center of view <selCurve_AreaPt>.
         self.selCurve_List = [selCurve_pt]
-            # <selCurve_List> contains the list of points used to draw the selection curve.  The points lay in the 
+            # <selCurve_List> contains the list of points used to draw the selection curve.  The points lay in the
             # plane parallel to the screen, just beyond the front clipping plane, so that they are always
             #  inside the clipping volume.
         self.o.selArea_List = [selCurve_AreaPt]
-            # <selArea_List> contains the list of points that define the selection area.  The points lay in 
+            # <selArea_List> contains the list of points that define the selection area.  The points lay in
             # the plane parallel to the screen and pass through the center of the view.  The list
             # is used by pickrect() and pickline() to make the selection.
         self.selCurve_StartPt = self.selCurve_PrevPt = selCurve_pt
-            # <selCurve_StartPt> is the first point of the selection curve.  It is used by 
-            # continue_selection_curve() to compute the net distance between it and the current 
+            # <selCurve_StartPt> is the first point of the selection curve.  It is used by
+            # continue_selection_curve() to compute the net distance between it and the current
             # mouse position.
-            # <selCurve_PrevPt> is the previous point of the selection curve.  It is used by 
-            # continue_selection_curve() to compute the distance between the current mouse 
+            # <selCurve_PrevPt> is the previous point of the selection curve.  It is used by
+            # continue_selection_curve() to compute the distance between the current mouse
             # position and the previous one.
-            # Both <selCurve_StartPt> and <selCurve_PrevPt> are used by 
+            # Both <selCurve_StartPt> and <selCurve_PrevPt> are used by
             # basicMode.drawpick().
 
     def continue_selection_curve(self, event):
@@ -624,7 +624,7 @@ class BuildCrystal_Command(basicMode):
             # add length of new line segment to <selCurve_length>.
 
         chord_length = vlen(selCurve_pt - self.selCurve_StartPt)
-            # <chord_length> is the distance between the (first and last/current) endpoints of the 
+            # <chord_length> is the distance between the (first and last/current) endpoints of the
             # selection curve.
 
         if self.selectionShape == 'DEFAULT':
@@ -638,7 +638,7 @@ class BuildCrystal_Command(basicMode):
 
         self.selCurve_PrevPt = selCurve_pt
 
-        env.history.statusbar_msg("Release left button to end selection; Press <Esc> key to cancel selection.")    
+        env.history.statusbar_msg("Release left button to end selection; Press <Esc> key to cancel selection.")
         self.draw_selection_curve()
 
     def end_selection_curve(self, event):
@@ -652,21 +652,21 @@ class BuildCrystal_Command(basicMode):
 
         if self.selCurve_length / self.o.scale < 0.03:
             #Rect_corner/circular selection
-            if not self.selectionShape in ['DEFAULT', 'LASSO']: 
+            if not self.selectionShape in ['DEFAULT', 'LASSO']:
                 if not (self.selCurve_List and self.o.selArea_List): # The first click release
                     self.selCurve_List = [selCurve_pt]
                     self.selCurve_List += [selCurve_pt]
                     self.selCurve_List += [selCurve_pt]
                     self.o.selArea_List = [selCurve_AreaPt]
                     self.o.selArea_List += [selCurve_AreaPt]
-                    if self.selectionShape == 'RECT_CORNER':    
+                    if self.selectionShape == 'RECT_CORNER':
                         self.defaultSelShape = SELSHAPE_RECT
-                    #Disable view changes when begin curve drawing 
+                    #Disable view changes when begin curve drawing
                     self.propMgr.enableViewChanges(False)
                 else: #The end click release
                     self.o.selArea_List[-1] = selCurve_AreaPt
                     if self.defaultSelShape == SELSHAPE_RECT:
-                        self._traditionalSelect() 
+                        self._traditionalSelect()
                     else:
                         self._centerBasedSelect()
             elif self.selectionShape == 'DEFAULT':  ##polygon-rubber-band/lasso selection
@@ -676,7 +676,7 @@ class BuildCrystal_Command(basicMode):
                     # The first click of a polygon selection.
                     self.Rubber = True
                     self.rubberWithoutMoving = True
-                    #Disable view changes when begin curve drawing        
+                    #Disable view changes when begin curve drawing
                     self.propMgr.enableViewChanges(False)
             else: #This means single click/release without dragging for Lasso
                 self.selCurve_List = []
@@ -685,7 +685,7 @@ class BuildCrystal_Command(basicMode):
         else: #Default(excluding rubber band)/Lasso selection
             self.selCurve_List += [selCurve_pt]
             self.o.selArea_List += [selCurve_AreaPt]
-            self._traditionalSelect()    
+            self._traditionalSelect()
 
     def _anyMiddleUp(self):
         if self.freeView:
@@ -706,7 +706,7 @@ class BuildCrystal_Command(basicMode):
 
     def middleUp(self, event):
         """
-        If self.cookieQuat: , which means: a shape 
+        If self.cookieQuat: , which means: a shape
         object has been created, so if you change the view,
         and thus self.o.quat, then the shape object will be wrong
         ---Huaicai 3/23/05
@@ -719,15 +719,15 @@ class BuildCrystal_Command(basicMode):
     def middleCntlDown(self, event):
         """
          Disable this action when cutting crystal.
-         """   
+         """
         if self.freeView:
             _superclass.middleCntlDown(self, event)
 
 
-    def middleCntlUp(self, event):        
+    def middleCntlUp(self, event):
         """
          Disable this action when cutting crystal.
-         """   
+         """
         if self.freeView:
             _superclass.middleCntlUp(self, event)
 
@@ -735,18 +735,18 @@ class BuildCrystal_Command(basicMode):
         """
         When in curve drawing stage, disable the zooming.
         """
-        if not self.drawingCookieSelCurve: 
+        if not self.drawingCookieSelCurve:
             _superclass.Wheel(self, event)
 
     def bareMotion(self, event):
         if self.freeView or not self.drawingCookieSelCurve:
             return False # False means not discarded [russ 080527]
 
-        if self.Rubber or not self.selectionShape in ['DEFAULT', 'LASSO']: 
+        if self.Rubber or not self.selectionShape in ['DEFAULT', 'LASSO']:
             if not self.selCurve_List:
                 return False
             p1, p2 = self._getPoints(event)
-            try: 
+            try:
                 if self.Rubber:
                     self.pickLinePrev = self.selCurve_List[-1]
                 else:
@@ -798,12 +798,12 @@ class BuildCrystal_Command(basicMode):
         # bruce 041213 comment: shape might already exist, from prior drags
         if not self.o.shape:
             self.o.shape = CrystalShape(self.o.right, self.o.up, self.o.lineOfSight, self.cookieDisplayMode, self.latticeType)
-            self.propMgr.latticeCBox.setEnabled(False) 
+            self.propMgr.latticeCBox.setEnabled(False)
             self.propMgr.enableViewChanges(False)
 
         # took out kill-all-previous-curves code -- Josh
         if self.defaultSelShape == SELSHAPE_RECT:
-            self.o.shape.pickrect(self.o.selArea_List[0], self.o.selArea_List[-2], 
+            self.o.shape.pickrect(self.o.selArea_List[0], self.o.selArea_List[-2],
                                   self.o.pov, self.selSense, self.currentLayer,
                                   Slab(-self.o.pov, self.o.out, self.thickness))
         else:
@@ -811,7 +811,7 @@ class BuildCrystal_Command(basicMode):
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
 
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers) - 1:
-            self.propMgr.addLayerButton.setEnabled(True) 
+            self.propMgr.addLayerButton.setEnabled(True)
         self._afterCookieSelection()
         return
 
@@ -894,12 +894,12 @@ class BuildCrystal_Command(basicMode):
             self.lastDrawStored += [pp]
 
         self.lastDrawStored[0] = self.lastDrawStored[1]
-        self.lastDrawStored[1] = pp    
+        self.lastDrawStored[1] = pp
 
         if not lastDraw:
             drawLineLoop(color, self.lastDrawStored[0])
         else:
-            self.lastDrawStored = []     
+            self.lastDrawStored = []
         drawLineLoop(color, pp)
         return
 
@@ -923,10 +923,10 @@ class BuildCrystal_Command(basicMode):
             self.lastDrawStored += [pp]
 
         self.lastDrawStored[0] = self.lastDrawStored[1]
-        self.lastDrawStored[1] = pp    
+        self.lastDrawStored[1] = pp
 
         if not lastDraw:
-            drawLineLoop(color, self.lastDrawStored[0])        
+            drawLineLoop(color, self.lastDrawStored[0])
         else:
             self.lastDrawStored = []
         drawLineLoop(color, pp)
@@ -934,7 +934,7 @@ class BuildCrystal_Command(basicMode):
 
     def _centerCircleDraw(self, color, pts, lastDraw):
         """
-        Construct center based hexagon to draw 
+        Construct center based hexagon to draw
         <Param> pts: (the center and a corner point)
         """
         pt = pts[2] - pts[0]
@@ -944,7 +944,7 @@ class BuildCrystal_Command(basicMode):
             self.lastDrawStored += [rad]
 
         self.lastDrawStored[0] = self.lastDrawStored[1]
-        self.lastDrawStored[1] = rad    
+        self.lastDrawStored[1] = rad
 
         if not lastDraw:
             drawCircle(color, pts[0], self.lastDrawStored[0], self.o.out)
@@ -956,7 +956,7 @@ class BuildCrystal_Command(basicMode):
 
     def _getXorColor(self, color):
         """
-        Get color for <color>.  When the color is XORed with background color, it will get <color>. 
+        Get color for <color>.  When the color is XORed with background color, it will get <color>.
         If background color is close to <color>, we'll use white color.
         """
         bg = self.backgroundColor
@@ -969,14 +969,14 @@ class BuildCrystal_Command(basicMode):
                 f = int(color[ii] * 255)
                 b = int(bg[ii] * 255)
                 rgb += [(f ^ b) / 255.0]
-            return rgb  
+            return rgb
 
     def draw_selection_curve(self, lastDraw = False):
         """
         Draw the selection curve.
         """
         color = get_selCurve_color(self.selSense, self.backgroundColor)
-        color = self._getXorColor(color) 
+        color = self._getXorColor(color)
             #& Needed since drawrectangle() in rectangle instance calls get_selCurve_color(), but can't supply bgcolor.
             #& This should be fixed.  Later.  mark 060212.
 
@@ -984,7 +984,7 @@ class BuildCrystal_Command(basicMode):
             if self.selCurve_List:
                 if self.selectionShape == 'LASSO':
                     if not lastDraw:
-                        for pp in zip(self.selCurve_List[:-2],self.selCurve_List[1:-1]): 
+                        for pp in zip(self.selCurve_List[:-2],self.selCurve_List[1:-1]):
                             drawline(color, pp[0], pp[1])
                     for pp in zip(self.selCurve_List[:-1],self.selCurve_List[1:]):
                         drawline(color, pp[0], pp[1])
@@ -1010,7 +1010,7 @@ class BuildCrystal_Command(basicMode):
                     elif self.selectionShape == 'SQUARE':
                         self._centerEquiPolyDraw(color, 4, self.selCurve_List, lastDraw)
                     elif self.selectionShape == 'TRIANGLE':
-                        self._centerEquiPolyDraw(color, 3, self.selCurve_List, lastDraw)   
+                        self._centerEquiPolyDraw(color, 3, self.selCurve_List, lastDraw)
         else:
             #Default selection shape
             if self.Rubber:
@@ -1019,7 +1019,7 @@ class BuildCrystal_Command(basicMode):
                 drawline(color, self.selCurve_List[-2], self.selCurve_List[-1])
             else:
                 if not lastDraw:
-                    for pp in zip(self.selCurve_List[:-2],self.selCurve_List[1:-1]): 
+                    for pp in zip(self.selCurve_List[:-2],self.selCurve_List[1:-1]):
                         drawline(color, pp[0], pp[1])
                 for pp in zip(self.selCurve_List[:-1],self.selCurve_List[1:]):
                     drawline(color,pp[0],pp[1])
@@ -1040,10 +1040,10 @@ class BuildCrystal_Command(basicMode):
         if self.showFullModel:
             self.o.assy.draw(self.o)
         return
-    
+
     def Draw_other(self):
         _superclass.Draw_other(self)
-        if self.gridShow:    
+        if self.gridShow:
             self.griddraw()
         if self.selCurve_List: ## XOR color operation doesn't request paintGL() call.
             self.draw_selection_curve()
@@ -1051,7 +1051,7 @@ class BuildCrystal_Command(basicMode):
             self.o.shape.draw(self.o, self.layerColors)
         return
 
-    def Draw_after_highlighting(self, pickCheckOnly = False): 
+    def Draw_after_highlighting(self, pickCheckOnly = False):
         """
         Only draw translucent parts of the whole model when
         we are requested to draw the whole model.
@@ -1063,7 +1063,7 @@ class BuildCrystal_Command(basicMode):
     def griddraw(self):
         """
         Assigned as griddraw for a diamond lattice grid that is fixed in
-        space but cut out into a slab one nanometer thick parallel to the 
+        space but cut out into a slab one nanometer thick parallel to the
         screen (and is equivalent to what the crystal-cutter will cut).
         """
         # the grid is in modelspace but the clipping planes are in eyespace
@@ -1164,7 +1164,7 @@ class BuildCrystal_Command(basicMode):
         self.whichsurf = num
         self.setThickness(self.propMgr.layerCellsSpinBox.value())
         button = self.propMgr.orientButtonGroup.button(self.whichsurf)
-        button.setChecked(True)     
+        button.setChecked(True)
         #self.w.statusBar().dispbarLabel.setText(button.toolTip()) #@ unnecessary. --Mark 2008-03-15
 
     #bruce 080910 moved 5 snap* methods here from GLPane
@@ -1235,7 +1235,7 @@ class BuildCrystal_Command(basicMode):
 
     def _project2Plane(self, pt):
         """
-        Project a 3d point <pt> into the plane parallel to screen and through "pov". 
+        Project a 3d point <pt> into the plane parallel to screen and through "pov".
         Return the projected point.
         """
         op = -self.o.pov
@@ -1268,7 +1268,7 @@ class BuildCrystal_Command(basicMode):
             rt0 = V(0, 0, 1)
             up0 = V(1, 0, 0)
             right = V(-sqrt2, 0.0, sqrt2)
-            up = V(sqrt2, 0.0, sqrt2)    
+            up = V(sqrt2, 0.0, sqrt2)
 
         pt1 = p2 - orig3d
         pt = V(dot(rt0, pt1), dot(up0, pt1))
@@ -1302,29 +1302,29 @@ class BuildCrystal_Command(basicMode):
 
         if abs(self.o.out[1]) < DELTA: #Looking between X-Z
             if self.o.out[2] * self.o.out[0] < 0:
-                vType = 0  
+                vType = 0
                 right = V(1, 0, 1)
                 up = V(0, 1, 0)
                 rt = V(1, 0, 0)
-            else: 
-                vType = 2  
+            else:
+                vType = 2
                 if self.o.out[2] < 0:
                     right = V(-1, 0, 1)
                     up = V(0, 1, 0)
                     rt = V(0, 0, 1)
-                else: 
+                else:
                     right = V(1, 0, -1)
                     up = V(0, 1, 0)
                     rt = V(1, 0, 0)
         elif abs(self.o.out[0]) < DELTA: # Looking between Y-Z
-            if self.o.out[1] * self.o.out[2] < 0:  
+            if self.o.out[1] * self.o.out[2] < 0:
                 vType = 0
                 right = V(0, 1, 1)
                 up = V(1, 0, 0)
                 rt = V(0, 0, 1)
             else:
                 vType = 2
-                if self.o.out[2] > 0: 
+                if self.o.out[2] > 0:
                     right = V(0, -1, 1)
                     up = V(1, 0, 0)
                     rt = V(0, 0, 1)
@@ -1340,7 +1340,7 @@ class BuildCrystal_Command(basicMode):
                 rt = (1, 0, 0)
             else:
                 vType = 2
-                if self.o.out[0] < 0:        
+                if self.o.out[0] < 0:
                     right = V(1, -1 , 0)
                     up = V(0, 0, 1)
                     rt = (1, 0, 0)
@@ -1450,10 +1450,10 @@ class BuildCrystal_Command(basicMode):
         else:
             for ii in range(size(axy) -1):
                 cos_theta = dot(axy[ii], p2) / (vlen(axy[ii]) * vlen_p2)
-                ## the 2 vectors has an angle > 60 degrees 
+                ## the 2 vectors has an angle > 60 degrees
                 if cos_theta < 0.5: continue
                 cos_theta = dot(axy[ii + 1], p2) / (vlen(axy[ii + 1]) * vlen_p2)
-                if cos_theta > 0.5:  
+                if cos_theta > 0.5:
                     ax = axy[ii]
                     ay = axy[ii + 1]
                     break
@@ -1463,7 +1463,7 @@ class BuildCrystal_Command(basicMode):
         i = intRound(p2d[0] / uLen / sqrt6)
         j = intRound(p2d[1] / uLen / sqrt6)
 
-        nxy = orig3d + i * uLen * ax + j * uLen * ay 
+        nxy = orig3d + i * uLen * ax + j * uLen * ay
 
         return nxy
 
@@ -1488,7 +1488,7 @@ class BuildCrystal_Command(basicMode):
 
     def _getPoints(self, event):
         """
-        This method is used to get the points in near clipping plane and pov plane which are in line 
+        This method is used to get the points in near clipping plane and pov plane which are in line
         with the mouse clicking point on the screen plane. Adjust these 2 points if self.snapGrid == True.
         <event> is the mouse event.
         Return a tuple of those 2 points.
@@ -1496,9 +1496,9 @@ class BuildCrystal_Command(basicMode):
         p1, p2 = self.o.mousepoints(event, 0.01)
         # For each curve, the following value is constant, so it could be
         # optimized by saving it to the curve object.
-        vlen_p1p2 = vlen(p1 - p2) 
+        vlen_p1p2 = vlen(p1 - p2)
 
-        if not self.gridSnap: 
+        if not self.gridSnap:
             return p1, p2
         else:
             # Snap selection point to grid point

@@ -1,18 +1,18 @@
- Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+
 README-Pyrex -- list of Pyrex-related files and their roles.
 
 $Id$
-
 
 Related source files:
 
   pyrex_test.pyx
       contains an example helper function written in Pyrex,
       and (in docstring) link to wiki page about our use of Pyrex
-      
-  extensions.py 
-      calls the pyrex_test extension module, assuming that got compiled from 
-      its .pyx source file into its .so (or .dll or .dylib?) dynamic library file; 
+
+  extensions.py
+      calls the pyrex_test extension module, assuming that got compiled from
+      its .pyx source file into its .so (or .dll or .dylib?) dynamic library file;
       reports import errors, and in future might try to verify the extension module
       is up-to-date, and handle all our custom extension modules in a uniform way.
       (No pure python file can be named pyrex_test.py, since "import pyrex_test" would

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 # $Id$
 
 import string, os, sys, re
@@ -74,5 +74,5 @@ for op in oplist:
     print ("""    PyDict_SetItemString(verb_dict, "%s",
                          PyInt_FromLong((long) igverb_%s));"""
            % (op.name, op.cname))
-    
+
 print "}"

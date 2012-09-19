@@ -1,4 +1,4 @@
-# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 images.py - provide some image-displaying utilities and primitives
 
@@ -119,9 +119,9 @@ class _texture_holder(object):
     objects of this class are meant to be saved as a memoized dict value with the filename being the dict key
     """
     #e so far, no param choices, keep only one version, no mgmt, no scaling...
-    
+
     __metaclass__ = ExprsMeta #e or could use ConstantComputeMethodMixin I think
-    
+
     def __init__(self, tex_key):
         self.filename, self.pil_kws_items = tex_key # have to put sorted items tuple in key, since dict itself is unhashable
         self.pil_kws = dict(self.pil_kws_items)
@@ -134,14 +134,14 @@ class _texture_holder(object):
         # everything else can be computed on-demand (image object, texture name, texture, etc)
         #e no provision yet for file contents changing; when there is, update policy or uniqid might need to be part of tex_key
         #e more options? maybe, but by default, get those from queries, store an optimal set of shared versions [nim]
-    
+
     def _C__image(self):
         """
         define self._image -- create a PIL Image object (enclosed in an neImageOps container) from the file, and return it
         """
         return texture_helpers.create_PIL_image_obj_from_image_file(self.filename, **self.pil_kws)
             # (trivial glue function into ImageUtils.py class nEImageOps -- return nEImageOps(image_file, **kws))
-    
+
     def _C_tex_name(self):
         """
         define self.tex_name -- allocate a texture name
@@ -157,7 +157,7 @@ class _texture_holder(object):
         tex_name = int(tex_name) # make sure it worked as expected
         assert tex_name != 0
         return tex_name
-    
+
     def _C_loaded_texture_data(self):
         """
         define self.loaded_texture_data = (have_mipmaps, tex_name),
@@ -177,7 +177,7 @@ class _texture_holder(object):
             # whenever self.loaded_texture_data ran this recompute method, _C_loaded_texture_data
         assert tex_name == self.tex_name
         return have_mipmaps, tex_name
-    
+
     def bind_texture(self, clamp = False, use_mipmaps = True, decal = False, pixmap = False):
         """
         bind our texture, and set texture-related GL params as specified.
@@ -191,13 +191,13 @@ class _texture_holder(object):
         #e - we might want to optim for when they don't change
         # - most of them have default values like the old code had implicitly, but not pixmap, which old code had as implicitly true
         # - pixmap is misnamed, it doesn't use the pixmap ops, tho we might like to use those from the same image data someday
-        
+
         have_mipmaps, tex_name = self.loaded_texture_data
         ## texture_helpers.setup_to_draw_texture_name(have_mipmaps, tex_name)
         # let's inline that instead, including its call of _initTextureEnv, and then modify it [061126]
 
         glBindTexture(GL_TEXTURE_2D, tex_name)
-        
+
         # modified from _initTextureEnv(have_mipmaps) in texture_helpers.py
         if clamp:
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
@@ -228,21 +228,21 @@ class _texture_holder(object):
             ## print "getTextureData", self, self._image.getTextureData() # presence of correct alpha is plausible from this
             # (in testexpr_11pd2). By itself, it does make a difference (alpha 0 places are black in testexpr_11pd2, not blue
             # (probably a leaked color) like in testexpr_11pd1), but self.blend is also needed to make it translucent.
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)            
-        
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)
+
         return
-    
+
     def kluge_reset_texture_mode_to_work_around_renderText_bug(self, glpane): #bruce 081205
         glpane.kluge_reset_texture_mode_to_work_around_renderText_bug()
         return
-    
+
     def __repr__(self): #070308
         try:
             basename = os.path.basename(self.filename) #070312
         except:
             basename = self.filename
         return "<%s at %#x for %r, %r>" % (self.__class__.__name__, id(self), basename, self.pil_kws)
-    
+
     pass # end of class _texture_holder
 
 # ==
@@ -363,7 +363,7 @@ class Image(Widget2D):
     clamp, pixmap [#e misnamed], use_mipmaps, decal, tex_origin, nreps [#doc these].
     [#e More options of this kind are needed.]
     All the texture-drawing options can be varied, either in different instances or over time in one instance
-    (by passing them as formulae), without causing a new texture or PIL Image to be loaded as they vary. 
+    (by passing them as formulae), without causing a new texture or PIL Image to be loaded as they vary.
 
     @warning: the image is not visible from the back by default,
               which is only ok for some uses, such as 2D widgets
@@ -409,18 +409,18 @@ class Image(Widget2D):
         # this is effectively an option to not use GL_ALPHA_TEST when blend is True (as we'd normally do then)
 
     two_sided = Option(bool, False, doc = "whether to disable GL_CULL_FACE so that both sides get drawn") #080223
-        
+
     ###e should add option to turn off depth buffer writing -- see warning below
-        
+
     ###e should add option to turn off color buffer writing -- glColorMask -- see warning below
     # see also disable_color (widget2d.py, maybe move to GLPane.py?)
 
         # [or find a more modular way to control things like that -- wrappers? std options?]
-    
+
     ### WARNING: hard to disable those correctly (re restoring state)
     # if we ever get drawn in a larger thing that disables one of them -- as we might,
     #  due to selobj highlighting! ###k CHECK THIS for other new disables too, alpha and blend...
-    
+
     nreps = Option(float, 1.0) #e rename - repeat count; mostly only useful when clamp is False, but ought to work otherwise too
         ##e generalize to let caller supply tex_dx and tex_dy vectors, for rotating the texture within the drawing region;
         # (Can that be done as a more general value for this option? Unclear whether that's natural, tho passing in a matrix might be...)
@@ -442,7 +442,7 @@ class Image(Widget2D):
     bright = size.bright
     bbottom = size.bbottom
     btop = size.btop
-    
+
     # more options, which affect initial image loading from file, thus are part of the texture-cache key [061127]
     rescale = Option(bool, True) # whether to resize by rescaling or padding (default might be changed after testing #e)
     ideal_width = Option(int, 256) ###e let them be a func of image size, as a pair? (eg so they can be next greater 2pow?) someday.
@@ -451,16 +451,16 @@ class Image(Widget2D):
         ### NOTE: type bool is wrong, since later [but long before 070404] it became able to let you specify another mode,
         # and in that case it also affects getTextureData retval mode. This is now routinely used for transparent texture images.
     _tmpmode = Option(str, None) #k None is not str, is that ok? #doc [might be temp kluge]
-    
+
     #e these are not fully implem -- at best, when rescale = False, you'll see black padding when drawing;
     # what we need to do is pass a reduced tex coord so you don't. I hope the image (not padding) will be at the lower left corner
     # of what's drawn. [as of 061127 1022p] [it's not -- this is commented on elsewhere and explained, probably in ImageUtils.py]
-    
+
     # formulae
     # THIS SHOULD WORK (I think), but doesn't, don't know why ####BUG: [is my syntax wrong for passing the kws to call_Expr???]
     ## texture_options = call_Expr( dict, clamp = clamp, pixmap = pixmap, use_mipmaps = use_mipmaps, decal = decal )
     ## __get__ is nim in the Expr <type 'dict'>(*(), **{'clamp': <call_Expr#5175: .....
-    
+
     def _C__texture_holder(self):
         # pil_kws added 061127, doc in nEImageOps;
         # current defaults are ideal_width = None, ideal_height = None, rescale = True, convert = False, _tmpmode = None.
@@ -490,7 +490,7 @@ class Image(Widget2D):
         but only after drawing using the texture is done.
         """
         self._texture_holder.kluge_reset_texture_mode_to_work_around_renderText_bug( self.env.glpane)
-        
+
     def draw(self):
         # bind texture for image filename [#e or other image object],
         # doing whatever is needed of allocating texture name, loading image object, loading texture data;
@@ -502,7 +502,7 @@ class Image(Widget2D):
         self.bind_texture( **texture_options)
 
         try:
-        
+
             # figure out texture coords (from optional args, not yet defined ###e) -- stub for now
             nreps = float(self.nreps) # float won't be needed once we have type coercion; not analyzed whether int vs float matters in subr
             ## tex_origin = ORIGIN2 # see also testdraw's drawtest1, still used in testmode to draw whole font texture rect
@@ -510,7 +510,7 @@ class Image(Widget2D):
             ## tex_dx = D2X ; tex_dx *= nreps # this modifies a shared, mutable Numeric array object, namely D2X! Not what I wanted.
             tex_dx = D2X * nreps
             tex_dy = D2Y * nreps
-            
+
             # where to draw it -- act like a 2D Rect for now, determined by self's lbox,
             # which presently comes from self.size
             origin = V(-self.bleft, -self.bbottom, 0)
@@ -521,12 +521,12 @@ class Image(Widget2D):
     ##        dy = DY * self.btop
             dx = DX * (self.bleft + self.bright) # bugfix 070304: include bleft, bbottom here
             dy = DY * (self.bbottom + self.btop)
-            
+
             blend = self.blend
             alpha_test = self.alpha_test
             two_sided = self.two_sided
             shape = self.shape # for now, None or a symbolic string (choices are hardcoded below)
-                    
+
             if blend:
                 glEnable(GL_BLEND)
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -577,7 +577,7 @@ class Image(Widget2D):
     # which would catch this error whenever self.bright was computed,
     # or even better, when it's a constant for the class (as in this case),
     # right when that constant formula is defined.
-    
+
     pass # end of class Image
 
 # ==
@@ -673,7 +673,7 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
             # Or we could use OpenGL to grab raw data (as we now do from depth buffer), then use PIL (or QImage) to output it...
             # maybe best in long run, but grabFrameBuffer works ok for now. #e
             #
-            # Note: Return value is a constants.qt.QImage object; for debug prints including dir(image), see cvs rev 1.8            
+            # Note: Return value is a constants.qt.QImage object; for debug prints including dir(image), see cvs rev 1.8
             #e optim: use GL calls instead -- but that optim won't matter once we stop this from happening on every draw call
         ## print "glpane dims",glpane.width, glpane.height
             # on bruce's g4 now, whole glpane dims 633 573 (plausible; same as image dims); on g5, 690 637, also same in image
@@ -691,12 +691,12 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
         points = [gluProject(x,y,0) for x,y in lbox_corners] # each point is x,y,depth, with x,y in OpenGL GLPane-window coords
         ## print "raw points are",points
             # this shows they are a list of 4 triples, are fractional, and are perfectly rectangular (since view not rotated).
-            
+
         xs = [p[0] for p in points]
         ys = [p[1] for p in points]
         x0, x1 = min(xs), max(xs)
         y0, y1 = min(ys), max(ys)
-        
+
         ###e could warn if the points are not a rectangle, i.e. if self is drawn in a rotated view
         # add pixelmargin, but limit by window size (glpane.width, glpane.height)
         # (the reason is to verify this grabs bgcolor from around the image; not sure it will, if pixel coords are pixel-centers)
@@ -707,25 +707,25 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
 
             ### REVIEW: should we use intRound to avoid issue of int() rounding towards zero
             # even for negative coordinates (for which adding 0.5 has the wrong effect)? [bruce 080521 Q]
-            
+
         x0 -= pixelmargin
         x0 = int(x0)
         if x0 < 0: x0 = 0
-        
+
         y0 -= pixelmargin
         y0 = int(y0)
         if y0 < 0: y0 = 0
-        
+
         x1 += pixelmargin + 1 # 1 is for rounding (see comment)
         x1 = int(x1)
         if x1 > glpane.width:
             x1 = glpane.width ###k need -1?? are these pixels or pixel-boundaries?? assume boundaries, see comment above
-        
+
         y1 += pixelmargin + 1
         y1 = int(y1)
         if y1 > glpane.height:
             y1 = glpane.height
-        
+
         # convert to Qt window coords [note: the other code that does this doesn't use -1 either]
         y0 = glpane.height - y0
         y1 = glpane.height - y1
@@ -734,14 +734,14 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
         w = x1-x0
         h = y1-y0
         ## print "subimage dims",w,h
-        
+
         assert x0 <= x1, "need x0 <= x1, got x0 = %r, x1 = %r" % (x0,x1)
         assert y0 <= y1, "need y0 <= y1, got y0 = %r, y1 = %r" % (y0,y1)
-        
+
         # trim image, i.e. replace it with a subimage which only shows self.delegate
         image = image.copy(x0, y0, w, h)
             # QImage::copy ( int x, int y, int w, int h, int conversion_flags = 0 ) -- copy a subarea, return a new image
-        
+
         filename = self.filename
         try:
             os.remove(filename)

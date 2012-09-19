@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 help.py - help dialog used for mouse controls and keyboard shortcuts
 
@@ -38,14 +38,14 @@ class Ne1HelpDialog(QWidget, Ui_HelpDialog):
         self.setupUi(self)
         self.connect(self.help_tab,SIGNAL("currentChanged(int)"),self.setup_current_page)
         self.connect(self.close_btn,SIGNAL("clicked()"),self.close)
-        
+
         self.setWindowIcon(geticon('ui/border/MainWindow.png'))
-        
+
         self._setup_mouse_controls_page()
         self.help_tab.setCurrentIndex(0)
- 
+
         return
-    
+
     def showDialog(self, pagenum):
         """
         Display the Help dialog with either the Mouse Controls or Keyboard Shortcuts page
@@ -55,14 +55,14 @@ class Ne1HelpDialog(QWidget, Ui_HelpDialog):
         2 = Selection Shortcuts
         """
         self.help_tab.setCurrentIndex(pagenum) # Sends signal to setup_current_page()
-        
+
         # To make sure the Help dialog is displayed on top, we hide, then show it.
         self.hide() # Mark 2007-06-01
-        self.show() # Non-modal 
+        self.show() # Non-modal
         return
 
     ###### Private methods ###############################
-    
+
     def _setup_mouse_controls_page(self):
         """
         Setup the Mouse Controls help page.
@@ -72,7 +72,7 @@ class Ne1HelpDialog(QWidget, Ui_HelpDialog):
             htmlDoc = os.path.normpath(filePath + '/../doc/mousecontrols-mac.htm')
         else:
             htmlDoc = os.path.normpath(filePath + '/../doc/mousecontrols.htm')
-        
+
         # Make sure help document exists.  If not, display msg in textbrowser.
         if os.path.exists(htmlDoc):
             self.mouse_controls_textbrowser.setHtml(open(htmlDoc).read())
@@ -85,37 +85,37 @@ class Ne1HelpDialog(QWidget, Ui_HelpDialog):
         Setup the Keyboard Shortcuts help page.
         """
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        
+
         if sys.platform == 'darwin':
             htmlDoc = os.path.normpath(filePath + '/../doc/keyboardshortcuts-mac.htm')
         else:
             htmlDoc = os.path.normpath(filePath + '/../doc/keyboardshortcuts.htm')
-        
+
         # Make sure help document exists.  If not, display msg in textbrowser.
         if os.path.exists(htmlDoc):
             self.keyboard_shortcuts_textbrowser.setHtml(open(htmlDoc).read())
         else:
             msg =  "Help file " + htmlDoc + " not found."
             self.keyboard_shortcuts_textbrowser.setPlainText(msg)
-    
+
     def _setup_selection_shortcuts_page(self):
         """
         Setup the Selection Shortcuts help page.
         """
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-        
+
         if sys.platform == 'darwin':
             htmlDoc = os.path.normpath(filePath + '/../doc/selectionshortcuts-mac.htm')
         else:
             htmlDoc = os.path.normpath(filePath + '/../doc/selectionshortcuts.htm')
-        
+
         # Make sure help document exists.  If not, display msg in textbrowser.
         if os.path.exists(htmlDoc):
             self.selection_shortcuts_textbrowser.setHtml(open(htmlDoc).read())
         else:
             msg =  "Help file " + htmlDoc + " not found."
             self.selection_shortcuts_textbrowser.setPlainText(msg)
-        
+
     def setup_current_page(self, currentTabIndex):
         pagenumber = currentTabIndex
         if pagenumber is 0:

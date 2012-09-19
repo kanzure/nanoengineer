@@ -1,4 +1,4 @@
-# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2008-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 TestGraphics_Command.py -- command to "Test Graphics Performance"
 (for now, available from the debug menu -> 'other' submenu)
@@ -55,7 +55,7 @@ last_time = time.time()
 
 class TestGraphics_GraphicsMode(Delegating_GraphicsMode):
     """
-    Graphics mode for TestGraphics command. 
+    Graphics mode for TestGraphics command.
     """
     # new feature, bruce 090306: delegate almost everything to
     # parentGraphicsMode, via our new superclass Delegating_GraphicsMode.
@@ -64,7 +64,7 @@ class TestGraphics_GraphicsMode(Delegating_GraphicsMode):
         # this can be enabled by individual developers if desired (debug_pref?)
         # (or just use alt/option key to make left button act like middle)
         # [bruce 090306 if 0'd this, so delegation can work; didn't test 'if 1']
-        
+
         # The left mouse button is much easier to press and drag than the middle.
         # Put rotate on Left, pan on LeftShift. [Russ]
         def leftDown(self, event): self.middleDown(event)
@@ -76,14 +76,14 @@ class TestGraphics_GraphicsMode(Delegating_GraphicsMode):
         def leftShiftUp(self, event): self.middleShiftUp(event)
 
         # Still want the left-button select functions, bound to the right button.
-        def rightDown(self, event): 
+        def rightDown(self, event):
             super(TestGraphics_GraphicsMode, self).leftDown(event)
         def rightDrag(self, event):
             super(TestGraphics_GraphicsMode, self).leftDrag(event)
         def rightUp(self, event):
             super(TestGraphics_GraphicsMode, self).leftUp(event)
 
-    # ==    
+    # ==
 
     def gm_start_of_paintGL(self, glpane):
         """
@@ -139,7 +139,7 @@ class TestGraphics_GraphicsMode(Delegating_GraphicsMode):
         """
         # first, delegate to parentCommand version
         self.parentGraphicsMode.gm_end_of_paintGL(glpane)
-        
+
         # then, do our special code
 
         # print fps
@@ -157,7 +157,7 @@ class TestGraphics_GraphicsMode(Delegating_GraphicsMode):
 
         if test_globals.ALWAYS_GL_UPDATE:
             glpane.gl_update()
-        
+
         return
     pass
 
@@ -167,18 +167,18 @@ class TestGraphics_Command(Command):
     """
 
     """
-       
+
     # class constants
     GraphicsMode_class = TestGraphics_GraphicsMode
     PM_class = TestGraphics_PropertyManager
-    
+
     commandName = 'TEST_GRAPHICS'
     featurename = "Test Graphics"
     from utilities.constants import CL_GLOBAL_PROPERTIES
     command_level = CL_GLOBAL_PROPERTIES
-   
 
-    command_should_resume_prevMode = True 
+
+    command_should_resume_prevMode = True
     command_has_its_own_PM = True
 
     FlyoutToolbar_class = None
@@ -188,16 +188,16 @@ class TestGraphics_Command(Command):
         # this command.
 
     # ==
-    
+
     def delete_caches(self):
         test_drawing.delete_caches()
         # someday: also reset some of our own instance vars
         return
 
     # ==
-    
+
     # state methods (which mostly don't use self, except for self.glpane.gl_update)
-    
+
     # note: these use property rather than State since they are providing access
     # to externally stored state. This is ok except that it provides no direct
     # way of usage tracking or change tracking, which means, it's only suitable
@@ -229,7 +229,7 @@ class TestGraphics_Command(Command):
                              )
 
     # redraw_continuously
-    
+
     def _get_redraw_continuously(self):
         return test_globals.ALWAYS_GL_UPDATE
 
@@ -244,7 +244,7 @@ class TestGraphics_Command(Command):
                                   )
 
     # spin_model
-    
+
     def _get_spin_model(self):
         return test_globals.SPIN
 
@@ -257,7 +257,7 @@ class TestGraphics_Command(Command):
                          )
 
     # print_fps
-    
+
     def _get_print_fps(self):
         return test_globals.printFrames
 
@@ -270,7 +270,7 @@ class TestGraphics_Command(Command):
                          )
 
     # testCaseIndex, testCaseChoicesText
-    
+
     def _get_testCaseIndex(self):
         for testCase, desc in AVAILABLE_TEST_CASES_ITEMS:
             if test_drawing.testCase == testCase:
@@ -294,7 +294,7 @@ class TestGraphics_Command(Command):
         testCaseChoicesText.append( "%s: %s" % (testCase, desc) ) # fix format
 
     # nSpheres
-    
+
     def _get_nSpheres(self):
         return test_drawing.nSpheres
 
@@ -310,7 +310,7 @@ class TestGraphics_Command(Command):
 
     _NSPHERES_CHOICES = map(str, [1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
                                   132, 200, 300, 400, 500, 600])
-        
+
     # detailLevel
 
     def _get_detailLevel(self):
@@ -323,7 +323,7 @@ class TestGraphics_Command(Command):
         if detailLevel not in (0, 1, 2, -1):
             print "bug: illegal detailLevel", detailLevel
             detailLevel = -1
-        
+
         env.prefs[levelOfDetail_prefs_key] = detailLevel
 
         if detailLevel != -1:
@@ -335,7 +335,7 @@ class TestGraphics_Command(Command):
             test_drawing.DRAWSPHERE_DETAIL_LEVEL = detailLevel
 
         self.delete_caches()
-        
+
         self.glpane.gl_update()
         # when not bypassing paintGL:
             # this gl_update is redundant with the prefs change;
@@ -350,9 +350,9 @@ class TestGraphics_Command(Command):
                              _set_detailLevel,
                              doc = "detail level of spheres (when made of triangles)"
                             )
-        
+
     pass
-    
+
 # == UI for entering this command
 
 def _enter_test_graphics_command(glpane):
@@ -375,7 +375,7 @@ def enter_TestGraphics_Command_at_startup(win):
     cached_command_instance = win.commandSequencer._find_command_instance( 'TEST_GRAPHICS')
     cached_command_instance.bypass_paintgl = True
     cached_command_instance.nSpheres = test_drawing.nSpheres
-    
+
     win.commandSequencer.userEnterCommand('TEST_GRAPHICS')
     currentCommand = win.commandSequencer.currentCommand
     if currentCommand.commandName == 'TEST_GRAPHICS':

@@ -3,7 +3,7 @@ $Id$
 class ControlPoint:
     """
     abstract class for any kind of control point for use inside another object like a polyline;
-    subclasses can include ones on a reference object 
+    subclasses can include ones on a reference object
     # note: obs name: PointOnReferenceObject
     """
     pass
@@ -38,7 +38,7 @@ class Polyline(ModelObject):
         # if so, that's declared in that UI code.
 
     segmentType = PolylineSegment
-    
+
     _graph = Instance( Graph( vertexType = controlPointType,
                               edgeType = segmentType ) )
         # Q. is Instance required?
@@ -62,15 +62,15 @@ class Polyline(ModelObject):
     addSegment = segments.add
 
     pass
-    
+
 class Polyline_drawer(Drawer):
     """
     a view of a polyline for the purpose of drawing it
     """
-    
+
     delegate = Arg(Polyline, doc = "the Polyline we draw")
         ###e rename to self.polyline? but we do need to delegate to it for convenience.
-    
+
     def draw(self):
         ### IMPLEM self.drawer as something to draw objects in their usual way,
         # subject to usual env rules for that (drawing styles and filters);
@@ -83,7 +83,7 @@ class Polyline_drawer(Drawer):
         self.drawer.drawset( self.controlPoints )
         self.drawer.drawset( self.segments )
         return
-    
+
     pass
 
 
@@ -103,7 +103,7 @@ def Polyline_UI_helper: #k super? should provide helper methods for this kind of
             # except for knowing to call makeControlPoint rather than make...
             # which differs from make in having defaults suitable for self.data.ControlPointType
         self.data.addControlPoint(point)
-        
+
     def addSegment(self, fromPoint, toPoint, segmentType):
             # note: this is sort of like self.make(segmentType(fromPoint, toPoint))
             # if we imagine that those descriptions (in the arg) carried enough info
@@ -128,7 +128,7 @@ def Polyline_UI_helper: #k super? should provide helper methods for this kind of
             # but does this method care whether the points are in the same ref object? no, it does not require that.
         self.data.addSegment(line) # the more fundamental method; so self.data is our polyline data, not self! ###k
         return
-    def 
+    def
 
 # now bring in code from:
 # - my polyline drawing eg code -- it can add lines or sketched curves

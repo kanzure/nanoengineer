@@ -63,8 +63,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
     #A list of movables that will be moved while dragging.
     #@seeself.getMovablesForLeftDragging()
     _leftDrag_movables = []
-    
-    
+
+
 
     def Enter_GraphicsMode(self):
         """
@@ -247,7 +247,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #method.) Needs cleanup -- Ninad 2008-04-17
 
         #Fixed bug 2661 (see also similar code in self.chunkLeftUp() )
-        #Select the whole parent DnaStrand or DnaSegment group 
+        #Select the whole parent DnaStrand or DnaSegment group
         #instead of the chunk.
         #-- Ninad 2008-03-14
         strandOrSegment = a_chunk.parent_node_of_class(
@@ -336,7 +336,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #method.) Needs cleanup -- Ninad 2008-04-17
 
         #Fixed bug 2661 (see also similar code in self.chunkLeftDown() )
-        #Select the whole parent DnaStrand or DnaSegment group 
+        #Select the whole parent DnaStrand or DnaSegment group
         #instead of the chunk.
         #-- Ninad 2008-03-14
         strandOrSegment = a_chunk.parent_node_of_class(self.win.assy.DnaStrandOrSegment)
@@ -552,7 +552,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         if dnaStrandOrSegment2 is not None:
             chunk2 = dnaStrandOrSegment2
 
-            
+
 
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
@@ -766,7 +766,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # This will be turned ON again in leftUp method.
         # [update, bruce 071121: it looks like it's turned back on
         #  in bareMotion instead.]
-        
+
         self._suppress_highlighting = True
 
         # This flag is required in various leftUp methods. It helps them
@@ -915,7 +915,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                           (self, time_since_wheel_event)
                 return True
 
-        #Turn the highlighting back on if it was suppressed during, 
+        #Turn the highlighting back on if it was suppressed during,
         #for example, leftDrag
         if self._suppress_highlighting:
             self._suppress_highlighting = False
@@ -1077,7 +1077,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             objectDict[c] = colorList[i]
 
         return objectDict
-    
+
     def Draw_highlighted_selobj(self, glpane, selobj, hicolor):
         """
         [overrides superclass method]

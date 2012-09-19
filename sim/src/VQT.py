@@ -1,4 +1,4 @@
-# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2006 Nanorex, Inc.  See LICENSE file for details.
 """Vectors, Quaternions, and Trackballs
 
 Vectors are a simplified interface to the Numeric arrays.
@@ -79,7 +79,7 @@ class Q:
             nw = sqrt(1.0 + x[0] + y[1] + z[2])/2.0
             axis = norm(axis)*sqrt(1.0-nw**2)
             self.vec = V(nw, axis[0], axis[1], axis[2])
-            
+
         elif type(y) in numTypes:
             # axis vector and angle
             v = (x / vlen(x)) * sin(y*0.5)
@@ -144,7 +144,7 @@ class Q:
             return self.__dict__['matrix']
         else:
             raise AttributeError, 'No "%s" in Quaternion' % name
-        
+
     def __getitem__(self, num):
         return self.vec[num]
 
@@ -157,7 +157,7 @@ class Q:
         self.vec[0] = cos(theta)
         self.__reset()
         return self
-        
+
 
     def __reset(self):
         if self.__dict__.has_key('matrix'):
@@ -193,7 +193,7 @@ class Q:
                q1.w*self.y - q1.x*self.z + q1.y*self.w + q1.z*self.x,
                q1.w*self.z + q1.x*self.y - q1.y*self.x + q1.z*self.w)
         self.vec=temp
-        
+
         self.counter -= 1
         if self.counter <= 0:
             self.counter = 50
@@ -278,7 +278,7 @@ class Q:
         return matrixmultiply(v,self.matrix)
 
 def twistor(axis, pt1, pt2):
-    """return the quaternion that, rotating around axis, will bring 
+    """return the quaternion that, rotating around axis, will bring
     pt1 closest to pt2.
     """
     q = Q(axis, V(0,0,1))

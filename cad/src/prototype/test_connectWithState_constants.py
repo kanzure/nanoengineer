@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 test_connectWithState_constants.py -- constants for use in
 test_connectWithState command and its PM.
@@ -6,7 +6,7 @@ test_connectWithState command and its PM.
 This file can be merged into the command class, once it's possible
 for the PM code to get these values directly from the staterefs
 (an intended improvement).
- 
+
 $Id$
 
 History:

@@ -1,4 +1,4 @@
-# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 debug_prefs.py -- user-settable flags to help with debugging;
 serves as a prototype of general first-class-preference-variables system.
@@ -180,7 +180,7 @@ class Pref:
                 ###e change to ask dtype, since most of them won't have a list of values!!! this method is specific to Choice.
             if self.current_value() == newval: #bruce 060126; revised 060209 to use self.current_value() rather than self.value
                 if self.print_changes:
-                    print "redundant change:", 
+                    print "redundant change:",
                 ##return??
             self.value = newval
             extra = ""
@@ -346,7 +346,7 @@ class Choice(DataType):
                                                  defaultValue = self._defaultValue
                                                 )
         #e could add some "dimmed info" and/or menu commands to the end of submenu
-        
+
         #e could use checkmark to indicate non_default = not same_vals(self._defaultValue, curval),
         # but too confusing if _defaultValue is True and curval is False...
         # so nevermind unless I figure out a nonfusing indication of that
@@ -481,13 +481,13 @@ class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
 def pass_chosen_color_lambda( newval_receiver_func, curval, dialog_parent = None): #k I hope None is ok as parent
     def func():
         from PyQt4.Qt import QColorDialog
-        color = QColorDialog.getColor( qcolor_from_anything(curval), dialog_parent) 
+        color = QColorDialog.getColor( qcolor_from_anything(curval), dialog_parent)
         if color.isValid():
             newval = color.red()/255.0, color.green()/255.0, color.blue()/255.0
             newval_receiver_func(newval)
         return
     return func
-        
+
 def qcolor_from_anything(color):
     from PyQt4.Qt import QColor
     if isinstance(color, QColor):
@@ -509,7 +509,7 @@ def contrasting_color(qcolor, notwhite = False ):
     if notwhite:
         return Qt.cyan
     return Qt.white
-    
+
 def pixmap_from_color_and_size(color, size):
     """
     #doc; size can be int or (int,int)
@@ -624,10 +624,10 @@ def debug_prefs_menuspec( atom_debug): #bruce 080312 split this up
 
     # first exercise all our own debug_prefs, then get the sorted list
     # of all known ones.
-    
+
     if debug_flags.atom_debug: #bruce 050808 (it's ok that this is not the atom_debug argument)
         testcolor = debug_pref("atom_debug test color", ColorType(green))
-    
+
     max_menu_length = debug_pref(
         "(max debug prefs submenu length?)", #bruce 080215
              # initial paren or space puts it at start of menu
@@ -638,7 +638,7 @@ def debug_prefs_menuspec( atom_debug): #bruce 080312 split this up
      )
 
     non_default_submenu = True # could be enabled by its own debug_pref if desired
-    
+
     items = [(name.lower(), name, pref) for name, pref in debug_prefs.items()]
         # use name.lower() as sortkey, in this function and some of the subfunctions;
         # name is included to disambiguate cases where sortkey is identical
@@ -652,7 +652,7 @@ def debug_prefs_menuspec( atom_debug): #bruce 080312 split this up
         part1 = []
 
     part2 = _main_debug_prefs_menuspec( items, max_menu_length, atom_debug)
-    
+
     return part1 + part2
 
 def _non_default_debug_prefs_menuspec( items): #bruce 080312 added this
@@ -668,7 +668,7 @@ def _non_default_debug_prefs_menuspec( items): #bruce 080312 added this
     submenu = [pref.changer_menuspec() for (sortkey_junk, name_junk, pref) in non_default_items]
     text = "debug prefs currently set (%d)" % len(submenu)
     return [ (text, submenu) ]
-    
+
 def _main_debug_prefs_menuspec( items, max_menu_length, atom_debug):
     """
     [private helper for debug_prefs_menuspec]
@@ -702,7 +702,7 @@ def _main_debug_prefs_menuspec( items, max_menu_length, atom_debug):
         schemes = [
             # these ranges were made by evenly splitting 62 debug prefs
             # (there are a lot each of d, e, g, u, and a bunch each of c, m, p, t)
-            ("a-e", "f-z"), 
+            ("a-e", "f-z"),
             ("a-d", "e-j", "k-z"),
             ("a-c", "d-e", "f-m", "n-z")
          ]
@@ -771,7 +771,7 @@ def this_session_permit_property_pane():
 def _use_property_pane():
     return debug_pref("property pane (for HJ dialog)?", Choice_boolean_False, non_debug = True,
                       prefs_key = "A8 devel/use property pane")
-    
+
 def use_property_pane():
     """
     should we actually use a property pane?
@@ -794,5 +794,5 @@ if __name__ == '__main__':
     spinsign = debug_pref("spinsign",Choice([1,-1]))
     testcolor = debug_pref("test color", ColorType(green))
     print debug_prefs_menuspec(True)
-    
+
 # end

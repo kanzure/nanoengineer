@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 qt4transition.py - Useful markers and messages for Qt 4 transition work.
 
@@ -53,16 +53,16 @@ def qt4overhaul(msg):
         print 'Qt 4 MAJOR CONCEPTUAL OVERHAUL: ' + msg
 
 def qt4message(msg, always = False):
-    if debug_prefs.debug_pref("Enable QT4 TODO messages", 
+    if debug_prefs.debug_pref("Enable QT4 TODO messages",
                       debug_prefs.Choice_boolean_False,
-                      prefs_key = True): 
+                      prefs_key = True):
         if __linenum(always):
             print 'Qt 4 MESSAGE: ' + msg
 
 def qt4todo(msg):
-    if debug_prefs.debug_pref("Enable QT4 TODO messages", 
+    if debug_prefs.debug_pref("Enable QT4 TODO messages",
                       debug_prefs.Choice_boolean_False,
-                      prefs_key = True):      
+                      prefs_key = True):
         if __linenum():
             print 'Qt 4 TODO: ' + msg
     else:
@@ -73,7 +73,7 @@ def multipane_todo(msg):
         print 'Multipane TODO: ' + msg
 
 def qt4warning(msg):
-    if debug_prefs.debug_pref("Enable QT4 WARNING messages", 
+    if debug_prefs.debug_pref("Enable QT4 WARNING messages",
                       debug_prefs.Choice_boolean_False,
                       prefs_key = True):
         if __linenum():
@@ -128,7 +128,7 @@ def qt4warnDestruction(obj, name = ''):
         message += f.f_code.co_filename + (':%d' % f.f_lineno)
     if name:
         message += ' ' + name
-    if debug_prefs.debug_pref("Enable QT4 WARNING messages", 
+    if debug_prefs.debug_pref("Enable QT4 WARNING messages",
                       debug_prefs.Choice_boolean_False,
                       prefs_key = True):
         print 'Setting up destruction warning', message
@@ -141,7 +141,7 @@ def qt4warnDestruction(obj, name = ''):
 def findDefiningClass(cls_or_method, method_name = None):
     """
     Find which base class defines this method
-    
+
     >>> print findDefiningClass(DeepClass.foo)
     __main__.BaseClass
     >>> print findDefiningClass(ShallowClass.foo)

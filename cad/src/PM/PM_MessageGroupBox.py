@@ -1,8 +1,8 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 PM_MessageGroupBox.py
 
-The PM_MessageGroupBox widget provides a message group box with a 
+The PM_MessageGroupBox widget provides a message group box with a
 collapse/expand button and a title.
 
 @author: Mark
@@ -11,7 +11,7 @@ collapse/expand button and a title.
 
 History:
 
-mark 2007-07-22: Split PropMgrMessageGroupBox out of PropMgrBaseClass.py 
+mark 2007-07-22: Split PropMgrMessageGroupBox out of PropMgrBaseClass.py
 into this file and renamed it PM_MessageGroupBox.
 """
 
@@ -30,12 +30,12 @@ from PM.PM_TextEdit    import PM_TextEdit
 
 class PM_MessageGroupBox( PM_GroupBox ):
     """
-    The PM_MessageGroupBox widget provides a message box with a 
+    The PM_MessageGroupBox widget provides a message box with a
     collapse/expand button and a title.
     """
 
-    def __init__(self, 
-                 parentWidget, 
+    def __init__(self,
+                 parentWidget,
                  title = "Message"
                  ):
         """
@@ -69,16 +69,16 @@ class PM_MessageGroupBox( PM_GroupBox ):
             # [bruce 071103 refactored this from what used to be a special case
             #  in PM_TextEdit.__init__ based on self being an instance of
             #  PM_MessageGroupBox.]
-            
+
         # Needed for Intel MacOS. Otherwise, the horizontal scrollbar
         # is displayed in the MessageGroupBox. Mark 2007-05-24.
         # Shouldn't be needed with _setHeight() in PM_TextEdit.
-        
+
         #Note 2008-06-17: We now permit a vertical scrollbar in message groupbox
         #--Ninad
-        
+
         self.MessageTextEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                
+
         # Add self.MessageTextEdit to self's vBoxLayout.
         self.vBoxLayout.addWidget(self.MessageTextEdit)
         # We should be calling the PM's getMessageTextEditPalette() method,
@@ -108,7 +108,7 @@ class PM_MessageGroupBox( PM_GroupBox ):
                         QSizePolicy.Policy(QSizePolicy.Fixed)))
 
         self.setWhatsThis("""<b>Messages</b>
-                          <p>This prompts the user for a requisite operation and/or displays 
+                          <p>This prompts the user for a requisite operation and/or displays
 helpful messages to the user.</p>""")
 
         # Hide until insertHtmlMessage() loads a message.
@@ -116,27 +116,27 @@ helpful messages to the user.</p>""")
 
     def expand(self):
         """
-        Expand this group box i.e. show all its contents and change the look 
+        Expand this group box i.e. show all its contents and change the look
         and feel of the groupbox button. It also sets the gridlayout margin and
-        spacing to 0. (necessary to get rid of the extra space inside the 
-        groupbox.)       
+        spacing to 0. (necessary to get rid of the extra space inside the
+        groupbox.)
 
         @see: L{PM_GroupBox.expand}
         """
         PM_GroupBox.expand(self)
-        # If we don't do this, we get a small space b/w the 
+        # If we don't do this, we get a small space b/w the
         # title button and the MessageTextEdit widget.
-        # Extra code unnecessary, but more readable. 
+        # Extra code unnecessary, but more readable.
         # Mark 2007-05-21
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
 
 
-    def insertHtmlMessage(self, 
-                          text, 
-                          setAsDefault = False, 
-                          minLines     = 4, 
-                          maxLines     = 10, 
+    def insertHtmlMessage(self,
+                          text,
+                          setAsDefault = False,
+                          minLines     = 4,
+                          maxLines     = 10,
                           replace      = True,
                           scrolltoTop =  True):
         """
@@ -152,24 +152,24 @@ helpful messages to the user.</p>""")
         @param maxLines: The maximum number of lines to display in the TextEdit widget.
         @type  maxLines: int
 
-        @param replace: should be set to False if you do not wish to replace 
+        @param replace: should be set to False if you do not wish to replace
             the current text. It will append <text> instead.
         @type  replace: int
 
         @note: Displays the message box if it is hidden.
         """
-        self.MessageTextEdit.insertHtml( text, 
-                                         setAsDefault, 
-                                         minLines = minLines, 
-                                         maxLines = maxLines, 
+        self.MessageTextEdit.insertHtml( text,
+                                         setAsDefault,
+                                         minLines = minLines,
+                                         maxLines = maxLines,
                                          replace  = True )
         if scrolltoTop:
             cursor  =  self.MessageTextEdit.textCursor()
-            cursor.setPosition( 0, 
+            cursor.setPosition( 0,
                                 QTextCursor.MoveAnchor )
             self.MessageTextEdit.setTextCursor( cursor )
             self.MessageTextEdit.ensureCursorVisible()
-            
+
             ##self.MessageTextEdit.moveCursor(QTextCursor.Start)
             ##self.MessageTextEdit.ensureCursorVisible()
             #text2 = self.MessageTextEdit.toPlainText()
@@ -179,7 +179,7 @@ helpful messages to the user.</p>""")
                 #print "***anchorText =", anchorText
                 #self.MessageTextEdit.scrollToAnchor(anchorText)
                 #self.MessageTextEdit.ensureCursorVisible()
-                
+
         self.show()
 
 # End of PM_MessageGroupBox ############################

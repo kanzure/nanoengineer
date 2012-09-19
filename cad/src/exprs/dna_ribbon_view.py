@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_ribbon_view.py
 
@@ -204,8 +204,8 @@ class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein a
         #e also provide exprs/opts for use in the caps, incl some way to be capped on one end, different colors, etc
     #e color for marks/sketch elements: point, line & fill & text -- maybe inherit defaults & option-decls for this
     #e surface texture/coordsys options
-    
-    opacity = Option(float, 1.0) #ninad 2008-06-25 See also self.draw. 
+
+    opacity = Option(float, 1.0) #ninad 2008-06-25 See also self.draw.
 
     # formulae
     ## dx = norm_Expr(axis) # ValueError: matrices are not aligned -- probably means we passed an array of V's to norm
@@ -224,27 +224,27 @@ class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein a
     dz = _self._dy_dz[1]
     length = vlen_Expr(axisvector)
     center = (end1 + end2) / 2.0
-    def draw(self):        
-        #@ATTENTION: The new attr 'self.opacity'  was added on 2008-06-26. But 
-        #call to self.fix_color doesn't set the opacity (transparency) properly. 
-        #Also, based on test, not 'fixing the color' and directly using 
-        #self.color works. So, defining the following condition. (use of 
-        #self.fix_color may be unnecessary even for opaque objects but it is 
+    def draw(self):
+        #@ATTENTION: The new attr 'self.opacity'  was added on 2008-06-26. But
+        #call to self.fix_color doesn't set the opacity (transparency) properly.
+        #Also, based on test, not 'fixing the color' and directly using
+        #self.color works. So, defining the following condition. (use of
+        #self.fix_color may be unnecessary even for opaque objects but it is
         #untested -- Ninad 2008-06-26
         if self.opacity == 1.0:
             color = self.fix_color(self.color)
         else:
             color = self.color
-            
+
         end1, end2 = self.axis #####
         radius = self.radius
         capped = self.capped
 
-        drawcylinder(color, 
+        drawcylinder(color,
                      end1,
-                     end2, 
-                     radius, 
-                     capped = capped, 
+                     end2,
+                     radius,
+                     capped = capped,
                      opacity = self.opacity
                      ) ###coordsys?
         return
@@ -287,14 +287,14 @@ class Cylinder_HelicalPath(Geom3D): #e super?
         rise = self.rise
         turn = self.turn
         end1 = self.cyl.end1
-        
+
         axial_offset = cyl.dx * rise # note: cyl.dx == norm(cyl.axisvector)
         cY = cyl.dy # perp coords to cyl axisvector (which is always along cyl.dx) [#e is it misleading to use x,y,z for these??]
         cZ = cyl.dz
         points = []
         turn_angle = 2 * pi * turn
         p0 = end1 #e plus an optional offset along cyl.axisvector?
-        for i in range(n+1): 
+        for i in range(n+1):
             theta = turn_angle * i + theta_offset # in radians
             y = cos(theta) * radius # y and z are Widths (numbers)
             z = sin(theta) * radius
@@ -314,7 +314,7 @@ class Cylinder_HelicalPath(Geom3D): #e super?
     def draw(self):
         color = self.fix_color(self.color)
         points = self.points
-        glDisable(GL_LIGHTING) ### not doing this makes it take the color from the prior object 
+        glDisable(GL_LIGHTING) ### not doing this makes it take the color from the prior object
         glColor3fv(color) ##k may not be enough, not sure
         glBegin(GL_LINE_STRIP)
         for p in points:
@@ -377,7 +377,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
                 drawsphere(color, c, kluge_hardcoded_size, 2)
         if self.showlines:
             for c, n in zip(points, normals):
-                nout, nin = n * 0.2, n * 1.0 # hardcoded numbers -- not too bad since there are canonical choices 
+                nout, nin = n * 0.2, n * 1.0 # hardcoded numbers -- not too bad since there are canonical choices
                 drawline(color, c + nout, c - nin) ##k lighting??
         # draw edges? see Ribbon_oldcode_for_edges
         return
@@ -461,9 +461,9 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
 
     n_turns_left =  State(float, 1.5, doc = "number of turns before seam or interbase-index-origin")
     n_turns_right = State(float, 2.5, doc = "number of turns after seam or interbase-index-origin")
-    
+
     bpt = StateOption(float, 10.5, doc = "bases per turn") ###e default will depend on origami raster style #e rename: bases_per_turn?
-    
+
     n_bases_left = int_Expr( n_turns_left * bpt) ###IMPLEM int_Expr; make it round or truncate? If round, rename it?
     n_bases_right = int_Expr( n_turns_right * bpt)
         ### PROBLEM: base indices will change if bpt is revised -- what if crossovers were chosen first? do crossovers need to be
@@ -502,7 +502,7 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
     ##e then use them below to make path1 and path2
     #
     # here is an ad-hoc method for now:
-    
+
     strand1_theta = Option( Degrees, None)
     strand2_theta = Option( Degrees, None)
 
@@ -519,17 +519,17 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
         s1 %= 360.0
         s2 %= 360.0
         return s1, s2
-    
+
     use_strand1_theta = _self.use_strand12_theta[0] ### USE ME -- note, in degrees, not necessary limited to [0,360]
     use_strand2_theta = _self.use_strand12_theta[1]
-    
-    
+
+
     center = State(Point, ORIGIN) ###e make these StateArgs... #e put them in the model_state layer   #e rename to position??
 
     def move(self, motion): ###CALL ME
         self.center = self.center + motion
         return
-    
+
     direction = State(Vector, DX) # must be unit length!
         #e make center & direction get changed when we move or rotate [entirely nim, but someday soon to be called by DraggableObject]
         #e make the theta_offset (or whatever) also get changed then (the rotation around cyl axis)
@@ -546,7 +546,7 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
     length_left = rise_nm * n_bases_left
     length_right = rise_nm * n_bases_right
     length = length_left + length_right
-    
+
     end1 = center - direction * length_left
     end2 = center + direction * length_right
 
@@ -555,7 +555,7 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
                     ) ###k
         ###e bring in more from the comments in cyl_OBS below??
         ##e also tell cyl how much it's rotated on its axis, in case it has a texture?? what if that's a helical texture, like dna?
-    
+
     cyl_OBS = StateArg( Cylinder(color = color_cyl, radius = 1.0), ###IMPLEM this way of giving dflts for attrs added by type coercion
                         #k radius and its units
                         #e put it into model_state
@@ -592,11 +592,11 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
     handle = Highlightable(Center(Rect(0.3, 2.0, purple)),
                            Center(Rect(0.3, 2.0, white)))
     drag_handles = Overlay( Translate(handle, end1 - direction), Translate(handle, end2))
-    
+
     # prefs values used in appearance [##e in future, we'll also use these to index a set of display lists, or so]
     show_phosphates = call_Expr( get_dna_pref, 'show phosphates', dflt = False) ###e phosphates -> sugars
     show_lines = call_Expr( get_dna_pref, 'show lines', dflt = False) ##e lines -> bases, or base_lines (since other ways to show bases)
-    
+
     # appearance (stub -- add handles/actions, more options)
     delegate = Overlay( If( call_Expr( get_dna_pref, 'show central cyl', dflt = False),  cyl ),
                         If( call_Expr( get_dna_pref, 'show drag handles', dflt = True),  drag_handles ), #e has no checkbox yet
@@ -608,7 +608,7 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
     # (for more comments about a fancier case of this, see attr center comments in draggable.py)
     ## center = cyl.center #e actually the origami center might be the seam, not the geometric center -- worry about that later
         # revision 070213: center is now directly set State (type Point)
-    
+
     def make_selobj_cmenu_items(self, menu_spec, highlightable): #070204 new feature, experimental #070205 revised api
         """Add self-specific context menu items to <menu_spec> list when self is the selobj (or its delegate(?)... ###doc better).
         Only works if this obj (self) gets passed to Highlightable's cmenu_maker option (which DraggableObject(self) will do).
@@ -672,7 +672,7 @@ class DNA_Cylinder(ModelObject): #070215 DIorE -> ModelObject (affects _e_model_
         ###e make it unique somehow #e make it editable #e put this state variable into model_state layer
     mt_kids = () #e add our crossovers, our yellow rect demos
     mt_openable = False #e
-    
+
     pass # end of class DNA_Cylinder
 
 # ==
@@ -743,7 +743,7 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
     # internals
 ##    world = Instance( World() ) # maintains the set of objects in the model
     _value = DisplayListChunk( world)
-    
+
     _cmd_Make_DNA_Cylinder_tooltip = "make a DNA_Cylinder" ###e or parse it out of method docstring, marked by special syntax??
     def _cmd_Make_DNA_Cylinder(self):
         ###e ideally this would be a command defined on a "dna origami raster", and would show up as a command in a workspace UI
@@ -874,7 +874,7 @@ class OrigamiDomain(DelegatingInstanceOrExpr):
 
 OrigamiScaffoldedRegion = Stub
 
-class OrigamiGrid(OrigamiDomain): 
+class OrigamiGrid(OrigamiDomain):
     """An OrigamiGrid holds several pairs of DNA_Cylinders in a rasterlike pattern (perhaps with ragged edges and holes)
     and provides operations and displays useful for designing raster-style DNA Origami in them.
        An OrigamiGrid is one kind of OrigamiDomain.
@@ -921,7 +921,7 @@ class OrigamiGrid(OrigamiDomain):
             # but it *can* be moved out of self and still exist in the model. Thus it really lives in the world
             # (or model -- #e rename method? worry about which config or part?) more fundamentally than in self.
         cyl2 = 'ditto...'
-        
+
         pair = (cyl1, cyl2) #e does it need its own cyl-pair object wrapper, being a conceptual unit of some sort? guess: yes, someday
         self.add_cyl_pair(self, pair)
             # that sets cyl posns (and corrects existing posns if needed)

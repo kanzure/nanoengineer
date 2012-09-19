@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ArgList.py
 
@@ -57,7 +57,7 @@ def _i_arglist_helper(self, argpos):
                 ##    index_expr = tuple_Expr( attr_expr, argpos_expr )
             # or extend that case stmt if we need to
         res.append(arg)
-    return [whatever_Arg(expr, index) for pos in range(argpos, 
+    return [whatever_Arg(expr, index) for pos in range(argpos,
 
 
 
@@ -80,7 +80,7 @@ def _i_arglist_helper(self, argpos):
 
       does it call grabarg in usual way? I guess so
 
-      
+
 
 
 

@@ -1,4 +1,4 @@
-// Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details. 
+// Copyright 2006-2009 Nanorex, Inc.  See LICENSE file for details.
 /* C extension for speeding up same_vals and copy_val functions.
  * Type "make shared" to build.
  */
@@ -42,14 +42,14 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
         PyObject *key;
         PyObject *value;
         XXX_Py_ssize_t pos = 0;
-        
+
         if (PyDict_Size(v1) != PyDict_Size(v2)) {
             return 1;
         }
         while (PyDict_Next(v1, &pos, &key, &value)) {
-		    // note: when compiling the above line I get the following warning, hopefully harmless:
-			// samevalshelp.c:49: warning: passing argument 2 of ‘PyDict_Next’ from incompatible pointer type
-			// [bruce 090206, compiling on Mac OS 10.5.6, pyrexc version 0.9.6.4]
+            // note: when compiling the above line I get the following warning, hopefully harmless:
+            // samevalshelp.c:49: warning: passing argument 2 of ‘PyDict_Next’ from incompatible pointer type
+            // [bruce 090206, compiling on Mac OS 10.5.6, pyrexc version 0.9.6.4]
             PyObject *value2 = PyDict_GetItem(v2, key);
             if (value2 == NULL) {
                 return 1;
@@ -194,7 +194,7 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
     // on objects of type numpy.ndarray). Until that's fixed in this C code
     // (not just for ndarray, but by making it reraise any potential exception
     // from that call), we work around that bug via a KLUGE in our Pyrex caller,
-    // samevals.pyx. 
+    // samevals.pyx.
     // TODO: also extend this function to correctly compare numpy.ndarray,
     // like the Python version (in utilities/Comparison.py) now does.
     // [bruce 081202]
@@ -221,7 +221,7 @@ internal_copy_val(PyObject *v)
 {
     PyTypeObject *typ;
     PyObject *copy;
-    
+
     typ = v->ob_type;
     if (typ == &PyInt_Type ||
         typ == &PyLong_Type ||
@@ -291,20 +291,20 @@ internal_copy_val(PyObject *v)
             }
           }
         }
-	    if (generalCopier != NULL) {
+        if (generalCopier != NULL) {
               PyObject *args = PyTuple_New(1);
               Py_INCREF(v);
               PyTuple_SetItem(args, 0, v);
-              copy = PyObject_CallObject(generalCopier, args); 
-			      // TODO: exception protection, here or in caller
+              copy = PyObject_CallObject(generalCopier, args);
+                  // TODO: exception protection, here or in caller
               Py_DECREF(args);
-              return copy;		  
-		} else {
+              return copy;
+        } else {
               // no good ideas here...
               fprintf(stderr, "copy_val(0x%x): not copying, type == %s\n", (int)v, typ->tp_name);
               Py_INCREF(v);
               return v;
-		}
+        }
     }
 }
 

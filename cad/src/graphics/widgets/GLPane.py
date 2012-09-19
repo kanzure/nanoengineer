@@ -1,4 +1,4 @@
-# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2009 Nanorex, Inc.  See LICENSE file for details.
 """
 GLPane.py -- NE1's main model view. A subclass of Qt's OpenGL widget, QGLWidget.
 
@@ -106,7 +106,7 @@ class GLPane(
         # and many *Event methods (not sure if GLPane_minimal defines
         # those, so it may not matter)
     GLPane_rendering_methods, # needs to override paintGL, several more
-    
+
     # these don't yet need to come first, but we'll put them first
     # anyway in case someone adds a default def of some method
     # into GLPane_minimal in the future:
@@ -156,13 +156,13 @@ class GLPane(
     # Note: classes GLPane and ThumbView still share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal.
     # [bruce 070914/080909 comment]
-    
+
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
     permit_shaders = True #bruce 090224
-    
+
     assy = None #bruce 080314
-    
+
     # the stereo attributes are maintained by the methods in
     # our superclass GLPane_stereo_methods, and used in that class,
     # and GLPane_rendering_methods, and GLPane_event_methods.
@@ -175,13 +175,13 @@ class GLPane(
     ## self.is_animating = False
 
     _resize_just_occurred = False #bruce 080922
-    
+
     #For performance reasons, whenever the global display style
     #changes, the current cursor is replaced with an hourglass cursor.
     #The following flag determines whether to turn off this wait cursor.
     #(It is turned off after global display style operation is complete.
     # see self._setWaitCursor_globalDisplayStyle().) [by Ninad, late 2008]
-    _waitCursor_for_globalDisplayStyleChange = False 
+    _waitCursor_for_globalDisplayStyleChange = False
 
     def __init__(self, assy, parent = None, name = None, win = None):
         """
@@ -250,19 +250,19 @@ class GLPane(
         # Mark 050919.
 
         self._init_background_from_prefs() # defined in GLPane_text_and_color_methods
-        
+
         self.compassPosition = env.prefs[compassPosition_prefs_key]
             ### TODO: eliminate self.compassPosition (which is used and set,
             # in sync with this pref, in ne1_ui/prefs/Preferences.py)
             # and just use the pref directly when rendering. [bruce 080913 comment]
-        
+
         self.ortho = env.prefs[defaultProjection_prefs_key]
             # REVIEW: should self.ortho be replaced with a property that refers
             # to that pref, or would that be too slow? If too slow, is there
             # a refactoring that would clean up the current requirement
             # to keep these in sync? [bruce 080913 questions]
-        
-        self.setViewProjection(self.ortho) 
+
+        self.setViewProjection(self.ortho)
             # This updates the checkmark in the View menu. Fixes bug #996 Mark 050925.
 
         # default display style for objects in the window.
@@ -273,7 +273,7 @@ class GLPane(
         self.displayMode = env.prefs[startupGlobalDisplayStyle_prefs_key]
             # TODO: rename self.displayMode (widely used as a public attribute
             # of self) to self.displayStyle. [bruce 080910 comment]
-        
+
         # piotr 080714: Remember last non-reduced display style.
         if self.displayMode == diDNACYLINDER or \
            self.displayMode == diPROTEIN:
@@ -291,7 +291,7 @@ class GLPane(
 
         self._init_GLPane_event_methods()
 
-        return # from GLPane.__init__ 
+        return # from GLPane.__init__
 
     def resizeGL(self, width, height):
         """
@@ -307,7 +307,7 @@ class GLPane(
     _defer_statusbar_msg = False
     _deferred_msg = None
     _selobj_statusbar_msg = " "
-    
+
     def paintGL(self):
         """
         [PRIVATE METHOD -- call gl_update instead!]
@@ -372,22 +372,22 @@ class GLPane(
         if debug_print_paintGL_calls:
             print
             print "calling paintGL"
-        
+
         #bruce 081230 part of a fix for bug 2964
         # (statusbar not updated by hover highlighted object, on Mac OS 10.5.5-6)
         self._defer_statusbar_msg = True
         self._deferred_msg = None
-        glselect_was_wanted = self.glselect_wanted 
+        glselect_was_wanted = self.glselect_wanted
             # note: self.glselect_wanted is defined and used in a mixin class
             # in another file; review: can this be more modular?
-        
+
         painted_anything = self._paintGL()
             # _paintGL method is defined in GLPane_rendering_methods
             # (probably paintGL itself would work fine if defined there --
             #  untested, since having it here seems just as good)
 
         want_swapBuffers = True # might be modified below
-        
+
         if painted_anything:
             if debug_print_paintGL_calls:
                 print " it painted (redraw %d)" % env.redraw_counter
@@ -416,14 +416,14 @@ class GLPane(
             self.setAutoBufferSwap(False)
             if debug_print_paintGL_calls:
                 print " (not doing autoBufferSwap)"
-        
+
         # note: before the above code was added, we could test the default state
         # like this:
         ## if not self.autoBufferSwap():
         ##     print " *** BUG: autoBufferSwap is off"
         # but it never printed, so there is no bug there
         # when the above-mentioned bug in swapBuffers occurs.
-        
+
         #bruce 081230 part of a fix for bug 2964
         self._defer_statusbar_msg = False
         if self._deferred_msg is not None:
@@ -440,7 +440,7 @@ class GLPane(
             # whose messages we should avoid overriding unless selobj changes?
             env.history.statusbar_msg( self._selobj_statusbar_msg )
             pass
-            
+
         self._resize_just_occurred = False
 
         self._resetWaitCursor_globalDisplayStyle()
@@ -464,11 +464,11 @@ class GLPane(
             # compare, print
             pass ###
         return
-    
+
     # ==
-            
+
     #bruce 080813 get .graphicsMode from commandSequencer
-    
+
     def _get_graphicsMode(self):
         res = self.assy.commandSequencer.currentCommand.graphicsMode
             # don't go through commandSequencer.graphicsMode,
@@ -550,7 +550,7 @@ class GLPane(
         # Huaicai 1/27/05: part of the code of this method comes
         # from original setAssy() method. This method can be called
         # after setAssy() has been called, for example, when opening
-        # an mmp file. 
+        # an mmp file.
 
         self.snapToNamedView( part.lastView) # defined in GLPane_view_change_methods
 
@@ -613,7 +613,7 @@ class GLPane(
             # It might not be needed if set_part (below) doesn't mind
             # a mainpart of None and/or if we initialize our viewpoint
             # to default, according to an older version of this comment.
-            # [comment revised, bruce 080812]    
+            # [comment revised, bruce 080812]
 
         assy.set_glpane(self) # sets assy.o and assy.glpane
             # logically I'd prefer to move this to just after set_part,
@@ -640,7 +640,7 @@ class GLPane(
                active commands, or other UI elements should be done elsewhere.
         """
         # note: as of 080813, called from _cseq_update_after_new_mode and Move_Command
-        
+
         # TODO: optimize: some of this is not needed if the old & new graphicsMode are equivalent...
         # the best solution is to make them the same object in that case,
         # i.e. to get their owning commands to share that object,
@@ -664,11 +664,11 @@ class GLPane(
             self.set_selobj(None)
 
         # event handlers
-        
+
         self.set_mouse_event_handler(None) #bruce 070628 part of fixing bug 2476 (leftover CC Done cursor)
 
         # cursor (is this more related to event handlers or rendering?)
-        
+
         self.graphicsMode.update_cursor()
             # do this always (since set_mouse_event_handler only does it if the handler changed) [bruce 070628]
             # Note: the above updates are a good idea,
@@ -677,7 +677,7 @@ class GLPane(
             # But it seems a good precaution even if not. [bruce 070628]
 
         # rendering-related
-        
+
         if sys.platform == 'darwin':
             self._set_widget_erase_color()
             # sets it from self.backgroundColor;
@@ -685,7 +685,7 @@ class GLPane(
             # see comments in that method's implem for caveats
 
         self.gl_update() #bruce 080829
-        
+
         return
 
     def update_GLPane_after_new_command(self): #bruce 080813
@@ -694,24 +694,24 @@ class GLPane(
         """
         self._adjust_GLPane_scale_if_needed()
         return
-    
+
     def _adjust_GLPane_scale_if_needed(self): # by Ninad
         """
-        Adjust the glpane scale while in a certain command. 
+        Adjust the glpane scale while in a certain command.
 
         Behavior --
 
-        Default scale remains the same (i.e. value of 
-        startup_GLPane_scale_prefs_key) 
+        Default scale remains the same (i.e. value of
+        startup_GLPane_scale_prefs_key)
 
         If user enters BuildDna command and if --
-        a) there is no model in the assembly AND 
-        b) user didn't change the zoom factor , the glpane.scale would be 
+        a) there is no model in the assembly AND
+        b) user didn't change the zoom factor , the glpane.scale would be
         adjusted to 50.0 (GLPane_scale_for_dna_commands_prefs_key)
 
         If User doesn't do anything in BuildDna AND also doesn't modify the zoom
         factor, exiting BuildDna and going into the default command
-        (or any command such as BuildAtoms), it should restore zoom scale to 
+        (or any command such as BuildAtoms), it should restore zoom scale to
         10.0 (value for GLPane_scale_for_atom_commands_prefs_key)
 
         @see: self.update_after_new_current_command() where it is called. This
@@ -726,7 +726,7 @@ class GLPane(
         if hasattr(self.assy.part.topnode, 'members'):
             numberOfMembers = len(self.assy.part.topnode.members)
         else:
-            #It's a clipboard part, probably a chunk or a jig not contained in 
+            #It's a clipboard part, probably a chunk or a jig not contained in
             #a group.
             numberOfMembers = 1
 
@@ -750,20 +750,20 @@ class GLPane(
             env.prefs[GLPane_scale_for_atom_commands_prefs_key])
 
         if self.assy.commandSequencer.currentCommand.commandName in dnaCommands:
-            if self.scale == startup_scale:                
+            if self.scale == startup_scale:
                 self.scale = dna_preferred_scale
         else:
             if self.scale == dna_preferred_scale:
                 self.scale = atom_preferred_scale
 
         return
-    
+
     def _setWaitCursor_globalDisplayStyle(self):
         """
         For performance reasons, whenever the global display style
         changes, the current cursor is replaced with an hourglass cursor,
         by calling this method.
-        
+
         @see: self._paintGL()
         @see: self.setGlobalDisplayStyle()
         @see: self._setWaitCursor()
@@ -774,12 +774,12 @@ class GLPane(
             return
         self._waitCursor_for_globalDisplayStyleChange = True
         self._setWaitCursor()
-    
+
     def _resetWaitCursor_globalDisplayStyle(self):
         """
         Reset hourglass cursor that was set while NE1 was changing the global
         display style of the model (by _setWaitCursor_globalDisplayStyle).
-        
+
         @see: self._paintGL()
         @see: self.setGlobalDisplayStyle()
         @see: self._setWaitCursor()
@@ -789,24 +789,24 @@ class GLPane(
             self._resetWaitCursor()
             self._waitCursor_for_globalDisplayStyleChange = False
         return
-    
+
     def _setWaitCursor(self):
         """
         Set the hourglass cursor whenever required.
-        """        
+        """
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        
+
     def _resetWaitCursor(self):
         """
         Reset the hourglass cursor.
-        
+
         @see: self._paintGL()
         @see: self.setGlobalDisplayStyle()
         @see: self._setWaitCursor()
         @see: self._setWaitCursor_globalDisplayStyle()
         """
         QApplication.restoreOverrideCursor()
-        
+
     def setGlobalDisplayStyle(self, disp):
         """
         Set the global display style of self (the GLPane).
@@ -832,10 +832,10 @@ class GLPane(
         @see: setDisplayStyle_of_selection method in another class
         @see: self.self._setWaitCursor_globalDisplayStyle()
         """
-        
+
         self._setWaitCursor_globalDisplayStyle()
-                        
-        # review docstring: what about diINVISIBLE? diPROTEIN?        
+
+        # review docstring: what about diINVISIBLE? diPROTEIN?
         if disp == diDEFAULT:
             disp = env.prefs[ startupGlobalDisplayStyle_prefs_key ]
         #e someday: if self.displayMode == disp, no actual change needed??
@@ -848,7 +848,7 @@ class GLPane(
         if disp != diDNACYLINDER and \
            disp != diPROTEIN:
             self.lastNonReducedDisplayMode = disp
-            
+
         # Huaicai 3/29/05: Add the condition to fix bug 477 (keep this note)
         if self.assy.commandSequencer.currentCommand.commandName == 'CRYSTAL':
             self.win.statusBar().dispbarLabel.setEnabled(False)
@@ -859,7 +859,7 @@ class GLPane(
 
         self.win.statusBar().globalDisplayStylesComboBox.setDisplayStyle(disp)
         return
-    
+
     _needs_repaint = True #bruce 050516
         # used/modified in both this class and GLPane_rendering_methods
         # (see also wants_gl_update)
@@ -1034,7 +1034,7 @@ class GLPane(
                 msg = " "
 
             self._selobj_statusbar_msg = msg #bruce 081230 re bug 2964
-            
+
             if self._defer_statusbar_msg:
                 self._deferred_msg = msg #bruce 081230 re bug 2964
             else:

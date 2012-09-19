@@ -1,4 +1,4 @@
-# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 dna_updater_globals.py -- global variables or mutables for dna_updater,
 and their lowest-level accessors.
@@ -36,17 +36,17 @@ def initialize_globals():
     """
     Meant to be called only from master_model_updater.py
     (perhaps indirectly).
-    
+
     Do whatever one-time initialization is needed before our
     other public functions should be called.
-    
+
     [Also should be called if this module is reloaded.]
     """
     # set up this module's private global changedict subscription handlers
     global _rcdp1, _rcdp2
-    
+
     _rcdp = _refreshing_changedict_subscription_for_dict
-    
+
     _rcdp1 = _rcdp(_changed_structure_Atoms)
     _rcdp2 = _rcdp(_changed_parent_Atoms)
     return
@@ -82,13 +82,13 @@ def ignore_new_changes( from_what, changes_ok = True, debug_print_even_if_none =
                       saying what the changes are from,
                       e.g. "from fixing classes".
     @type from_what: string
-    
+
     @param changes_ok: whether it's ok (not an error) if we see changes.
     @type changes_ok: boolean
-    
+
     @param debug_print_even_if_none: do our debug prints even if there were no changes
     @type debug_print_even_if_none: boolean
-    """    
+    """
     ignore_these = get_changes_and_clear()
 
     if ignore_these or debug_print_even_if_none:
@@ -107,7 +107,7 @@ def ignore_new_changes( from_what, changes_ok = True, debug_print_even_if_none =
                 print_compact_stack(msg + ": ") # since we didn't print stack just above
             else:
                 print msg
-            
+
     del ignore_these
     return
 
