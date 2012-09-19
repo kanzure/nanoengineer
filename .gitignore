@@ -96,3 +96,6 @@ cad/src/samevals.c
 
 *.rej
 .*.rej
+
+# run-time generated log
+cad/src/ne1log.txt
