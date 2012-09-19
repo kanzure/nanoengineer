@@ -4,7 +4,7 @@
 
 import time
 import unittest
-import Numeric
+import numpy.oldnumeric
 
 stuff = None
 #stuff = [ ]

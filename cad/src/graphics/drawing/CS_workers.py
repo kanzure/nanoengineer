@@ -30,8 +30,8 @@ _DRAW_BONDS = True # Debug/test switch. Similar constant in chunk.py.
 # the imports from math vs. Numeric are as discovered in existing code
 # as of 2007/06/25.  It's not clear why acos is coming from math...
 from math import acos
-import Numeric
-from Numeric import pi
+import numpy.oldnumeric
+from numpy.oldnumeric import pi
 
 # russ 080519 No doubt many of the following imports are unused.
 # When the dust settles, the unnecessary ones will be removed.

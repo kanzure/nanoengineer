@@ -22,7 +22,7 @@ from model.global_model_changedicts import _changed_picked_Atoms
 from model.chunk import Chunk
 from model.elements import Singlet
 from geometry.VQT import V, A, norm, cross
-from Numeric import dot, transpose
+from numpy.oldnumeric import dot, transpose
 import foundation.env as env
 from utilities.Log import redmsg, greenmsg, orangemsg
 from utilities.debug import print_compact_traceback

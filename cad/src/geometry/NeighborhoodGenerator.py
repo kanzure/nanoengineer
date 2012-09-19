@@ -20,7 +20,7 @@ and .is_singlet(), and it needs no imports from model.
 
 import struct
 
-from Numeric import floor
+from numpy.oldnumeric import floor
 
 from geometry.VQT import vlen
 

@@ -51,7 +51,7 @@ from graphics.drawing.drawers import drawFilledCircle
 from graphics.drawing.drawers import drawtext
 
 from math import sin, cos, pi
-from Numeric import dot, argmax, argmin, sqrt
+from numpy.oldnumeric import dot, argmax, argmin, sqrt
 
 from graphics.display_styles.displaymodes import ChunkDisplayMode
 

@@ -17,8 +17,8 @@ bruce 071030 - split Font3D out of dimensions module (since used in drawer.py)
 __author__ = "Will"
 
 import types
-import Numeric
-from Numeric import dot
+import numpy.oldnumeric
+from numpy.oldnumeric import dot
 
 from OpenGL.GL import glVertex
 

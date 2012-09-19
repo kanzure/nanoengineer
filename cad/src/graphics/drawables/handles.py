@@ -14,7 +14,7 @@ TODO:
 Needs cleanup.
 """
 
-from Numeric import sqrt
+from numpy.oldnumeric import sqrt
 
 from geometry.VQT import V
 from geometry.VQT import vlen
@@ -27,7 +27,7 @@ from utilities.constants import blue
 
 class handleWithHandleSet:
     """
-    used to wrap handles returned from a handleset, so they can use its methods
+    used to wrap handles returned  a handleset, so they can use its methods
     """
     def __init__(self, handle, handleset, copy_id = None): 
         self.handle = handle
@@ -53,7 +53,7 @@ class HandleSet:
     radius_multiplier = 1.0 # this might be patched to some other value by our owner;
      # should affect all internal computations using radii, but not returned radii inside handle tuples ####NIM
     def __init__(self):
-        self.origin = V(0,0,0) # changed from this only by certain subclasses, in practice
+        self.origin = V(0,0,0) # changed  this only by certain subclasses, in practice
         self.handles = [] # list of (pos,radius,info) tuples
         # handlpos and maxradius are not used now, but might be used later to optimize this.
         self.handlpos = [] # list of their pos's (compare to singlpos in class Chunk (_recompute_singlpos))
@@ -112,7 +112,7 @@ class HandleSet:
     def findHandles_exact(self, p1, p2, cutoff = 0.0, backs_ok = 1, offset = V(0,0,0)):
         """
         @return: a list of (dist, handle) pairs, in arbitrary order, which
-        includes, for each handle (spherical surface) hit by the ray from p1
+        includes, for each handle (spherical surface) hit by the ray  p1
         thru p2, its front-surface intersection with the ray, unless that has
         dist < cutoff and backs_ok, in which case include its back-surface
         intersection (unless *that* has dist < cutoff).
@@ -137,7 +137,7 @@ class HandleSet:
             dist, wid = orthodist(p1, v, pos)
             if radius >= wid: # the ray hits the sphere
                 delta = sqrt(radius*radius - wid*wid)
-                front = dist - delta # depth from p1 of front surface of sphere, where it's hit
+                front = dist - delta # depth  p1 of front surface of sphere, where it's hit
                 if front >= cutoff:
                     res.append((front,(pos,radius,info)))
                 elif backs_ok:

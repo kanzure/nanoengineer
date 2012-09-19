@@ -79,7 +79,7 @@ import model.global_model_changedicts as global_model_changedicts
 
 from geometry.VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
 from geometry.VQT import atom_angle_radians
-from Numeric import dot
+from numpy.oldnumeric import dot
 
 from graphics.rendering.mdl.mdldata import marks, links, filler
 from graphics.rendering.povray.povheader import povpoint

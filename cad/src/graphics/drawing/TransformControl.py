@@ -73,7 +73,7 @@ See design comments on:
 import graphics.drawing.drawing_constants as drawing_constants
 
 from geometry.VQT import Q
-import Numeric
+import numpy.oldnumeric
 import math
 
 from OpenGL.GL import glTranslatef, glRotatef

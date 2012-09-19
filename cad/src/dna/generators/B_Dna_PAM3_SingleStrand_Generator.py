@@ -29,7 +29,7 @@ delete those atoms and fuse the bare strand with existing atoms
 """
 
 from geometry.VQT import Q, norm, vlen, cross
-from Numeric import dot
+from numpy.oldnumeric import dot
 from utilities.debug import print_compact_stack
 from model.bonds import bond_at_singlets
 

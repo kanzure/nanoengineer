@@ -15,7 +15,7 @@ mark 060120 split this out of MWsemantics.py.
 """
 
 import math
-from Numeric import dot
+from numpy.oldnumeric import dot
 from geometry.geometryUtilities import compute_heuristic_axis
 import foundation.env as env
 from geometry.VQT import V, Q, A, norm, vlen

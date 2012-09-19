@@ -6,7 +6,7 @@ import string
 import unittest
 import time
 import types
-import Numeric
+import numpy.oldnumeric
 
 # This is a prototype of the desired API for Pyrex atoms, bonds, and
 # atom sets. See "Pyrex atoms and bonds" page on the wiki.

@@ -41,7 +41,7 @@ from utilities.exception_classes import PluginBug, UserError
 
 from geometry.VQT import V, Veq, vlen
 from geometry.VQT import cross, norm
-from Numeric import dot
+from numpy.oldnumeric import dot
 
 from utilities.constants  import gensym
 from utilities.Log        import redmsg

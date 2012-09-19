@@ -27,7 +27,7 @@ from OpenGL.GLU import gluUnProject
 from geometry.VQT import V, A, norm
 from geometry.VQT import planeXline, ptonline
 
-from Numeric import dot
+from numpy.oldnumeric import dot
 
 import foundation.env as env
 

@@ -16,7 +16,7 @@ import foundation.env as env
 
 from math import sin, cos, pi
 from math import atan2
-from Numeric import dot, argmax, argmin, sqrt
+from numpy.oldnumeric import dot, argmax, argmin, sqrt
 
 from model.chem import Atom
 from model.bonds import bond_atoms

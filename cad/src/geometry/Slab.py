@@ -2,7 +2,7 @@
 """
 Slab.py - a slab in space, with a 3d-point-in-slab test
 
-@author: not sure; could be found from svn/cvs annotate
+@author: not sure; could be found  svn/cvs annotate
 @version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
@@ -11,7 +11,7 @@ Module classification: geometry
 Note: bruce 071215 split class Slab our of shape.py into its own module.
 """
 
-from Numeric import dot
+from numpy.oldnumeric import dot
 
 from geometry.VQT import norm
 

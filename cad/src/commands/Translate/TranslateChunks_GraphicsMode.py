@@ -16,7 +16,7 @@ Translate_GraphicsMode or TranslateComponents_GraphicsMode.
 """
 from utilities import debug_flags
 import math
-from Numeric import dot
+from numpy.oldnumeric import dot
 import foundation.env as env
 from utilities.debug import print_compact_traceback
 from geometry.VQT import V, A, vlen, norm

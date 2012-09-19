@@ -13,7 +13,7 @@ TODO:
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from model.chem import Atom
 from model.bonds import Bond
-from Numeric import dot
+from numpy.oldnumeric import dot
 from PyQt4.Qt import QMouseEvent
 from geometry.VQT import V, Q, A, norm, vlen
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT

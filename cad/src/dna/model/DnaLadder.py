@@ -46,7 +46,7 @@ A DnaLadder is not visible to copy or undo (i.e. it contains no
 undoable state), and is not stored in the mmp file.
 """
 
-from Numeric import dot
+from numpy.oldnumeric import dot
 from geometry.VQT import cross
 
 from model.elements import Pl5

@@ -32,7 +32,7 @@ Both error values should be small.
 import sys
 import math
 
-from Numeric import array
+from numpy.oldnumeric import array
 from LinearAlgebra import inverse
 
 # a nice upgrade would be to read values selected from the NE1 history

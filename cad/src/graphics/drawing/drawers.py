@@ -25,8 +25,8 @@ gl_lighting.py gl_buffers.py
 # the imports from math vs. Numeric are as discovered in existing code
 # as of 2007/06/25.  It's not clear why acos is coming from math...
 from math import floor, ceil, acos
-import Numeric
-from Numeric import pi
+import numpy.oldnumeric
+from numpy.oldnumeric import pi
 
 import foundation.env as env
 

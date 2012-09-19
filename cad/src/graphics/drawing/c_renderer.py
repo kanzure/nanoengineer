@@ -34,7 +34,7 @@ import foundation.env as env #bruce 051126
 import utilities.EndUser as EndUser
 import sys
 import os
-import Numeric
+import numpy.oldnumeric
 
 # these are used only by the test code at the bottom;
 # if these ever cause an import cycle, move that code to a separate module.

@@ -14,7 +14,7 @@ bruce 080912 split this out of class GLPane
 import time
 import math
 
-from Numeric import dot
+from numpy.oldnumeric import dot
 from geometry.VQT import V, Q, norm, vlen
 
 import foundation.env as env

@@ -9,7 +9,7 @@ code copied from GLPane)
 @copyright: 2004-2009 Nanorex, Inc.  See LICENSE file for details. 
 """
 
-from Numeric import dot
+from numpy.oldnumeric import dot
 
 from OpenGL.GL import GL_NORMALIZE
 from OpenGL.GL import glEnable

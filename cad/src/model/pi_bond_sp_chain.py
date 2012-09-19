@@ -24,7 +24,7 @@ is to help change those directions in an organized way.)
 """
 
 import math
-from Numeric import dot
+from numpy.oldnumeric import dot
 
 from utilities import debug_flags
 from model.jigs import Jig

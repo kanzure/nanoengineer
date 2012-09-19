@@ -15,7 +15,7 @@ Those were moved to their own module on Aug 20 and Oct 17, 2007 respt.
 """
 import foundation.env as env
 from math import pi, atan, cos, sin
-from Numeric import add, dot
+from numpy.oldnumeric import add, dot
 
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glPopMatrix

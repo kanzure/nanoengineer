@@ -2,7 +2,7 @@
 import time
 import unittest
 import random
-import Numeric
+import numpy.oldnumeric
 from bases import *
 
 N = int(10**6)

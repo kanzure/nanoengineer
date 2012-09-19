@@ -19,7 +19,7 @@ conflicts with the 'RotateMode'.
 """
 from utilities import debug_flags
 import math
-from Numeric import dot, sign
+from numpy.oldnumeric import dot, sign
 import foundation.env as env
 from utilities.Log import redmsg
 from utilities.debug import print_compact_stack

@@ -11,7 +11,7 @@ This is mainly intended as an example of how to use class ChunkDisplayMode,
 though it might be useful as a fast-rendering display mode too.
 """
 
-from Numeric import dot, argmax, argmin, sqrt
+from numpy.oldnumeric import dot, argmax, argmin, sqrt
 
 import foundation.env as env
 from graphics.drawing.CS_draw_primitives import drawcylinder

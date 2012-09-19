@@ -20,7 +20,10 @@ import math
 from utilities import debug_flags
 from foundation.state_utils import DataMixin
 
-import Numeric 
+#update by kirka
+#import Numeric 
+import numpy.oldnumeric as Numeric
+
 
 _DEBUG_QUATS = False
     #bruce 050518; I'll leave this turned on in the main sources for awhile
@@ -377,7 +380,7 @@ class Q(DataMixin):
         except AttributeError:
             # some objects have no __class__ (e.g. Numeric arrays)
             return False
-        return not (self.vec != other.vec) # assumes all quats have .vec; true except for bugs
+        return not (self.vec.any() != other.vec.any()) # assumes all quats have .vec; true except for bugs
             #bruce 070227 fixed "Numeric array == bug" encountered by this line (when it said "self.vec == other.vec"),
             # which made Q(1, 0, 0, 0) == Q(0.877583, 0.287655, 0.38354, 0) (since they're equal in at least one component)!!
             # Apparently it was my own bug, since it says above that I wrote this method on 060209.
@@ -613,11 +616,11 @@ def cat(a, b):
     #bruce comment 050518: these boolean tests look like bugs!
     # I bet they should be testing the number of entries being 0, or so.
     # So I added some debug code to warn us if this happens.
-    if not a:
+    if not a.any():
         if (_DEBUG_QUATS or debug_flags.atom_debug):
             print "_DEBUG_QUATS: cat(a, b) with false a -- is it right?", a
         return b
-    if not b:
+    if not b.any():
         if (_DEBUG_QUATS or debug_flags.atom_debug):
             print "_DEBUG_QUATS: cat(a, b) with false b -- is it right?", b
         return a

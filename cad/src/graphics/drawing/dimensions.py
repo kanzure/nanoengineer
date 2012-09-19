@@ -14,8 +14,8 @@ bruce 071030 - split Font3D out of dimensions module (since used in drawer.py)
 __author__ = "Will"
 
 import math
-import Numeric
-from Numeric import dot
+import numpy.oldnumeric
+from numpy.oldnumeric import dot
 
 from utilities import debug_flags
 from geometry.VQT import cross

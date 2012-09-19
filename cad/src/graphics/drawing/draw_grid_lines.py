@@ -19,7 +19,7 @@ does drawer.drawGrid also belong here?
 # the imports from math vs. Numeric are as discovered in existing code
 # as of 2007/06/25 [when this was part of drawer.py].
 from math import floor, ceil
-from Numeric import sqrt
+from numpy.oldnumeric import sqrt
 
 from OpenGL.GL import glBegin
 ##from OpenGL.GL import GL_BLEND

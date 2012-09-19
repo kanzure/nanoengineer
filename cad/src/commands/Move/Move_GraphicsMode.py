@@ -12,7 +12,7 @@ Ninad 2008-01-25: Split modifyMode into Command and GraphicsMode classes
 """
 
 import math
-from Numeric import dot
+from numpy.oldnumeric import dot
 
 from PyQt4.Qt import QMouseEvent
 from PyQt4.Qt import Qt

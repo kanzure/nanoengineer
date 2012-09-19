@@ -26,7 +26,7 @@ from utilities.Comparison import same_vals
 from geometry.VQT import  V
 from geometry.VQT import  vlen
 from geometry.VQT import  norm
-from Numeric import dot
+from numpy.oldnumeric import dot
 
 from exprs.State_preMixin import State_preMixin
 from exprs.attr_decl_macros import Instance, State

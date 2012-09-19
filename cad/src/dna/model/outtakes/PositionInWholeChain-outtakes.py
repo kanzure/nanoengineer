@@ -1,4 +1,4 @@
-from Numeric import sign
+from numpy.oldnumeric import sign
 
 class PositionInWholeChain(object):
     """

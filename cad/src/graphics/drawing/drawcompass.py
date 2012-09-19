@@ -74,9 +74,9 @@ class Compass(object):
         """
         self.glpane = glpane
         self._compass_dl = glGenLists(1)
-        glNewList(self._compass_dl, GL_COMPILE)
-        _draw_compass_geometry()
-        glEndList()
+        #glNewList(self._compass_dl, GL_COMPILE)
+        #_draw_compass_geometry()
+        #glEndList()
 
         self._font = QFont( QString("Helvetica"), 12)
 

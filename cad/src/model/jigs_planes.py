@@ -19,7 +19,7 @@ Split more. Perhaps merge GridPlane with Plane (reference plane).
 """
 
 import math
-from Numeric import size, add
+from numpy.oldnumeric import size, add
 
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef

@@ -1136,7 +1136,7 @@ def scan_Numeric_array(obj, func):
     return
 
 try:
-    from Numeric import array, PyObject
+    from nompy.oldnumeric import array, PyObject
 except:
     if env.debug() or DEBUG_PYREX_ATOMS:
         print "fyi: can't import array, PyObject from Numeric, so not registering its copy & scan functions"
@@ -2321,7 +2321,7 @@ class DataMixin(InstanceLike):
 
 def _test():
     print "testing some simple cases of copy_val"
-    from Numeric import array
+    from numpy.oldnumeric import array
     map( _test1, [2,
                   3,
                   "string",

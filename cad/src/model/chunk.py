@@ -71,19 +71,21 @@ scratch/TransformNode.py.)
 
 """
 
-import Numeric # for sqrt
+#update by kirka
+#import Numeric # for sqrt
+import numpy.oldnumeric as Numeric
 
-import math # only used for pi, everything else is from Numeric [as of before 071113]
+import math # only used for pi, everything else is from numpy.oldnumeric [as of before 071113]
 
-from Numeric import array
-from Numeric import add
-from Numeric import dot
-from Numeric import PyObject
-from Numeric import argsort
-from Numeric import compress
-from Numeric import nonzero
-from Numeric import take
-from Numeric import argmax
+from numpy.oldnumeric import array
+from numpy.oldnumeric import add
+from numpy.oldnumeric import dot
+from numpy.oldnumeric import PyObject
+from numpy.oldnumeric import argsort
+from numpy.oldnumeric import compress
+from numpy.oldnumeric import nonzero
+from numpy.oldnumeric import take
+from numpy.oldnumeric import argmax
 
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef

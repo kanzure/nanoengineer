@@ -34,7 +34,7 @@ from qt import *
 from qtcanvas import *
 from qtgl import *
 from OpenGL.GL import *
-import Numeric
+import numpy.oldnumeric
 import sys
 import random
 import time

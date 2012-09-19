@@ -1,7 +1,7 @@
 
 import unittest
 from VQT import angleBetween
-from Numeric import array, alltrue
+from numpy.oldnumeric import array, alltrue
 
 
 class GeometryFunctionsTestCase(unittest.TestCase):

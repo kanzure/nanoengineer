@@ -39,7 +39,7 @@ are fully implemented, and its use of .dl may become the only reason we need to
 keep that member around in CSDL.
 """
 
-from Numeric import dot, floor
+from numpy.oldnumeric import dot, floor
 
 from geometry.VQT import vlen, V
 from OpenGL.GL import glNewList, glEndList, glCallList

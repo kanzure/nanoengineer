@@ -806,7 +806,7 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
     pass
 
 # same as in basic.py:
-from Numeric import dot
+from numpy.oldnumeric import dot
 from geometry.VQT import V, norm, vlen
 
 class V_expr(OpExpr):
@@ -1259,7 +1259,7 @@ class eval_Expr(OpExpr):
 ##from VQT import V ###e replace with a type constant -- probably there's one already in state_utils
 ##V_expr = tuple_Expr ### kluge; even once this is defined, in formulas you may have to use V_expr instead of V,
     # unless we redefine V to not try to use float() on exprs inside it -- right now it's def V(*v): return array(v, Float)
-    # (note: that Float is from Numeric and equals 'd')
+    # (note: that Float is from numpy.oldnumeric and equals 'd')
     ##e (maybe we could make a new V def try to use old def, make __float__ asfail so that would fail, then use V_expr if any expr arg)
 
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...

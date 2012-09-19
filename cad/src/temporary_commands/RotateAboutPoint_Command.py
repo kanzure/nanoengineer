@@ -13,7 +13,7 @@ conference. This may be revised further.
 -- Need documentation
 """
 
-from Numeric import dot
+from numpy.oldnumeric import dot
 import math # for pi
 
 from utilities.prefs_constants import atomHighlightColor_prefs_key
