@@ -48,7 +48,7 @@ renamed from atom.py to main.py before release of A9, mid-2007.
 bruce 070704 moved most of this file into main_startup.py.
 
 bruce 071008 moved a long comment into a new file
-startup/ALTERNATE_CAD_SRC_PATH-doc.txt,
+ne1_startup/ALTERNATE_CAD_SRC_PATH-doc.txt,
 and enclosed our own startup code into def _start_NE1().
 """
 
@@ -82,7 +82,7 @@ if __name__ != '__main__':
 # (WARNING: this MUST BE entirely implemented in main.py)
 #
 # for documentation and implementation notes, see
-#    startup/ALTERNATE_CAD_SRC_PATH-doc.txt
+#    ne1_startup/ALTERNATE_CAD_SRC_PATH-doc.txt
 # and
 #    http://www.nanoengineer-1.net/mediawiki/index.php?title=Using_the_Libraries_from_an_NE1_Installation_for_Mac_Development
 #
@@ -119,7 +119,7 @@ def _start_NE1():
         print
         print "WILL USE ALTERNATE_CAD_SRC_PATH = %r" % ( _alternateSourcePath,)
         sys.path.insert(0, _alternateSourcePath)
-        # see startup/ALTERNATE_CAD_SRC_PATH-doc.txt for info about other
+        # see ne1_startup/ALTERNATE_CAD_SRC_PATH-doc.txt for info about other
         # effects of this (implemented by setAlternateSourcePath below)
         print
 
