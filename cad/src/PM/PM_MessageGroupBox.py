@@ -27,12 +27,15 @@ from PM.PM_Colors    import pmMessageBoxColor
 from PM.PM_GroupBox    import PM_GroupBox
 from PM.PM_TextEdit    import PM_TextEdit
 
+from mock import Mock
 
 class PM_MessageGroupBox( PM_GroupBox ):
     """
     The PM_MessageGroupBox widget provides a message box with a
     collapse/expand button and a title.
     """
+
+    __metaclass__ = Mock()
 
     def __init__(self,
                  parentWidget,

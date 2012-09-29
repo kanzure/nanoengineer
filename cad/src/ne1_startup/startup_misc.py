@@ -94,8 +94,13 @@ def pre_main_show( win):
 
     # use 85% of screen width and 90% of screen height, or more if that would be
     # less than 780 by 560 pixels, but never more than the available space.
-    norm_w = int( min(screen_w - 2, max(780, screen_w * 0.85)))
-    norm_h = int( min(screen_h - 2, max(560, screen_h * 0.90)))
+    try:
+        norm_w = int( min(screen_w - 2, max(780, screen_w * 0.85)))
+        norm_h = int( min(screen_h - 2, max(560, screen_h * 0.90)))
+    except Exception as exception:
+        norm_w = 800
+        norm_h = 600
+
         #bruce 050118 reduced max norm_h to never overlap mac menubar (bugfix?)
 
     # determine normal window origin
@@ -104,15 +109,23 @@ def pre_main_show( win):
     center_it = 1
     if center_it:
         # centered in available area
-        norm_x = (screen_w - norm_w) / 2 + x0
-        norm_y = (screen_h - norm_h) / 2 + y0
+        try:
+            norm_x = (screen_w - norm_w) / 2 + x0
+            norm_y = (screen_h - norm_h) / 2 + y0
+        except Exception as exception:
+            norm_x = 800
+            norm_y = 600
     else:
         # at the given absolute position within the available area
         # (but moved towards (0,0) from that, if necessary to keep it all on-screen)
         want_x = 4 # Left (4 pixels)
         want_y = 36 # Top (36 pixels)
-        norm_x = min( want_x, (screen_w - norm_w)) + x0
-        norm_y = min( want_y, (screen_h - norm_h)) + y0
+        try:
+            norm_x = min( want_x, (screen_w - norm_w)) + x0
+            norm_y = min( want_y, (screen_h - norm_h)) + y0
+        except Exception as exception:
+            norm_x = 800
+            norm_y = 600
 
     # Set the main window geometry, hopefully before the caller shows the window
     from PyQt4.Qt import QRect

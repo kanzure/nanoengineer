@@ -25,8 +25,12 @@ from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_Colors import pmGrpBoxBorderColor
 from widgets.widget_helpers import QColor_to_Hex
 
+from mock import Mock
+
 _superclass = PM_TableWidget
 class PM_DnaSearchResultTable(PM_TableWidget):
+    __metaclass__ = Mock()
+
     def __init__(self,
                  parentWidget,
                  win,

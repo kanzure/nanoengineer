@@ -47,7 +47,7 @@ def ensure_QDir(arg):
     assert isinstance(arg, QDir) # fails if caller passes the wrong thing
     return arg
 
-super = QProcess
+#super = QProcess
 
 class Process(QProcess):
     """
@@ -59,7 +59,7 @@ class Process(QProcess):
         """
         Like QProcess.__init__, but the form with arguments might not be usable with a Python list.
         """
-        super.__init__(self, *args)
+        #### super.__init__(self, *args)
         # I don't know if we'd need to use these signals if we wanted to discard the data.
         # The issue is whether it's going into a pipe which fills up and blocks the process.
         # In order to not have to worry about this, we read it all, whether or not caller wants it.

@@ -65,8 +65,12 @@ from PM.PM_RadioButton     import PM_RadioButton
 
 from PM.PM_ElementChooser     import PM_ElementChooser
 
+from mock import Mock
+
 class AtomGeneratorPropertyManager(PM_Dialog):
     """ Implements user interface to specify properties of an atom """
+
+    __metaclass__ = Mock()
 
     # The title that appears in the property manager header.
     title = "Insert Atom"

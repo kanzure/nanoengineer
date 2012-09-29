@@ -264,7 +264,9 @@ def wiki_help_menuspec_for_featurename( featurename):
 
 # ==
 
-class QToolBar_WikiHelp(NE1_QToolBar):
+import mock
+#class QToolBar_WikiHelp(NE1_QToolBar):
+class QToolBar_WikiHelp(mock.Mock):
     """
     A subclass of NE1_QToolBar to be used when whatsthis text
     in the toolbar might contain "wiki help" links.

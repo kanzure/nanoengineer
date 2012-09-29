@@ -58,9 +58,13 @@ else:
     # Patched versions.
     from graphics.drawing.vbo_patch import glBufferDataARB, glBufferSubDataARB
 # Unwrappered.
-from OpenGL.raw.GL.ARB.vertex_buffer_object import glBindBufferARB
+#from OpenGL.raw.GL.ARB.vertex_buffer_object import glBindBufferARB
 # Use with  a size in bytes and a data of None to allocate a block of space.
-from OpenGL.raw.GL.ARB.vertex_buffer_object import glBufferDataARB as glAllocBufferData
+#from OpenGL.raw.GL.ARB.vertex_buffer_object import glBufferDataARB as glAllocBufferData
+
+from mock import Mock
+glBindBufferARB = Mock()
+glAllocBufferData = Mock()
 
 class GLBufferObject(object):
     """

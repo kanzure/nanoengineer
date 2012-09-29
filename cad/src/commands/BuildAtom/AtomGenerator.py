@@ -51,7 +51,7 @@ def enableAtomGenerator(enable):
     @type  enable: bool
     """
     win = env.mainwindow()
-    win.insertAtomAction.setVisible(enable)
+    #win.insertAtomAction.setVisible(enable)
 
 # AtomGeneratorPropertyManager must come BEFORE GeneratorBaseClass in this list.
 class AtomGenerator( AtomGeneratorPropertyManager, GeneratorBaseClass ):

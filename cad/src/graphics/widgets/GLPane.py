@@ -95,6 +95,8 @@ from graphics.widgets.GLPane_mixin_for_DisplayListChunk import GLPane_mixin_for_
 
 from PyQt4.Qt  import QApplication, QCursor, Qt
 
+from mock import Mock
+
 # ==
 
 class GLPane(
@@ -153,6 +155,7 @@ class GLPane(
 
     * graphicsMode - an instance of GraphicsMode_interface
     """
+    __metaclass__ = Mock()
     # Note: classes GLPane and ThumbView still share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal.
     # [bruce 070914/080909 comment]

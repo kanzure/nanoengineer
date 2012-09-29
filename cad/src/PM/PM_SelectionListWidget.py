@@ -63,6 +63,8 @@ TAG_INSTRUCTIONS = ['TAG_ITEM_IN_GLPANE',
                     'PICK_ITEM_IN_GLPANE',
                     'TAG_AND_PICK_ITEM_IN_GLPANE']
 
+from mock import Mock
+
 class PM_SelectionListWidget(PM_ListWidget):
     """
     Appends a QListWidget (Qt) widget to the I{parentWidget},
@@ -82,7 +84,7 @@ class PM_SelectionListWidget(PM_ListWidget):
                            self._itemDictionary['C6'] = instance of class Atom.
     @type  _itemDictionary: dictionary
     """
-
+    __metaclass__ = Mock()
 
     def __init__(self,
                  parentWidget,

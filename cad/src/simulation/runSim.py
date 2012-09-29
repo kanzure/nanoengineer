@@ -143,35 +143,37 @@ def _verifyGromppAndMdrunExecutables(gromacs_plugin_path):
 
 # ==
 
-class GromacsProcess(Process):
-    verboseGromacsOutput = False
-
-    def standardOutputLine(self, line):
-        Process.standardOutputLine(self, line)
-        if (self.verboseGromacsOutput):
-            if (self.runningGrompp and False):
-                print "grompp stdout: " + line.rstrip()
-            if (self.runningMdrun and False):
-                print "mdrun stdout: " + line.rstrip()
-
-    def standardErrorLine(self, line):
-        Process.standardErrorLine(self, line)
-        if (self.verboseGromacsOutput):
-            if (self.runningGrompp and False):
-                print "grompp stderr: " + line.rstrip()
-            if (self.runningMdrun):
-                print "mdrun stderr: " + line.rstrip()
-        if (line.startswith("ERROR:")):
-            msg = redmsg("Gromacs " + line.rstrip().rstrip("-"))
-            env.history.message(msg)
-
-    def prepareForGrompp(self):
-        self.runningGrompp = True
-        self.runningMdrun = False
-
-    def prepareForMdrun(self):
-        self.runningGrompp = False
-        self.runningMdrun = True
+#class GromacsProcess(Process):
+#    verboseGromacsOutput = False
+#
+#    def standardOutputLine(self, line):
+#        Process.standardOutputLine(self, line)
+#        if (self.verboseGromacsOutput):
+#            if (self.runningGrompp and False):
+#                print "grompp stdout: " + line.rstrip()
+#            if (self.runningMdrun and False):
+#                print "mdrun stdout: " + line.rstrip()
+#
+#    def standardErrorLine(self, line):
+#        Process.standardErrorLine(self, line)
+#        if (self.verboseGromacsOutput):
+#            if (self.runningGrompp and False):
+#                print "grompp stderr: " + line.rstrip()
+#            if (self.runningMdrun):
+#                print "mdrun stderr: " + line.rstrip()
+#        if (line.startswith("ERROR:")):
+#            msg = redmsg("Gromacs " + line.rstrip().rstrip("-"))
+#            env.history.message(msg)
+#
+#    def prepareForGrompp(self):
+#        self.runningGrompp = True
+#        self.runningMdrun = False
+#
+#    def prepareForMdrun(self):
+#        self.runningGrompp = False
+#        self.runningMdrun = True
+import mock
+GromacsProcess = mock.Mock()
 
 class SimRunner:
     """

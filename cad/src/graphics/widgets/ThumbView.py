@@ -82,6 +82,8 @@ from operations.pastables import find_hotspot_for_pasting
 from graphics.widgets.GLPane_minimal import GLPane_minimal
 from platform_dependent.PlatformDependent import fix_event_helper
 
+from mock import Mock
+
 class ThumbView(GLPane_minimal):
     """
     A simple version of OpenGL widget, which can be used to show a simple
@@ -91,6 +93,8 @@ class ThumbView(GLPane_minimal):
     initializeGL, resizeGL, paintGL virtual functions call. Ideally, this class
     should coordinate with class GLPane in some ways.
     """
+    __metaclass__ = Mock()
+
     # Note: classes GLPane and ThumbView share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal
     # [bruce 070914 comment; since then some of it has been merged, some

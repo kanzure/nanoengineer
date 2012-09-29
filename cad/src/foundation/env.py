@@ -100,8 +100,9 @@ def mainwindow(): #bruce 051209
     """
     # sanity check, and makes sure it's not too early for these things
     # to have been set up
-    assert not _mainWindow is None, "setMainWindow not called yet"
-    assert _mainWindow.assy.w is _mainWindow
+
+    #assert not _mainWindow is None, "setMainWindow not called yet"
+    #assert _mainWindow.assy.w is _mainWindow
 
     return _mainWindow
 

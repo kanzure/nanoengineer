@@ -377,7 +377,7 @@ class Q(DataMixin):
         except AttributeError:
             # some objects have no __class__ (e.g. Numeric arrays)
             return False
-        return not (self.vec != other.vec) # assumes all quats have .vec; true except for bugs
+        return not (sorted(self.vec) != sorted(other.vec)) # assumes all quats have .vec; true except for bugs
             #bruce 070227 fixed "Numeric array == bug" encountered by this line (when it said "self.vec == other.vec"),
             # which made Q(1, 0, 0, 0) == Q(0.877583, 0.287655, 0.38354, 0) (since they're equal in at least one component)!!
             # Apparently it was my own bug, since it says above that I wrote this method on 060209.
@@ -613,11 +613,11 @@ def cat(a, b):
     #bruce comment 050518: these boolean tests look like bugs!
     # I bet they should be testing the number of entries being 0, or so.
     # So I added some debug code to warn us if this happens.
-    if not a:
+    if a == None or len(a) == 0:
         if (_DEBUG_QUATS or debug_flags.atom_debug):
             print "_DEBUG_QUATS: cat(a, b) with false a -- is it right?", a
         return b
-    if not b:
+    if b == None or len(b) == 0:
         if (_DEBUG_QUATS or debug_flags.atom_debug):
             print "_DEBUG_QUATS: cat(a, b) with false b -- is it right?", b
         return a

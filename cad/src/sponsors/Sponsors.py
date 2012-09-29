@@ -30,7 +30,7 @@ Still, functionally it may belong in its own toplevel package. [bruce 071217]
 """
 
 import base64
-import md5
+import hashlib
 import os
 import random
 import re
@@ -343,7 +343,7 @@ class PermissionDialog(QDialog, threading.Thread):
             (gotMD5_File, remoteDigest) = \
                 _get_remote_file("sponsors.md5", "md5:")
             if gotMD5_File:
-                m = md5.new()
+                m = hashlib.md5()
                 m.update(open(self.xmlfile).read())
                 localDigest = "md5:" + base64.encodestring(m.digest())
                 remoteDigest = remoteDigest.rstrip()

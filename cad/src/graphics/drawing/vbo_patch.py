@@ -7,7 +7,12 @@ from OpenGL import platform, constants, constant, arrays
 from OpenGL import extensions, wrapper
 from OpenGL.GL import glget
 import ctypes
-from OpenGL.raw.GL.ARB.vertex_buffer_object import *
+
+#from OpenGL.raw.GL.ARB.vertex_buffer_object import *
+
+from mock import Mock
+glBufferDataARB = Mock()
+glBufferSubDataARB = Mock()
 
 def _sizeOfArrayInput( pyArgs, index, wrapper ):
         return (

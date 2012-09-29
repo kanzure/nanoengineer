@@ -17,6 +17,7 @@ from utilities.debug import print_compact_traceback
 
 from utilities.exception_classes import AbstractMethod
 
+from mock import Mock
 
 class PM_MolecularModelingKit( PM_GroupBox ):
     """
@@ -36,6 +37,8 @@ class PM_MolecularModelingKit( PM_GroupBox ):
     @see: B{elements.py}
     @see: B{PM.PM_ElementChooser}
     """
+
+    __metaclass__ = Mock()
 
     element        = None
     atomType       = ""

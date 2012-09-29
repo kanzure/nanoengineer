@@ -52,6 +52,8 @@ from utilities.prefs_constants import gamess_enabled_prefs_key
 failpat = re.compile("-ABNORMALLY-")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")
 
+from mock import Mock
+
 # ==
 
 class GamessJob(SimJob):
@@ -62,6 +64,8 @@ class GamessJob(SimJob):
     (2). A gamess job coming from a set of existing files
     in a particular location.
     """
+    __metaclass__ = Mock()
+
     def __init__(self,  job_parms, **job_prop):
         """
         To support the 2 ways of gamess job creation.

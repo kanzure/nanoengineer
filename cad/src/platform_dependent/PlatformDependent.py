@@ -780,8 +780,12 @@ def screen_pos_size(): ###e this copies code in main.py -- main.py should call t
     x,y = 0,0
     w,h = screen_w, screen_h
 
-    y += menubar_height
-    h -= menubar_height
+    try:
+        y += menubar_height
+        h -= menubar_height
+    except Exception as exception:
+        y = 0
+        h = 0
 
     return (x,y), (w,h)
 

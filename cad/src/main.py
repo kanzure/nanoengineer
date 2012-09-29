@@ -62,6 +62,31 @@ and enclosed our own startup code into def _start_NE1().
 
 import sys, os, time
 
+from mock import Mock
+
+mocked_pyqt = Mock()
+mocked_pyqt_qt = Mock()
+mocked_opengl = Mock()
+sys.modules["PyQt4"] = mocked_pyqt
+sys.modules["PyQt4.Qt"] = mocked_pyqt_qt
+sys.modules["PyQt4.QtOpenGL"] = Mock()
+sys.modules["PyQt4.QtGui"] = Mock()
+sys.modules["OpenGL"] = mocked_opengl
+sys.modules["OpenGL.GL"] = Mock()
+sys.modules["OpenGL._GLE"] = Mock()
+sys.modules["OpenGL.GLU"] = Mock()
+sys.modules["OpenGL.GL.ARB"] = Mock()
+sys.modules["OpenGL.GL.ARB.vertex_buffer_object"] = Mock()
+sys.modules["OpenGL.raw.GL.ARB.vertex_buffer_object"] = Mock()
+sys.modules["idlelib"] = Mock()
+sys.modules["idlelib.Delegator"] = Mock()
+sys.modules["LinearAlgebra"] = Mock()
+
+# import numpy; Numeric is numpy.oldnumeric..
+import numpy
+import numpy.oldnumeric
+sys.modules["Numeric"] = numpy.oldnumeric
+
 print
 print "starting NanoEngineer-1 in [%s]," % os.getcwd(), time.asctime()
 print "using Python: " + sys.version

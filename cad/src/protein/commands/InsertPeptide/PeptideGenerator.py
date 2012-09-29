@@ -549,7 +549,7 @@ def enablePeptideGenerator(enable):
     @type  enable: bool
     """
     win = env.mainwindow()
-    win.buildProteinAction.setVisible(enable)
+    #win.buildProteinAction.setVisible(enable)
 
 def get_unit_length(phi, psi):
     """

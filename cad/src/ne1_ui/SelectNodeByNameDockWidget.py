@@ -38,8 +38,11 @@ from utilities.icon_utilities import geticon, getpixmap
 from utilities.prefs_constants import dnaSearchTypeLabelChoice_prefs_key
 from widgets.prefs_widgets import connect_comboBox_with_pref
 
+from mock import Mock
+
 _superclass = PM_DockWidget
 class SelectNodeByNameDockWidget(PM_DockWidget):
+    __metaclass__ = Mock()
     """
     The Ui_DnaSequenceEditor class defines UI elements for the Sequence Editor
     object. The sequence editor is usually visible while in DNA edit mode.

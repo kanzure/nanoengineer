@@ -24,6 +24,7 @@ from utilities.icon_utilities import geticon
 
 from PM.PM_GroupBox import PM_GroupBox
 
+from mock import Mock
 
 class PM_WidgetGrid( PM_GroupBox ):
     """
@@ -35,6 +36,7 @@ class PM_WidgetGrid( PM_GroupBox ):
     custom widgets (toolbuttons) arranged in a grid layout.
 
     """
+    __metaclass__ = Mock()
 
     def __init__(self,
                  parentWidget,

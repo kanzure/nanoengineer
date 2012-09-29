@@ -95,8 +95,8 @@ PM_GRIDLAYOUT_MARGIN  = 1
 PM_GRIDLAYOUT_SPACING = 2
 
 # PM Label alignment constants used for layouts.
-PM_LABEL_RIGHT_ALIGNMENT = Qt.AlignRight | Qt.AlignVCenter
-PM_LABEL_LEFT_ALIGNMENT  = Qt.AlignLeft  | Qt.AlignVCenter
+PM_LABEL_RIGHT_ALIGNMENT = 2 #Qt.AlignRight | Qt.AlignVCenter
+PM_LABEL_LEFT_ALIGNMENT  = 2 #Qt.AlignLeft  | Qt.AlignVCenter
 
 # The side (column) of a PM group box.
 PM_LEFT_COLUMN  = 0
