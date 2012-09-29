@@ -97,7 +97,7 @@ Developer/user group: http://groups.google.com/group/nanoengineer-dev
 
 More information about these images can be found [on the nanorex.com gallery](http://nanoengineer-1.com/content/index.php?option=com_content&task=view&id=36&Itemid=46).
 
-Many of the images and animations in these galleries have been rendered with [QuteMol](http://qutemol.sourceforge.net/), a new open-source, interactive, high quality molecular visualization system which exploits the latest GPU capabilities through OpenGL shaders to offers an array of innovative visual effects. QuteMol was developed by [Marco Tarini](http://vcg.isti.cnr.it/~tarini) and [Paolo Cignoni](http://vcg.isti.cnr.it/~cignoni) of the [Visual Computing Lab](http://vcg.isti.cnr.it/) at [ISTI - CNR](http://www.isti.cnr.it/).
+Many of the images and animations in these galleries have been rendered with [QuteMol](http://qutemol.sourceforge.net/), a new open-source, interactive, high quality molecular visualization system which exploits the latest GPU capabilities through OpenGL shaders to offers an array of innovative visual effects.
 
 <a name="helpfullinks" />
 
